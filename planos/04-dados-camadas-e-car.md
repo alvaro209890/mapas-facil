@@ -29,10 +29,30 @@ Analise_de_area-Julio Barbosa_4_Harmonia/
 │  ├─ AUAS.shp
 │  ├─ APP.shp · ARL.shp · NASCENTE.shp
 ├─ CAR - Emitido (6) (1).pdf      ← recibo do CAR
-├─ SHP/                           ← shapes de apoio, UTM (gerados)
-├─ MXD/                           ← saída
-└─ Mapas/                         ← saída
+├─ Automacoes/
+│  ├─ Resultados/                 ← Alertas_raw.json, Embargos_raw.json (quando houver)
+│  └─ Scripts/mxd_harmonia/       ← scripts manuais históricos (referência, não produto)
+├─ SHP/                           ← shapes de apoio, UTM 22S (homônimos / materializados)
+├─ MXD/                           ← saída (.mxd)
+└─ Mapas/                         ← saída (.pdf)
 ```
+
+Layout de **entrega** do produto (após o motor): pasta autocontida com caminhos relativos —
+ver [`../Fase_1_Desktop/planos/04-motor-mxd.md`](../Fase_1_Desktop/planos/04-motor-mxd.md).
+
+### Alertas e embargos a partir de JSON local
+
+Quando a pasta traz `Alertas_raw.json` / `Embargos_raw.json` (padrão Harmonia):
+
+| Fonte | Materialização | Regra |
+|---|---|---|
+| MapBiomas (`props.geom_simplified`) | `SHP/air_mapbiomas/AIR.shp` | overlay cinza |
+| SCCON “Desmatamento - Corte Raso” | `SHP/air_prodes/AIR.shp` | overlay PRODES |
+| Embargos IBAMA/SEMA vazios | nenhuma feição | **mapa vazio é correto** |
+| Desembargos só-ponto | não desenhar na v1 | evitar falso positivo |
+
+Encoding ao ler DBF FUNAI (latin-1): sanitizar antes de gravar JSON/texto no mapa —
+`s.encode('utf-8','surrogateescape').decode('cp1252')` (já quebrou na Harmonia).
 
 ### Índice do workspace
 

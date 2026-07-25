@@ -5,17 +5,22 @@ Fácil, para as duas fases. O motor `.mxd` da Fase 1, o renderizador nativo, o v
 conformidade e o preview do site medem-se contra este documento.
 
 Calibrado contra o acervo real em [`../Referencias_IMAP/`](../Referencias_IMAP/README.md):
-21 PDFs exportados do ArcMap + os 24 `.mxd` que os geraram, todos da análise **Fazenda
-Harmonia (Julio Barbosa / Vila Rica-MT, 2026-07)**. Os números de geometria abaixo foram
-**medidos** dos PDFs (rasterização a 100 dpi + extração de bounding box de texto), não
-estimados.
 
-> **Decisão de 2026-07-25.** Existe um segundo acervo IMAP mais antigo (Fazenda Trevisol /
-> Querência, versionado em `NexoGeo-Ambiental/referencias/pdf_modelo_imap/`) com padrão visual
-> **diferente**: perímetro vermelho, tudo em paisagem, seta-norte simples, tabela branca. O dono
-> do produto decidiu que **só o perfil Harmonia é a fonte da verdade**. O perfil Trevisol fica
-> no [apêndice](#apêndice--o-perfil-trevisol-descartado) apenas para que ninguém "corrija" o
-> padrão de volta por engano ao olhar o repositório antigo.
+| Pasta | Papel |
+|---|---|
+| [`Mapas/01/`](../Referencias_IMAP/Mapas/01/) | PDFs **Harmonia** — **fonte da verdade** |
+| [`Mapas/02/`](../Referencias_IMAP/Mapas/02/) | PDFs **Trevisol** — contraste; perfil descartado |
+| [`MXD/`](../Referencias_IMAP/MXD/) | `.mxd` + [`DOCUMENTACAO_MXD_HARMONIA.md`](../Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md) |
+
+Os números de geometria abaixo foram **medidos** dos PDFs de `Mapas/01` (rasterização a 100 dpi
++ bbox de texto), não estimados. Receita operacional completa da adaptação manual: a
+documentação MXD (armadilha do arcpy, homônimos, scripts, CRS).
+
+> **Decisão de 2026-07-25.** O segundo acervo (`Mapas/02`, Fazenda Trevisol / Querência) tem
+> padrão visual **diferente**: perímetro vermelho, tudo em paisagem, seta-norte simples, tabela
+> branca. O dono do produto decidiu que **só o perfil Harmonia é a fonte da verdade**. O perfil
+> Trevisol fica no [apêndice](#apêndice--o-perfil-trevisol-descartado) e em `Mapas/02/` apenas
+> para que ninguém "corrija" o padrão de volta por engano.
 
 ## Os dois formatos de página
 
@@ -72,7 +77,7 @@ A4 retrato — 210 × 297 mm
 | Quadro do mapa | 7,0 → 203,5 | 5,0 → 257,0 | centro dos rótulos DMS das 4 bordas |
 | Caixa do título | 63,7 → 132,7 | 3,6 → 21,8 | bbox do texto "Dinâmica 2026" |
 | Rosa dos ventos | 186,3 → 202,0 | 4,0 → 27,0 | glifo `µ` da fonte ESRI North |
-| Tabela quantitativos | ≈ 52 → 200 | ≈ 240 → 256 | raster (é imagem, não texto) |
+| Tabela quantitativos | 67,1 → 203,0 | 40,7 → 60,7 | `adapt_bloco2.py`: elem (6,71·4,07) cm + 13,59×2,00 cm; PNG 3210×472 px |
 | Rótulos DMS inferiores | linha inteira | 257,7 → 263,4 | bbox dos rótulos |
 | Minimapa | 0 → 62 | 262 → 297 | bbox de "Vila Rica" + "MT" |
 | METADADOS IMAGEM | 64,9 → 120 | 265,2 → 291,2 | bbox das 6 linhas |

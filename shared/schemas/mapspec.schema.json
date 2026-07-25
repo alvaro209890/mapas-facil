@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mapasfacil.local/schemas/mapspec.schema.json",
+  "title": "MapSpec",
+  "description": "Contrato declarativo de um mapa IMAP. Ver planos/02-mapspec-contrato.md. contract_version atual: 2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "perfil",
+    "id",
+    "versao",
+    "titulo",
+    "template",
+    "saidas",
+    "imovel",
+    "camadas",
+    "saida"
+  ],
+  "properties": {
+    "contract_version": { "type": "integer", "const": 2 },
+    "perfil": { "type": "string", "enum": ["harmonia"] },
+    "id": { "type": "string", "minLength": 1 },
+    "versao": { "type": "integer", "minimum": 1 },
+    "parent_id": { "type": ["string", "null"] },
+    "titulo": { "type": "string", "minLength": 1 },
+    "template": { "type": "string", "minLength": 1 },
+    "saidas": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["mxd", "pdf", "png", "xlsx", "geojson"] }
+    },
+    "imovel": {
+      "type": "object",
+      "required": ["nome", "car", "municipio", "geometria"],
+      "additionalProperties": false,
+      "properties": {
+        "nome": { "type": "string" },
+        "car": { "type": "string" },
+        "matricula": { "type": ["string", "null"] },
+        "area_total_ha": { "type": ["number", "null"] },
+        "municipio": {
+          "type": "object",
+          "required": ["nome", "uf"],
+          "properties": {
+            "nome": { "type": "string" },
+            "ibge": { "type": "string" },
+            "uf": { "type": "string", "minLength": 2, "maxLength": 2 }
+          }
+        },
+        "geometria": { "type": "string", "description": "ref local.* ou caminho resolvido pelo núcleo" }
+      }
+    },
+    "crs": { "type": "string", "pattern": "^EPSG:[0-9]+$" },
+    "escala": {
+      "oneOf": [
+        { "type": "integer", "minimum": 1 },
+        { "type": "string", "const": "auto" }
+      ]
+    },
+    "extent": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["xmin", "ymin", "xmax", "ymax"],
+          "properties": {
+            "xmin": { "type": "number" },
+            "ymin": { "type": "number" },
+            "xmax": { "type": "number" },
+            "ymax": { "type": "number" }
+          }
+        }
+      ]
+    },
+    "camadas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "nome_no_mxd", "fonte", "estilo", "ordem"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "nome_no_mxd": { "type": "string" },
+          "fonte": { "type": "string" },
+          "estilo": { "type": "string" },
+          "rotulo_texto": { "type": ["string", "null"] },
+          "legenda": { "type": ["string", "null"] },
+          "ordem": { "type": "integer" },
+          "filtro": {
+            "type": "object",
+            "required": ["campo", "operador", "valor"],
+            "properties": {
+              "campo": { "type": "string" },
+              "operador": { "type": "string", "enum": ["=", "!=", "IN", "LIKE"] },
+              "valor": {}
+            }
+          }
+        }
+      }
+    },
+    "basemap": {
+      "type": "object",
+      "properties": {
+        "tipo": { "type": "string" },
+        "mosaico": { "type": "string" },
+        "fallback": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "elementos_layout": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "metadados": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rotulo", "valor"],
+        "properties": {
+          "rotulo": { "type": "string" },
+          "valor": { "type": "string" }
+        }
+      }
+    },
+    "tabela": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["colunas", "linhas"],
+          "properties": {
+            "titulo_bloco": { "type": ["string", "null"] },
+            "colunas": { "type": "array", "items": { "type": "string" } },
+            "linhas": { "type": "array", "items": { "type": "array" } },
+            "total_geral": { "type": "boolean" },
+            "casas_decimais": { "type": "integer", "minimum": 0, "maximum": 6 }
+          }
+        }
+      ]
+    },
+    "saida": {
+      "type": "object",
+      "required": ["pasta", "nome_base"],
+      "properties": {
+        "pasta": { "type": "string" },
+        "nome_base": { "type": "string" },
+        "caminhos_relativos": { "type": "boolean", "default": true },
+        "materializar_camadas_em": { "type": "string", "default": "SHP" }
+      }
+    }
+  }
+}

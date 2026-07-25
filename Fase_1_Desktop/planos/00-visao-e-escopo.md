@@ -140,3 +140,4 @@ Modelo: **DeepSeek V4 Pro**, com chave do próprio usuário. Detalhe em
 | 10 | [Testes](10-testes-e-qa.md) | como se testa isso sem ArcGIS no CI |
 | 11 | [Empacotamento](11-empacotamento-instalador.md) | virar `.exe` |
 | 12 | [Roadmap](12-roadmap.md) | milestones com checklist |
+| 13 | [Checklist de implementação](13-checklist-implementacao.md) | kickoff do código |

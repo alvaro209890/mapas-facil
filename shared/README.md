@@ -13,8 +13,8 @@ shared/
     README.md
     camadas.json          # 32 camadas (Cerebro/NexoGeo, GetCapabilities SEMA 2026-07-08)
     servicos_geo.json     # provedores WFS/WMS/REST/XYZ
-  schemas/                # mapspec.schema.json (a criar / completar no M0)
-  templates/              # (a criar) manifesto dos .mxd operacionais
+  schemas/                # mapspec.schema.json (contract_version 2)
+  templates/              # MANIFEST.json (templates a_preparar)
   styles/                 # (a criar) .lyr oficiais ATP/AVN/AC/AUAS
   contract_version.json   # (a criar)
 ```

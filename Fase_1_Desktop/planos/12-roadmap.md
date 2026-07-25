@@ -31,6 +31,11 @@ completa. M6 só começa quando M5 passa.
 
 ---
 
+## Kickoff
+
+Checklist dia a dia da implementação: [`13-checklist-implementacao.md`](13-checklist-implementacao.md).
+Atualize as caixas no mesmo PR da tarefa.
+
 ## M0 — Documentação e contratos
 
 **Objetivo:** congelar o que será construído antes de escrever código de produção. Evitar o erro
@@ -38,19 +43,21 @@ do NexoGeo — `.mxd` prometido e nunca especificado.
 
 **Entregáveis:**
 
-- Planos F1-00 a F1-12 revisados e consistentes entre si
+- Planos F1-00 a F1-13 revisados e consistentes entre si
 - [`02-mapspec-contrato.md`](../../planos/02-mapspec-contrato.md) com schema JSON e exemplo canônico
 - [`01-padrao-imap-harmonia.md`](../../planos/01-padrao-imap-harmonia.md) com os 14 HARD + 11 SOFT
+- Acervo em `Referencias_IMAP/Mapas/01` (verdade) + `02` (Trevisol) + DOC MXD Harmonia
 - `shared/`: catálogo de camadas, perfil visual, manifesto de templates com `sha256`
 - Fixtures mínimos: `harmonia/` (ou equivalente anonimizado), `mapspecs/` válidos e inválidos
 - `secrets.example.json`; chaves fora dos `.mxd` versionados
 
 **Critério de saída:**
 
-- [ ] Dois revisores (ou dois agentes) leem F1-01 e F1-04 sem achar contradição
+- [x] Planos F1 e comuns reestruturados; acervo 01/02 documentado
+- [x] Nenhum plano menciona backend/site como pré-requisito da Fase 1
 - [ ] Schema do `MapSpec` valida o exemplo canônico e rejeita 10 invariantes documentadas
 - [ ] Manifesto de templates lista cada `.mxd` da v1 com `sha256`
-- [ ] Nenhum plano menciona backend/site como pré-requisito da Fase 1
+- [ ] Dois revisores (ou dois agentes) leem F1-01 e F1-04 sem achar contradição
 
 **Dependências:** nenhuma.
 

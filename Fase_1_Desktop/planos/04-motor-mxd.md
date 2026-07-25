@@ -51,8 +51,13 @@ dos ventos ou moldura em documento vazio. Montar o layout IMAP por código seria
 meio ArcMap.
 
 Partimos dos **`.mxd` reais do acervo** em [`../../Referencias_IMAP/MXD/`](../../Referencias_IMAP/MXD/):
-24 arquivos já diagramados por quem faz esses mapas à mão. Eles passam por uma **preparação
-única** (seção seguinte) e viram templates versionados em `shared/templates/`.
+24 arquivos já diagramados por quem faz esses mapas à mão. Receita operacional completa da
+adaptação Harmonia (o que funcionou e o que travou):
+[`DOCUMENTACAO_MXD_HARMONIA.md`](../../Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md).
+Baseline visual dos PDFs: [`Mapas/01/`](../../Referencias_IMAP/Mapas/01/).
+
+Eles passam por uma **preparação única** (seção seguinte) e viram templates versionados em
+`shared/templates/`.
 
 O motor faz então só o que é confiável: **repontar fontes, ajustar extent e escala, escrever
 texto em elementos nomeados, trocar a definition query do município e exportar**.
@@ -95,6 +100,41 @@ Nome ausente no template = falha `AG-120`, não um PDF silenciosamente errado.
 > `SIEGEF.shp`, `Fazendas_Unidas.shp`), porque `findAndReplaceWorkspacePaths` troca só a **pasta**,
 > não o nome do dataset. Na preparação do template, esses nomes herdados são **normalizados**
 > para os canônicos acima. É preparação única; o motor nunca lida com o nome herdado.
+
+### Donos de legenda e homônimos do acervo
+
+Fonte: [`DOCUMENTACAO_MXD_HARMONIA.md`](../../Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md).
+Enquanto o template **ainda não** foi normalizado (pré-preparação), estas regras salvam a
+legenda — remover a camada “dona” **apaga a entrada** e `arcpy` não recria.
+
+| Homônimo / pasta | Conteúdo | Usado por |
+|---|---|---|
+| `Fazenda_Harmonia.shp` | perímetro (bbox) | cálculo de extensão |
+| `Fazenda_Santa_Clara.shp` | = perímetro | Dinâmica — contorno amarelo visível |
+| `Fazendas_Unidas.shp` | = perímetro | minimapa / “área total” |
+| `SIEGEF.shp` | = perímetro | Embargos_IBAMA |
+| `Embargo.shp` | = perímetro | Tipologia — patch de legenda “Floresta” |
+| `air_mapbiomas/AIR.shp` | alertas MapBiomas (JSON→shp) | Alertas_MAPBIOMAS |
+| `air_prodes/AIR.shp` | alertas corte raso SCCON | Alertas_PRODES* |
+| `Fazenda_Santa_Clara/{AUAS,AC,AVN}.shp` | CAR em UTM 22S | **AUAS** na legenda é desta pasta |
+| `Fazenda_Serra_Verde/{AC,AVN,AUAS}.shp` | CAR em UTM 22S | **AC** e **AVN** na legenda são desta pasta |
+
+Camadas do modelo que **podem** ser removidas sem perder legenda: `"Área concolidada"` (typo),
+`"rf"`, `"AUAS_2026"`, `"Fazenda Serra Verde"` (duplicata visível).
+
+**Meta da preparação do template:** eliminar a necessidade desses homônimos — um `AUAS.shp`
+canônico e entradas de legenda amarradas a ele. Até lá, o motor de desenvolvimento pode ainda
+precisar do mapa da tabela acima ao trabalhar sobre `.mxd` crus do acervo.
+
+### Basemap por ano (série Dinâmica)
+
+| Template | Serviço típico |
+|---|---|
+| 2000, 2008_LANDSAT, 2013 | WMS SEMA Landsat 5/TM |
+| 2008_SPOT | WMS SEMA SPOT |
+| 2017, 2019, 2023, 2026 | WMTS Planet (mosaico mensal) |
+
+Overlay PRODES = só “Desmatamento - Corte Raso”. Manter os dois mapas PRODES da série.
 
 ### Elementos de layout
 
@@ -561,7 +601,7 @@ A cada release ou mudança de template. Windows 11 + ArcMap 10.8.1, licença sin
 - [ ] Conferir a definition query da camada de municípios = `Vila Rica`
 - [ ] Conferir o retângulo do minimapa sobre o imóvel e a linha-guia conectada
 - [ ] Conferir a tabela: 4 casas, `TOTAL GERAL` fechando com a soma visível
-- [ ] Abrir o PDF lado a lado com `Referencias_IMAP/Mapas/Dinamica_2026_quantitativos.pdf`
+- [ ] Abrir o PDF lado a lado com `Referencias_IMAP/Mapas/01/Dinamica_2026_quantitativos.pdf`
 - [ ] **Mover a pasta de entrega inteira para outro disco** e reabrir o `.mxd`: continua resolvendo
 - [ ] **Copiar para outro PC** com ArcMap e reabrir
 - [ ] Repetir o job e comparar os dois PDFs por raster: < 0,3%

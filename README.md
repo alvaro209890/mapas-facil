@@ -54,15 +54,16 @@ Fase 1 (Windows)                    Fase 2 (depois)
 ## Leitura recomendada
 
 1. [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md) — visão, escopo, decisões
-2. [`Fase_1_Desktop/planos/README.md`](Fase_1_Desktop/planos/README.md) — índice e ordem de leitura da fase principal
-3. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md) — o contrato de dados central
+2. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md) — **comece a implementar por aqui**
+3. [`Fase_1_Desktop/planos/README.md`](Fase_1_Desktop/planos/README.md) — índice da fase principal
+4. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md) — o contrato de dados central
 
 ## Estado atual
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **em revisão** (reestruturado em 2 fases em 2026-07-25) |
-| Fase 1 — desenvolvimento | não iniciado |
+| M0 — Planos e contratos | **quase fechado** — fechar schema + manifesto; ver checklist |
+| M1 — Núcleo + MapSpec + fsguard | **próximo** — [checklist bloco A](Fase_1_Desktop/planos/13-checklist-implementacao.md) |
 | Fase 2 — desenvolvimento | não iniciado |
 
 ## Licença

@@ -38,10 +38,11 @@ Valem para as duas fases e vivem na raiz do repositório:
 1. [Visão e as duas fases](../planos/00-visao-e-duas-fases.md) — contexto do produto inteiro
 2. [F1-00 — Visão e escopo](planos/00-visao-e-escopo.md) — escopo e critérios da Fase 1
 3. [Índice dos planos](planos/README.md) — ordem de leitura dos demais documentos
+4. [Checklist de implementação](planos/13-checklist-implementacao.md) — kickoff do código
 
 ## Estado
 
 | Marco | Status |
 |---|---|
-| Planos | F1-00…F1-12 escritos |
-| Código | não iniciado |
+| Planos | F1-00…F1-13 escritos |
+| Código | **próximo:** checklist bloco A |

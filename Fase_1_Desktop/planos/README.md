@@ -21,6 +21,7 @@ ganha — e a divergência tem de ser corrigida no mesmo PR.
 | F1-10 | [Testes e QA](10-testes-e-qa.md) | como testar sem ArcGIS no CI |
 | F1-11 | [Empacotamento e instalador](11-empacotamento-instalador.md) | virar `.exe` assinado |
 | F1-12 | [Roadmap](12-roadmap.md) | milestones com checklist |
+| F1-13 | [Checklist de implementação](13-checklist-implementacao.md) | kickoff — o que fazer agora |
 
 ## Ordem de leitura
 
@@ -40,6 +41,7 @@ A mesma de [F1-00 — Ordem de leitura dos planos](00-visao-e-escopo.md#ordem-de
 | 10 | [Testes](10-testes-e-qa.md) | como se testa isso sem ArcGIS no CI |
 | 11 | [Empacotamento](11-empacotamento-instalador.md) | virar `.exe` |
 | 12 | [Roadmap](12-roadmap.md) | milestones com checklist |
+| 13 | [Checklist de implementação](13-checklist-implementacao.md) | kickoff do código |
 
 Comece por [F1-00](00-visao-e-escopo.md) se ainda não leu a visão geral da fase.
 
@@ -65,5 +67,5 @@ substitui nem antecede o desktop.
 
 | Marco | Status |
 |---|---|
-| Planos F1-00…F1-12 | escritos |
-| Código de produção | não iniciado |
+| Planos F1-00…F1-13 | escritos |
+| Código de produção | **próximo:** [checklist](13-checklist-implementacao.md) bloco A |
