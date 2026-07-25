@@ -1,7 +1,19 @@
 # Ferramentas do repositório
 
-Utilitários de manutenção do acervo versionado. Não fazem parte do produto — servem ao
-desenvolvedor que trabalha com os `.mxd` de referência.
+Utilitários de manutenção do acervo versionado. **Não** fazem parte do produto instalado —
+servem ao desenvolvedor.
+
+Scripts presentes:
+
+| Script | Função |
+|---|---|
+| `chaves_mxd.py` | remove/reinjeta chaves de API nos `.mxd` versionados |
+| `inspecionar_mxd_arcpy.py` | diagnóstico de layout (requer ArcMap) |
+| `normalizar_mxd_arcpy.py` | B1 automatizado parcial (renomear elementos) |
+| `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala para offsets |
+| `inspecionar_mxd_offsets.py` | lê offsets/sentinelas do `.mxd` |
+| `registrar_template.py` | grava sha256/offsets no MANIFEST |
+| `recuperar_zip_truncado.py` | recupera ZIP sem diretório central |
 
 ## `chaves_mxd.py`
 
@@ -119,10 +131,12 @@ pip install -e ".[dev]"
 python -m mapasfacil_nucleo doctor --json
 ```
 
-`doctor` deve reportar ArcMap 10.8, `motor_preferido: arcpy` e template `dinamica_retrato`
-com `status: pronto`.
+`doctor` (Linux) reporta `pronto_para_mxd: false` enquanto houver templates sem sha256 ou
+enquanto nenhum template estiver `status: pronto` (offsets). Em Windows com ArcMap, use
+`doctor --completo` para sondar licença; o executável é buscado em Desktop10.8 / 10.7 / 10.6.
+O MANIFEST de `dinamica_retrato` registra `versao_arcmap: "10.6"` (metadado do arquivo preparado).
 
-## `inspecionar_mxd_offsets.py`
+## `recuperar_zip_truncado.py`
 
 Recupera arquivos de um ZIP **sem diretório central** (download OneDrive/cortado).
 
@@ -133,3 +147,8 @@ python3 ferramentas/recuperar_zip_truncado.py arquivo.zip -o pasta_saida
 
 Usado em 2026-07-25 para `Referencias_IMAP/Mapas/03/OneDrive_1_25-07-2026 (1).zip`
 (faltava só `PRODES_Até_2007.mxd`). Ver [`Referencias_IMAP/Mapas/03/README.md`](../Referencias_IMAP/Mapas/03/README.md).
+
+## `inspecionar_mxd_offsets.py`
+
+Lê offsets/sentinelas de um `.mxd` preparado (após `preparar_sentinelas_arcpy.py`), para
+alimentar `registrar_template.py` / MANIFEST.

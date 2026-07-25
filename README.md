@@ -39,9 +39,9 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** |
 | [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend neste PC via Cloudflare Tunnel |
-| [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, perfil visual, templates |
+| [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
 | [`Referencias_IMAP/`](Referencias_IMAP/README.md) | 21 PDFs-modelo + 24 `.mxd` reais — gabarito visual |
-| [`ferramentas/`](ferramentas/README.md) | utilitários do repositório (remoção/reinjeção de chaves nos `.mxd`) |
+| [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2 de templates, ZIP truncado |
 
 ## Por que desktop primeiro
 

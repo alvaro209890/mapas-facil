@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mapasfacil-nucleo"
 version = "0.3.6"
-description = "Sidecar Python do Mapas Fácil — geo, MapSpec e fsguard"
+description = "Sidecar Python do Mapas Fácil — geo, MapSpec, motores, quantitativos e fsguard"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "Proprietary" }
