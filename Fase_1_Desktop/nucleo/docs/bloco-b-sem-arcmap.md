@@ -6,7 +6,7 @@ Documentação do progresso do **motor `.mxd`** quando o desenvolvimento roda em
 Plano de referência: [`../planos/04-motor-mxd.md`](../planos/04-motor-mxd.md)  
 Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-implementacao.md)
 
-## Resumo (v0.3.4)
+## Resumo (v0.3.5)
 
 | Item | Status | Onde |
 |---|---|---|
@@ -19,7 +19,7 @@ Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-im
 | B7 — Minimapa | Aguarda os 2 últimos elementos de layout (B1) | — |
 | B8 — Patch T2 sem ArcMap | Copia do **template preparado** (`shared/templates/`), não mais do acervo bruto | `motores/patch_mxd.py`, `motores/manifesto.resolver_caminho_preparado` |
 | B9 — Comparar PDF com Harmonia | **Infra anel 1** — `validacao/comparar_pdf.py`, NDJSON `validacao.comparar_pdf`, flag `comparar_baseline` em `mapa.gerar` | `validacao/comparar_pdf.py`, `motores/gerar.py` |
-| Quantitativos (F1-08) | **Cálculo + `.xlsx` + PNG** — `calcular`, `exportar_xlsx`, `renderizar_png_tabela` | `quantitativos/` |
+| Quantitativos (F1-08) | **Cálculo + `.xlsx` + PNG + Conferência** — recibo × calculado | `quantitativos/` |
 | MapSpec diff | **`mapspec.diff`** — diff por id de camada | `mapspec/diff.py` |
 | Doctor | Detecção rápida + `--completo` para sondar arcpy | `doctor.py` |
 | `validacao.json` do job | Consolidado em `mapa.gerar` | `motores/gerar.py` |

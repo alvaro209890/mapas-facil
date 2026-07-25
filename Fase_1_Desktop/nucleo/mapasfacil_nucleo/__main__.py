@@ -116,6 +116,16 @@ def _fontes_idx_do_estado(estado) -> dict[str, str]:
     return fontes_idx
 
 
+def _recibo_do_estado(estado) -> dict[str, Any] | None:
+    rel = estado.indice.get("recibo_car")
+    if not rel:
+        return None
+    try:
+        return parsear_recibo(estado.guard.resolver(rel)).para_dict()
+    except ErroNucleo:
+        return None
+
+
 def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
     mapspec = params.get("mapspec")
     if not isinstance(mapspec, dict):
@@ -129,6 +139,7 @@ def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
         estado.guard,
         _fontes_idx_do_estado(estado),
         comparar_baseline=comparar_baseline,
+        recibo=_recibo_do_estado(estado),
     )
 
 
@@ -243,10 +254,15 @@ def _handler_quantitativos_exportar_xlsx(params: dict[str, Any]) -> dict[str, An
     nome_base = saida_cfg.get("nome_base", "mapa")
     destino_rel = params.get("arquivo") or f"{pasta}/{nome_base}_Quantitativos.xlsx"
     destino = estado.guard.resolver(destino_rel, escrita=True)
-    exportar_xlsx(dados, destino)
+    recibo = _recibo_do_estado(estado)
+    exportar_xlsx(dados, destino, recibo=recibo)
+    from mapasfacil_nucleo.quantitativos.conferencia import montar_conferencia
+
+    conferencia = montar_conferencia(dados, recibo)
     return {
         "xlsx": str(destino.relative_to(estado.guard.raiz)),
         "quantitativos": dados,
+        "conferencia": conferencia,
     }
 
 
