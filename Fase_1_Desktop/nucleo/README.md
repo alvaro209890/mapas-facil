@@ -3,7 +3,7 @@
 Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
 Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
 
-**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.5.
+**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.6.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -36,7 +36,7 @@ nucleo/
       gerar.py            # orquestra MXD + PDF
       patch_mxd.py        # cópia template + patch T2
       arcpy_ponte.py      # subprocesso ArcPy (Windows)
-      nativo.py           # PDF mínimo (matplotlib)
+      nativo.py           # PDF mínimo (matplotlib) + overlay tabela PNG
     scripts/
       arcpy_job.py        # py2.7 — NUNCA importado pelo núcleo 3.12
     validacao/
@@ -82,7 +82,7 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.3.5)
+### Métodos implementados (v0.3.6)
 
 | Método | Descrição |
 |---|---|
@@ -94,7 +94,7 @@ Exemplo de requisição NDJSON:
 | `workspace.reindexar` | atualiza índice |
 | `workspace.inspecionar` | metadados de `.shp` ou PDF |
 | `car.ler_recibo` | parser do recibo (sem CPF) |
-| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos, `.xlsx`, PNG tabela; `comparar_baseline` opcional |
+| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo **com overlay da tabela**, quantitativos, `.xlsx`, PNG tabela; `comparar_baseline` opcional |
 | `quantitativos.calcular` | tabela de áreas a partir das camadas locais |
 | `quantitativos.exportar_xlsx` | grava `*_Quantitativos.xlsx` (inclui aba Conferência com recibo) |
 | `quantitativos.renderizar_png` | grava `recursos/tabela_quantitativos.png` (≥ 600 dpi) |
@@ -119,4 +119,5 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 - B1 manual: preparar template Dinâmica 2026 no ArcMap + offsets no MANIFEST
 - `ogr2ogr` na materialização — feito (opcional); patch de textos aguarda offsets
 - Smoke Harmonia: comparar PDF nativo com `Mapas/01` via `validacao.comparar_pdf` ou `mapa.gerar` com `comparar_baseline: true`
-- Export `.xlsx` (com Conferência) e PNG da tabela — feitos; falta overlay do PNG no PDF nativo
+- Export `.xlsx` (com Conferência) e PNG da tabela — feitos; overlay no PDF nativo feito
+- Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo

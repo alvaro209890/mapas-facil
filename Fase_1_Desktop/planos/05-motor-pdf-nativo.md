@@ -126,10 +126,10 @@ Esse não é bit a bit — mede posição de blocos, cores amostradas e presenç
 - [ ] Legenda com swatch de polígono vazado
 - [ ] Minimapa completo (IBGE gzip, laranja, retângulo, linha-guia, selo UF)
 - [ ] Basemap nos 5 tipos, com validação de magic bytes
-- [ ] Tabela PNG sobreposta
+- [x] Tabela PNG sobreposta
 - [ ] Logo
 - [ ] Export PDF 300 dpi + PNG de preview
-- [ ] `motor: "nativo"` no relatório
+- [x] `motor: "nativo"` no relatório
 - [ ] Regressão visual no CI com golden images
 - [ ] Teste de paridade com os PDFs-modelo
 
