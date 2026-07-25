@@ -14,6 +14,7 @@ from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
+from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
 from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
 from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf, resolver_baseline_template
 from mapasfacil_nucleo.validacao.relatorio import gerar as gerar_validacao
@@ -161,6 +162,27 @@ def gerar_mapa(
         exportar_xlsx(quant, xlsx_path)
         resultado["xlsx"] = str(xlsx_path.relative_to(guard.raiz))
         artefatos["xlsx"] = resultado["xlsx"]
+
+    # PNG da tabela: saidas inclui "png" ou elementos_layout.tabela (F1-08).
+    precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
+    if precisa_png:
+        quant = artefatos.get("quantitativos") or calcular_quantitativos(
+            mapspec, guard=guard, fontes_idx=fontes_idx
+        )
+        artefatos["quantitativos"] = quant
+        pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
+        nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
+        recursos = pasta_saida / "recursos"
+        png_path = recursos / "tabela_quantitativos.png"
+        meta_png = renderizar_png_tabela(quant, png_path)
+        rel_png = str(png_path.relative_to(guard.raiz))
+        resultado["png_tabela"] = rel_png
+        artefatos["png_tabela"] = {**meta_png, "png": rel_png}
+        if not meta_png.get("ok_dpi"):
+            avisos.append(
+                f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
+                "(alvo ≥ 600)."
+            )
 
     relatorio = _montar_validacao_job(mapspec, artefatos, avisos)
     pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)

@@ -101,3 +101,25 @@ def test_ndjson_quantitativos_exportar_xlsx(projeto, mapspec_canonico) -> None:
     resposta = json.loads(processar_linha(req, roteador))
     assert resposta["tipo"] == "res"
     assert (projeto / resposta["resultado"]["xlsx"]).exists()
+
+
+def test_ndjson_quantitativos_renderizar_png(projeto, mapspec_canonico) -> None:
+    workspace_servico.abrir(str(projeto))
+    roteador = criar_roteador()
+    spec = dict(mapspec_canonico)
+    spec["camadas"] = [c for c in spec["camadas"] if c["fonte"].startswith("local.")]
+    spec["saida"] = {"pasta": "Mapas", "nome_base": "Export_png"}
+    req = json.dumps(
+        {
+            "v": 1,
+            "id": "t5",
+            "tipo": "req",
+            "metodo": "quantitativos.renderizar_png",
+            "params": {"mapspec": spec},
+        },
+        ensure_ascii=False,
+    )
+    resposta = json.loads(processar_linha(req, roteador))
+    assert resposta["tipo"] == "res"
+    assert resposta["resultado"]["ok_dpi"] is True
+    assert (projeto / resposta["resultado"]["png"]).exists()

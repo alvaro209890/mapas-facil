@@ -21,6 +21,7 @@ from mapasfacil_nucleo.workspace import servico as workspace_servico
 from mapasfacil_nucleo.workspace.recibo_car import parsear as parsear_recibo
 from mapasfacil_nucleo.motores.manifesto import listar_templates, verificar_template
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
+from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
 from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
 from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf
 from mapasfacil_nucleo.workspace.zip_simcar import extrair as zip_extrair
@@ -44,6 +45,7 @@ def criar_roteador() -> Roteador:
     roteador.registrar("validacao.comparar_pdf", _handler_validacao_comparar_pdf)
     roteador.registrar("quantitativos.calcular", _handler_quantitativos_calcular)
     roteador.registrar("quantitativos.exportar_xlsx", _handler_quantitativos_exportar_xlsx)
+    roteador.registrar("quantitativos.renderizar_png", _handler_quantitativos_renderizar_png)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 
@@ -244,6 +246,39 @@ def _handler_quantitativos_exportar_xlsx(params: dict[str, Any]) -> dict[str, An
     exportar_xlsx(dados, destino)
     return {
         "xlsx": str(destino.relative_to(estado.guard.raiz)),
+        "quantitativos": dados,
+    }
+
+
+def _handler_quantitativos_renderizar_png(params: dict[str, Any]) -> dict[str, Any]:
+    mapspec = params.get("mapspec")
+    if not isinstance(mapspec, dict):
+        raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de renderizar a tabela PNG.")
+
+    dados = params.get("dados")
+    if dados is None:
+        dados = calcular_quantitativos(
+            mapspec,
+            guard=estado.guard,
+            fontes_idx=_fontes_idx_do_estado(estado),
+        )
+    elif not isinstance(dados, dict):
+        raise ErroNucleo("NU-201", "Parâmetro 'dados' inválido.")
+
+    saida_cfg = mapspec.get("saida") or {}
+    pasta = saida_cfg.get("pasta", "Mapas")
+    destino_rel = params.get("arquivo") or f"{pasta}/recursos/tabela_quantitativos.png"
+    destino = estado.guard.resolver(destino_rel, escrita=True)
+    meta = renderizar_png_tabela(dados, destino)
+    return {
+        "png": str(destino.relative_to(estado.guard.raiz)),
+        "dpi_efetivo": meta["dpi_efetivo"],
+        "ok_dpi": meta["ok_dpi"],
+        "largura_px": meta["largura_px"],
+        "altura_px": meta["altura_px"],
         "quantitativos": dados,
     }
 

@@ -45,5 +45,5 @@ Valem para as duas fases e vivem na raiz do repositório:
 | Marco | Status |
 |---|---|
 | Planos | F1-00…F1-13 escritos |
-| Núcleo Python | **bloco A fechado** · bloco B parcial — v0.3.3, CI anel 1 verde |
+| Núcleo Python | **bloco A fechado** · bloco B parcial — v0.3.4, CI anel 1 verde |
 | UI Electron | não iniciado |
