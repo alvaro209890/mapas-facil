@@ -68,4 +68,4 @@ substitui nem antecede o desktop.
 | Marco | Status |
 |---|---|
 | Planos F1-00…F1-13 | escritos |
-| Código de produção | **M1 bloco A** — núcleo, fsguard, validador MapSpec, CI |
+| Código de produção | **M1 bloco A fechado** — próximo: motor `.mxd` (bloco B) |

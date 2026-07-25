@@ -35,10 +35,10 @@ Faça **nesta ordem**. Nada de Electron ainda.
 | A1 | Scaffold `Fase_1_Desktop/nucleo/` (`pyproject.toml`, pacote, `__main__.py` NDJSON) | nucleo | [x] |
 | A2 | `fsguard` + suíte adversária (symlink, `..`, UNC, CON/PRN, escrita fora de `Mapas/MXD/SHP`) | nucleo | [x] |
 | A3 | Schema MapSpec + validador (schema + catálogo + invariantes) | shared + nucleo | [x] |
-| A4 | `workspace.abrir` / `reindexar` / `inspecionar` (shapefile: CRS, bbox, área UTM) | nucleo | [ ] |
-| A5 | Parser do recibo do CAR (CPF descartado na entrada) | nucleo | [ ] |
+| A4 | `workspace.abrir` / `reindexar` / `inspecionar` (shapefile: CRS, bbox, área UTM) | nucleo | [x] |
+| A5 | Parser do recibo do CAR (CPF descartado na entrada) | nucleo | [x] |
 | A6 | CLI `python -m mapasfacil_nucleo doctor` | nucleo | [x] |
-| A7 | Um PDF nativo mínimo (matplotlib) a partir de MapSpec válido + `validacao.json` | nucleo | [ ] |
+| A7 | Um PDF nativo mínimo (matplotlib) a partir de MapSpec válido + `validacao.json` | nucleo | [x] |
 | A8 | `pytest` anel 1 verde em CI Linux | .github/tests | [x] |
 
 **Saída do bloco A:** sidecar sozinho, sem UI, gera um PDF feio mas válido e rejeita path malicioso.
