@@ -1,0 +1,331 @@
+{
+  "_descricao": "Catalogo NexoMap AI. Nao contem credenciais; segredos ficam em secrets.local.json. Endpoints conferidos ao vivo em 2026-07-08 (GetCapabilities SEMA: 135 camadas).",
+  "camadas": [
+    {
+      "id": "car_sema",
+      "nome": "CAR SEMA-MT (requerimentos)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:MVW_REQUERIMENTO_ATP",
+      "auth": "sema_authkey",
+      "descricao": "Requerimentos de CAR no SIMCAR (area total requerida). Use para mostrar CARs vizinhos/sobrepostos."
+    },
+    {
+      "id": "car_atp",
+      "nome": "CAR - Área Total da Propriedade (ATP)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_ATP",
+      "auth": "sema_authkey",
+      "descricao": "Perimetros de CAR validados (CAR digital SEMA-MT). Base oficial do imovel no CAR."
+    },
+    {
+      "id": "car_app",
+      "nome": "CAR - Área de Preservação Permanente (APP)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_APP",
+      "auth": "sema_authkey",
+      "descricao": "APPs do CAR validado (CAR digital)."
+    },
+    {
+      "id": "car_appd",
+      "nome": "CAR - APP Degradada (APPD)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_APPD",
+      "auth": "sema_authkey",
+      "descricao": "APPs degradadas do CAR validado (passivo ambiental)."
+    },
+    {
+      "id": "car_arl",
+      "nome": "CAR - Área de Reserva Legal (ARL)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_ARL",
+      "auth": "sema_authkey",
+      "descricao": "Reservas Legais do CAR validado (CAR digital)."
+    },
+    {
+      "id": "car_avn",
+      "nome": "CAR - Área de Vegetação Nativa (AVN)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_AVN",
+      "auth": "sema_authkey",
+      "descricao": "Vegetacao nativa remanescente do CAR validado. Use em mapas de dinamica/AVN."
+    },
+    {
+      "id": "car_auas",
+      "nome": "CAR - Área de Uso Antropizado (AUAS)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_AUAS",
+      "auth": "sema_authkey",
+      "descricao": "Areas antropizadas/desmatadas do CAR validado. Use em mapas de dinamica/desmatamento."
+    },
+    {
+      "id": "car_nascentes",
+      "nome": "CAR - Nascentes",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_NASCENTE",
+      "auth": "sema_authkey",
+      "descricao": "Nascentes do CAR validado (pontos)."
+    },
+    {
+      "id": "embargos_sema",
+      "nome": "Embargos SEMA",
+      "tema": "embargos",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AREAS_EMBARGADAS_SEMA",
+      "auth": "sema_authkey",
+      "descricao": "Areas embargadas pela SEMA-MT (base historica)."
+    },
+    {
+      "id": "embargos_siga",
+      "nome": "Embargos SIGA (polígonos)",
+      "tema": "embargos",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AREA_EMBARGADA_SIGA_POLIGONO",
+      "auth": "sema_authkey",
+      "descricao": "Areas embargadas no SIGA (sistema atual da SEMA-MT). Prefira esta em mapas de embargo recentes."
+    },
+    {
+      "id": "desembargos_sema",
+      "nome": "Áreas desembargadas SEMA",
+      "tema": "embargos",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AREAS_DESEMBARGADAS_SEMA",
+      "auth": "sema_authkey",
+      "descricao": "Areas ja desembargadas pela SEMA-MT (contraponto dos embargos)."
+    },
+    {
+      "id": "autos_siga",
+      "nome": "Autos de infração SIGA (polígonos)",
+      "tema": "embargos",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AUTOS_DE_INFRACAO_SIGA_POLIGONO",
+      "auth": "sema_authkey",
+      "descricao": "Autos de infracao ambientais lavrados no SIGA (SEMA-MT)."
+    },
+    {
+      "id": "embargos_ibama",
+      "nome": "Embargos IBAMA",
+      "tema": "embargos",
+      "tipo": "arcgis_rest",
+      "endpoint": "https://pamgia.ibama.gov.br/server/rest/services/01_Publicacoes_Bases/adm_embargos_ibama_a/MapServer/0/query",
+      "layer": "adm_embargos_ibama_a",
+      "auth": null,
+      "descricao": "Areas embargadas pelo IBAMA (PAMGIA, GeoJSON). Fonte federal principal de embargos."
+    },
+    {
+      "id": "embargos_ibama_siscom",
+      "nome": "Embargos IBAMA (SISCOM, imagem WMS)",
+      "tema": "embargos",
+      "tipo": "wms_raster",
+      "endpoint": "https://siscom.ibama.gov.br/geoserver/publica/wms",
+      "layer": "publica:vw_brasil_adm_embargo_a",
+      "auth": null,
+      "descricao": "Overlay raster (WMS GetMap) dos embargos do SISCOM/IBAMA. Alternativa quando o PAMGIA cair; o servidor pode bloquear acessos fora do navegador (Cloudflare)."
+    },
+    {
+      "id": "terras_indigenas_funai",
+      "nome": "Terras Indígenas FUNAI",
+      "tema": "areas_protegidas",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geoserver.funai.gov.br/geoserver/ows",
+      "layer": "Funai:tis_poligonais",
+      "auth": null,
+      "descricao": "Terras indigenas oficiais da FUNAI (todas as fases)."
+    },
+    {
+      "id": "unidades_conservacao",
+      "nome": "Unidades de Conservação",
+      "tema": "areas_protegidas",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:UNIDADES_CONSERVACAO",
+      "auth": "sema_authkey",
+      "descricao": "Unidades de conservacao estaduais/federais em MT (SEMA)."
+    },
+    {
+      "id": "alertas_mapbiomas",
+      "nome": "Alertas MapBiomas",
+      "tema": "desmatamento",
+      "tipo": "wms_wfs",
+      "endpoint": "https://production.alerta.mapbiomas.org/geoserver/ows",
+      "layer": "mapbiomas-alertas:v_alerts_last_status",
+      "auth": null,
+      "descricao": "Alertas de desmatamento do MapBiomas Alerta (ultimo status, poligonos validados)."
+    },
+    {
+      "id": "alertas_mapbiomas_simpl",
+      "nome": "Alertas MapBiomas (simplificados)",
+      "tema": "desmatamento",
+      "tipo": "wms_wfs",
+      "endpoint": "https://production.alerta.mapbiomas.org/geoserver/ows",
+      "layer": "mapbiomas-alertas:crew_simplified-alerts",
+      "auth": null,
+      "descricao": "Alertas simplificados do MapBiomas (mais leves; fallback dos alertas completos)."
+    },
+    {
+      "id": "prodes_inpe",
+      "nome": "PRODES INPE",
+      "tema": "desmatamento",
+      "tipo": "wms_raster",
+      "endpoint": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/ows",
+      "layer": "accumulated_deforestation_2007",
+      "auth": null,
+      "descricao": "Desmatamento consolidado PRODES/INPE (Amazonia Legal) — acumulado ate 2007+."
+    },
+    {
+      "id": "tipologia_sema",
+      "nome": "Tipologia vegetal (SIMCAR)",
+      "tema": "tipologia",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_TIPOLOGIA_VEGETAL",
+      "auth": "sema_authkey",
+      "descricao": "Tipologia vegetal (Floresta/Cerrado etc.) do SIMCAR digital. Corrigido em 2026-07-08: o layer antigo Geoportal:TIPOLOGIA nao existe no GeoServer."
+    },
+    {
+      "id": "sigef_particular_mt",
+      "nome": "SIGEF - Certificadas particulares (INCRA)",
+      "tema": "fundiario",
+      "tipo": "wfs_gml",
+      "epsg": 4326,
+      "endpoint": "https://acervofundiario.incra.gov.br/i3geo/ogc.php?tema=certificada_sigef_particular_mt",
+      "layer": "certificada_sigef_particular_mt",
+      "auth": null,
+      "rotulo_atributo": "parcela_codigo",
+      "descricao": "Parcelas certificadas SIGEF particulares em MT (acervo INCRA, GML lon/lat)."
+    },
+    {
+      "id": "sigef_publico_mt",
+      "nome": "SIGEF - Certificadas públicas (INCRA)",
+      "tema": "fundiario",
+      "tipo": "wfs_gml",
+      "epsg": 4326,
+      "endpoint": "https://acervofundiario.incra.gov.br/i3geo/ogc.php?tema=certificada_sigef_publico_mt",
+      "layer": "certificada_sigef_publico_mt",
+      "auth": null,
+      "rotulo_atributo": "parcela_codigo",
+      "descricao": "Parcelas certificadas SIGEF publicas em MT (acervo INCRA, GML lon/lat)."
+    },
+    {
+      "id": "snci_particular_mt",
+      "nome": "SNCI - Imóveis certificados particulares (INCRA)",
+      "tema": "fundiario",
+      "tipo": "wfs_gml",
+      "epsg": 4326,
+      "endpoint": "https://acervofundiario.incra.gov.br/i3geo/ogc.php?tema=imoveiscertificados_privado_mt",
+      "layer": "imoveiscertificados_privado_mt",
+      "auth": null,
+      "descricao": "Imoveis certificados SNCI (sistema anterior ao SIGEF) em MT. Tema corrigido em 2026-07-08 conforme servicos_geo.json."
+    },
+    {
+      "id": "assentamentos_incra",
+      "nome": "Assentamentos (INCRA)",
+      "tema": "fundiario",
+      "tipo": "wfs_gml",
+      "epsg": 4326,
+      "endpoint": "https://acervofundiario.incra.gov.br/i3geo/ogc.php?tema=assentamento_brasil",
+      "layer": "assentamento_brasil",
+      "auth": null,
+      "descricao": "Assentamentos de reforma agraria (acervo INCRA, GML lon/lat)."
+    },
+    {
+      "id": "uso_consolidado",
+      "nome": "Uso Consolidado (SIMCAR)",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:USO_CONSOLIDADO",
+      "auth": "sema_authkey",
+      "descricao": "Area de uso consolidado do imovel no SIMCAR digital (ocupacao anterior a 2008). Cruzar com a ATP para o mapa de uso da propriedade."
+    },
+    {
+      "id": "area_consolidada_simcar",
+      "nome": "Área Consolidada (SIMCAR digital)",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_AREA_CONSOLIDADA",
+      "auth": "sema_authkey",
+      "descricao": "Area consolidada declarada no SIMCAR digital do imovel."
+    },
+    {
+      "id": "simcar_avn",
+      "nome": "Vegetação Nativa - SIMCAR digital (AVN)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_AVN",
+      "auth": "sema_authkey",
+      "descricao": "Vegetacao nativa remanescente declarada no SIMCAR digital. Use em mapas de dinamica/uso."
+    },
+    {
+      "id": "simcar_app",
+      "nome": "APP - SIMCAR digital",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_APP",
+      "auth": "sema_authkey",
+      "descricao": "Areas de Preservacao Permanente declaradas no SIMCAR digital do imovel."
+    },
+    {
+      "id": "simcar_arl",
+      "nome": "Reserva Legal - SIMCAR digital (ARL)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_ARL",
+      "auth": "sema_authkey",
+      "descricao": "Reserva Legal declarada no SIMCAR digital do imovel."
+    },
+    {
+      "id": "simcar_auas",
+      "nome": "Uso Antropizado - SIMCAR digital (AUAS)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_AUAS",
+      "auth": "sema_authkey",
+      "descricao": "Area de uso antropizado/desmatada declarada no SIMCAR digital."
+    },
+    {
+      "id": "simcar_nascente",
+      "nome": "Nascentes - SIMCAR digital",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:SIMCAR_D_NASCENTE",
+      "auth": "sema_authkey",
+      "descricao": "Nascentes declaradas no SIMCAR digital do imovel (pontos)."
+    },
+    {
+      "id": "areas_uso_restrito",
+      "nome": "Áreas de Uso Restrito",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AREAS_USO_RESTRITO",
+      "auth": "sema_authkey",
+      "descricao": "Areas de uso restrito (declividade/veredas etc.) do SIMCAR digital."
+    }
+  ]
+}

@@ -61,7 +61,7 @@ o backend fica em pasta separada do site, como pedido, e o agente é distribuíd
 
 | Milestone | Status |
 |---|---|
-| M0 — Plano e contratos | concluído (planos 00–12 + esqueleto) |
+| M0 — Plano e contratos | concluído (planos 00–13 + catálogo WFS + esqueleto) |
 | M1 — Backend + conversas | não iniciado |
 | M2 — Agente local + `.mxd` real | não iniciado |
 | M3 — Chat com IA e tools | não iniciado |

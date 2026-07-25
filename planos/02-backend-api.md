@@ -331,6 +331,10 @@ agente (um agente = uma máquina = um ArcMap; paralelizar só cria disputa por l
 
 ## Pendências e decisões abertas
 
+0. **Backend não baixa geodado.** Confirmar em code review de todo PR: nenhum `httpx`/`requests`
+   para `sema.mt.gov.br` ou outros endpoints do [`13`](13-wfs-e-servicos-geo.md). Quem resolve
+   WFS é o agente (geobloqueio SEMA + regra de fronteira). O backend só serve o catálogo JSON.
+
 1. **`pasta_destino` do job.** O 01 tem `pasta_destino` em `jobs` e em `job.dispatch`, mas o corpo de
    `POST /v1/jobs` é `{conversation_id, mapspec_id, agent_id, strict_mxd}`. Proposta: derivar de
    `agents.pastas_autorizadas` (primeira pasta de escrita), com campo opcional no corpo para

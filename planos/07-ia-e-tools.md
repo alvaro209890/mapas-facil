@@ -327,7 +327,8 @@ O que **nunca** entra no contexto:
 | # | Pendência | Por que ainda não decidido |
 |---|---|---|
 | P1 | `mover_elemento` e `editar_estilo_elemento` não têm campo de destino no `MapSpec` v1 (só `tabela.posicao`) | exige adicionar um mapa de posições/estilos por elemento no contrato do [`01`](01-arquitetura.md); decidir se vale antes do M4 |
-| P2 | Prefixo das fontes de catálogo | o [`01`](01-arquitetura.md) diz "`local.<id>` ou id do catálogo"; um prefixo explícito (`catalogo.<id>`) seria mais legível para o modelo, mas muda o contrato |
+| P8 | Tool `buscar_car_por_numero` (RPC no agente → `MVW_REQUERIMENTO_ATP`) | receita GeoForest pronta; decide se entra em M3 ou M3.5 — ver [13](13-wfs-e-servicos-geo.md) P4 |
+| P9 | Prefixo das fontes de catálogo | o [`01`](01-arquitetura.md) diz "`local.<id>` ou id do catálogo"; um prefixo explícito (`catalogo.<id>`) seria mais legível para o modelo, mas muda o contrato |
 | P3 | Quem calcula os quantitativos da tabela | hoje o plano é o agente calcular por overlay e o modelo só declarar as colunas; falta definir o formato de `tabela.linhas` quando é calculado |
 | P4 | Modelo default definitivo | depende de rodar as prompts-fixture contra DeepSeek e ao menos um concorrente e comparar taxa de spec idêntico |
 | P5 | Geração automática de título da conversa | o [`01`](01-arquitetura.md) prevê "título gerado depois pela IA"; falta decidir se é chamada separada e barata ou parte do primeiro turno |

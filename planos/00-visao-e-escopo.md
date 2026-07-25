@@ -41,9 +41,22 @@ Três razões, em ordem de peso:
    servidor implicaria licença de servidor ArcGIS, custo proibitivo para o porte do produto.
 2. **Dados.** Os shapefiles do imóvel são dados de cliente (matrícula, CAR, geometria). Não
    subir isso para a nuvem elimina de uma vez a maior parte da superfície de risco e da
-   conversa sobre LGPD.
+   conversa sobre LGPD. Além disso, `sema.mt.gov.br` **bloqueia IP fora do Brasil** — o
+   backend na nuvem (Render/Vercel) nem consegue baixar WFS da SEMA; o agente no PC do
+   usuário resolve isso de graça (lição do GeoForest/Cerebro).
 3. **Fluxo de trabalho.** O técnico quer o `.mxd` na pasta do projeto dele, ao lado dos
    shapefiles, para abrir e ajustar. Download de ZIP é atrito.
+
+### Linhagem técnica
+
+| Fonte | O que entra no Mapas Fácil |
+|---|---|
+| [NexoGeo Ambiental](https://github.com/alvaro209890/NexoGeo-Ambiental) | chat → `MapSpec` → PDF IMAP, tool calling, versionamento; o `.mxd` ficou incompleto |
+| **GeoForest-IA** | cliente WFS/WMS de produção: BBOX+clip local, authkey SEMA, fallbacks de paginação, PAMGIA, INCRA GML |
+| **Cerebro-Geo-IA** | catálogo (`camadas.json`, `servicos_geo.json`), receitas e gotchas (2026-07) |
+
+Receitas WFS detalhadas: [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md).
+Catálogo já versionado: [`../shared/catalog/`](../shared/catalog/).
 
 ## Escopo da v1
 

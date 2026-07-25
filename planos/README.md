@@ -20,6 +20,9 @@ vai ser construído, em que ordem e com quais contratos.
 | 10 | [Roadmap](10-roadmap.md) | Milestones M0–M7 com critérios de aceite |
 | 11 | [Testes e QA](11-testes-e-qa.md) | Pirâmide, runner Windows, evals de IA |
 | 12 | [Deploy](12-deploy-e-distribuicao.md) | Vercel, Render, instalador, CI/CD |
+| 13 | [WFS e serviços geo](13-wfs-e-servicos-geo.md) | Receitas GeoForest: BBOX, authkey, SEMA, PAMGIA, gotchas |
+
+Catálogo machine-readable: [`../shared/catalog/`](../shared/catalog/) (`camadas.json` + `servicos_geo.json`).
 
 ## Regra de precedência
 

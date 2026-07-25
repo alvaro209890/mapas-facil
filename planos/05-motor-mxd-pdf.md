@@ -479,7 +479,7 @@ A cada release do agente ou mudança de template, em Windows 11 + ArcMap 10.8.1,
 | P1 | Preparar os 4 `.mxd` do acervo como templates | trabalho manual no ArcMap; caminho crítico do M2 e ninguém mais pode fazer por nós |
 | P2 | Manter família `.aprx` em paridade com a `.mxd` | custo dobrado de manutenção; adiar até haver usuário só-Pro |
 | P3 | Grade DMS não é controlável por `arcpy.mapping` | se um mapa precisar de intervalo diferente, será um template por intervalo — medir quantos casos reais existem |
-| P4 | Basemap Esri World Imagery exige login do ArcGIS Online no ArcMap | avaliar PLANET via `.lyr` de serviço, ou raster local recortado pelo agente |
+| P4 | Basemap Esri World Imagery exige login do ArcGIS Online no ArcMap | avaliar PLANET via `.lyr` de serviço, raster local recortado pelo agente, ou mosaico SEMA (`Mosaicos:MOSAICO_SPOT_SEPLAN` / Landsat) como fundo WMS — receitas em [13](13-wfs-e-servicos-geo.md) |
 | P5 | Tabela com mais de 8 linhas | fallback para imagem definido; avaliar template "tabela grande" em página separada, como o `Dinamica_2026_quantitativos.pdf` do cliente |
 | P6 | Catálogo de `.lyr` de simbologia | quantas variações de cor e hachura oferecer sem virar editor gráfico? |
 | P7 | Golden images de regressão visual | precisam ser geradas na máquina com ArcMap; decidir se entram no repositório |

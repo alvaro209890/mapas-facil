@@ -161,16 +161,20 @@ difícil de "qual membro escreve no PC de quem": quem pareia a máquina é quem 
 | Segredo | Onde vive | Quem acessa | Rotação |
 |---|---|---|---|
 | Chave do provedor de IA | env var no backend (Render) | processo do backend; 1 mantenedor no painel | trimestral e a cada saída de pessoa; limite de gasto no provedor |
-| `authkey` SEMA (WFS) e chave Planet | env var no backend — a authkey **não** é repassada ao agente, ver nota | backend | quando a SEMA reemitir; Planet, trimestral |
+| `authkey` SEMA (WFS) e chave Planet | **somente no agente** (Credential Manager / env `SEMA_WFS_AUTHKEY`, `PLANET_API_KEY`) — nunca no backend nem no frontend | usuário do PC | quando a SEMA reemitir; Planet, trimestral |
 | `JWT_SECRET` | env var no backend | backend | com janela de dois segredos (novo assina, antigo valida) |
 | `DATABASE_URL` | env var gerenciada pelo Render | backend | ao rotacionar credencial do Postgres |
 | `agent_token` | Credential Manager no PC; `token_hash` no banco | agente local | sob demanda ou por mudança de host |
 | Chave de assinatura de código | cofre do mantenedor / HSM do provedor | só o pipeline de release | conforme validade do certificado |
 
-Nota sobre a `authkey` SEMA: quem baixa WFS é o **agente**, na rede do usuário. As duas saídas óbvias
-são ruins — distribuir a authkey para N máquinas, ou proxyar o WFS pelo backend (dado geoespacial na
-nuvem, contra a regra 2 de [`01`](01-arquitetura.md#regras-de-fronteira-invioláveis)). Decisão da v1:
-só endpoints públicos da SEMA; camadas com authkey ficam fora até haver credencial de curta duração.
+Nota sobre a `authkey` SEMA: quem baixa WFS é o **agente**, na rede do usuário (a SEMA
+bloqueia IP fora do Brasil — lição do GeoForest/Cerebro). A chave **não** passa pelo backend
+nem pelo frontend: o usuário cola a authkey dele na UI do agente, que guarda no Credential
+Manager. O catálogo só declara `auth: "sema_authkey"` (o *nome*). Proxyar WFS pelo backend
+é proibido (geodado na nuvem + geobloqueio). Default no código = string vazia — a dívida de
+authkey hardcoded do GeoForest **não se replica** (CI com gitleaks).
+
+Receitas e gotchas: [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md).
 
 Regras sem exceção: nunca no repositório (`.env.example` lista **nomes** com valor vazio); nunca no
 frontend (só `NEXT_PUBLIC_API_URL` é público, e segredo em `NEXT_PUBLIC_*` é bug bloqueante); nunca em
@@ -310,7 +314,7 @@ Cada item é verificável e tem teste associado em [`11-testes-e-qa.md`](11-test
 
 | # | Questão | Opções | Quando decidir |
 |---|---|---|---|
-| S1 | `authkey` SEMA no agente | só camadas públicas na v1; credencial de curta duração por job; proxy no backend (viola a regra de fronteira) | antes de M2, ao fechar o catálogo WFS |
+| S1 | `authkey` SEMA no agente | usuário cola a chave própria no agente (decisão alinhada ao [13](13-wfs-e-servicos-geo.md)); alternativas descartadas: só camadas públicas / proxy no backend | fechado na v1 — validar UX no M2 |
 | S2 | Assinatura de código do instalador | OV (barato, SmartScreen reclama até ganhar reputação) vs EV (caro, reputação imediata) | antes do primeiro release público |
 | S3 | MFA / passkey | só magic link na v1; WebAuthn depois | ao primeiro cliente com exigência de compliance |
 | S4 | Agente como serviço do Windows ou app de tray | serviço roda sem sessão, mas `arcpy` e licença podem exigir sessão interativa; tray é mais simples e menos privilegiado | durante M2, em máquina real |

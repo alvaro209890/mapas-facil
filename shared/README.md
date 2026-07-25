@@ -2,22 +2,23 @@
 
 Contratos versionados compartilhados por `web/`, `backend/` e `agent/`.
 
-**Status:** esqueleto. Schemas e catálogo entram no primeiro PR de código (antes de M1).
+**Status:** catálogo geo já versionado; schemas JSON entram no primeiro PR de código (M1).
 
-## O que vai viver aqui
+## Conteúdo atual
 
 ```
 shared/
-  schemas/
-    mapspec.schema.json
   catalog/
-    camadas.json          # WFS/WMS permitidos
-    templates.json        # manifesto dos .mxd
-  templates/              # cópias canônicas dos .mxd IMAP (ou refs)
-    MANIFEST.json
-  styles/                 # .lyr oficiais (ATP, AVN, AC, AUAS…)
-  contract_version.json   # versão do contrato (int)
+    README.md
+    camadas.json          # 32 camadas (Cerebro/NexoGeo, GetCapabilities SEMA 2026-07-08)
+    servicos_geo.json     # provedores WFS/WMS/REST/XYZ
+  schemas/                # (a criar) mapspec.schema.json
+  templates/              # (a criar) manifesto dos .mxd operacionais
+  styles/                 # (a criar) .lyr oficiais ATP/AVN/AC/AUAS
+  contract_version.json   # (a criar)
 ```
+
+Documentação operacional do catálogo: [`../planos/13-wfs-e-servicos-geo.md`](../planos/13-wfs-e-servicos-geo.md).
 
 Qualquer mudança de schema ou catálogo incrementa `contract_version` e atualiza
 [01-arquitetura.md](../planos/01-arquitetura.md) no mesmo PR.

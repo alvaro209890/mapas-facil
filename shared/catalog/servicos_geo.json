@@ -1,0 +1,94 @@
+{
+  "_descricao": "Catalogo de servicos geoespaciais usados nas automacoes e nos mapas. Nao contem credenciais; segredos ficam em secrets.local.json.",
+  "sema_mt": {
+    "nome": "SEMA-MT (GeoServer)",
+    "ows": "https://geo.sema.mt.gov.br/geoserver/ows",
+    "tipos": ["wms", "wfs"],
+    "auth": "authkey",
+    "layers": {
+      "car": "Geoportal:MVW_REQUERIMENTO_ATP",
+      "embargos_sema": "Geoportal:AREAS_EMBARGADAS_SEMA",
+      "embargos_siga_poligono": "Geoportal:AREA_EMBARGADA_SIGA_POLIGONO",
+      "desembargos_sema": "Geoportal:AREAS_DESEMBARGADAS_SEMA",
+      "autos_siga_poligono": "Geoportal:AUTOS_DE_INFRACAO_SIGA_POLIGONO",
+      "uc": "Geoportal:UNIDADES_CONSERVACAO"
+    },
+    "temas": ["CAR", "embargos SEMA/SIGA", "autos de infracao", "areas desembargadas", "unidades de conservacao", "tipologia"]
+  },
+  "incra_acervo": {
+    "nome": "INCRA - Acervo Fundiario",
+    "ogc": "http://acervofundiario.incra.gov.br/i3geo/ogc.php",
+    "tipos": ["wfs"],
+    "auth": null,
+    "formato": "GML; geometria em lon/lat EPSG:4326",
+    "temas": {
+      "sigef": "certificada_sigef_particular_mt",
+      "snci": "imoveiscertificados_privado_mt"
+    }
+  },
+  "ibama_siscom": {
+    "nome": "IBAMA - SISCOM",
+    "wms": "http://siscom.ibama.gov.br/geoserver/publica/wms",
+    "tipos": ["wms"],
+    "auth": null,
+    "layers": {
+      "embargos": "publica:vw_brasil_adm_embargo_a"
+    }
+  },
+  "ibama_pamgia": {
+    "nome": "IBAMA - PAMGIA (ArcGIS Server)",
+    "rest": "https://pamgia.ibama.gov.br/server/rest/services/01_Publicacoes_Bases/adm_embargos_ibama_a/MapServer/0/query",
+    "wms": "https://pamgia.ibama.gov.br/server/services/01_Publicacoes_Bases/adm_embargos_ibama_a/MapServer/WMSServer",
+    "tipos": ["rest", "wms"],
+    "auth": null,
+    "temas": ["embargos"]
+  },
+  "inpe_prodes": {
+    "nome": "INPE - TerraBrasilis PRODES",
+    "wms": "http://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/wms",
+    "tipos": ["wms", "wfs"],
+    "auth": null,
+    "temas": ["desmatamento PRODES"]
+  },
+  "mapbiomas_alerta": {
+    "nome": "MapBiomas - Alerta",
+    "ows": "https://production.alerta.mapbiomas.org/geoserver/ows",
+    "tipos": ["wms", "wfs"],
+    "auth": null,
+    "layers": {
+      "alertas": "mapbiomas-alertas:v_alerts_last_status",
+      "alertas_simplificados": "mapbiomas-alertas:crew_simplified-alerts"
+    },
+    "temas": ["alertas de desmatamento"]
+  },
+  "funai": {
+    "nome": "FUNAI (GeoServer)",
+    "ows": "https://geoserver.funai.gov.br/geoserver/ows",
+    "tipos": ["wms", "wfs"],
+    "auth": null,
+    "layers": {
+      "terras_indigenas": "Funai:tis_poligonais"
+    },
+    "temas": ["Terras Indigenas"]
+  },
+  "simcar_publico": {
+    "nome": "SIMCAR - Download Recibo CAR",
+    "api": "https://monitoramento.sema.mt.gov.br/simcar/tecnico.api/api/Publico/DownloadReciboCar/{requerimento_id}",
+    "tipos": ["api"],
+    "auth": null,
+    "obs": "Endpoint descoberto no portal SPA de download de recibos."
+  },
+  "planet_basemaps": {
+    "nome": "Planet - Basemaps",
+    "tiles": "https://tiles.planet.com/basemaps/v1/planet-tiles/{mosaic}/gmap/{z}/{x}/{y}.png",
+    "tipos": ["wmts", "xyz"],
+    "auth": "api_key",
+    "obs": "mosaicos mensais: mosaic = global_monthly_AAAA_MM_mosaic"
+  },
+  "google_sat": {
+    "nome": "Google - Satellite",
+    "tiles": "http://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+    "tipos": ["xyz"],
+    "auth": null
+  }
+}

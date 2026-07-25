@@ -294,7 +294,7 @@ Duas regras de processo em cima da tabela:
 |---|---|---|
 | P1 | Hachuras `xxx` e `///` não têm equivalente direto e programável em `arcpy` do ArcMap | resolver com biblioteca de `.lyr` versionada em `shared/templates/`; depende de ter os arquivos reais do cliente ([`05`](05-motor-mxd-pdf.md)) |
 | P2 | Tabela com mais de 8 linhas | o [`05`](05-motor-mxd-pdf.md) já decidiu a tabela como grade de células nomeadas no template (com fallback de imagem); o teto de linhas do template é o resíduo, e afeta `H11` |
-| P3 | Enum de `basemap.tipo` | precisa ser selado no `mapspec.schema.json`; candidatos: Esri World Imagery, Planet mensal, WMS temático, nenhum |
+| P3 | Enum de `basemap.tipo` | precisa ser selado no `mapspec.schema.json`; candidatos: Esri World Imagery, Planet mensal, mosaico SEMA (`Mosaicos:MOSAICO_SPOT_SEPLAN` / Landsat — ver [13](13-wfs-e-servicos-geo.md)), WMS temático, nenhum |
 | P4 | Limiar exato do `H08` (cobertura de pixels) | precisa de amostra de PDFs válidos e inválidos para calibrar sem falso positivo |
 | P5 | Tolerância do `S02` (sobreposição) | 2% é chute inicial; calibrar contra os 26 PDFs-modelo |
 | P6 | Legenda sem chave de visibilidade em `elementos_layout` | avaliar se algum mapa da série dispensa legenda; se sim, exige alterar o contrato no [`01`](01-arquitetura.md) |

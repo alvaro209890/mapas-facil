@@ -5,6 +5,12 @@ catálogo versionado, o recorte e a reprojeção, o cache, os segredos e os defe
 serviços públicos brasileiros. Os nomes de campo do `MapSpec` e o protocolo do agente são os de
 [`01-arquitetura.md`](01-arquitetura.md).
 
+**Receitas WFS/WMS detalhadas** (URLs, parâmetros, BBOX vs INTERSECTS, authkey, PAMGIA, INCRA):
+[`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md). Catálogo machine-readable já versionado em
+[`../shared/catalog/camadas.json`](../shared/catalog/camadas.json) (32 camadas) e
+[`servicos_geo.json`](../shared/catalog/servicos_geo.json) — origem Cerebro-Geo-IA / NexoGeo,
+conferido no GetCapabilities SEMA 2026-07-08; consumo em produção no GeoForest-IA.
+
 ## Duas classes de dados
 
 | Classe | O que é | Onde vive | Papel no mapa IMAP |
@@ -147,20 +153,25 @@ Nunca a camada inteira. Duas razões: uma camada estadual tem dezenas de milhare
 (carregar `Geoportal:CAR_ATP` de MT inteiro trava a chamada e o ArcMap), e a resposta recortada cabe
 em cache e em disco.
 
-Sequência do recorte, na ordem:
+Sequência do recorte, na ordem (regra de ouro do GeoForest, changelog 2026-07-10):
 
 1. Calcular o bbox do `area_base` no CRS projetado do mapa (`EPSG:31981`/`31982`).
-2. Reprojetar o bbox para o CRS que o serviço espera — normalmente `EPSG:4674` para a SEMA.
+2. Reprojetar o bbox para o CRS que o serviço espera — normalmente `EPSG:4674` para a SEMA —
+   e **expandir ~25%** (mín. 0,002°) para pegar vizinhos na moldura.
 3. Montar a requisição:
-   - **WFS:** `srsName` explícito, `BBOX` no CRS pedido, `outputFormat=application/json` quando
-     suportado, e **sempre** um teto de feições (`count`/`maxFeatures`). Sem teto, a chamada trava —
-     gotcha pago no projeto anterior.
+   - **WFS:** `srsName` explícito, **`BBOX` como método primário** (não `INTERSECTS` — a SEMA
+     perde feições em imóveis grandes sem erro aparente), `outputFormat=application/json` quando
+     suportado, e **sempre** um teto de feições (`count`/`maxFeatures`). Sem teto, a chamada trava.
    - **ArcGIS REST (PAMGIA):** `geometry` como envelope JSON, `geometryType=esriGeometryEnvelope`,
      `inSR`/`outSR`, `spatialRel=esriSpatialRelIntersects`, `resultRecordCount`.
    - **WMS:** `GetMap` com bbox e `height` proporcional ao bbox — bbox e imagem com proporções
-     diferentes geram fundo esticado.
-4. Reprojetar o resultado para o CRS do mapa.
-5. Recortar geometricamente pelo bbox (o servidor devolve feições que *intersectam*, inteiras).
+     diferentes geram fundo esticado; validar magic bytes (HTTP 200 mente).
+4. **Clip fino local** pelo polígono do imóvel (shapely) — o servidor devolve feições que
+   intersectam o bbox, inteiras.
+5. Se BBOX vier vazio → tentar `INTERSECTS` como complemento (nunca o contrário).
+6. Reprojetar o resultado para o CRS do mapa.
+
+Detalhes de URL e parâmetros: [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md).
 
 Limites e paginação:
 

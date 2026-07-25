@@ -26,8 +26,10 @@ mas o checklist formal fecha depois de M2. M7 fecha a v1.
 
 | Entrega | Critério de aceite |
 |---|---|
-| Planos 00–12 escritos | cada documento em `planos/` com pendências listadas |
+| Planos 00–13 escritos | cada documento em `planos/` com pendências listadas |
 | Contratos no 01 | endpoints, WS, MapSpec, tabelas fechados |
+| Catálogo geo | `shared/catalog/camadas.json` + `servicos_geo.json` (32 camadas) |
+| Receitas WFS | plano [13](13-wfs-e-servicos-geo.md) com BBOX, authkey, gotchas GeoForest |
 | Repo público no GitHub | `alvaro209890/mapas-facil` com `main` |
 | Esqueleto de pastas | `web/`, `backend/`, `agent/`, `shared/` com README |
 | Referências IMAP | PDFs e MXDs modelo versionados em `Referencias_IMAP/` |
@@ -59,6 +61,9 @@ Objetivo: um `MapSpec` conhecido, enviado pelo backend, vira `.mxd` + `.pdf` no 
 | WebSocket | `hello`, heartbeat, `job.dispatch` → `job.done` |
 | Doctor | detecta ArcMap 10.x / Pro, Python, licença, templates |
 | `fsguard` | rejeita caminho fora da allowlist (testes unitários) |
+| Cliente WFS (receitas [13](13-wfs-e-servicos-geo.md)) | BBOX+clip local; fallback paginação; authkey no keyring |
+| Catálogo `shared/catalog/` | agente resolve `embargos_siga`, `car_atp`, etc. a partir do JSON |
+| Fixture WFS gravada | smoke com SEMA offline usando resposta cacheada |
 | Script ArcPy | abre template, reponta fontes, salva `.mxd`, exporta PDF |
 | Check de fontes quebradas | `ListBrokenDataSources` vazio no `.mxd` entregue |
 | Smoke manual | Dinâmica 2026 a partir de fixture, em máquina com ArcMap |

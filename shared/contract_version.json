@@ -1,0 +1,9 @@
+{
+  "contract_version": 1,
+  "catalog_hash_note": "Bump this integer whenever shared/catalog/*.json or MapSpec schema changes incompatibly. Agents with older contract_version receive agent_outdated.",
+  "sources": [
+    "Cerebro-Geo-IA/dados/camadas.json",
+    "Cerebro-Geo-IA/dados/servicos_geo.json",
+    "GeoForest-IA backend WFS recipes (2026-07-10 BBOX fix)"
+  ]
+}

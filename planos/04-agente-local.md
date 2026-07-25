@@ -325,21 +325,31 @@ ZIP tiver mais de um shapefile, o agente devolve a lista e a IA precisa escolher
 
 ### WFS externo
 
-Reuso conceitual de `core/nexomap_layers.py` do NexoGeo, que já resolveu isto em produção:
+Receitas completas em [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md). Implementação
+inspirada no GeoForest (`wfs-intersection.ts` / `simcar-clip.ts`) e no NexoGeo
+(`nexomap_layers.py`), com as correções de 2026-07-10:
 
-- `GetFeature` com `bbox` **expandido em 25%** em relação ao bbox da área base, para que feições
-  cortadas na borda não sumam do mapa.
-- WFS 2.0.0 (`typeNames`, `count`, `srsName`) com *fallback* automático para 1.0.0
-  (`typeName`, `maxFeatures`) — servidores públicos brasileiros ainda falham no 2.0.0.
-- Limite de feições por camada (500) para não travar o ArcMap com um recorte gigante.
-- Cache em `%LOCALAPPDATA%\MapasFacil\cache\wfs\<id>_<hash-do-bbox>.geojson`, TTL de 7 dias,
-  teto de 2 GB com descarte LRU.
-- **Fallback quando o serviço cai:** usa o cache mesmo vencido e emite aviso; se não houver cache,
-  a camada sai do mapa e vira aviso no `validacao.json`. Rede indisponível não derruba o job —
-  regra herdada do NexoGeo, que evitou muitas falhas totais por causa de camada secundária.
-- Para entrar no `.mxd`, o GeoJSON recortado vira shapefile em `<job_id>\camadas\<id>.shp`: o
-  `.mxd` precisa apontar para um dataset que continue existindo depois do job, e apontar para
-  `%TEMP%` produziria um `.mxd` quebrado no dia seguinte.
+- **BBOX como método primário** + clip fino local (shapely). `INTERSECTS` da SEMA perde
+  feições em imóveis grandes sem erro — só usar se BBOX vier vazio.
+- `GetFeature` com bbox **expandido ~25%** (mín. 0,002°) para feições na moldura.
+- WFS 2.0.0 (`typeNames`, `count`, `srsName=EPSG:4674`) com *fallback* 1.0.0
+  (`typeName`, `maxFeatures`) — FUNAI e servidores antigos.
+- **Sem `startIndex` cego:** se paginação der 400 (`Cannot do natural order…`) ou timeout
+  (`PagingIsTransactionSafe=FALSE`), uma chamada sem paginação e `resultado_parcial=true`.
+- Limite de feições por camada no mapa: 500–2000 (não os 50.000 da análise GeoForest).
+- PAMGIA (ArcGIS REST→GeoJSON) para embargos IBAMA; SISCOM WMS só como fallback.
+- INCRA: parser GML próprio, timeout 120 s, geometria 4326.
+- `DescribeFeatureType` para descobrir campo de geometria (cache 30 min); não assumir `the_geom`.
+- Cache em `%LOCALAPPDATA%\MapasFacil\cache\wfs\<id>_<hash-bbox>.geojson`, TTL por tema
+  (ver [13](13-wfs-e-servicos-geo.md)).
+- **Fallback quando o serviço cai:** cache mesmo vencido + aviso; sem cache, camada sai e
+  vira warning — rede não derruba o job.
+- Auth: `sema_authkey` / `planet_api_key` no Credential Manager — **default vazio**, nunca
+  hardcoded (dívida do GeoForest que não se replica).
+- Materializar GeoJSON → shapefile em `<job_id>\camadas\<id>.shp` (allowlist), para o `.mxd`
+  continuar abrindo depois do job.
+
+Estrutura sugerida: `layers/{catalog,wfs_client,wms_client,rest_arcgis,gml_incra,clip,cache,secrets}.py`.
 
 ## Modo offline
 

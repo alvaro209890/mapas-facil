@@ -130,9 +130,13 @@ Prefixo `/v1`. Autenticação por `Authorization: Bearer <jwt>` (usuário) ou
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/v1/catalog/layers` | camadas que a IA pode usar (de `shared/catalog/`) |
+| `GET` | `/v1/catalog/layers` | camadas que a IA pode usar (de `shared/catalog/camadas.json`) |
+| `GET` | `/v1/catalog/services` | provedores WFS/WMS/REST (de `shared/catalog/servicos_geo.json`) |
 | `GET` | `/v1/catalog/templates` | templates `.mxd` permitidos |
 | `GET` | `/v1/catalog/version` | `contract_version` + hash do catálogo |
+
+O backend **não** baixa geodado. Quem resolve WFS/WMS é o agente local — a SEMA bloqueia IP
+fora do Brasil. Receitas: [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md).
 | `POST` | `/v1/jobs/{id}/artifacts` | **agente** sobe `preview.png` / `validacao.json` |
 | `GET` | `/v1/artifacts/{id}` | redireciona para URL assinada (TTL 15 min) |
 
