@@ -3,7 +3,7 @@
 Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
 Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
 
-**Status:** M1 **bloco A fechado** (auditoria 2026-07-25); **bloco B parcial** (sem ArcMap). v0.3.2.
+**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.3.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -43,9 +43,11 @@ nucleo/
       relatorio.py
       comparar_pdf.py   # diff raster B9 (anel 1)
     quantitativos/
-      calcular.py       # áreas por camada local (F1-08, sem .xlsx ainda)
+      calcular.py       # áreas por camada local (F1-08)
+      xlsx.py           # export .xlsx estilizado (F1-08)
     mapspec/
-      validar.py          # schema JSON + regras (NU-210, NU-220…)
+      validar.py
+      diff.py           # diff entre versões do MapSpec
   tests/                  # anel 1 — roda no CI Linux
 ```
 
@@ -78,19 +80,21 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.3.2)
+### Métodos implementados (v0.3.3)
 
 | Método | Descrição |
 |---|---|
 | `ping` | smoke test |
 | `doctor.rodar` | diagnóstico (stub em Linux; ArcMap/chave/rede no Windows) |
 | `mapspec.validar` | schema + catálogo + invariantes (CRS, pasta, minimapa, metadados) |
+| `mapspec.diff` | lista operações entre duas versões do MapSpec |
 | `workspace.abrir` | indexa pasta + lê recibo do CAR (`id_local` = stem do `.shp`) |
 | `workspace.reindexar` | atualiza índice |
 | `workspace.inspecionar` | metadados de `.shp` ou PDF |
 | `car.ler_recibo` | parser do recibo (sem CPF) |
-| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos; `comparar_baseline` opcional |
+| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos, `.xlsx`; `comparar_baseline` opcional |
 | `quantitativos.calcular` | tabela de áreas a partir das camadas locais |
+| `quantitativos.exportar_xlsx` | grava `*_Quantitativos.xlsx` com estilo Harmonia |
 | `validacao.comparar_pdf` | diff raster entre dois PDFs (B9, tolerância 0,3%) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` só se hash registrado |
@@ -112,4 +116,4 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 - B1 manual: preparar template Dinâmica 2026 no ArcMap + offsets no MANIFEST
 - `ogr2ogr` na materialização — feito (opcional); patch de textos aguarda offsets
 - Smoke Harmonia: comparar PDF nativo com `Mapas/01` via `validacao.comparar_pdf` ou `mapa.gerar` com `comparar_baseline: true`
-- Export `.xlsx` de quantitativos (F1-08) — cálculo pronto; falta `openpyxl`
+- Export `.xlsx` de quantitativos — feito; falta aba Conferência (recibo) e PNG da tabela (F1-08)

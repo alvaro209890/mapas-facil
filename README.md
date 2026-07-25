@@ -63,7 +63,7 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | Marco | Status |
 |---|---|
 | M0 — Planos e contratos | **fechado** |
-| M1 — Núcleo + MapSpec + fsguard | **A fechado** · **B parcial** (v0.3.2) — ver checklist |
+| M1 — Núcleo + MapSpec + fsguard | **A fechado** · **B parcial** (v0.3.3) — ver checklist |
 | Fase 2 — desenvolvimento | não iniciado |
 
 ## Licença
