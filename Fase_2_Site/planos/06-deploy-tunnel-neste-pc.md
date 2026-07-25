@@ -1,4 +1,8 @@
-# 12 — Deploy e distribuição
+# F2-06 — Deploy e tunnel neste PC
+
+> **LEGADO (2026-07-25).** Corpo ainda descreve Vercel/Render e distribuição do agente Windows.
+> Destino D7: Cloudflare Tunnel dedicado neste PC (`mapasfacil-api.cursar.space` +
+> `mapasfacil.cursar.space`), **sem** tocar nos tunnels existentes. Ver [`README.md`](README.md).
 
 Como cada um dos três artefatos de [`01-arquitetura.md`](01-arquitetura.md) sai do repositório e chega
 ao seu destino, e como eles continuam compatíveis apesar de serem liberados em ritmos diferentes.
@@ -49,7 +53,7 @@ para saber se seu catálogo local está velho.
 |---|---|
 | Projeto e produção | um projeto Vercel com root directory `web/`; branch `main` em produção |
 | Preview | um deploy por PR, URL efêmera, apontando para o backend de **staging** |
-| Variáveis | `NEXT_PUBLIC_API_URL`, a única pública. Nenhum segredo ([`09`](09-seguranca-e-privacidade.md)) |
+| Variáveis | `NEXT_PUBLIC_API_URL`, a única pública. Nenhum segredo ([`09`](../../planos/05-seguranca-e-segredos.md)) |
 | Domínio | `mapasfacil.app` (apex) + redirect de `www`; DNS na Vercel |
 | Headers | HSTS, CSP, `nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy` — no `next.config` e conferidos por teste na CI |
 | Rollback | promover o deploy anterior no painel, instantâneo e sem rebuild |
@@ -103,7 +107,7 @@ CONTRACT_VERSION_MIN      # menor contract_version de agente aceita
 Backup automático diário do plano gerenciado, retenção de 7 dias no início (avaliar 30 dias com cliente
 pagante), dump manual antes de migração de risco guardado fora do provedor, e **restore testado
 trimestralmente** em banco de staging com a suíte de API rodando contra ele — backup não testado não é
-backup. O resultado fica registrado, e o item está no checklist de [`11`](11-testes-e-qa.md).
+backup. O resultado fica registrado, e o item está no checklist de [`11`](../../Fase_1_Desktop/planos/10-testes-e-qa.md).
 
 ## Migrações de banco
 
@@ -147,7 +151,7 @@ runner: windows-latest (build)  +  windows-arcmap (suíte MXD)
 **PyInstaller em modo pasta** (`onedir`), não `onefile`: `onefile` extrai para `%TEMP%` a cada execução,
 o que é lento, atrai antivírus e complica o caminho do subprocess ArcPy. O Python 2.7 do ArcMap **não**
 é empacotado — o agente o localiza pelo registro do Windows, conforme a defesa 4 de
-[`09`](09-seguranca-e-privacidade.md). Templates `.mxd` e catálogo de `shared/` vão embutidos, com hash
+[`09`](../../planos/05-seguranca-e-segredos.md). Templates `.mxd` e catálogo de `shared/` vão embutidos, com hash
 verificado na inicialização, e o build é reprodutível na medida do possível (lockfile com hash, versão
 de Python fixa, runner limpo).
 
@@ -189,7 +193,7 @@ Decisão da v1: começar sem certificado, com instrução honesta na página de 
 verificação, e comprar OV assim que houver usuário externo; EV entra se aparecer cliente com política de
 bloqueio de binário não assinado. **Enquanto não houver assinatura, a atualização automática fica
 desligada** — auto-update sem verificação criptográfica é exatamente o vetor de RCE que
-[`09`](09-seguranca-e-privacidade.md) se propõe a fechar.
+[`09`](../../planos/05-seguranca-e-segredos.md) se propõe a fechar.
 
 ```
 Atualização automática (opt-in): backend -> agent.update {versao, url, sha256}
@@ -238,7 +242,7 @@ web-v1.2.0    api-v1.2.0    agent-v1.2.0    agent-v1.3.0-beta.1
 | banco | Postgres em Docker | Postgres staging (dump anonimizado) | Postgres prod |
 | agente | na mão, apontando para localhost | build `-beta` | instalador do canal estável |
 | IA e e-mail | fake de replay; magic link no console | chave real com modelo barato; provedor em modo teste | modelo de produção; provedor real |
-| Sentry e dados | desligado; fixtures de [`11`](11-testes-e-qa.md) | ambiente `staging`; dump anonimizado | ambiente `prod`; dados reais |
+| Sentry e dados | desligado; fixtures de [`11`](../../Fase_1_Desktop/planos/10-testes-e-qa.md) | ambiente `staging`; dump anonimizado | ambiente `prod`; dados reais |
 
 Promoção: merge em `main` → preview e staging automáticos → tag `api-v*`/`web-v*` para produção. O agente
 tem cadência própria: beta primeiro, na máquina do autor, com a suíte MXD verde, e só depois tag estável.
@@ -252,7 +256,7 @@ como campos. Nunca no log: token, segredo, geometria, conteúdo de mensagem do c
 usuário aparece **apenas** no log local do agente. Sentry no frontend (`tracesSampleRate` baixo, sem
 replay de sessão na v1, que capturaria tela com nome de cliente), no backend (integração ASGI) e no
 agente (envio **opt-in**, com o mesmo aviso do `preview.png`; erro de `arcpy` é o que mais precisamos
-ver), com scrubbing obrigatório testado com evento real ([`11`](11-testes-e-qa.md)):
+ver), com scrubbing obrigatório testado com evento real ([`11`](../../Fase_1_Desktop/planos/10-testes-e-qa.md)):
 
 ```
 C:\Projetos\Fazenda São João - Lote 65\Shapes\avn.shp -> <pasta_usuario>\...\avn.shp
@@ -289,10 +293,10 @@ disco; jobs `queued` com agente online há mais de 10 min; falha de migração n
 | Job preso em `running` | agente caiu no meio sem reconectar, ou `arcpy` travou | cancelar após o timeout; conferir se sobrou `.mxd` parcial na pasta do job (o usuário precisa saber que aquele arquivo não presta) |
 | Deploy com migração falhando no start; muitos `agent_outdated` | serviço não sobe e o log mostra o erro do Alembic; saímos da janela de duas versões e há parque antigo | corrigir a migração e refazer o deploy, nunca rodar migração à mão em produção sem dump (se urgente, rollback do código, que a migração compatível permite); comunicar na UI e por e-mail com link de download, e se a base for grande considerar reabrir a compatibilidade num patch |
 | Suspeita de token de agente vazado | `hostname` divergente no `hello`; `audit_log` com pareamento inesperado | revogar (`DELETE /v1/agents/{id}`), o que derruba o WebSocket na hora; reparear na máquina certa; auditar os jobs criados naquele agente |
-| Segredo vazado; site fora com backend ok | `gitleaks` ou aviso externo; build da Vercel ou DNS | rotacionar primeiro e limpar histórico depois ([`09`](09-seguranca-e-privacidade.md)); promover o deploy anterior ou checar o registro do apex |
+| Segredo vazado; site fora com backend ok | `gitleaks` ou aviso externo; build da Vercel ou DNS | rotacionar primeiro e limpar histórico depois ([`09`](../../planos/05-seguranca-e-segredos.md)); promover o deploy anterior ou checar o registro do apex |
 
 Todo incidente rende três coisas: registro com linha do tempo, um teste que o pegaria antes
-([`11`](11-testes-e-qa.md)) e uma linha nova nesta tabela quando o sintoma for novo.
+([`11`](../../Fase_1_Desktop/planos/10-testes-e-qa.md)) e uma linha nova nesta tabela quando o sintoma for novo.
 
 ## Custos estimados
 
@@ -319,7 +323,7 @@ premissa do produto e a razão de a arquitetura existir para não comprar licen�
 
 | # | Questão | Opções | Quando decidir |
 |---|---|---|---|
-| D1 | Runner `windows-arcmap` e licença de CI | desktop do autor (barato, indisponível às vezes) vs VM Windows dedicada (custo + licença) | antes de M2 — é o gargalo de [`11`](11-testes-e-qa.md) |
+| D1 | Runner `windows-arcmap` e licença de CI | desktop do autor (barato, indisponível às vezes) vs VM Windows dedicada (custo + licença) | antes de M2 — é o gargalo de [`11`](../../Fase_1_Desktop/planos/10-testes-e-qa.md) |
 | D2 | Quando sair de 1 réplica | Redis pub/sub vs `LISTEN/NOTIFY` no Postgres vs manter vertical | quando o teste de carga do hub mostrar o limite |
 | D3 | Certificado de assinatura de código | nenhum na v1; OV ao primeiro usuário externo; EV se houver política corporativa | ao primeiro usuário fora da casa |
 | D4 | Provedor de e-mail transacional; armazenamento do `preview.png` | Resend, Postmark, SES; bucket próprio (S3/R2) vs disco do Render (não persistente) | antes de M1; antes de M3 |

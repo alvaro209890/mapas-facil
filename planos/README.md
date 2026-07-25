@@ -1,39 +1,52 @@
-# Planos de desenvolvimento — Mapas Fácil
+# Planos comuns às duas fases
 
-Fonte da verdade do projeto. Nada de código de produção ainda: estes documentos definem o que
-vai ser construído, em que ordem e com quais contratos.
-
-## Ordem de leitura
+Estes cinco documentos valem para o **app desktop (Fase 1)** e para o **site (Fase 2)**. Se um
+plano de fase divergir de um destes, **este ganha** — e a divergência tem de ser corrigida no
+mesmo PR.
 
 | # | Documento | Conteúdo |
 |---|---|---|
-| 00 | [Visão e escopo](00-visao-e-escopo.md) | Problema, proposta, dentro/fora da v1, critérios de sucesso |
-| 01 | [Arquitetura](01-arquitetura.md) | **Contratos**: endpoints, WebSocket, jobs, MapSpec, modelo de dados |
-| 02 | [Backend](02-backend-api.md) | FastAPI, fila, hub de agentes, LLM, SSE |
-| 03 | [Frontend](03-frontend-chat.md) | Next.js, chat estilo Cursor, preview, pareamento |
-| 04 | [Agente local](04-agente-local.md) | Windows, dois Pythons, allowlist, doctor, instalador |
-| 05 | [Motor MXD/PDF](05-motor-mxd-pdf.md) | Templates ArcMap, arcpy, validação de saída |
-| 06 | [Padrão IMAP](06-padrao-imap.md) | Anatomia da página, estilos, checks HARD/SOFT |
-| 07 | [IA e tools](07-ia-e-tools.md) | Tool calling, system prompt, versionamento |
-| 08 | [Dados e camadas](08-dados-e-camadas.md) | Shapefiles locais, WFS SEMA/IBGE, cache |
-| 09 | [Segurança](09-seguranca-e-privacidade.md) | Pareamento, tokens, LGPD, ameaças |
-| 10 | [Roadmap](10-roadmap.md) | Milestones M0–M7 com critérios de aceite |
-| 11 | [Testes e QA](11-testes-e-qa.md) | Pirâmide, runner Windows, evals de IA |
-| 12 | [Deploy](12-deploy-e-distribuicao.md) | Vercel, Render, instalador, CI/CD |
-| 13 | [WFS e serviços geo](13-wfs-e-servicos-geo.md) | Receitas GeoForest + inventário live 135 layers SEMA + mosaicos + SIMCAR/SCCON |
+| 00 | [Visão e as duas fases](00-visao-e-duas-fases.md) | problema real, proposta, escopo, riscos, decisões D1–D9 |
+| 01 | [Padrão IMAP — perfil Harmonia](01-padrao-imap-harmonia.md) | **fonte da verdade visual**: geometria medida, cores, checks HARD/SOFT |
+| 02 | [`MapSpec` — o contrato](02-mapspec-contrato.md) | o JSON que descreve um mapa, campo a campo |
+| 03 | [WFS e serviços geo](03-wfs-e-servicos-geo.md) | endpoints, receitas de request, gotchas de SEMA/IBAMA/FUNAI/INCRA |
+| 04 | [Dados, camadas e o CAR](04-dados-camadas-e-car.md) | pasta de trabalho, validação de shapefile, recibo do CAR, cache |
+| 05 | [Segurança e segredos](05-seguranca-e-segredos.md) | cofre de chaves, modelo de ameaças, LGPD, incidente 2026-07-25 |
 
-Catálogo machine-readable: [`../shared/catalog/`](../shared/catalog/) —
-`camadas.json`, `servicos_geo.json`, `sema_layers_live.json`, `mosaicos_sema.json`,
-`simcar_template_map.json`.
+## Planos por fase
+
+| Fase | Onde | Prioridade |
+|---|---|---|
+| **1 — App desktop Windows** | [`../Fase_1_Desktop/planos/`](../Fase_1_Desktop/planos/README.md) | **principal** — é onde o `.mxd` nasce |
+| 2 — Site e backend | [`../Fase_2_Site/planos/`](../Fase_2_Site/planos/README.md) | depois da Fase 1 validada |
+
+## Dados versionados
+
+| Pasta | Conteúdo |
+|---|---|
+| [`../shared/`](../shared/README.md) | catálogo de camadas e serviços, schema do `MapSpec`, perfil visual, manifesto de templates |
+| [`../Referencias_IMAP/`](../Referencias_IMAP/README.md) | 21 PDFs-modelo + 24 `.mxd` reais — gabarito de qualquer ajuste de layout |
+| [`../ferramentas/`](../ferramentas/README.md) | utilitários do repositório (hoje: remoção/reinjeção de chaves nos `.mxd`) |
 
 ## Regra de precedência
 
-Se dois documentos divergirem, **[01-arquitetura.md](01-arquitetura.md) ganha**. Endpoints,
-tipos de mensagem WebSocket, campos do `MapSpec` e tabelas do banco só mudam nele — e a mudança
-deve atualizar os demais planos no mesmo PR.
+```
+01-padrao-imap-harmonia.md   ← vence em tudo que é visual
+02-mapspec-contrato.md       ← vence em tudo que é formato de dado
+        ↓
+planos das fases             ← implementam; nunca redefinem
+```
 
-## Referências visuais
+Mudar um campo do `MapSpec`, um endpoint ou uma cor do padrão só acontece nos documentos comuns.
+O PR que muda tem de atualizar os planos de fase afetados junto.
 
-Os PDFs-modelo e `.mxd` reais do padrão IMAP estão em
-[`../Referencias_IMAP/`](../Referencias_IMAP/README.md). Use-os como gabarito em qualquer
-ajuste de layout.
+## Estado
+
+| Marco | Status |
+|---|---|
+| M0 — Planos e contratos | **em revisão** (reestruturado em 2 fases em 2026-07-25) |
+| Fase 1 — desenvolvimento | não iniciado |
+| Fase 2 — desenvolvimento | não iniciado |
+
+Nenhuma linha de código de produção foi escrita. O repositório contém plano, contratos,
+referências visuais e uma ferramenta de segurança.

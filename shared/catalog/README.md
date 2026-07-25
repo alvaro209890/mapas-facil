@@ -1,6 +1,6 @@
 # Catálogo compartilhado
 
-Arquivos machine-readable consumidos por `backend/`, `agent/` e (somente metadados) `web/`.
+Arquivos machine-readable consumidos pelo **núcleo da Fase 1** e pelo **backend da Fase 2**.
 
 | Arquivo | Conteúdo |
 |---|---|
@@ -11,9 +11,9 @@ Arquivos machine-readable consumidos por `backend/`, `agent/` e (somente metadad
 | [`simcar_template_map.json`](simcar_template_map.json) | Template curto → candidatos `Geoportal:SIMCAR_D_*` |
 
 **Não contém credenciais.** O campo `auth` é o *nome* do segredo (`sema_authkey`), nunca o valor.
-Segredos vivem no agente local (Credential Manager / env).
+Segredos vivem no Credential Manager do desktop (Fase 1) ou no cofre deste PC (Fase 2).
 
-Documentação operacional: [`../planos/13-wfs-e-servicos-geo.md`](../planos/13-wfs-e-servicos-geo.md).
+Documentação operacional: [`../../planos/03-wfs-e-servicos-geo.md`](../../planos/03-wfs-e-servicos-geo.md).
 
 Fonte das descobertas: backend GeoForest em `server-desktop` (`wfs-intersection.ts`,
 `simcar-clip.ts`, `Automacao_AUAS/ENDPOINTS.md`, Oráculo `11-endpoints-sema-descobertos.md`).

@@ -1,4 +1,8 @@
-# 02 — Backend (API e orquestração)
+# F2-02 — Backend (API e orquestração)
+
+> **LEGADO (2026-07-25).** Corpo ainda assume Render + hub WebSocket de agentes. Destino D7:
+> FastAPI neste PC, tunnel `mapasfacil-api.cursar.space`, consultas geo locais. Ver
+> [`README.md`](README.md).
 
 Implementação do `backend/`. Os contratos — endpoints, protocolo WebSocket, estados de job, tabelas e
 `MapSpec` — são os de [01-arquitetura.md](01-arquitetura.md) e não são renegociados aqui. O que este
@@ -233,7 +237,7 @@ Regras não negociáveis:
 - **Contabilidade.** `messages.usage` guarda tokens por mensagem; o custo por conversa é a soma, com
   preço por 1k tokens vindo de configuração (muda com frequência). É a base do limite por workspace.
 
-O loop IA ↔ tools, a lista de tools e os prompts estão em [07-ia-e-tools.md](07-ia-e-tools.md). Aqui
+O loop IA ↔ tools, a lista de tools e os prompts estão em [07-ia-e-tools.md](../../Fase_1_Desktop/planos/06-agente-eng-florestal.md). Aqui
 só importa que o loop é o único produtor do SSE e que cada tool que altera o mapa grava nova linha em
 `map_specs` (append-only, `parent_id` apontando para a anterior).
 
@@ -289,7 +293,7 @@ aparecem como HTTP apenas quando consultados via `GET /v1/jobs/{id}`.
 - **Health checks**: `/healthz` responde 200 sem tocar em nada (liveness); `/readyz` faz `SELECT 1` e lê
   o catálogo, devolvendo 503 se faltar algo, para não receber tráfego antes de estar pronto.
 - Correlação com o agente pelo `job_id`, que viaja em todos os eventos WS e junta o log do backend ao do
-  agente ([04-agente-local.md](04-agente-local.md)).
+  agente ([04-agente-local.md](../../Fase_1_Desktop/planos/03-nucleo-python.md)).
 
 ## Configuração por env var
 
@@ -332,7 +336,7 @@ agente (um agente = uma máquina = um ArcMap; paralelizar só cria disputa por l
 ## Pendências e decisões abertas
 
 0. **Backend não baixa geodado.** Confirmar em code review de todo PR: nenhum `httpx`/`requests`
-   para `sema.mt.gov.br` ou outros endpoints do [`13`](13-wfs-e-servicos-geo.md). Quem resolve
+   para `sema.mt.gov.br` ou outros endpoints do [`13`](../../planos/03-wfs-e-servicos-geo.md). Quem resolve
    WFS é o agente (geobloqueio SEMA + regra de fronteira). O backend só serve o catálogo JSON.
 
 1. **`pasta_destino` do job.** O 01 tem `pasta_destino` em `jobs` e em `job.dispatch`, mas o corpo de
@@ -353,7 +357,7 @@ agente (um agente = uma máquina = um ArcMap; paralelizar só cria disputa por l
    usar RLS no Postgres.
 6. **Lacunas de schema do `MapSpec`.** `escala` é número no exemplo e `"auto"` na invariante, o que exige
    união explícita no JSON Schema e a regra de cálculo de `"auto"` em
-   [05-motor-mxd-pdf.md](05-motor-mxd-pdf.md); e `tabela.posicao` usa `in-map-bottom-right` sem enumerar
+   [05-motor-mxd-pdf.md](../../Fase_1_Desktop/planos/04-motor-mxd.md); e `tabela.posicao` usa `in-map-bottom-right` sem enumerar
    valores — sem enumeração fechada, a IA inventa posição e o validador não pega.
 7. **`GET /v1/agents/{id}/doctor` tem efeito colateral** (dispara RPC), o que quebra idempotência e pode
    ser refeito por retry de proxy. Proposta: `POST` para forçar, `GET` para ler o cache.

@@ -1,4 +1,7 @@
-# 03 — Frontend (site e chat)
+# F2-04 — Frontend (site e chat)
+
+> **LEGADO (2026-07-25).** Corpo ainda assume site na Vercel acoplado a agente WS. Destino D7:
+> Next.js em `mapasfacil.cursar.space` consumindo a API neste PC. Ver [`README.md`](README.md).
 
 Implementação do `web/`. Consome exclusivamente os endpoints e eventos de
 [01-arquitetura.md](01-arquitetura.md), com os códigos de erro definidos em

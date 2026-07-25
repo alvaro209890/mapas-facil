@@ -1,8 +1,15 @@
-# 01 — Arquitetura
+# F2-01 — Arquitetura
 
-Este documento é a **fonte da verdade** dos contratos do sistema. Endpoints, protocolo do agente,
-estados de job e formato do `MapSpec` definidos aqui valem para todos os outros planos; se algum
-documento divergir, este ganha.
+> **LEGADO (2026-07-25).** Este texto ainda descreve o modelo antigo **nuvem (Vercel/Render) +
+> agente WebSocket no PC**. A decisão vigente é **D7**: backend neste PC + Cloudflare Tunnel;
+> o `.mxd` nasce na Fase 1. Use como referência histórica até a reescrita. Índice e direção
+> nova: [`README.md`](README.md) e [`00-visao-e-escopo.md`](00-visao-e-escopo.md).
+>
+> A **fonte da verdade** da Fase 1 é [`../../Fase_1_Desktop/planos/01-arquitetura.md`](../../Fase_1_Desktop/planos/01-arquitetura.md).
+> O `MapSpec` e o padrão visual vivem em [`../../planos/`](../../planos/README.md).
+
+Este documento (legado) descrevia endpoints, protocolo do agente, estados de job e um `MapSpec`
+embutido. **Não use como fonte da verdade** até ser reescrito.
 
 ## Os três componentes
 
@@ -136,7 +143,7 @@ Prefixo `/v1`. Autenticação por `Authorization: Bearer <jwt>` (usuário) ou
 | `GET` | `/v1/catalog/version` | `contract_version` + hash do catálogo |
 
 O backend **não** baixa geodado. Quem resolve WFS/WMS é o agente local — a SEMA bloqueia IP
-fora do Brasil. Receitas: [`13-wfs-e-servicos-geo.md`](13-wfs-e-servicos-geo.md).
+fora do Brasil. Receitas: [`13-wfs-e-servicos-geo.md`](../../planos/03-wfs-e-servicos-geo.md).
 | `POST` | `/v1/jobs/{id}/artifacts` | **agente** sobe `preview.png` / `validacao.json` |
 | `GET` | `/v1/artifacts/{id}` | redireciona para URL assinada (TTL 15 min) |
 
@@ -194,7 +201,7 @@ Envelope único para as duas direções:
 | `hello` | `{agent_version, contract_version, os, hostname, doctor, pastas_autorizadas}` | primeira mensagem após conectar |
 | `heartbeat` | `{uptime_s, jobs_ativos}` | a cada 20 s |
 | `job.accepted` | `{job_id}` | aceitou e vai executar |
-| `job.progress` | `{job_id, etapa, pct, mensagem}` | etapas em [`04`](04-agente-local.md) |
+| `job.progress` | `{job_id, etapa, pct, mensagem}` | etapas em [`04`](../../Fase_1_Desktop/planos/03-nucleo-python.md) |
 | `job.log` | `{job_id, nivel, linha}` | log técnico (útil no painel de debug) |
 | `job.artifact` | `{job_id, tipo, nome, caminho_local, bytes, sha256, upload:bool}` | artefato pronto |
 | `job.done` | `{job_id, artefatos, validacao, duracao_ms}` | sucesso |
@@ -337,7 +344,7 @@ Invariantes validadas antes de qualquer job (rejeição, não correção silenci
 | staging | preview Vercel | serviço staging | Postgres staging | build assinado `-beta` |
 | prod | `mapasfacil.app` | `api.mapasfacil.app` | Postgres prod | instalador assinado |
 
-Detalhes em [`12-deploy-e-distribuicao.md`](12-deploy-e-distribuicao.md).
+Detalhes em [`12-deploy-e-distribuicao.md`F-deploy-tunnel-neste-pc.md).
 
 ## O que este desenho deliberadamente não faz
 

@@ -1,17 +1,20 @@
-# 13 — WFS, WMS e serviços geoespaciais
+# 03 — WFS, WMS e serviços geoespaciais
 
 Receitas e contratos de consumo de geoserviços para o Mapas Fácil. Destilado do que
 já funciona em produção no [GeoForest-IA](https://github.com/alvaro209890) (`backend/wfs-intersection.ts`,
 `simcar-clip.ts`) e no catálogo do Cerebro-Geo-IA (conferido ao vivo em 2026-07-08/10).
 
-Este documento é a **fonte operacional** de como o agente baixa dado externo. O catálogo
-machine-readable vive em [`shared/catalog/`](../shared/catalog/). Os nomes de campo do
-`MapSpec` continuam sendo os de [`01-arquitetura.md`](01-arquitetura.md).
+Este documento é a **fonte operacional** de como o núcleo (Fase 1) e o backend neste PC
+(Fase 2) baixam dado externo. O catálogo machine-readable vive em
+[`shared/catalog/`](../shared/catalog/). Os nomes de campo do `MapSpec` estão em
+[`02-mapspec-contrato.md`](02-mapspec-contrato.md); a arquitetura do desktop em
+[`../Fase_1_Desktop/planos/01-arquitetura.md`](../Fase_1_Desktop/planos/01-arquitetura.md).
 
 ## Princípios (aprendidos a custo)
 
-1. **Quem baixa é o agente, no PC do usuário.** `sema.mt.gov.br` bloqueia IP fora do Brasil
-   (`UND_ERR_CONNECT_TIMEOUT` em Render/Vercel). Backend na nuvem **não** faz GetFeature.
+1. **Quem baixa é o PC no Brasil** — núcleo no desktop do usuário (Fase 1) ou backend neste PC
+   (Fase 2). `sema.mt.gov.br` bloqueia IP fora do Brasil (`UND_ERR_CONNECT_TIMEOUT` em
+   Render/Vercel). Backend na nuvem estrangeira **não** faz GetFeature.
 2. **BBOX primeiro, clip fino local.** O `INTERSECTS` do GeoServer da SEMA perde feições em
    imóveis grandes (bug real 2026-07-10: 27 de 75 features de Área Consolidada). Ver seção
    [BBOX vs INTERSECTS](#bbox-vs-intersects-regra-de-ouro).
@@ -249,7 +252,8 @@ o extent casa com o data frame.
 - Planet: `global_monthly_AAAA_MM_mosaic` + `api_key` — idêntico ao PDF-modelo IMAP.
 - Esri World Imagery: default quando não há chave Planet.
 - No `.mxd`, preferir layer de serviço que o ArcMap persista; se XYZ não persistir bem,
-  o PDF leva o basemap e o `.mxd` fica com aviso (pendência do [05](05-motor-mxd-pdf.md)).
+  o PDF leva o basemap e o `.mxd` fica com aviso (pendência do
+  [motor MXD](../Fase_1_Desktop/planos/04-motor-mxd.md)).
 
 ## Cache no agente
 
@@ -408,7 +412,7 @@ default hardcoded — dívida técnica; Mapas Fácil usa default **vazio** + git
 
 Copiados de Cerebro `08-gotchas.md` + changelog GeoForest + sondas no server-desktop:
 
-1. Geo-block SEMA fora do Brasil → agente local (ou PC no Brasil)
+1. Geo-block SEMA fora do Brasil → núcleo no PC do usuário ou backend neste PC (IP BR)
 2. Paginação `startIndex` → fallback single-page (`PagingIsTransactionSafe=FALSE`)
 3. INTERSECTS perde feições → BBOX + clip local
 4. WMS HTTP 200 com XML de erro → magic bytes
