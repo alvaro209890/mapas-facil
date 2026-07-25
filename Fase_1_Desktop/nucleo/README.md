@@ -3,7 +3,7 @@
 Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
 Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
 
-**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.3.
+**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.4.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -45,6 +45,7 @@ nucleo/
     quantitativos/
       calcular.py       # áreas por camada local (F1-08)
       xlsx.py           # export .xlsx estilizado (F1-08)
+      png_tabela.py     # PNG ≥ 600 dpi para o mapa (F1-08)
     mapspec/
       validar.py
       diff.py           # diff entre versões do MapSpec
@@ -80,7 +81,7 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.3.3)
+### Métodos implementados (v0.3.4)
 
 | Método | Descrição |
 |---|---|
@@ -92,9 +93,10 @@ Exemplo de requisição NDJSON:
 | `workspace.reindexar` | atualiza índice |
 | `workspace.inspecionar` | metadados de `.shp` ou PDF |
 | `car.ler_recibo` | parser do recibo (sem CPF) |
-| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos, `.xlsx`; `comparar_baseline` opcional |
+| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos, `.xlsx`, PNG tabela; `comparar_baseline` opcional |
 | `quantitativos.calcular` | tabela de áreas a partir das camadas locais |
 | `quantitativos.exportar_xlsx` | grava `*_Quantitativos.xlsx` com estilo Harmonia |
+| `quantitativos.renderizar_png` | grava `recursos/tabela_quantitativos.png` (≥ 600 dpi) |
 | `validacao.comparar_pdf` | diff raster entre dois PDFs (B9, tolerância 0,3%) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` só se hash registrado |
@@ -116,4 +118,4 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 - B1 manual: preparar template Dinâmica 2026 no ArcMap + offsets no MANIFEST
 - `ogr2ogr` na materialização — feito (opcional); patch de textos aguarda offsets
 - Smoke Harmonia: comparar PDF nativo com `Mapas/01` via `validacao.comparar_pdf` ou `mapa.gerar` com `comparar_baseline: true`
-- Export `.xlsx` de quantitativos — feito; falta aba Conferência (recibo) e PNG da tabela (F1-08)
+- Export `.xlsx` e PNG da tabela — feitos; falta aba Conferência (recibo) e overlay no PDF nativo
