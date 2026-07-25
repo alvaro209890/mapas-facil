@@ -7,7 +7,7 @@ from typing import Any, TextIO
 from mapasfacil_nucleo import doctor
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.mapspec.validar import validar
-from mapasfacil_nucleo.motores.nativo import gerar_mapa
+from mapasfacil_nucleo.motores.gerar import gerar_mapa
 from mapasfacil_nucleo.protocolo import (
     Roteador,
     envelope_erro,
@@ -17,6 +17,9 @@ from mapasfacil_nucleo.protocolo import (
 )
 from mapasfacil_nucleo.workspace import servico as workspace_servico
 from mapasfacil_nucleo.workspace.recibo_car import parsear as parsear_recibo
+from mapasfacil_nucleo.motores.manifesto import listar_templates, verificar_template
+from mapasfacil_nucleo.workspace.zip_simcar import extrair as zip_extrair
+from mapasfacil_nucleo.workspace.zip_simcar import listar as zip_listar
 
 
 def criar_roteador() -> Roteador:
@@ -28,6 +31,10 @@ def criar_roteador() -> Roteador:
     roteador.registrar("workspace.inspecionar", _handler_workspace_inspecionar)
     roteador.registrar("car.ler_recibo", _handler_car_ler_recibo)
     roteador.registrar("mapa.gerar", _handler_mapa_gerar)
+    roteador.registrar("zip.listar", _handler_zip_listar)
+    roteador.registrar("zip.extrair", _handler_zip_extrair)
+    roteador.registrar("template.listar", _handler_template_listar)
+    roteador.registrar("template.verificar", _handler_template_verificar)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 
@@ -78,6 +85,18 @@ def _handler_car_ler_recibo(params: dict[str, Any]) -> dict[str, Any]:
     return dados
 
 
+def _fontes_idx_do_estado(estado) -> dict[str, str]:
+    """Stem + alias de papel curto; stem vence se houver colisão de papel."""
+    fontes_idx: dict[str, str] = {}
+    for item in estado.indice.get("shapefiles", []):
+        fontes_idx[item["id_local"]] = item["caminho"]
+    for item in estado.indice.get("shapefiles", []):
+        papel = item.get("papel")
+        if papel and papel not in fontes_idx:
+            fontes_idx[papel] = item["caminho"]
+    return fontes_idx
+
+
 def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
     mapspec = params.get("mapspec")
     if not isinstance(mapspec, dict):
@@ -85,10 +104,49 @@ def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
     estado = workspace_servico.estado_atual()
     if estado is None:
         raise ErroNucleo("NU-040", "Abra um workspace antes de gerar o mapa.")
-    fontes_idx = {
-        item["id_local"]: item["caminho"] for item in estado.indice.get("shapefiles", [])
-    }
-    return gerar_mapa(mapspec, estado.guard, fontes_idx)
+    return gerar_mapa(mapspec, estado.guard, _fontes_idx_do_estado(estado))
+
+
+def _handler_zip_listar(params: dict[str, Any]) -> dict[str, Any]:
+    caminho = params.get("caminho")
+    if not isinstance(caminho, str) or not caminho:
+        raise ErroNucleo("NU-001", "Parâmetro 'caminho' é obrigatório.")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de listar o ZIP.")
+    return zip_listar(estado.guard.resolver(caminho))
+
+
+def _handler_zip_extrair(params: dict[str, Any]) -> dict[str, Any]:
+    caminho = params.get("caminho")
+    if not isinstance(caminho, str) or not caminho:
+        raise ErroNucleo("NU-001", "Parâmetro 'caminho' é obrigatório.")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de extrair o ZIP.")
+    subpasta = params.get("subpasta")
+    if subpasta is not None and not isinstance(subpasta, str):
+        raise ErroNucleo("NU-001", "Parâmetro 'subpasta' inválido.")
+    return zip_extrair(
+        estado.guard.resolver(caminho),
+        guard=estado.guard,
+        subpasta=subpasta,
+    )
+
+
+def _handler_template_listar(params: dict[str, Any]) -> dict[str, Any]:
+    status = params.get("status")
+    if status is not None and not isinstance(status, str):
+        raise ErroNucleo("NU-001", "Parâmetro 'status' inválido.")
+    templates = listar_templates(status=status)
+    return {"templates": templates, "total": len(templates)}
+
+
+def _handler_template_verificar(params: dict[str, Any]) -> dict[str, Any]:
+    template_id = params.get("id")
+    if not isinstance(template_id, str) or not template_id:
+        raise ErroNucleo("NU-001", "Parâmetro 'id' é obrigatório.")
+    return verificar_template(template_id)
 
 
 def processar_linha(linha: str, roteador: Roteador | None = None) -> str:
@@ -100,6 +158,11 @@ def processar_linha(linha: str, roteador: Roteador | None = None) -> str:
         resposta = roteador.despachar(mensagem)
     except ErroNucleo as exc:
         resposta = envelope_erro(id_req, exc)
+    except Exception as exc:  # noqa: BLE001 — loop NDJSON não pode morrer
+        resposta = envelope_erro(
+            id_req,
+            ErroNucleo("NU-000", f"Erro interno: {exc.__class__.__name__}: {exc}"),
+        )
     return serializar_linha(resposta) + "\n"
 
 

@@ -72,6 +72,7 @@ def verificar_template(template_id: str) -> dict[str, Any]:
         "id": template_id,
         "caminho": str(caminho),
         "sha256": hash_atual,
-        "sha256_ok": esperado is None or esperado == hash_atual,
+        "sha256_ok": esperado is not None and esperado == hash_atual,
         "status": tpl.get("status"),
+        "preparado": esperado is not None,
     }

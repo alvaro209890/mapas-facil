@@ -10,9 +10,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from shapely.geometry import shape
 from shapely.ops import transform
 
-from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
-from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.validacao.relatorio import gerar, salvar
 from mapasfacil_nucleo.workspace.shapefile import _abrir_reader, _shapes_para_geometrias, inspecionar
 
@@ -29,7 +27,8 @@ def _plotar_camadas(ax, camadas: list[dict], fontes_idx: dict[str, str], guard: 
     from pyproj import Transformer
 
     desenhadas = 0
-    for camada in sorted(camadas, key=lambda c: c.get("ordem", 0)):
+    # Menor `ordem` desenha por cima (perímetro 10 acima das hachuras 20/30).
+    for camada in sorted(camadas, key=lambda c: c.get("ordem", 0), reverse=True):
         fonte = camada.get("fonte", "")
         rel = _resolver_fonte_local(fonte, fontes_idx)
         if not rel:
@@ -51,15 +50,18 @@ def _plotar_camadas(ax, camadas: list[dict], fontes_idx: dict[str, str], guard: 
         }.get(estilo, "#666666")
         for geom in geometrias:
             geom = transform(transformer.transform, geom)
+            polys = []
             if geom.geom_type == "Polygon":
-                xs, ys = geom.exterior.xy
+                polys = [geom]
             elif geom.geom_type == "MultiPolygon":
-                xs, ys = geom.geoms[0].exterior.xy
+                polys = list(geom.geoms)
             else:
                 continue
-            ax.plot(xs, ys, color=cor, linewidth=1.2)
-            ax.fill(xs, ys, alpha=0.15, color=cor)
-            desenhadas += 1
+            for poly in polys:
+                xs, ys = poly.exterior.xy
+                ax.plot(xs, ys, color=cor, linewidth=1.2)
+                ax.fill(xs, ys, alpha=0.15, color=cor)
+                desenhadas += 1
     return desenhadas
 
 
@@ -95,16 +97,4 @@ def gerar_pdf_minimo(
         "pdf": str(pdf_path.relative_to(guard.raiz)),
         "validacao": str(json_path.relative_to(guard.raiz)),
         "validacao_dados": relatorio,
-    }
-
-
-def gerar_mapa(mapspec: dict[str, Any], guard: WorkspaceGuard, fontes_idx: dict[str, str]) -> dict[str, Any]:
-    resultado_val = validar(mapspec, fontes_locais=frozenset(fontes_idx))
-    if not resultado_val["valido"]:
-        primeiro = resultado_val["erros"][0]
-        raise ErroNucleo(primeiro["codigo"], primeiro["mensagem"], {"erros": resultado_val["erros"]})
-    pdf_path, artefatos = gerar_pdf_minimo(mapspec, guard=guard, fontes_idx=fontes_idx)
-    return {
-        "artefatos": artefatos,
-        "pdf": str(pdf_path.relative_to(guard.raiz)),
     }

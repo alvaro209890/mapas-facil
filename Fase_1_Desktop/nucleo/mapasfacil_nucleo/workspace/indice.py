@@ -6,13 +6,24 @@ from pathlib import Path
 from typing import Any
 
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
-from mapasfacil_nucleo.workspace.papeis import detectar_papel
+from mapasfacil_nucleo.workspace.papeis import detectar_papel, id_local_de_arquivo
 from mapasfacil_nucleo.workspace.recibo_car import eh_recibo_car, parsear
 from mapasfacil_nucleo.workspace.shapefile import MetadadosShapefile, inspecionar
 
 
 def _relativo(raiz: Path, caminho: Path) -> str:
     return caminho.relative_to(raiz).as_posix()
+
+
+def _montar_fontes(shapefiles: list[dict[str, Any]]) -> list[str]:
+    """Stems + aliases de papel curto (AC, TIPOLOGIA…) sem perder camadas distintas."""
+    fontes: set[str] = set()
+    for item in shapefiles:
+        fontes.add(item["id_local"])
+        papel = item.get("papel")
+        if papel:
+            fontes.add(papel)
+    return sorted(fontes)
 
 
 def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
@@ -38,7 +49,7 @@ def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
                     {
                         "caminho": rel,
                         "papel": papel,
-                        "id_local": papel or Path(nome).stem.upper(),
+                        "id_local": id_local_de_arquivo(nome),
                         **{k: v for k, v in asdict(meta).items() if k != "caminho"},
                     }
                 )
@@ -58,7 +69,7 @@ def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
             elif nome.lower().endswith((".mxd", ".png", ".jpg", ".jpeg")):
                 outros.append({"caminho": rel, "tipo": Path(nome).suffix.lower()})
 
-    fontes_locais = {item["id_local"] for item in shapefiles}
+    fontes_locais = _montar_fontes(shapefiles)
     recibo_detectado = next((p for p in pdfs if p.get("recibo_car")), None)
 
     return {
@@ -67,7 +78,7 @@ def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
         "pdfs": sorted(pdfs, key=lambda x: x["caminho"]),
         "zips": sorted(zips, key=lambda x: x["caminho"]),
         "outros": sorted(outros, key=lambda x: x["caminho"]),
-        "fontes_locais": sorted(fontes_locais),
+        "fontes_locais": fontes_locais,
         "recibo_car": recibo_detectado["caminho"] if recibo_detectado else None,
     }
 

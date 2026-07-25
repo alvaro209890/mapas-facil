@@ -62,8 +62,9 @@ Fase 1 (Windows)                    Fase 2 (depois)
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **quase fechado** — fixtures MapSpec; ver checklist |
-| M1 — Núcleo + MapSpec + fsguard | **bloco A fechado** — bloco B (motor `.mxd`) é o próximo |
+| M0 — Planos e contratos | **fechado** |
+| M1 — Núcleo + MapSpec + fsguard | **A fechado** · **B parcial** (v0.3.1) — ver checklist |
+| Fase 2 — desenvolvimento | não iniciado |
 | Fase 2 — desenvolvimento | não iniciado |
 
 ## Licença

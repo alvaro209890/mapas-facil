@@ -48,10 +48,17 @@ def test_simcar_camadas_vazias_nao_invalidam(simcar_03: Path) -> None:
 def test_simcar_indexacao_completa(simcar_03: Path) -> None:
     idx = varrer(simcar_03)
     assert len(idx["shapefiles"]) == 37
+    ids = {s["id_local"] for s in idx["shapefiles"]}
+    assert "ARL_CERRADO_PRESERVADA" in ids
+    assert "RIO_ATE_10" in ids
+    assert "AREA_CONSOLIDADA" in ids
+    assert "AC" in idx["fontes_locais"]  # alias de papel
+    assert len(ids) == 37  # sem colisão de id_local
     vazios = [s for s in idx["shapefiles"] if s["vazia"]]
     assert len(vazios) >= 10
     atp = next(s for s in idx["shapefiles"] if s["papel"] == "ATP")
     assert atp["feicoes"] == 1
+    assert atp["id_local"] == "ATP"
 
 
 def test_workspace_abrir_simcar_03(simcar_03: Path) -> None:

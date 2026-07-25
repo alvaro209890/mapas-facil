@@ -44,7 +44,7 @@
           "type": "object",
           "required": ["nome", "uf"],
           "properties": {
-            "nome": { "type": "string" },
+            "nome": { "type": "string", "minLength": 1 },
             "ibge": { "type": "string" },
             "uf": { "type": "string", "minLength": 2, "maxLength": 2 }
           }
@@ -94,7 +94,10 @@
             "required": ["campo", "operador", "valor"],
             "properties": {
               "campo": { "type": "string" },
-              "operador": { "type": "string", "enum": ["=", "!=", "IN", "LIKE"] },
+              "operador": {
+                "type": "string",
+                "enum": ["=", "<>", "!=", ">", "<", ">=", "<=", "IN", "LIKE"]
+              },
               "valor": {}
             }
           }

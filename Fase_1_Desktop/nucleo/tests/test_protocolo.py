@@ -62,3 +62,16 @@ def test_envelope_res_serializa() -> None:
 def test_parsear_linha_nao_objeto() -> None:
     with pytest.raises(ErroNucleo):
         parsear_linha("[1,2,3]")
+
+
+def test_ndjson_nao_morre_com_excecao_inesperada() -> None:
+    roteador = __main__.criar_roteador()
+
+    def _boom(_params):
+        raise RuntimeError("explodiu")
+
+    roteador.registrar("ping", _boom)
+    linha = json.dumps(envelope_req("ping", {}))
+    resposta = json.loads(processar_linha(linha, roteador))
+    assert resposta["ok"] is False
+    assert resposta["erro"]["codigo"] == "NU-000"

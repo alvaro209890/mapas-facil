@@ -3,9 +3,8 @@ from __future__ import annotations
 import re
 import unicodedata
 
-# Papéis reconhecidos no índice do workspace.
-# Nomes calibrados contra Referencias_IMAP/Mapas/03/Arquivo Processado (11)/ (SIMCAR)
-# e contra o acervo Harmonia (Mapas/01 + DOC MXD).
+# Papéis semânticos (SIMCAR / Harmonia). id_local do índice = stem do arquivo;
+# o papel é metadado separado — evita colisão ARL_* / RIO_*.
 PAPEIS_CANONICOS: dict[str, frozenset[str]] = {
     "ATP": frozenset(
         {"ATP", "AREA_IMOVEL", "PERIMETRO", "AREA_TOTAL", "SIEGEF", "SIGEF", "FAZENDA_HARMONIA"}
@@ -51,17 +50,19 @@ PAPEIS_CANONICOS: dict[str, frozenset[str]] = {
     "AREA_ABRANGENCIA": frozenset({"AREA_ABRANGENCIA"}),
 }
 
-# Normalização de aliases soltos → nome canônico de papel (após _normalizar_nome)
-ALIASES: dict[str, str] = {
+# Stem normalizado → papel (quando o nome do arquivo não é o papel curto)
+ALIASES_PARA_PAPEL: dict[str, str] = {
     "AREA_CONSOLIDADA": "AC",
     "AREA_USO_RESTRITO": "AREA_USO_RESTRITO",
     "AREAS_USO_RESTRITO": "AREA_USO_RESTRITO",
     "VEREDAS": "VEREDA",
     "TIPOLOGIA_VEGETAL": "TIPOLOGIA",
+    "VEGETACAO_NATIVA": "AVN",
 }
 
 
-def _normalizar_nome(nome: str) -> str:
+def normalizar_stem(nome: str) -> str:
+    """Stem ASCII upper — usado como id_local estável (local.<stem>)."""
     sem_ext = nome.rsplit(".", 1)[0]
     texto = unicodedata.normalize("NFKD", sem_ext)
     texto = "".join(ch for ch in texto if not unicodedata.combining(ch))
@@ -71,12 +72,17 @@ def _normalizar_nome(nome: str) -> str:
 
 
 def detectar_papel(nome_arquivo: str) -> str | None:
-    base = _normalizar_nome(nome_arquivo)
-    if base in ALIASES:
-        base = ALIASES[base]
+    base = normalizar_stem(nome_arquivo)
+    if base in ALIASES_PARA_PAPEL:
+        return ALIASES_PARA_PAPEL[base]
     for papel, nomes in PAPEIS_CANONICOS.items():
         if base in nomes or base == papel:
             return papel
         if base.endswith(f"_{papel}") or base.startswith(f"{papel}_"):
             return papel
     return None
+
+
+def id_local_de_arquivo(nome_arquivo: str) -> str:
+    """Chave única para fontes_locais / local.* — nunca colide entre ARL_*."""
+    return normalizar_stem(nome_arquivo)

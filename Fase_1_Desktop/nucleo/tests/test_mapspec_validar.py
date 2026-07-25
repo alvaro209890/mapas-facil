@@ -66,3 +66,51 @@ def test_rejeita_nome_base_com_acento(mapspec_canonico: dict) -> None:
     )
     assert resultado["valido"] is False
     assert any(e["codigo"] == "NU-215" for e in resultado["erros"])
+
+
+def test_rejeita_crs_geografico(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["crs"] = "EPSG:4674"
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-221" for e in resultado["erros"])
+
+
+def test_rejeita_pasta_absoluta(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["saida"]["pasta"] = "/tmp"
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-224" for e in resultado["erros"])
+
+
+def test_rejeita_municipio_vazio_com_minimapa(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["imovel"]["municipio"]["nome"] = ""
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] in {"NU-201", "NU-222"} for e in resultado["erros"])
+
+
+def test_rejeita_metadado_vazio(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["metadados"][0]["valor"] = ""
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-223" for e in resultado["erros"])
+
+
+def test_aviso_template_sem_sha256(mapspec_canonico: dict) -> None:
+    resultado = validar(
+        mapspec_canonico,
+        fontes_locais=frozenset({"ATP", "AVN", "AUAS"}),
+    )
+    assert resultado["valido"] is True
+    assert any(a["codigo"] == "AG-030" for a in resultado["avisos"])
+
+
+def test_aceita_operador_diferente(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["camadas"][3]["filtro"]["operador"] = "<>"
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is True

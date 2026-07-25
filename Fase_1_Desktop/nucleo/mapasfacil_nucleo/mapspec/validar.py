@@ -7,8 +7,9 @@ from typing import Any
 
 import jsonschema
 from jsonschema import Draft202012Validator
+from pyproj import CRS
 
-from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared
+from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, PASTAS_ESCRITA, caminho_shared
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import nome_base_ascii_valido
 
@@ -26,7 +27,10 @@ ESTILOS_PERMITIDOS: frozenset[str] = frozenset(
     }
 )
 
-OPERADORES_FILTRO = frozenset({"=", "!=", "IN", "LIKE"})
+# Plano 02: =, <>, >, <, >=, <=, IN, LIKE — aceitamos != como sinônimo de <>
+OPERADORES_FILTRO = frozenset({"=", "<>", "!=", ">", "<", ">=", "<=", "IN", "LIKE"})
+
+CRS_GEOGRAFICOS_COMUNS = frozenset({"EPSG:4326", "EPSG:4674", "EPSG:4269", "EPSG:3889"})
 
 
 @lru_cache(maxsize=1)
@@ -52,11 +56,40 @@ def _template_ids() -> frozenset[str]:
     return frozenset(item["id"] for item in dados.get("templates", []))
 
 
+@lru_cache(maxsize=1)
+def _templates_por_id() -> dict[str, dict[str, Any]]:
+    caminho = caminho_shared("templates", "MANIFEST.json")
+    with caminho.open(encoding="utf-8") as fh:
+        dados = json.load(fh)
+    return {item["id"]: item for item in dados.get("templates", []) if item.get("id")}
+
+
 def _erro(codigo: str, mensagem: str, campo: str | None = None) -> dict[str, str]:
     item = {"codigo": codigo, "mensagem": mensagem}
     if campo:
         item["campo"] = campo
     return item
+
+
+def _crs_eh_geografico(crs: str) -> bool:
+    chave = crs.strip().upper()
+    if chave in CRS_GEOGRAFICOS_COMUNS:
+        return True
+    try:
+        return bool(CRS.from_user_input(crs).is_geographic)
+    except Exception:
+        return False
+
+
+def _pasta_saida_ok(pasta: str) -> bool:
+    """Relativo ao workspace e sob pasta de escrita (Mapas/MXD/SHP/_extraido) ou nome simples."""
+    if not pasta or pasta.startswith(("/", "\\")) or ".." in Path(pasta).parts:
+        return False
+    # UNC / unidade absoluta estilo Windows
+    if len(pasta) >= 2 and pasta[1] == ":":
+        return False
+    primeiro = Path(pasta).parts[0]
+    return primeiro in PASTAS_ESCRITA or pasta in PASTAS_ESCRITA
 
 
 def validar_schema(mapspec: dict[str, Any]) -> list[dict[str, str]]:
@@ -78,6 +111,11 @@ def validar_regras(
     template = mapspec.get("template")
     if isinstance(template, str) and template not in _template_ids():
         erros.append(_erro("NU-205", f"Template desconhecido: {template}", "template"))
+    elif isinstance(template, str):
+        tpl = _templates_por_id().get(template) or {}
+        if tpl.get("sha256") is None:
+            # Aviso estrutural: template ainda a_preparar (não bloqueia PDF nativo)
+            pass  # ver avisos em validar()
 
     escala = mapspec.get("escala")
     if escala is not None and escala != "auto":
@@ -91,8 +129,40 @@ def validar_regras(
             )
 
     crs = mapspec.get("crs")
-    if isinstance(crs, str) and crs.upper().startswith("EPSG:4326"):
-        erros.append(_erro("NU-221", "CRS geográfico não é permitido em crs.", "crs"))
+    if isinstance(crs, str) and _crs_eh_geografico(crs):
+        erros.append(
+            _erro(
+                "NU-221",
+                f"CRS geográfico não é permitido em crs (use UTM projetado): {crs}",
+                "crs",
+            )
+        )
+
+    elementos = mapspec.get("elementos_layout") or {}
+    if elementos.get("minimapa"):
+        municipio = (mapspec.get("imovel") or {}).get("municipio") or {}
+        nome_mun = municipio.get("nome")
+        if not isinstance(nome_mun, str) or not nome_mun.strip():
+            erros.append(
+                _erro(
+                    "NU-222",
+                    "imovel.municipio.nome é obrigatório quando minimapa está ligado.",
+                    "imovel/municipio/nome",
+                )
+            )
+
+    for idx, meta in enumerate(mapspec.get("metadados") or []):
+        if not isinstance(meta, dict):
+            continue
+        valor = meta.get("valor")
+        if valor is None or (isinstance(valor, str) and not str(valor).strip()):
+            erros.append(
+                _erro(
+                    "NU-223",
+                    "metadados sem valor vazio.",
+                    f"metadados[{idx}]/valor",
+                )
+            )
 
     camadas = mapspec.get("camadas") or []
     for idx, camada in enumerate(camadas):
@@ -161,6 +231,16 @@ def validar_regras(
             )
         )
 
+    pasta = saida.get("pasta")
+    if isinstance(pasta, str) and not _pasta_saida_ok(pasta):
+        erros.append(
+            _erro(
+                "NU-224",
+                "saida.pasta precisa ser relativa ao workspace e sob Mapas/MXD/SHP/_extraido.",
+                "saida/pasta",
+            )
+        )
+
     tabela = mapspec.get("tabela")
     if isinstance(tabela, dict):
         colunas = tabela.get("colunas") or []
@@ -177,6 +257,22 @@ def validar_regras(
     return erros
 
 
+def _avisos(mapspec: dict[str, Any]) -> list[dict[str, str]]:
+    avisos: list[dict[str, str]] = []
+    template = mapspec.get("template")
+    if isinstance(template, str):
+        tpl = _templates_por_id().get(template) or {}
+        if tpl.get("sha256") is None:
+            avisos.append(
+                _erro(
+                    "AG-030",
+                    f"Template {template} ainda sem sha256 (status={tpl.get('status')}).",
+                    "template",
+                )
+            )
+    return avisos
+
+
 def validar(
     mapspec: dict[str, Any],
     *,
@@ -188,7 +284,7 @@ def validar(
     return {
         "valido": len(erros) == 0,
         "erros": erros,
-        "avisos": [],
+        "avisos": _avisos(mapspec) if not erros else [],
     }
 
 

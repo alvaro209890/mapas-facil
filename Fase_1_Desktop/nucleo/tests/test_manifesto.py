@@ -36,5 +36,7 @@ def test_sha256_mxd_acervo() -> None:
 
 def test_verificar_template_sem_hash_registrado() -> None:
     info = verificar_template("dinamica_retrato")
-    assert info["sha256_ok"] is True
+    assert info["sha256_ok"] is False
+    assert info["preparado"] is False
     assert info["id"] == "dinamica_retrato"
+    assert len(info["sha256"]) == 64

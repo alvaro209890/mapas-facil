@@ -25,6 +25,7 @@ def mapspec_minimo(repo_root: Path) -> dict:
     spec = json.loads(caminho.read_text(encoding="utf-8"))
     spec = copy.deepcopy(spec)
     spec["camadas"] = [c for c in spec["camadas"] if c["fonte"].startswith("local.")]
+    spec["saidas"] = ["pdf"]
     spec["saida"] = {
         "pasta": "Mapas",
         "nome_base": "Dinamica_2026_teste",
