@@ -1,0 +1,53 @@
+name: CI — núcleo (anel 1)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Fase_1_Desktop/nucleo/**"
+      - "shared/**"
+      - ".github/workflows/nucleo.yml"
+  pull_request:
+    paths:
+      - "Fase_1_Desktop/nucleo/**"
+      - "shared/**"
+      - ".github/workflows/nucleo.yml"
+
+jobs:
+  teste-anel-1:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Fase_1_Desktop/nucleo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Fase_1_Desktop/nucleo/pyproject.toml
+
+      - name: Instalar dependências
+        run: pip install -e ".[dev]"
+
+      - name: pytest anel 1
+        run: pytest --cov=mapasfacil_nucleo --cov-report=term-missing
+
+      - name: Cobertura fsguard (100%)
+        run: pytest tests/test_fsguard.py --cov=mapasfacil_nucleo.fsguard --cov-report=term-missing --cov-fail-under=100
+
+      - name: Validar MapSpec canônico
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from mapasfacil_nucleo.mapspec.validar import validar
+
+          repo = Path.cwd().parents[1]
+          spec = json.loads(
+              (repo / "shared/fixtures/mapspecs/dinamica_2026_canonico.json").read_text(encoding="utf-8")
+          )
+          r = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+          assert r["valido"], r["erros"]
+          PY

@@ -16,8 +16,7 @@ e manifesto de templates. **M1 é o próximo passo.**
 - [x] Receita operacional Harmonia em [`DOCUMENTACAO_MXD_HARMONIA.md`](../../Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md)
 - [x] `shared/schemas/mapspec.schema.json` (draft 2020-12) — validar contra exemplo canônico no 1º PR de código
 - [x] `shared/templates/MANIFEST.json` listando templates v1 (sha256 ainda null até preparação)
-- [ ] `shared/catalog/` conferido contra o MapSpec (ids de camada estáveis)
-- [ ] Fixture mínima anonimizada (ou path documentado) da Harmonia para testes locais
+- [x] Fixture mínima: `shared/fixtures/mapspecs/dinamica_2026_canonico.json`
 - [ ] Ambiente de dev: Python 3.12, Node 20+, (opcional) ArcMap 10.8 + QGIS/ogr2ogr
 
 **Critério para declarar M0 fechado:** os três itens abertos acima + validação automatizada do
@@ -33,14 +32,14 @@ Faça **nesta ordem**. Nada de Electron ainda.
 
 | # | Tarefa | Onde | Feito |
 |---|---|---|---|
-| A1 | Scaffold `Fase_1_Desktop/nucleo/` (`pyproject.toml`, pacote, `__main__.py` NDJSON) | nucleo | [ ] |
-| A2 | `fsguard` + suíte adversária (symlink, `..`, UNC, CON/PRN, escrita fora de `Mapas/MXD/SHP`) | nucleo | [ ] |
-| A3 | Schema MapSpec + validador (schema + catálogo + invariantes) | shared + nucleo | [ ] |
+| A1 | Scaffold `Fase_1_Desktop/nucleo/` (`pyproject.toml`, pacote, `__main__.py` NDJSON) | nucleo | [x] |
+| A2 | `fsguard` + suíte adversária (symlink, `..`, UNC, CON/PRN, escrita fora de `Mapas/MXD/SHP`) | nucleo | [x] |
+| A3 | Schema MapSpec + validador (schema + catálogo + invariantes) | shared + nucleo | [x] |
 | A4 | `workspace.abrir` / `reindexar` / `inspecionar` (shapefile: CRS, bbox, área UTM) | nucleo | [ ] |
 | A5 | Parser do recibo do CAR (CPF descartado na entrada) | nucleo | [ ] |
-| A6 | CLI `python -m mapasfacil_nucleo doctor` | nucleo | [ ] |
+| A6 | CLI `python -m mapasfacil_nucleo doctor` | nucleo | [x] |
 | A7 | Um PDF nativo mínimo (matplotlib) a partir de MapSpec válido + `validacao.json` | nucleo | [ ] |
-| A8 | `pytest` anel 1 verde em CI Linux | .github/tests | [ ] |
+| A8 | `pytest` anel 1 verde em CI Linux | .github/tests | [x] |
 
 **Saída do bloco A:** sidecar sozinho, sem UI, gera um PDF feio mas válido e rejeita path malicioso.
 

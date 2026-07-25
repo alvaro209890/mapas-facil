@@ -1,0 +1,101 @@
+{
+  "contract_version": 2,
+  "perfil": "harmonia",
+  "id": "spec_01J8XCANONICO",
+  "versao": 3,
+  "parent_id": "spec_01J8WANTERIOR",
+  "titulo": "Dinâmica 2026",
+  "template": "dinamica_retrato",
+  "saidas": ["mxd", "pdf", "png", "xlsx"],
+  "imovel": {
+    "nome": "Fazenda Harmonia",
+    "car": "MT102042/2017",
+    "matricula": null,
+    "area_total_ha": 3823.9033,
+    "municipio": { "nome": "Vila Rica", "ibge": "5108600", "uf": "MT" },
+    "geometria": "local.ATP"
+  },
+  "crs": "EPSG:31982",
+  "escala": 60000,
+  "extent": null,
+  "camadas": [
+    {
+      "id": "perimetro",
+      "nome_no_mxd": "Fazenda Harmonia",
+      "fonte": "local.ATP",
+      "estilo": "perimetro_imovel",
+      "rotulo_texto": "Fazenda Harmonia",
+      "legenda": "Fazenda Harmonia",
+      "ordem": 10
+    },
+    {
+      "id": "avn",
+      "nome_no_mxd": "Área de vegetação nativa",
+      "fonte": "local.AVN",
+      "estilo": "avn",
+      "legenda": "Área de vegetação nativa",
+      "ordem": 30
+    },
+    {
+      "id": "auas",
+      "nome_no_mxd": "Área Derivada de Desmate Após 2008",
+      "fonte": "local.AUAS",
+      "estilo": "auas",
+      "legenda": "Área Derivada de Desmate Após 2008",
+      "ordem": 20
+    },
+    {
+      "id": "municipios",
+      "nome_no_mxd": "Limite municipal",
+      "fonte": "catalogo.lim_municipios_mt",
+      "estilo": "limite_municipal",
+      "filtro": { "campo": "nome", "operador": "=", "valor": "Vila Rica" },
+      "legenda": "Limite municipal",
+      "ordem": 90
+    }
+  ],
+  "basemap": {
+    "tipo": "planet_mensal",
+    "mosaico": "global_monthly_2026_03_mosaic",
+    "fallback": ["mosaico_sema", "esri_world_imagery"]
+  },
+  "elementos_layout": {
+    "titulo_caixa": true,
+    "norte": true,
+    "grade": true,
+    "grade_linhas": false,
+    "escala_grafica": false,
+    "minimapa": true,
+    "metadados": true,
+    "legenda": true,
+    "logo": true,
+    "tabela": true,
+    "creditos": false
+  },
+  "metadados": [
+    { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+    { "rotulo": "Data da imagem", "valor": "Março/2026" },
+    { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+    { "rotulo": "Datum", "valor": "SIRGAS 2000 UTM 22 S" },
+    { "rotulo": "Escala", "valor": "auto" }
+  ],
+  "tabela": {
+    "titulo_bloco": null,
+    "colunas": [
+      "Propriedade",
+      "Área total da propriedade (ha)",
+      "Área de vegetação nativa (ha)",
+      "Área consolidada (ha)",
+      "Área Derivada de Desmate Após 2008 (ha)"
+    ],
+    "linhas": [["Fazenda Harmonia", 3823.914, 2833.7541, 483.8562, 491.2631]],
+    "total_geral": true,
+    "casas_decimais": 4
+  },
+  "saida": {
+    "pasta": "Mapas",
+    "nome_base": "Dinamica_2026",
+    "caminhos_relativos": true,
+    "materializar_camadas_em": "SHP"
+  }
+}

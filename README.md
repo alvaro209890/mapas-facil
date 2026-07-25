@@ -7,9 +7,9 @@ e `.xlsx` de quantitativos — com o padrão garantido por validação automáti
 O modelo mental é o de um agente de programação (Cursor, Codex, Claude Code), trocando código por
 cartografia: **você aponta uma pasta e conversa.**
 
-> Este repositório contém, neste momento, **apenas planos, contratos, referências visuais e uma
-> ferramenta de segurança**. Nenhum código de produção foi escrito ainda. Comece por
-> [`planos/`](planos/README.md).
+> Este repositório contém **planos, contratos, referências visuais** e o **núcleo Python**
+> da Fase 1 (sidecar). A UI Electron ainda não foi iniciada. Comece por
+> [`planos/`](planos/README.md) e o [checklist de implementação](Fase_1_Desktop/planos/13-checklist-implementacao.md).
 
 ## As duas fases
 
@@ -62,8 +62,8 @@ Fase 1 (Windows)                    Fase 2 (depois)
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **quase fechado** — fechar schema + manifesto; ver checklist |
-| M1 — Núcleo + MapSpec + fsguard | **próximo** — [checklist bloco A](Fase_1_Desktop/planos/13-checklist-implementacao.md) |
+| M0 — Planos e contratos | **quase fechado** — fixtures MapSpec; ver checklist |
+| M1 — Núcleo + MapSpec + fsguard | **em andamento** — bloco A: scaffold, fsguard, validador, CI |
 | Fase 2 — desenvolvimento | não iniciado |
 
 ## Licença
