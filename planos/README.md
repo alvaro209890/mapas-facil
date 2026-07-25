@@ -45,5 +45,5 @@ O PR que muda tem de atualizar os planos de fase afetados junto.
 | Marco | Status |
 |---|---|
 | M0 — Planos e contratos | **fechado** |
-| Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.3.5) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
+| Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.3.6) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
 | Fase 2 — desenvolvimento | não iniciado |

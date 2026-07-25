@@ -146,10 +146,51 @@ def gerar_mapa(
         resultado["mxd"] = mxd_info["mxd"]
         avisos.extend(mxd_info.get("patch", {}).get("avisos", []))
 
+    # Quantitativos cedo: alimentam .xlsx, PNG e overlay no PDF nativo (F1-08).
+    precisa_quant = (
+        "xlsx" in saidas
+        or "png" in saidas
+        or bool(mapspec.get("tabela"))
+        or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
+    )
+    if precisa_quant:
+        quant = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
+        artefatos["quantitativos"] = quant
+        resultado["quantitativos"] = quant
+        avisos.extend(quant.get("avisos", []))
+
+    # PNG antes do PDF para permitir overlay (F1-05 / F1-08).
+    precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
+    png_path: Path | None = None
+    if precisa_png:
+        quant = artefatos.get("quantitativos") or calcular_quantitativos(
+            mapspec, guard=guard, fontes_idx=fontes_idx
+        )
+        artefatos["quantitativos"] = quant
+        pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
+        nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
+        png_path = pasta_saida / "recursos" / "tabela_quantitativos.png"
+        meta_png = renderizar_png_tabela(quant, png_path)
+        rel_png = str(png_path.relative_to(guard.raiz))
+        resultado["png_tabela"] = rel_png
+        artefatos["png_tabela"] = {**meta_png, "png": rel_png}
+        if not meta_png.get("ok_dpi"):
+            avisos.append(
+                f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
+                "(alvo ≥ 600)."
+            )
+
     if "pdf" in saidas:
-        pdf_path, pdf_artefatos = gerar_pdf_minimo(mapspec, guard=guard, fontes_idx=fontes_idx)
+        pdf_path, pdf_artefatos = gerar_pdf_minimo(
+            mapspec,
+            guard=guard,
+            fontes_idx=fontes_idx,
+            png_tabela=png_path,
+        )
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
+        if pdf_artefatos.get("tabela_sobreposta"):
+            resultado["tabela_sobreposta"] = True
 
         if comparar_baseline or mapspec.get("validacao", {}).get("comparar_baseline"):
             template_id = mapspec.get("template")
@@ -164,12 +205,6 @@ def gerar_mapa(
                             f"Diff raster {comp['diferenca_pct']:.2f}% "
                             f"(tolerância {comp['tolerancia_pct']}%)."
                         )
-
-    if "xlsx" in saidas or mapspec.get("tabela"):
-        quant = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
-        artefatos["quantitativos"] = quant
-        resultado["quantitativos"] = quant
-        avisos.extend(quant.get("avisos", []))
 
     if "xlsx" in saidas:
         quant = artefatos.get("quantitativos") or calcular_quantitativos(
@@ -188,27 +223,6 @@ def gerar_mapa(
         artefatos["conferencia"] = conf
         resultado["conferencia"] = conf
         avisos.extend(conf.get("avisos", []))
-
-    # PNG da tabela: saidas inclui "png" ou elementos_layout.tabela (F1-08).
-    precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
-    if precisa_png:
-        quant = artefatos.get("quantitativos") or calcular_quantitativos(
-            mapspec, guard=guard, fontes_idx=fontes_idx
-        )
-        artefatos["quantitativos"] = quant
-        pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
-        nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
-        recursos = pasta_saida / "recursos"
-        png_path = recursos / "tabela_quantitativos.png"
-        meta_png = renderizar_png_tabela(quant, png_path)
-        rel_png = str(png_path.relative_to(guard.raiz))
-        resultado["png_tabela"] = rel_png
-        artefatos["png_tabela"] = {**meta_png, "png": rel_png}
-        if not meta_png.get("ok_dpi"):
-            avisos.append(
-                f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
-                "(alvo ≥ 600)."
-            )
 
     relatorio = _montar_validacao_job(mapspec, artefatos, avisos)
     pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
@@ -231,6 +245,7 @@ def _montar_validacao_job(
     confianca = mxd_info.get("confianca") or pdf_val.get("confianca") or "estrutural"
 
     hard = list((pdf_val.get("checks") or {}).get("hard") or [])
+    soft = list((pdf_val.get("checks") or {}).get("soft") or [])
     if "mxd" in (mapspec.get("saidas") or []):
         hard.append(
             {
@@ -239,7 +254,7 @@ def _montar_validacao_job(
                 "mensagem": f"MXD gerado ({mxd_info.get('motor', '?')})",
             }
         )
-    soft = [{"id": "A01", "ok": not avisos, "mensagem": "; ".join(avisos) or "sem avisos"}]
+    soft.append({"id": "A01", "ok": not avisos, "mensagem": "; ".join(avisos) or "sem avisos"})
     comp = artefatos.get("comparacao_baseline")
     if comp:
         soft.append(
@@ -250,6 +265,14 @@ def _montar_validacao_job(
                     f"Diff raster {comp['diferenca_pct']:.4f}% "
                     f"(tolerância {comp['tolerancia_pct']}%)"
                 ),
+            }
+        )
+    if artefatos.get("png_tabela") and mapspec.get("elementos_layout", {}).get("tabela"):
+        soft.append(
+            {
+                "id": "N01",
+                "ok": bool(artefatos.get("tabela_sobreposta") or pdf_val.get("tabela_sobreposta")),
+                "mensagem": "Overlay da tabela no PDF nativo",
             }
         )
 
