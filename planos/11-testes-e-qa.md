@@ -216,9 +216,9 @@ adulterado), mais o teste de que check *hard* falhando impede o job de virar `su
 | E2E | Playwright | fluxo completo contra backend e agente **fakes** |
 | Acessibilidade | `axe-core` no Playwright | zero violação crítica; navegação por teclado no chat; foco visível; contraste |
 
-Consultas usam papel e texto acessível (`getByRole`, `getByLabelText`), não `data-testid` como
-primeira opção — se não dá para consultar por papel, provavelmente há problema de acessibilidade.
-Fluxo E2E mínimo, obrigatório antes de qualquer release do site:
+Consultas usam papel e texto acessível (`getByRole`, `getByLabelText`), não `data-testid` — se não dá
+para consultar por papel, provavelmente há problema de acessibilidade. Fluxo E2E mínimo, obrigatório
+antes de qualquer release do site:
 
 ```
 1. login por magic link (token de teste) e pareamento de agente fake por código de 8 caracteres
