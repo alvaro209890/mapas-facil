@@ -89,6 +89,8 @@ def calcular(
                 "area_ha": valor,
                 "geometrias_corrigidas": meta.geometrias_corrigidas,
                 "feicoes": meta.feicoes,
+                "arquivo": rel,
+                "crs": meta.crs.get("epsg") or meta.crs.get("wkt_resumo"),
             }
         )
 

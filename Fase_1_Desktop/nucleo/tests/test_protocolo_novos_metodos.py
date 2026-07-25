@@ -59,3 +59,45 @@ def test_ndjson_validacao_comparar_pdf(projeto) -> None:
     resposta = json.loads(processar_linha(req, roteador))
     assert resposta["tipo"] == "res"
     assert resposta["resultado"]["ok"] is True
+
+
+def test_ndjson_mapspec_diff(mapspec_canonico) -> None:
+    import copy
+
+    roteador = criar_roteador()
+    depois = copy.deepcopy(mapspec_canonico)
+    depois["titulo"] = "Outro título"
+    req = json.dumps(
+        {
+            "v": 1,
+            "id": "t3",
+            "tipo": "req",
+            "metodo": "mapspec.diff",
+            "params": {"antes": mapspec_canonico, "depois": depois},
+        },
+        ensure_ascii=False,
+    )
+    resposta = json.loads(processar_linha(req, roteador))
+    assert resposta["tipo"] == "res"
+    assert resposta["resultado"]["total"] >= 1
+
+
+def test_ndjson_quantitativos_exportar_xlsx(projeto, mapspec_canonico) -> None:
+    workspace_servico.abrir(str(projeto))
+    roteador = criar_roteador()
+    spec = dict(mapspec_canonico)
+    spec["camadas"] = [c for c in spec["camadas"] if c["fonte"].startswith("local.")]
+    spec["saida"] = {"pasta": "Mapas", "nome_base": "Export_teste"}
+    req = json.dumps(
+        {
+            "v": 1,
+            "id": "t4",
+            "tipo": "req",
+            "metodo": "quantitativos.exportar_xlsx",
+            "params": {"mapspec": spec},
+        },
+        ensure_ascii=False,
+    )
+    resposta = json.loads(processar_linha(req, roteador))
+    assert resposta["tipo"] == "res"
+    assert (projeto / resposta["resultado"]["xlsx"]).exists()

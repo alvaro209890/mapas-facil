@@ -7,6 +7,7 @@ from typing import Any, TextIO
 
 from mapasfacil_nucleo import doctor
 from mapasfacil_nucleo.erros import ErroNucleo
+from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
 from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
 from mapasfacil_nucleo.protocolo import (
@@ -20,6 +21,7 @@ from mapasfacil_nucleo.workspace import servico as workspace_servico
 from mapasfacil_nucleo.workspace.recibo_car import parsear as parsear_recibo
 from mapasfacil_nucleo.motores.manifesto import listar_templates, verificar_template
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
+from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
 from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf
 from mapasfacil_nucleo.workspace.zip_simcar import extrair as zip_extrair
 from mapasfacil_nucleo.workspace.zip_simcar import listar as zip_listar
@@ -29,6 +31,7 @@ def criar_roteador() -> Roteador:
     roteador = Roteador()
     roteador.registrar("doctor.rodar", lambda _params: doctor.rodar())
     roteador.registrar("mapspec.validar", _handler_mapspec_validar)
+    roteador.registrar("mapspec.diff", _handler_mapspec_diff)
     roteador.registrar("workspace.abrir", _handler_workspace_abrir)
     roteador.registrar("workspace.reindexar", _handler_workspace_reindexar)
     roteador.registrar("workspace.inspecionar", _handler_workspace_inspecionar)
@@ -40,6 +43,7 @@ def criar_roteador() -> Roteador:
     roteador.registrar("template.verificar", _handler_template_verificar)
     roteador.registrar("validacao.comparar_pdf", _handler_validacao_comparar_pdf)
     roteador.registrar("quantitativos.calcular", _handler_quantitativos_calcular)
+    roteador.registrar("quantitativos.exportar_xlsx", _handler_quantitativos_exportar_xlsx)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 
@@ -54,6 +58,14 @@ def _handler_mapspec_validar(params: dict[str, Any]) -> dict[str, Any]:
     if fontes_locais is None and estado and estado.indice.get("fontes_locais"):
         fontes_locais = frozenset(estado.indice["fontes_locais"])
     return validar(mapspec, fontes_locais=fontes_locais)
+
+
+def _handler_mapspec_diff(params: dict[str, Any]) -> dict[str, Any]:
+    antes = params.get("antes")
+    depois = params.get("depois")
+    if not isinstance(antes, dict) or not isinstance(depois, dict):
+        raise ErroNucleo("NU-201", "Parâmetros 'antes' e 'depois' precisam ser objetos MapSpec.")
+    return mapspec_diff(antes, depois)
 
 
 def _handler_workspace_abrir(params: dict[str, Any]) -> dict[str, Any]:
@@ -204,6 +216,36 @@ def _handler_quantitativos_calcular(params: dict[str, Any]) -> dict[str, Any]:
         guard=estado.guard,
         fontes_idx=_fontes_idx_do_estado(estado),
     )
+
+
+def _handler_quantitativos_exportar_xlsx(params: dict[str, Any]) -> dict[str, Any]:
+    mapspec = params.get("mapspec")
+    if not isinstance(mapspec, dict):
+        raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de exportar quantitativos.")
+
+    dados = params.get("dados")
+    if dados is None:
+        dados = calcular_quantitativos(
+            mapspec,
+            guard=estado.guard,
+            fontes_idx=_fontes_idx_do_estado(estado),
+        )
+    elif not isinstance(dados, dict):
+        raise ErroNucleo("NU-201", "Parâmetro 'dados' inválido.")
+
+    saida_cfg = mapspec.get("saida") or {}
+    pasta = saida_cfg.get("pasta", "Mapas")
+    nome_base = saida_cfg.get("nome_base", "mapa")
+    destino_rel = params.get("arquivo") or f"{pasta}/{nome_base}_Quantitativos.xlsx"
+    destino = estado.guard.resolver(destino_rel, escrita=True)
+    exportar_xlsx(dados, destino)
+    return {
+        "xlsx": str(destino.relative_to(estado.guard.raiz)),
+        "quantitativos": dados,
+    }
 
 
 def processar_linha(linha: str, roteador: Roteador | None = None) -> str:
