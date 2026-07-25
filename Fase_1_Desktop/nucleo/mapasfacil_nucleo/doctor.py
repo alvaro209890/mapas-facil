@@ -18,7 +18,7 @@ def _carregar_manifesto() -> dict[str, Any]:
         return json.load(fh)
 
 
-def _detectar_arcmap() -> dict[str, Any]:
+def _detectar_arcmap(*, sondar_arcpy: bool = False) -> dict[str, Any]:
     if platform.system() != "Windows":
         return {
             "encontrado": False,
@@ -57,7 +57,7 @@ def _detectar_arcmap() -> dict[str, Any]:
         except (OSError, subprocess.TimeoutExpired):
             pass
 
-    if python_exe and Path(python_exe).is_file():
+    if sondar_arcpy and python_exe and Path(python_exe).is_file():
         try:
             proc = subprocess.run(
                 [
@@ -90,12 +90,19 @@ def _detectar_arcmap() -> dict[str, Any]:
     return info
 
 
-def _motor_preferido(arcmap: dict[str, Any], templates: list[dict[str, Any]]) -> str:
+def _motor_preferido(
+    arcmap: dict[str, Any],
+    templates: list[dict[str, Any]],
+    *,
+    sondar_arcpy: bool,
+) -> str:
     patch_ok = any(t.get("patch_ok") for t in templates)
-    if arcmap.get("encontrado") and arcmap.get("versao") and not arcmap.get("instavel"):
+    if sondar_arcpy and arcmap.get("encontrado") and arcmap.get("versao") and not arcmap.get("instavel"):
         return "arcpy"
     if patch_ok:
         return "patch"
+    if arcmap.get("encontrado") and arcmap.get("python"):
+        return "arcpy_provavel"
     return "nativo"
 
 
@@ -131,12 +138,14 @@ def _chaves_configuradas() -> dict[str, bool]:
     return chaves
 
 
-def rodar() -> dict[str, Any]:
+def rodar(*, sondar_arcpy: bool = False) -> dict[str, Any]:
     manifesto = _carregar_manifesto()
     templates = _templates_resumo(manifesto)
     sha256_ok = all(t["sha256_ok"] for t in templates) if templates else False
     patch_ok = any(t["patch_ok"] for t in templates)
-    arcmap = _detectar_arcmap()
+    arcmap = _detectar_arcmap(sondar_arcpy=sondar_arcpy)
+
+    pronto = sha256_ok and (patch_ok or (sondar_arcpy and arcmap.get("versao")))
 
     return {
         "so": f"{platform.system()} {platform.release()}",
@@ -160,8 +169,8 @@ def rodar() -> dict[str, Any]:
             "ibge": "nao_testado",
         },
         "espaco_livre_gb": _espaco_livre_gb(raiz_repositorio()),
-        "pronto_para_mxd": sha256_ok and (patch_ok or arcmap.get("encontrado", False)),
-        "motor_preferido": _motor_preferido(arcmap, templates),
+        "pronto_para_mxd": pronto,
+        "motor_preferido": _motor_preferido(arcmap, templates, sondar_arcpy=sondar_arcpy),
     }
 
 

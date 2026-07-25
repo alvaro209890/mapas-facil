@@ -16,5 +16,5 @@ def test_doctor_cli_json() -> None:
         text=True,
     )
     dados = json.loads(proc.stdout)
-    assert dados["nucleo"] == "0.3.1"
+    assert dados["nucleo"] == "0.3.3"
     assert "templates" in dados

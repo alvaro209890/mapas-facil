@@ -95,9 +95,22 @@ def test_copiar_template_dinamica(repo_root: Path, tmp_path: Path) -> None:
     destino = tmp_path / "saida.mxd"
     copia = patch_mxd.copiar_template("dinamica_retrato", destino)
     assert destino.exists()
-    assert copia["sha256_template_ok"] is True
-    origem = repo_root / "Referencias_IMAP/MXD/Dinamica_2026.mxd"
+
+    preparado = repo_root / "shared/templates/Dinamica_retrato.mxd"
+    origem = preparado if preparado.is_file() else repo_root / "Referencias_IMAP/MXD/Dinamica_2026.mxd"
     assert sha256_arquivo(destino) == sha256_arquivo(origem)
+    if preparado.is_file():
+        assert copia["sha256_template_ok"] is True
+
+
+def test_patch_texto_utf16le_slot() -> None:
+    dados = bytearray(64)
+    aviso = patch_mxd.patch_texto_utf16le_slot(dados, 0, "Dinâmica 2026", slot_caracteres=16)
+    assert aviso is None
+    lido = dados[0:32].decode("utf-16le").rstrip()
+    assert lido == "Dinâmica 2026"
+    aviso2 = patch_mxd.patch_texto_utf16le_slot(dados, 0, "x" * 20, slot_caracteres=16)
+    assert aviso2 is not None
 
 
 def test_gerar_mapa_com_mxd_e_pdf(projeto: Path, repo_root: Path) -> None:
@@ -123,6 +136,9 @@ def test_gerar_mapa_com_mxd_e_pdf(projeto: Path, repo_root: Path) -> None:
     assert (projeto / "SHP" / "ATP.shp").exists()
     patch_info = resultado["artefatos"]["mxd"]
     assert patch_info["motor"] in ("copia_template", "patch")
+    assert "validacao" in resultado
+    assert (projeto / resultado["validacao"]).exists()
+    assert resultado["validacao_dados"]["tier"] in ("T2", "copia_template", "nativo", "patch")
 
 
 def test_arcpy_ponte_monta_payload_e_script_existe() -> None:

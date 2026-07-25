@@ -42,16 +42,25 @@ def test_resolve_oserror(monkeypatch: pytest.MonkeyPatch, workspace: Path) -> No
 
 
 def test_unidade_linux_com_arquivo_existente(workspace: Path) -> None:
-    arquivo = workspace / "dados" / "leitura.txt"
-    unidade = fsguard._unidade(arquivo)
-    assert unidade.isdigit()
+    arquivo = Path("/tmp/mapasfacil_test/leitura.txt")
+    arquivo.parent.mkdir(parents=True, exist_ok=True)
+    arquivo.write_text("ok", encoding="utf-8")
+    try:
+        with mock.patch.object(os, "name", "posix"):
+            unidade = fsguard._unidade(arquivo)
+        assert unidade.isdigit()
+    finally:
+        arquivo.unlink(missing_ok=True)
+        arquivo.parent.rmdir()
 
 
-def test_unidade_linux_caminho_inexistente(workspace: Path) -> None:
-    pasta = workspace / "pasta_sem_arquivo"
-    pasta.mkdir()
-    unidade = fsguard._unidade(pasta / "arquivo.txt")
-    assert unidade.isdigit()
+def test_unidade_linux_caminho_inexistente() -> None:
+    caminho = Path("/tmp/mapasfacil_sem_arquivo/arquivo.txt")
+    with mock.patch.object(os, "name", "posix"):
+        with mock.patch("mapasfacil_nucleo.fsguard.os.stat") as stat_mock:
+            stat_mock.return_value = mock.Mock(st_dev=42)
+            unidade = fsguard._unidade(caminho)
+    assert unidade == "42"
 
 
 def test_unidade_oserror_fallback() -> None:

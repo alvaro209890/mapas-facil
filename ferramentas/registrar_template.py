@@ -116,10 +116,14 @@ def main() -> int:
         print(f"MXD nao encontrado: {destino}", file=sys.stderr)
         return 1
 
-    if destino.resolve() != (TEMPLATES_DIR / nome_arquivo).resolve():
-        (TEMPLATES_DIR).mkdir(parents=True, exist_ok=True)
-        destino_final = TEMPLATES_DIR / nome_arquivo
-        if destino.resolve() != destino_final.resolve():
+    destino_final = TEMPLATES_DIR / nome_arquivo
+    if destino.resolve() != destino_final.resolve():
+        if args.dry_run:
+            # --dry-run nunca escreve fora do tmp/entrada — soh calcula sha256/offsets
+            # do arquivo indicado, sem tocar em shared/templates/.
+            pass
+        else:
+            TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
             import shutil
 
             shutil.copy2(destino, destino_final)

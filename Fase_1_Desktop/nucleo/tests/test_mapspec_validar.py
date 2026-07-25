@@ -101,8 +101,10 @@ def test_rejeita_metadado_vazio(mapspec_canonico: dict) -> None:
 
 
 def test_aviso_template_sem_sha256(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["template"] = "tipologia_paisagem"
     resultado = validar(
-        mapspec_canonico,
+        spec,
         fontes_locais=frozenset({"ATP", "AVN", "AUAS"}),
     )
     assert resultado["valido"] is True

@@ -13,6 +13,8 @@ from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
+from mapasfacil_nucleo.validacao.relatorio import gerar as gerar_validacao
+from mapasfacil_nucleo.validacao.relatorio import salvar as salvar_validacao
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
 
 
@@ -124,4 +126,38 @@ def gerar_mapa(
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
 
+    relatorio = _montar_validacao_job(mapspec, artefatos, avisos)
+    pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
+    nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
+    json_path = salvar_validacao(pasta_saida / f"{nome_base}_validacao.json", relatorio)
+    resultado["validacao"] = str(json_path.relative_to(guard.raiz))
+    resultado["validacao_dados"] = relatorio
+
     return resultado
+
+
+def _montar_validacao_job(
+    mapspec: dict[str, Any],
+    artefatos: dict[str, Any],
+    avisos: list[str],
+) -> dict[str, Any]:
+    mxd_info = artefatos.get("mxd") or {}
+    pdf_val = artefatos.get("validacao_dados") or {}
+    motor = mxd_info.get("motor") or pdf_val.get("motor") or "nativo"
+    confianca = mxd_info.get("confianca") or pdf_val.get("confianca") or "estrutural"
+
+    hard = list((pdf_val.get("checks") or {}).get("hard") or [])
+    if "mxd" in (mapspec.get("saidas") or []):
+        hard.append(
+            {
+                "id": "H01",
+                "ok": bool(mxd_info.get("mxd")),
+                "mensagem": f"MXD gerado ({mxd_info.get('motor', '?')})",
+            }
+        )
+    soft = [{"id": "A01", "ok": not avisos, "mensagem": "; ".join(avisos) or "sem avisos"}]
+
+    rel = gerar_validacao(motor=motor, confianca=confianca, checks_hard=hard, checks_soft=soft)
+    rel["template"] = mapspec.get("template")
+    rel["tier"] = "T2" if motor in ("patch", "copia_template") else motor
+    return rel

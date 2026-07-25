@@ -2,8 +2,9 @@
 
 Lista operacional da Fase 1. Complementa o [roadmap](12-roadmap.md).
 
-Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** (com correções de auditoria) ·
-**bloco B parcial** — **B1 desbloqueado** nesta máquina (ArcMap 10.8 detectado).
+Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** — B1
+automatizado parcialmente via arcpy (`ferramentas/normalizar_mxd_arcpy.py`); faltam 4
+elementos de layout que só a GUI do ArcMap cria.
 
 ## Pré-voo
 
@@ -34,14 +35,14 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 
 | # | Tarefa | Feito |
 |---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [ ] manual — ferramentas em `ferramentas/` |
-| B2 | MANIFEST sha256 + offsets | [~] leitor + `template.verificar`; hash ainda null |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] automatizado via `normalizar_mxd_arcpy.py` (data frames, camadas, metadados, norte, logo, legenda); faltam `TITULO`, `ROTULO_IMOVEL` (texto) e `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` (gráficos) — só GUI cria elemento novo |
+| B2 | MANIFEST sha256 + offsets | [~] `dinamica_retrato` com sha256 registrado, `status: parcial`; offsets ainda pendem de B1 terminar (senão invalidam) |
 | B3 | `arcpy_job.py` + ponte | [x] esqueleto |
-| B4 | Materializar SHP/ | [~] cópia canônica (sem ogr2ogr) |
+| B4 | Materializar SHP/ | [~] cópia + ogr2ogr opcional |
 | B5 | Extent bbox `.shp` | [~] via metadados |
-| B6 | Textos / definition query | [ ] |
-| B7 | Minimapa retângulo + guia | [ ] |
-| B8 | Patch T2 sem ArcMap | [~] cópia template |
+| B6 | Textos / definition query | [~] infra UTF-16LE; falta MANIFEST |
+| B7 | Minimapa retângulo + guia | [ ] aguarda B1 |
+| B8 | Patch T2 sem ArcMap | [~] cópia do template preparado (`resolver_caminho_preparado`) |
 | B9 | Diff raster vs `Mapas/01` | [ ] |
 
 ## Regras de ouro

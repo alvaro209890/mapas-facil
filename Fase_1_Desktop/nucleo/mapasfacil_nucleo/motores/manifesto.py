@@ -55,6 +55,20 @@ def resolver_caminho_acervo(template: dict[str, Any]) -> Path:
     return caminho
 
 
+def resolver_caminho_preparado(template: dict[str, Any]) -> Path:
+    """Caminho a copiar em produção: prefere `shared/templates/<arquivo>` (já preparado,
+    B1/B2) e só cai para o `.mxd` bruto do acervo (`fonte_acervo`) em modo T3 — sem
+    preparação, o `.mxd` gerado é uma cópia fiel do acervo, sem patch."""
+    from mapasfacil_nucleo.config import raiz_repositorio
+
+    arquivo = template.get("arquivo")
+    if arquivo:
+        caminho = raiz_repositorio() / "shared" / "templates" / arquivo
+        if caminho.is_file():
+            return caminho
+    return resolver_caminho_acervo(template)
+
+
 def sha256_arquivo(caminho: Path) -> str:
     digest = hashlib.sha256()
     with caminho.open("rb") as fh:
@@ -65,7 +79,7 @@ def sha256_arquivo(caminho: Path) -> str:
 
 def verificar_template(template_id: str) -> dict[str, Any]:
     tpl = obter_template(template_id)
-    caminho = resolver_caminho_acervo(tpl)
+    caminho = resolver_caminho_preparado(tpl)
     hash_atual = sha256_arquivo(caminho)
     esperado = tpl.get("sha256")
     return {

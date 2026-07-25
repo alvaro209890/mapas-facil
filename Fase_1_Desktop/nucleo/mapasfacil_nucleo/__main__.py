@@ -191,13 +191,18 @@ def main_cli() -> None:
     sub.add_parser("stdio", help="Loop NDJSON (padrão do Electron)")
     doctor_parser = sub.add_parser("doctor", help="Diagnóstico do ambiente")
     doctor_parser.add_argument("--json", action="store_true", help="Saída JSON")
+    doctor_parser.add_argument(
+        "--completo",
+        action="store_true",
+        help="Sondar licença arcpy (lento; só Windows com ArcMap)",
+    )
 
     args = parser.parse_args()
     if args.comando in (None, "stdio"):
         loop_ndjson()
         return
     if args.comando == "doctor":
-        resultado = doctor.rodar()
+        resultado = doctor.rodar(sondar_arcpy=args.completo)
         if args.json:
             print(json.dumps(resultado, ensure_ascii=False, indent=2))
         else:

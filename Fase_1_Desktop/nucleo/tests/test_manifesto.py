@@ -23,7 +23,7 @@ def test_manifesto_carrega() -> None:
 def test_obter_template_dinamica() -> None:
     tpl = obter_template("dinamica_retrato")
     assert tpl["crs_data_frame"] == "EPSG:31982"
-    assert tpl["status"] == "a_preparar"
+    assert tpl["status"] in ("parcial", "pronto")
 
 
 def test_sha256_mxd_acervo() -> None:
@@ -35,8 +35,18 @@ def test_sha256_mxd_acervo() -> None:
 
 
 def test_verificar_template_sem_hash_registrado() -> None:
-    info = verificar_template("dinamica_retrato")
+    info = verificar_template("tipologia_paisagem")
     assert info["sha256_ok"] is False
     assert info["preparado"] is False
-    assert info["id"] == "dinamica_retrato"
+    assert info["id"] == "tipologia_paisagem"
     assert len(info["sha256"]) == 64
+
+
+def test_verificar_template_dinamica_preparado() -> None:
+    caminho = raiz_repositorio() / "shared/templates/Dinamica_retrato.mxd"
+    if not caminho.exists():
+        pytest.skip("Template dinamica_retrato ainda nao preparado nesta maquina.")
+    info = verificar_template("dinamica_retrato")
+    assert info["preparado"] is True
+    assert info["sha256_ok"] is True
+    assert "shared" in info["caminho"].replace("\\", "/")

@@ -10,11 +10,22 @@
       "arquivo": "Dinamica_retrato.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026.pdf",
-      "sha256": null,
+      "sha256": "e5c8eab4d3f39e03452a612cdceba6d2dcc51830e35541e3c4c92f7609dfb851",
       "versao_arcmap": "10.6",
-      "formato_pagina": { "papel": "A4", "orientacao": "retrato", "mm": [210, 297] },
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "retrato",
+        "mm": [
+          210,
+          297
+        ]
+      },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar"
+      "status": "parcial",
+      "patch": {
+        "suportado": true,
+        "offsets": {}
+      }
     },
     {
       "id": "dinamica_quantitativos_retrato",
@@ -23,7 +34,14 @@
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026_quantitativos.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026_quantitativos.pdf",
       "sha256": null,
-      "formato_pagina": { "papel": "A4", "orientacao": "retrato", "mm": [210, 297] },
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "retrato",
+        "mm": [
+          210,
+          297
+        ]
+      },
       "crs_data_frame": "EPSG:31982",
       "status": "a_preparar"
     },
@@ -34,7 +52,14 @@
       "fonte_acervo": "Referencias_IMAP/MXD/Tipologia.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Tipologia.pdf",
       "sha256": null,
-      "formato_pagina": { "papel": "A4", "orientacao": "paisagem", "mm": [297, 210] },
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
       "crs_data_frame": "EPSG:3857",
       "status": "a_preparar"
     },
@@ -45,7 +70,14 @@
       "fonte_acervo": "Referencias_IMAP/MXD/Terras_Indigenas.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Terras_Indigenas.pdf",
       "sha256": null,
-      "formato_pagina": { "papel": "A4", "orientacao": "paisagem", "mm": [297, 210] },
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
       "crs_data_frame": "EPSG:3857",
       "status": "a_preparar"
     },
@@ -56,7 +88,14 @@
       "fonte_acervo": "Referencias_IMAP/MXD/Unidade_de_Conservação.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Unidade_de_Conservação.pdf",
       "sha256": null,
-      "formato_pagina": { "papel": "A4", "orientacao": "paisagem", "mm": [297, 210] },
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
       "crs_data_frame": "EPSG:3857",
       "status": "a_preparar"
     }

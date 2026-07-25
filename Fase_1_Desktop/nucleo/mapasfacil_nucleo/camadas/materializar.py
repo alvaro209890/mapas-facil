@@ -6,6 +6,8 @@ from typing import Any
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
+from mapasfacil_nucleo.geo import ogr2ogr as ogr2ogr_util
+from mapasfacil_nucleo.motores.manifesto import obter_template
 
 # Nome do dataset em SHP/ que o template preparado espera (F1-04).
 NOME_CANONICO_POR_PAPEL: dict[str, str] = {
@@ -47,9 +49,21 @@ def materializar_camadas_locais(
     guard: WorkspaceGuard,
     fontes_idx: dict[str, str],
     pasta_shp: str = "SHP",
+    reprojetar: bool | None = None,
 ) -> dict[str, Any]:
     pasta = guard.resolver(pasta_shp, escrita=True)
     pasta.mkdir(parents=True, exist_ok=True)
+
+    epsg_dest: int | None = None
+    template_id = mapspec.get("template")
+    if isinstance(template_id, str):
+        tpl = obter_template(template_id)
+        crs = tpl.get("crs_data_frame", mapspec.get("crs", "EPSG:31982"))
+        epsg_dest = int(str(crs).replace("EPSG:", ""))
+
+    usar_ogr = reprojetar
+    if usar_ogr is None:
+        usar_ogr = ogr2ogr_util.disponivel() is not None
 
     materializados: list[dict[str, str]] = []
     avisos: list[str] = []
@@ -67,10 +81,17 @@ def materializar_camadas_locais(
         destino = pasta / nome_dataset
 
         try:
-            _copiar_shapefile(origem, destino)
+            if usar_ogr and epsg_dest is not None:
+                ogr2ogr_util.reprojetar_shapefile(origem, destino, epsg_destino=epsg_dest)
+            else:
+                _copiar_shapefile(origem, destino)
         except ErroNucleo as exc:
-            avisos.append(exc.mensagem)
-            continue
+            if exc.codigo == "NU-110" and usar_ogr:
+                _copiar_shapefile(origem, destino)
+                avisos.append(f"{id_local}: ogr2ogr indisponível — cópia sem reprojeção.")
+            else:
+                avisos.append(exc.mensagem)
+                continue
 
         materializados.append(
             {
@@ -85,4 +106,6 @@ def materializar_camadas_locais(
         "pasta": str(pasta.relative_to(guard.raiz)),
         "materializados": materializados,
         "avisos": avisos,
+        "reprojetado": bool(usar_ogr and epsg_dest is not None),
+        "ogr2ogr": ogr2ogr_util.disponivel(),
     }

@@ -74,3 +74,37 @@ def test_registrar_template_dry_run(tmp_path: Path, mxd_com_sentinelas: Path) ->
     assert dados["status"] == "pronto"
     assert "sha256" in dados
     assert json.loads(manifest_path.read_text(encoding="utf-8")) == manifest_antes
+
+
+def test_registrar_template_dry_run_nao_sobrescreve_template_real(
+    tmp_path: Path, mxd_com_sentinelas: Path
+) -> None:
+    """Regressao: --dry-run nao pode copiar o MXD de teste para shared/templates/
+    (bug encontrado em 2026-07-25: sobrescrevia o template real preparado com o
+    fixture de sentinelas de 168 bytes toda vez que a suite de testes rodava)."""
+    template_real = REPO / "shared/templates/Dinamica_retrato.mxd"
+    if not template_real.is_file():
+        pytest.skip("Template real ainda nao preparado nesta maquina.")
+
+    tamanho_antes = template_real.stat().st_size
+    conteudo_antes = template_real.read_bytes()
+
+    destino = tmp_path / "Dinamica_retrato.mxd"
+    destino.write_bytes(mxd_com_sentinelas.read_bytes())
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(REPO / "ferramentas/registrar_template.py"),
+            "dinamica_retrato",
+            str(destino),
+            "--dry-run",
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert template_real.stat().st_size == tamanho_antes
+    assert template_real.read_bytes() == conteudo_antes

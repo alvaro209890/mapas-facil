@@ -29,14 +29,15 @@ def abrir(caminho: str) -> dict[str, Any]:
         recibo_dados = parsear(guard.resolver(idx["recibo_car"])).para_dict()
 
     _estado = EstadoWorkspace(guard=guard, indice=idx)
-    doctor_resumo = {
-        "nucleo": doctor.rodar()["nucleo"],
-        "pronto_para_mxd": doctor.rodar()["pronto_para_mxd"],
-    }
+    doctor_resumo = doctor.rodar(sondar_arcpy=False)
     return {
         "workspace": idx,
         "recibo": recibo_dados,
-        "doctor": doctor_resumo,
+        "doctor": {
+            "nucleo": doctor_resumo["nucleo"],
+            "pronto_para_mxd": doctor_resumo["pronto_para_mxd"],
+            "motor_preferido": doctor_resumo["motor_preferido"],
+        },
     }
 
 
