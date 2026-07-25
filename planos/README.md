@@ -1,6 +1,6 @@
 # Planos comuns às duas fases
 
-Estes cinco documentos valem para o **app desktop (Fase 1)** e para o **site (Fase 2)**. Se um
+Estes seis documentos valem para o **app desktop (Fase 1)** e para o **site (Fase 2)**. Se um
 plano de fase divergir de um destes, **este ganha** — e a divergência tem de ser corrigida no
 mesmo PR.
 
@@ -24,9 +24,9 @@ mesmo PR.
 
 | Pasta | Conteúdo |
 |---|---|
-| [`../shared/`](../shared/README.md) | catálogo de camadas e serviços, schema do `MapSpec`, perfil visual, manifesto de templates |
+| [`../shared/`](../shared/README.md) | catálogo de camadas e serviços, schema do `MapSpec`, manifesto de templates |
 | [`../Referencias_IMAP/`](../Referencias_IMAP/README.md) | 21 PDFs-modelo + 24 `.mxd` reais — gabarito de qualquer ajuste de layout |
-| [`../ferramentas/`](../ferramentas/README.md) | utilitários do repositório (hoje: remoção/reinjeção de chaves nos `.mxd`) |
+| [`../ferramentas/`](../ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2 de templates, recuperação de ZIP truncado |
 
 ## Regra de precedência
 

@@ -4,7 +4,7 @@ Templates `.mxd` operacionais (após preparação única descrita em F1-04).
 
 | Arquivo | Status |
 |---|---|
-| [`MANIFEST.json`](MANIFEST.json) | `dinamica_retrato` → `Dinamica_retrato.mxd` (**parcial**); demais stubs |
+| [`MANIFEST.json`](MANIFEST.json) | `dinamica_retrato` → `Dinamica_retrato.mxd` (**parcial**, sha256 ok, **offsets vazios**); demais `a_preparar` |
 | `Dinamica_retrato.mxd` | Gerado por `ferramentas/normalizar_mxd_arcpy.py` a partir do acervo. Faltam 4 elementos de layout (ver abaixo) que só dá para criar na GUI do ArcMap. |
 
 `dinamica_retrato` — o que a automação (`normalizar_mxd_arcpy.py`) já resolveu sem GUI:

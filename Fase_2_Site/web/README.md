@@ -1,23 +1,19 @@
 # web/
 
-Site do Mapas Fácil — Next.js (App Router), TypeScript, Tailwind.
+Site do Mapas Fácil — previsto: Next.js (App Router), TypeScript, Tailwind.
 
-**Status:** esqueleto. Só depois da Fase 1 validada. Planos em
+**Status:** pasta só com este README. Nenhum `package.json` nem código de aplicação.
+Código de produção da Fase 2 começa depois da Fase 1 validada. Planos em
 [`../planos/README.md`](../planos/README.md).
 
 > Os planos `04-frontend-site.md` ainda estão em formato **legado** (assumiam Vercel + chat
 > acoplado a agente WS). Destino: site em `mapasfacil.cursar.space` consumindo a API neste PC.
 
-## Quando existir código
+## Quando existir código (ainda não)
 
 ```
 web/
   app/
-    (marketing)/
-    (app)/
-      chat/[id]/
-      projetos/
-      configuracoes/
   components/
   lib/
   package.json

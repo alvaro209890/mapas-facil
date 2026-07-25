@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "perfil": "harmonia",
   "contract_version": 2,
-  "nota": "Templates .mxd ainda não preparados. Preencher sha256 e offsets na preparação única (F1-04). Baseline visual: Referencias_IMAP/Mapas/01/.",
+  "nota": "dinamica_retrato está parcial: sha256 registrado e Dinamica_retrato.mxd em shared/templates/; offsets vazios até concluir B1 na GUI do ArcMap. Demais templates a_preparar (sha256 null). Baseline visual: Referencias_IMAP/Mapas/01/.",
   "templates": [
     {
       "id": "dinamica_retrato",

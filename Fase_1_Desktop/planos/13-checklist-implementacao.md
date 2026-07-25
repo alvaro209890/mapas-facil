@@ -27,7 +27,7 @@ elementos de layout que só a GUI do ArcMap cria.
 | A5 | Parser recibo CAR (sem CPF) | [x] | |
 | A6 | CLI `doctor` | [x] | stub Linux; ArcMap/rede só no Windows |
 | A7 | PDF nativo + `validacao.json` | [x] | ordem de desenho: menor `ordem` por cima |
-| A8 | pytest + CI | [x] | 132 testes anel 1 (jul/2026) |
+| A8 | pytest + CI | [x] | 133 testes anel 1 coletados (jul/2026) |
 
 ## Bloco A+ — Quantitativos e validação visual (anel 1, sem ArcMap)
 

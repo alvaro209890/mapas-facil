@@ -4,7 +4,7 @@ Arquivos machine-readable consumidos pelo **núcleo da Fase 1** e pelo **backend
 
 | Arquivo | Conteúdo |
 |---|---|
-| [`camadas.json`](camadas.json) | Camadas com `id` estável para o MapSpec (atualizado 2026-07-25) |
+| [`camadas.json`](camadas.json) | **41** camadas com `id` estável para o MapSpec (atualizado 2026-07-25) |
 | [`servicos_geo.json`](servicos_geo.json) | Provedores WFS/WMS/REST/API (SEMA, SIMCAR, SCCON, PRODES…) |
 | [`sema_layers_live.json`](sema_layers_live.json) | **135** FeatureTypes do GetCapabilities SEMA (server-desktop, IP BR) |
 | [`mosaicos_sema.json`](mosaicos_sema.json) | Mosaicos WMS SPOT/Landsat/Sentinel curados no GeoForest |

@@ -34,8 +34,8 @@ aqui, com tunnel dedicado que **não toca nos tunnels existentes** dos outros si
 | Pasta | O que é |
 |---|---|
 | [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 2 |
-| [`web/`](web/) | site Next.js *(a implementar)* |
-| [`backend/`](backend/) | API FastAPI *(a implementar)* |
+| [`web/`](web/) | site Next.js — **só README** (código não iniciado) |
+| [`backend/`](backend/) | API FastAPI — **só README** (código não iniciado) |
 
 ## Leitura recomendada
 

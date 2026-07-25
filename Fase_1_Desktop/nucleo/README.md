@@ -1,9 +1,10 @@
 # nucleo/
 
-Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
-Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
+Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, quantitativos e `fsguard`.
+Comunica com o Electron por NDJSON (stdio), quando a UI existir. Empacotamento previsto:
+PyInstaller onedir junto do app.
 
-**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). v0.3.6.
+**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). **v0.3.6**.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -20,37 +21,36 @@ Planos: [`../planos/03-nucleo-python.md`](../planos/03-nucleo-python.md),
 nucleo/
   pyproject.toml
   docs/
-    bloco-b-sem-arcmap.md   # progresso B1–B9 sem ArcMap
+    bloco-b-sem-arcmap.md
   mapasfacil_nucleo/
-    __main__.py           # loop NDJSON + CLI doctor
-    protocolo.py          # envelope req/res/evt
-    config.py             # caminhos shared/, escalas permitidas
-    erros.py              # ErroNucleo, CaminhoNaoAutorizado
-    fsguard.py            # allowlist de disco (100% cobertura)
-    doctor.py             # diagnóstico do ambiente
-    geo/                  # zona UTM, área, bbox do .shp
-    camadas/              # materialização SHP/ canônico
-    workspace/            # índice, shapefile, ZIP SIMCAR, recibo CAR
+    __main__.py             # loop NDJSON + CLI doctor
+    protocolo.py
+    config.py
+    erros.py
+    fsguard.py
+    doctor.py
+    geo/                    # area, crs, bbox_shp, ogr2ogr
+    camadas/materializar.py
+    workspace/              # indice, shapefile, zip_simcar, recibo_car, servico, papeis
     motores/
-      manifesto.py        # MANIFEST.json + sha256
-      gerar.py            # orquestra MXD + PDF
-      patch_mxd.py        # cópia template + patch T2
-      arcpy_ponte.py      # subprocesso ArcPy (Windows)
-      nativo.py           # PDF mínimo (matplotlib) + overlay tabela PNG
-    scripts/
-      arcpy_job.py        # py2.7 — NUNCA importado pelo núcleo 3.12
+      manifesto.py
+      gerar.py
+      patch_mxd.py
+      arcpy_ponte.py
+      nativo.py             # PDF matplotlib + overlay tabela PNG
+    scripts/arcpy_job.py    # py2.7 — NUNCA importado pelo núcleo 3.12
     validacao/
       relatorio.py
-      comparar_pdf.py   # diff raster B9 (anel 1)
+      comparar_pdf.py
     quantitativos/
-      calcular.py       # áreas por camada local (F1-08)
-      xlsx.py           # export .xlsx estilizado (F1-08)
-      png_tabela.py     # PNG ≥ 600 dpi para o mapa (F1-08)
-      conferencia.py    # recibo CAR × áreas calculadas
+      calcular.py
+      xlsx.py
+      png_tabela.py
+      conferencia.py
     mapspec/
       validar.py
-      diff.py           # diff entre versões do MapSpec
-  tests/                  # anel 1 — roda no CI Linux
+      diff.py
+  tests/                    # anel 1 — CI Linux (133 testes coletados)
 ```
 
 ## Desenvolvimento
@@ -84,6 +84,8 @@ Exemplo de requisição NDJSON:
 
 ### Métodos implementados (v0.3.6)
 
+Registrados em `criar_roteador()` — 17 métodos:
+
 | Método | Descrição |
 |---|---|
 | `ping` | smoke test |
@@ -94,30 +96,33 @@ Exemplo de requisição NDJSON:
 | `workspace.reindexar` | atualiza índice |
 | `workspace.inspecionar` | metadados de `.shp` ou PDF |
 | `car.ler_recibo` | parser do recibo (sem CPF) |
-| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo **com overlay da tabela**, quantitativos, `.xlsx`, PNG tabela; `comparar_baseline` opcional |
-| `quantitativos.calcular` | tabela de áreas a partir das camadas locais |
-| `quantitativos.exportar_xlsx` | grava `*_Quantitativos.xlsx` (inclui aba Conferência com recibo) |
-| `quantitativos.renderizar_png` | grava `recursos/tabela_quantitativos.png` (≥ 600 dpi) |
-| `validacao.comparar_pdf` | diff raster entre dois PDFs (B9, tolerância 0,3%) |
+| `mapa.gerar` | SHP/, cópia/patch `.mxd`, PDF nativo com overlay da tabela, quantitativos, `.xlsx`, PNG; `comparar_baseline` opcional |
+| `quantitativos.calcular` | áreas a partir das camadas locais |
+| `quantitativos.exportar_xlsx` | `*_Quantitativos.xlsx` (inclui aba Conferência) |
+| `quantitativos.renderizar_png` | `recursos/tabela_quantitativos.png` (≥ 600 dpi) |
+| `validacao.comparar_pdf` | diff raster entre PDFs (tolerância 0,3%) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
-| `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` só se hash registrado |
+| `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` se hash registrado |
+
+**Não implementado neste sidecar:** agente IA, chat, tools DeepSeek, cliente WFS/SEMA em runtime, UI Electron.
 
 ### Limites conhecidos (honestos)
 
 - Doctor não detecta ArcMap/GDAL versão/rede fora do Windows.
-- Templates do MANIFEST ainda `a_preparar` (`sha256: null`) → aviso `AG-030`, `pronto_para_mxd: false`.
-- PDF nativo é estrutural (não Harmonia visual); ordem de camadas: menor `ordem` por cima.
-- Materialização B4 ainda é cópia, sem `ogr2ogr`.
+- `dinamica_retrato` está `parcial` (sha256 ok; offsets `{}`). Os outros 4 templates estão `a_preparar` (`sha256: null`). `pronto_para_mxd` exige **todos** com sha256 e (patch `pronto` ou ArcMap sondado) — hoje fica `false`.
+- PDF nativo é estrutural (não paridade visual Harmonia); já sobrepõe a tabela PNG quando `elementos_layout.tabela` (ou equivalente). Ordem de camadas: menor `ordem` por cima.
+- Materialização B4: cópia + **ogr2ogr opcional** (fallback cópia se GDAL ausente).
+- Sem agente: o núcleo só executa MapSpec / workspace / motores — não gera MapSpec por linguagem natural.
 
 ## CI
 
 Workflow [`.github/workflows/nucleo.yml`](../../.github/workflows/nucleo.yml) — `pytest` anel 1 no Ubuntu,
 cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixtures/mapspecs/`.
 
-## Próximos passos (bloco B)
+## Próximos passos (realidade)
 
-- B1 manual: preparar template Dinâmica 2026 no ArcMap + offsets no MANIFEST
-- `ogr2ogr` na materialização — feito (opcional); patch de textos aguarda offsets
-- Smoke Harmonia: comparar PDF nativo com `Mapas/01` via `validacao.comparar_pdf` ou `mapa.gerar` com `comparar_baseline: true`
-- Export `.xlsx` (com Conferência) e PNG da tabela — feitos; overlay no PDF nativo feito
+- B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
+- Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
+- UI Electron (M3) — pasta `app/` ainda não existe
+- Agente (M4) — não iniciado

@@ -83,19 +83,24 @@ e só cai para o acervo bruto em modo T3 (sem preparação nenhuma).
 ```
 MapSpec válido
     │
-    ├─ materializar_camadas_em (ex.: SHP/)  →  ATP.shp, AVN.shp, AREA_CONSOLIDADA.shp …
+    ├─ (opcional) materializar_camadas_em (ex.: SHP/)
+    │     → ATP.shp, AVN.shp, AREA_CONSOLIDADA.shp … (cópia + ogr2ogr opcional)
+    │
+    ├─ quantitativos (se tabela / xlsx / png / elementos_layout.tabela)
+    │     → calcular áreas; opcional .xlsx + Conferência; PNG em recursos/
     │
     ├─ saidas contém "mxd"
-    │     └─ copia Referencias_IMAP/MXD/*.mxd → MXD/<nome_base>.mxd
-    │        └─ patch de extent/escala SE o MANIFEST tiver offsets + sentinelas
+    │     └─ copia template preparado (shared/templates/<arquivo>) se existir
+    │        senão cai no acervo Referencias_IMAP/MXD/ (T3)
+    │        └─ patch extent/escala/textos só SE o MANIFEST tiver offsets + sentinelas
     │
     └─ saidas contém "pdf"
-          └─ renderizador nativo (matplotlib) + validacao.json
+          └─ PDF nativo (matplotlib); overlay da tabela PNG se elementos_layout.tabela
+             + validacao.json
 ```
 
-**Modo T3 implícito:** sem offsets no manifesto, o `.mxd` é cópia fiel do acervo (caminhos
-relativos ainda apontam para o template original). O PDF nativo continua sendo a saída confiável
-no Linux.
+**Modo T3 implícito:** sem offsets no manifesto, o `.mxd` é cópia do template preparado (ou do
+acervo). Sem patch de extent/textos. O PDF nativo continua sendo a saída confiável no Linux.
 
 ## Módulos novos
 

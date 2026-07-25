@@ -21,9 +21,10 @@ nenhum.
 
 | Pasta | O que é |
 |---|---|
-| [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 1 (F1-00…F1-12) |
-| [`nucleo/`](nucleo/) | núcleo Python sidecar — **M1 bloco A fechado**, bloco B parcial (v0.3.2) |
-| [`app/`](app/) | shell Electron + React *(a implementar)* |
+| [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 1 (F1-00…F1-13) |
+| [`nucleo/`](nucleo/) | núcleo Python sidecar — **M1 bloco A fechado**, bloco B parcial (**v0.3.6**) |
+
+A pasta `app/` (Electron + React) **ainda não existe** no repositório — UI não iniciada.
 
 ## Contratos e referências
 
