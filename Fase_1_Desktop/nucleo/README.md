@@ -3,7 +3,9 @@
 Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
 Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
 
-**Status:** M1 bloco A — workspace, recibo CAR e PDF nativo mínimo (v0.2.0).
+**Status:** M1 bloco A fechado; bloco B iniciado (manifesto + testes SIMCAR/03). v0.2.0.
+
+Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md) — 37 layers SIMCAR, camadas vazias válidas.
 
 Planos: [`../planos/03-nucleo-python.md`](../planos/03-nucleo-python.md),
 [`../planos/04-motor-mxd.md`](../planos/04-motor-mxd.md),
@@ -23,7 +25,9 @@ nucleo/
     doctor.py             # diagnóstico do ambiente
     geo/                  # zona UTM, área em hectares
     workspace/            # índice, shapefile, recibo CAR
-    motores/nativo.py     # PDF mínimo (matplotlib)
+    motores/
+      manifesto.py        # MANIFEST.json + sha256 (bloco B)
+      nativo.py           # PDF mínimo (matplotlib)
     validacao/relatorio.py
     mapspec/
       validar.py          # schema JSON + regras (NU-210, NU-220…)

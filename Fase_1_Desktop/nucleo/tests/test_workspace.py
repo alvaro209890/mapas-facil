@@ -46,6 +46,7 @@ def test_area_geografico_para_utm(tmp_path: Path) -> None:
 def test_detectar_papeis() -> None:
     assert detectar_papel("ATP.shp") == "ATP"
     assert detectar_papel("AREA_CONSOLIDADA.shp") == "AC"
+    assert detectar_papel("TIPOLOGIA_VEGETAL.shp") == "TIPOLOGIA"
     assert detectar_papel("desconhecido.shp") is None
 
 

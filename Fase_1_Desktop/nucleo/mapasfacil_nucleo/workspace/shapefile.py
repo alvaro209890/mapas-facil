@@ -33,6 +33,7 @@ class MetadadosShapefile:
     area_ha: float | None
     geometrias_corrigidas: int
     encoding_dbf: str | None
+    vazia: bool = False
     avisos: list[AvisoShapefile] = field(default_factory=list)
     valido: bool = True
 
@@ -113,8 +114,14 @@ def inspecionar(caminho: str | Path) -> MetadadosShapefile:
     tipos = {reader.shapeTypeName}
     tipo_geom = next(iter(tipos)) if tipos else "UNKNOWN"
 
-    if feicoes == 0:
-        avisos.append(AvisoShapefile("NU-023", "Shapefile sem feições."))
+    vazia = feicoes == 0
+    if vazia:
+        avisos.append(
+            AvisoShapefile(
+                "NU-025",
+                "Camada sem feições (export SIMCAR vazio — normal se não for obrigatória no MapSpec).",
+            )
+        )
 
     if epsg is None and geometrias:
         centro = geometrias[0].centroid
@@ -141,6 +148,8 @@ def inspecionar(caminho: str | Path) -> MetadadosShapefile:
         lon = float(sum(g.centroid.x for g in geometrias) / len(geometrias))
         zona_utm = epsg_utm_sirgas(lon)
 
+    estruturalmente_valido = not any(a.codigo == "NU-022" for a in avisos)
+
     return MetadadosShapefile(
         caminho=str(caminho_shp),
         tipo_geometria=tipo_geom,
@@ -156,6 +165,7 @@ def inspecionar(caminho: str | Path) -> MetadadosShapefile:
         area_ha=area_ha,
         geometrias_corrigidas=corrigidas,
         encoding_dbf=encoding,
+        vazia=vazia,
         avisos=avisos,
-        valido=feicoes > 0,
+        valido=estruturalmente_valido,
     )

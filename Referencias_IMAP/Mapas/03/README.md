@@ -89,10 +89,10 @@ Fixture de shapes para testes de `workspace` / papéis:
 Referencias_IMAP/Mapas/03/Arquivo Processado (11)/
 ```
 
-Cobrir no anel 1 (quando houver fixture copiada para `tests/fixtures/`):
+Cobrir no anel 1 (fixture no repositório — `tests/test_simcar_03.py`):
 
-- [ ] descobrir `ATP`, `AVN`, `AREA_CONSOLIDADA`, `AUAS` (vazio), `TIPOLOGIA_VEGETAL`
-- [ ] não abortar por `MANGUEZAL.shp` vazio
-- [ ] área ATP ≈ 64,4229 ha após reprojeção UTM
+- [x] descobrir `ATP`, `AVN`, `AREA_CONSOLIDADA`, `AUAS` (vazio), `TIPOLOGIA_VEGETAL`
+- [x] não abortar por `MANGUEZAL.shp` vazio
+- [x] área ATP ≈ 64,4229 ha após reprojeção UTM
 
 Ver planos: [`../../../planos/04-dados-camadas-e-car.md`](../../../planos/04-dados-camadas-e-car.md).
