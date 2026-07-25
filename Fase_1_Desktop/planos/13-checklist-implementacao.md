@@ -3,7 +3,7 @@
 Lista operacional da Fase 1. Complementa o [roadmap](12-roadmap.md).
 
 Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** (com correções de auditoria) ·
-**bloco B parcial** (sem ArcMap). Próximo bloqueante: B1 no Windows.
+**bloco B parcial** — **B1 desbloqueado** nesta máquina (ArcMap 10.8 detectado).
 
 ## Pré-voo
 
@@ -34,7 +34,7 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 
 | # | Tarefa | Feito |
 |---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [ ] bloqueado (manual) |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [ ] manual — ferramentas em `ferramentas/` |
 | B2 | MANIFEST sha256 + offsets | [~] leitor + `template.verificar`; hash ainda null |
 | B3 | `arcpy_job.py` + ponte | [x] esqueleto |
 | B4 | Materializar SHP/ | [~] cópia canônica (sem ogr2ogr) |

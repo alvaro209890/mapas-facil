@@ -6,12 +6,12 @@ Documentação do progresso do **motor `.mxd`** quando o desenvolvimento roda em
 Plano de referência: [`../planos/04-motor-mxd.md`](../planos/04-motor-mxd.md)  
 Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-implementacao.md)
 
-## Resumo (v0.3.1)
+## Resumo (v0.3.2)
 
 | Item | Status | Onde |
 |---|---|---|
-| B1 — Preparar template no ArcMap | **Bloqueado** (manual, Windows) | — |
-| B2 — `sha256` + offsets no MANIFEST | Parcial — leitor pronto; offsets ainda `null` | `motores/manifesto.py`, `ferramentas/inspecionar_mxd_offsets.py` |
+| B1 — Preparar template no ArcMap | **Desbloqueado** (manual, Windows + ArcMap) | `ferramentas/inspecionar_mxd_arcpy.py` |
+| B2 — `sha256` + offsets no MANIFEST | Parcial — `registrar_template.py` + leitor | `motores/manifesto.py`, `ferramentas/` |
 | B3 — `arcpy_job.py` + ponte | **Esqueleto** pronto; só roda com ArcMap | `scripts/arcpy_job.py`, `motores/arcpy_ponte.py` |
 | B4 — Materializar homônimos em `SHP/` | **Cópia** canônica (sem `ogr2ogr` ainda) | `camadas/materializar.py` |
 | B5 — Extent / escala | Bbox via metadados do shapefile + conversão CRS | `motores/gerar.py` |
@@ -62,14 +62,19 @@ mapasfacil_nucleo/
 
 ## Preparação manual (B1/B2) — uma vez por template
 
-1. Abrir o `.mxd` no ArcMap e normalizar caminhos relativos + nomes canônicos em `SHP/`.
-2. Gravar extent sentinela (`111111…444444`) e escala (`987654`) no layout.
-3. Rodar `python ferramentas/inspecionar_mxd_offsets.py Referencias_IMAP/MXD/Dinamica_2026.mxd`.
-4. Preencher em `MANIFEST.json`:
-   - `sha256` do arquivo preparado
-   - `patch.offsets.extent` / `escala` com `offset` e `sentinela`
-   - `status: "pronto"`
-5. Smoke: `template.verificar` + `mapa.gerar` num workspace de teste no Windows com ArcMap.
+Ferramentas em [`ferramentas/`](../../../ferramentas/README.md#preparação-de-template-b1b2--requer-arcmap).
+
+1. `inspecionar_mxd_arcpy.py` — diagnóstico do que falta normalizar.
+2. Trabalho no ArcMap: caminhos relativos, nomes canônicos, elementos de layout.
+3. `preparar_sentinelas_arcpy.py` — extent/escala sentinela para offsets.
+4. `registrar_template.py dinamica_retrato` — sha256 + offsets no MANIFEST.
+5. Smoke: `doctor --json` + `mapa.gerar` no Windows com ArcMap.
+
+## `doctor` no Windows
+
+O comando `doctor` detecta ArcMap 10.x, licença via arcpy e define `motor_preferido`
+(`arcpy` > `patch` > `nativo`). `pronto_para_mxd` exige template com sha256 e (patch pronto
+ou ArcMap disponível).
 
 ## ArcPy — o que o usuário final **não** precisa fazer
 
@@ -84,4 +89,4 @@ mapasfacil_nucleo/
 1. `ogr2ogr` na materialização (reprojeção para CRS do data frame).
 2. Slots UTF-16LE para textos no T2.
 3. Teste raster B9 contra `Referencias_IMAP/Mapas/01/Dinamica_2026.pdf`.
-4. Integrar escolha T1 vs T2 em `doctor.pronto_para_mxd`.
+4. Integrar escolha T1 vs T2 em `doctor` — **feito** (`motor_preferido`).

@@ -29,7 +29,10 @@ def _eh_unc(caminho: str) -> bool:
 
 
 def _tem_caractere_invalido(caminho: str) -> bool:
-    return any(ch in CARACTERES_INVALIDOS_WINDOWS for ch in caminho)
+    texto = caminho
+    if os.name == "nt" and len(caminho) >= 2 and caminho[1] == ":":
+        texto = caminho[2:]
+    return any(ch in CARACTERES_INVALIDOS_WINDOWS for ch in texto)
 
 
 def _componente_reservado(parte: str) -> bool:

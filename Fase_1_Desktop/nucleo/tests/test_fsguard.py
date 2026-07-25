@@ -60,7 +60,10 @@ def test_symlink_para_fora_e_rejeitado(workspace: Path, tmp_path: Path) -> None:
     fora = tmp_path / "secreto.txt"
     fora.write_text("segredo", encoding="utf-8")
     link = workspace / "dados" / "link.txt"
-    link.symlink_to(fora)
+    try:
+        link.symlink_to(fora)
+    except OSError as exc:
+        pytest.skip(f"symlink indisponível neste ambiente: {exc}")
     guard = WorkspaceGuard(workspace)
     with pytest.raises(CaminhoNaoAutorizado):
         guard.resolver("dados/link.txt")
