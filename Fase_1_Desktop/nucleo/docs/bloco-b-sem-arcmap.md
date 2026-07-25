@@ -6,7 +6,7 @@ Documentação do progresso do **motor `.mxd`** quando o desenvolvimento roda em
 Plano de referência: [`../planos/04-motor-mxd.md`](../planos/04-motor-mxd.md)  
 Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-implementacao.md)
 
-## Resumo (v0.3.3)
+## Resumo (v0.3.2)
 
 | Item | Status | Onde |
 |---|---|---|
@@ -18,7 +18,8 @@ Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-im
 | B6 — Textos (slots UTF-16LE) | **Infra pronta** — aguarda offsets no MANIFEST | `motores/patch_mxd.py` |
 | B7 — Minimapa | Aguarda os 2 últimos elementos de layout (B1) | — |
 | B8 — Patch T2 sem ArcMap | Copia do **template preparado** (`shared/templates/`), não mais do acervo bruto | `motores/patch_mxd.py`, `motores/manifesto.resolver_caminho_preparado` |
-| B9 — Comparar PDF com Harmonia | Não iniciado | — |
+| B9 — Comparar PDF com Harmonia | **Infra anel 1** — `validacao/comparar_pdf.py`, NDJSON `validacao.comparar_pdf`, flag `comparar_baseline` em `mapa.gerar` | `validacao/comparar_pdf.py`, `motores/gerar.py` |
+| Quantitativos (F1-08) | **Cálculo anel 1** — `quantitativos.calcular`; `.xlsx` pendente | `quantitativos/calcular.py` |
 | Doctor | Detecção rápida + `--completo` para sondar arcpy | `doctor.py` |
 | `validacao.json` do job | Consolidado em `mapa.gerar` | `motores/gerar.py` |
 
@@ -152,7 +153,7 @@ O comando define `motor_preferido` (`arcpy` > `patch` > `arcpy_provavel` > `nati
 
 1. ~~`ogr2ogr` na materialização~~ — feito (opcional, fallback cópia).
 2. ~~Slots UTF-16LE para textos no T2~~ — infra em `patch_mxd.py`; falta offsets no MANIFEST.
-3. Teste raster B9 contra `Referencias_IMAP/Mapas/01/Dinamica_2026.pdf`.
+3. ~~Teste raster B9 contra `Referencias_IMAP/Mapas/01/Dinamica_2026.pdf`~~ — módulo pronto; smoke com PDF nativo Harmonia pendente (motor ainda estrutural).
 4. ~~Integrar escolha T1 vs T2 em `doctor`~~ — `motor_preferido` + `arcpy_provavel`.
 5. ~~B1 sem GUI~~ — `normalizar_mxd_arcpy.py` fez a parte automatizável.
 6. B1 final (GUI, 5-10 min): 2 textos + 2 gráficos + confirmar legenda + logo — ver seção

@@ -22,7 +22,7 @@ nenhum.
 | Pasta | O que é |
 |---|---|
 | [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 1 (F1-00…F1-12) |
-| [`nucleo/`](nucleo/) | núcleo Python compartilhável com a Fase 2 *(a implementar)* |
+| [`nucleo/`](nucleo/) | núcleo Python sidecar — **M1 bloco A fechado**, bloco B parcial (v0.3.2) |
 | [`app/`](app/) | shell Electron + React *(a implementar)* |
 
 ## Contratos e referências
@@ -45,4 +45,5 @@ Valem para as duas fases e vivem na raiz do repositório:
 | Marco | Status |
 |---|---|
 | Planos | F1-00…F1-13 escritos |
-| Código | **próximo:** checklist bloco A |
+| Núcleo Python | **bloco A fechado** · bloco B parcial — v0.3.2, CI anel 1 verde |
+| UI Electron | não iniciado |

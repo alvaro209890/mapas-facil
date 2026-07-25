@@ -2,8 +2,8 @@
 
 Contratos versionados compartilhados pela **Fase 1** (desktop) e pela **Fase 2** (site/backend).
 
-**Status:** catálogo geo já versionado; schema do `MapSpec` e manifesto de templates entram
-ainda no M0 / início do M1.
+**Status:** catálogo geo versionado; schema `MapSpec` (contract_version 2); manifesto de templates
+com `dinamica_retrato` parcial; núcleo v0.3.2.
 
 ## Conteúdo atual
 
@@ -14,9 +14,9 @@ shared/
     camadas.json          # 32 camadas (Cerebro/NexoGeo, GetCapabilities SEMA 2026-07-08)
     servicos_geo.json     # provedores WFS/WMS/REST/XYZ
   schemas/                # mapspec.schema.json (contract_version 2)
-  templates/              # MANIFEST.json (templates a_preparar)
-  styles/                 # (a criar) .lyr oficiais ATP/AVN/AC/AUAS
-  contract_version.json   # (a criar)
+  templates/              # MANIFEST.json (dinamica_retrato parcial; demais a_preparar)
+  fixtures/mapspecs/      # dinamica_2026_canonico.json
+  contract_version.json   # 2 — alinhado ao schema MapSpec
 ```
 
 Documentação operacional do catálogo:

@@ -1,5 +1,5 @@
 {
-  "contract_version": 1,
+  "contract_version": 2,
   "catalog_hash_note": "Bump this integer whenever shared/catalog/*.json or MapSpec schema changes incompatibly. Agents with older contract_version receive agent_outdated.",
   "sources": [
     "Cerebro-Geo-IA/dados/camadas.json",
@@ -9,5 +9,6 @@
     "GeoForest-IA simcar-clip TEMPLATE_LAYERS + mosaicos CURATED_IMAGERY",
     "GeoForest-IA Automacao_AUAS/ENDPOINTS.md + Oraculo 11-endpoints-sema-descobertos.md"
   ],
-  "updated": "2026-07-25"
+  "updated": "2026-07-25",
+  "nucleo": "0.3.2"
 }

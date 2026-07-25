@@ -5,6 +5,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from mapasfacil_nucleo import __version__
+
+
+from mapasfacil_nucleo import __version__
+
 
 def test_doctor_cli_json() -> None:
     nucleo = Path(__file__).resolve().parents[1]
@@ -16,5 +21,5 @@ def test_doctor_cli_json() -> None:
         text=True,
     )
     dados = json.loads(proc.stdout)
-    assert dados["nucleo"] == "0.3.3"
+    assert dados["nucleo"] == __version__
     assert "templates" in dados

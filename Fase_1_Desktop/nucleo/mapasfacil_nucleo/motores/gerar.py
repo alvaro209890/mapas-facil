@@ -13,6 +13,8 @@ from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
+from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
+from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf, resolver_baseline_template
 from mapasfacil_nucleo.validacao.relatorio import gerar as gerar_validacao
 from mapasfacil_nucleo.validacao.relatorio import salvar as salvar_validacao
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
@@ -81,6 +83,8 @@ def gerar_mapa(
     mapspec: dict[str, Any],
     guard: WorkspaceGuard,
     fontes_idx: dict[str, str],
+    *,
+    comparar_baseline: bool = False,
 ) -> dict[str, Any]:
     resultado_val = validar(mapspec, fontes_locais=frozenset(fontes_idx))
     if not resultado_val["valido"]:
@@ -122,9 +126,29 @@ def gerar_mapa(
         avisos.extend(mxd_info.get("patch", {}).get("avisos", []))
 
     if "pdf" in saidas:
-        _, pdf_artefatos = gerar_pdf_minimo(mapspec, guard=guard, fontes_idx=fontes_idx)
+        pdf_path, pdf_artefatos = gerar_pdf_minimo(mapspec, guard=guard, fontes_idx=fontes_idx)
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
+
+        if comparar_baseline or mapspec.get("validacao", {}).get("comparar_baseline"):
+            template_id = mapspec.get("template")
+            if isinstance(template_id, str):
+                baseline = resolver_baseline_template(template_id)
+                if baseline is not None:
+                    comp = comparar_pdf(pdf_path, baseline)
+                    artefatos["comparacao_baseline"] = comp
+                    resultado["comparacao_baseline"] = comp
+                    if not comp["ok"]:
+                        avisos.append(
+                            f"Diff raster {comp['diferenca_pct']:.2f}% "
+                            f"(tolerância {comp['tolerancia_pct']}%)."
+                        )
+
+    if "xlsx" in saidas or mapspec.get("tabela"):
+        quant = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
+        artefatos["quantitativos"] = quant
+        resultado["quantitativos"] = quant
+        avisos.extend(quant.get("avisos", []))
 
     relatorio = _montar_validacao_job(mapspec, artefatos, avisos)
     pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
@@ -156,6 +180,18 @@ def _montar_validacao_job(
             }
         )
     soft = [{"id": "A01", "ok": not avisos, "mensagem": "; ".join(avisos) or "sem avisos"}]
+    comp = artefatos.get("comparacao_baseline")
+    if comp:
+        soft.append(
+            {
+                "id": "B09",
+                "ok": comp["ok"],
+                "mensagem": (
+                    f"Diff raster {comp['diferenca_pct']:.4f}% "
+                    f"(tolerância {comp['tolerancia_pct']}%)"
+                ),
+            }
+        )
 
     rel = gerar_validacao(motor=motor, confianca=confianca, checks_hard=hard, checks_soft=soft)
     rel["template"] = mapspec.get("template")
