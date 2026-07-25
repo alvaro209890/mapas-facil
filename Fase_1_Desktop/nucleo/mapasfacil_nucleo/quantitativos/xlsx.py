@@ -152,13 +152,67 @@ def _aba_fontes(ws, dados: dict[str, Any]) -> None:
     _larguras_colunas(ws, [1.5, 1.5, 2.5, 1.5])
 
 
+def _aba_conferencia(ws, conferencia: dict[str, Any], *, casas: int = 4) -> None:
+    cabecalho = [
+        "Classe",
+        "Declarado no recibo (ha)",
+        "Calculado (ha)",
+        "Diferença (ha)",
+        "Diferença (%)",
+        "OK",
+    ]
+    for col_idx, nome in enumerate(cabecalho, start=1):
+        cel = ws.cell(row=1, column=col_idx, value=nome)
+        _preencher_celula(cel, valor=nome, fundo=COR_CABECALHO, negrito=True, branco=True, alinhamento="center")
+
+    linhas = conferencia.get("linhas") or []
+    if not linhas:
+        msg = (
+            "Sem recibo do CAR no workspace — abre a pasta com o PDF do recibo "
+            "para preencher esta aba."
+            if not conferencia.get("tem_recibo")
+            else "Sem classes para conferir."
+        )
+        cel = ws.cell(row=2, column=1, value=msg)
+        _preencher_celula(cel, valor=msg)
+        cel.font = Font(italic=True, color="666666", size=9)
+        ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=6)
+    else:
+        for row_idx, item in enumerate(linhas, start=2):
+            valores = [
+                item.get("classe"),
+                item.get("declarado_ha"),
+                item.get("calculado_ha"),
+                item.get("diferenca_ha"),
+                item.get("diferenca_pct"),
+                "sim" if item.get("ok") else "não",
+            ]
+            for col_idx, valor in enumerate(valores, start=1):
+                cel = ws.cell(row=row_idx, column=col_idx, value=valor)
+                numero = col_idx in (2, 3, 4) and isinstance(valor, (int, float))
+                pct = col_idx == 5 and isinstance(valor, (int, float))
+                _preencher_celula(cel, valor=valor, numero=numero or pct)
+                if numero:
+                    cel.number_format = f"#,##0.{'0' * casas}"
+                if pct:
+                    cel.number_format = "0.00%"
+                if col_idx == 6 and not item.get("ok"):
+                    cel.font = Font(bold=True, color="C00000")
+
+    ws.freeze_panes = "A2"
+    _larguras_colunas(ws, [2.5, 1.8, 1.5, 1.5, 1.3, 0.8])
+
+
 def exportar_xlsx(
     dados: dict[str, Any],
     destino: Path,
     *,
     fontes_detalhe: list[dict[str, Any]] | None = None,
+    recibo: dict[str, Any] | None = None,
 ) -> Path:
     """Gera planilha de quantitativos (F1-08) a partir do resultado de calcular()."""
+    from mapasfacil_nucleo.quantitativos.conferencia import montar_conferencia
+
     destino.parent.mkdir(parents=True, exist_ok=True)
 
     if fontes_detalhe:
@@ -169,6 +223,10 @@ def exportar_xlsx(
                 por_fonte[extra["fonte"]].update(extra)
         dados = {**dados, "detalhe": list(por_fonte.values())}
 
+    conferencia = dados.get("conferencia")
+    if conferencia is None:
+        conferencia = montar_conferencia(dados, recibo)
+
     wb = Workbook()
     ws_q = wb.active
     ws_q.title = "Quantitativos"
@@ -177,8 +235,13 @@ def exportar_xlsx(
     ws_d = wb.create_sheet("Detalhamento")
     _aba_detalhamento(ws_d, dados)
 
+    ws_c = wb.create_sheet("Conferência")
+    _aba_conferencia(ws_c, conferencia, casas=int(dados.get("casas_decimais") or 4))
+
+    avisos = list(dados.get("avisos") or [])
+    avisos.extend(conferencia.get("avisos") or [])
     ws_a = wb.create_sheet("Avisos")
-    _aba_avisos(ws_a, dados.get("avisos") or [])
+    _aba_avisos(ws_a, avisos)
 
     ws_f = wb.create_sheet("Fontes")
     _aba_fontes(ws_f, dados)

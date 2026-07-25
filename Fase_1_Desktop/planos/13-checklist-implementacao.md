@@ -2,7 +2,7 @@
 
 Lista operacional da Fase 1. Complementa o [roadmap](12-roadmap.md).
 
-Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** (v0.3.4) — B1
+Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** (v0.3.5) — B1
 automatizado parcialmente via arcpy (`ferramentas/normalizar_mxd_arcpy.py`); faltam 4
 elementos de layout que só a GUI do ArcMap cria.
 
@@ -27,16 +27,17 @@ elementos de layout que só a GUI do ArcMap cria.
 | A5 | Parser recibo CAR (sem CPF) | [x] | |
 | A6 | CLI `doctor` | [x] | stub Linux; ArcMap/rede só no Windows |
 | A7 | PDF nativo + `validacao.json` | [x] | ordem de desenho: menor `ordem` por cima |
-| A8 | pytest + CI | [x] | 125 testes anel 1 (jul/2026) |
+| A8 | pytest + CI | [x] | 129 testes anel 1 (jul/2026) |
 
 ## Bloco A+ — Quantitativos e validação visual (anel 1, sem ArcMap)
 
 | # | Tarefa | Feito | Nota |
 |---|---|---|---|
 | Q1 | `quantitativos.calcular` a partir das camadas locais | [x] | áreas em ha, `TOTAL GERAL`, conferência com `MapSpec.tabela` |
-| Q2 | Export `.xlsx` (F1-08) | [x] | abas Quantitativos, Detalhamento, Avisos, Fontes; estilo Harmonia; Conferência pendente |
+| Q2 | Export `.xlsx` (F1-08) | [x] | abas Quantitativos, Detalhamento, Conferência, Avisos, Fontes |
 | Q3 | `mapspec.diff` entre versões | [x] | diff por `id` de camada; NDJSON `mapspec.diff` |
 | Q4 | PNG da tabela ≥ 600 dpi (F1-08) | [x] | `recursos/tabela_quantitativos.png`; NDJSON `quantitativos.renderizar_png` |
+| Q5 | Aba Conferência recibo × calculado | [x] | `quantitativos/conferencia.py`; diferença ha e % |
 | V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% padrão |
 | V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST quando pedido |
 | V3 | Smoke Harmonia vs `Mapas/01` | [ ] | infra pronta; baseline real ainda não passa (PDF nativo estrutural) |

@@ -81,12 +81,31 @@ def _resolver_bbox_utm(
     return min(tx), min(ty), max(tx), max(ty)
 
 
+def _recibo_do_guard(guard: WorkspaceGuard) -> dict[str, Any] | None:
+    """Lê o recibo CAR do workspace, se o índice o apontar."""
+    from mapasfacil_nucleo.workspace import indice as indice_mod
+    from mapasfacil_nucleo.workspace.recibo_car import parsear
+
+    try:
+        idx = indice_mod.varrer(guard.raiz, guard)
+    except Exception:
+        return None
+    rel = idx.get("recibo_car")
+    if not rel:
+        return None
+    try:
+        return parsear(guard.resolver(rel)).para_dict()
+    except ErroNucleo:
+        return None
+
+
 def gerar_mapa(
     mapspec: dict[str, Any],
     guard: WorkspaceGuard,
     fontes_idx: dict[str, str],
     *,
     comparar_baseline: bool = False,
+    recibo: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     resultado_val = validar(mapspec, fontes_locais=frozenset(fontes_idx))
     if not resultado_val["valido"]:
@@ -156,12 +175,19 @@ def gerar_mapa(
         quant = artefatos.get("quantitativos") or calcular_quantitativos(
             mapspec, guard=guard, fontes_idx=fontes_idx
         )
+        recibo_efetivo = recibo if recibo is not None else _recibo_do_guard(guard)
         pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
         nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
         xlsx_path = pasta_saida / f"{nome_base}_Quantitativos.xlsx"
-        exportar_xlsx(quant, xlsx_path)
+        exportar_xlsx(quant, xlsx_path, recibo=recibo_efetivo)
         resultado["xlsx"] = str(xlsx_path.relative_to(guard.raiz))
         artefatos["xlsx"] = resultado["xlsx"]
+        from mapasfacil_nucleo.quantitativos.conferencia import montar_conferencia
+
+        conf = montar_conferencia(quant, recibo_efetivo)
+        artefatos["conferencia"] = conf
+        resultado["conferencia"] = conf
+        avisos.extend(conf.get("avisos", []))
 
     # PNG da tabela: saidas inclui "png" ou elementos_layout.tabela (F1-08).
     precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))

@@ -34,12 +34,45 @@ def test_exportar_xlsx_abas_e_estilo(tmp_path: Path) -> None:
 
     assert destino.exists()
     wb = load_workbook(destino)
-    assert wb.sheetnames == ["Quantitativos", "Detalhamento", "Avisos", "Fontes"]
+    assert wb.sheetnames == ["Quantitativos", "Detalhamento", "Conferência", "Avisos", "Fontes"]
     ws = wb["Quantitativos"]
     assert ws["A1"].value == "Quantitativos"
     assert ws["A1"].fill.fgColor.rgb.endswith("1F4E79")
     assert ws["A3"].value == "Fazenda Teste"
     assert ws["B3"].value == 100.0
+
+
+def test_exportar_xlsx_com_conferencia_recibo(tmp_path: Path) -> None:
+    montar_workspace_minimo(tmp_path)
+    guard = WorkspaceGuard(tmp_path)
+    fontes_idx = {
+        "ATP": "dados/ATP.shp",
+        "AVN": "dados/AVN.shp",
+        "AUAS": "dados/AUAS.shp",
+    }
+    mapspec = {
+        "imovel": {"nome": "Fazenda Harmonia"},
+        "camadas": [
+            {"fonte": "local.ATP", "estilo": "perimetro_imovel"},
+            {"fonte": "local.AVN", "estilo": "avn"},
+            {"fonte": "local.AUAS", "estilo": "auas"},
+        ],
+        "tabela": {"total_geral": True, "casas_decimais": 4},
+    }
+    dados = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
+    from mapasfacil_nucleo.workspace.recibo_car import parsear
+
+    recibo = parsear(tmp_path / "CAR - Emitido.pdf").para_dict()
+    destino = tmp_path / "Mapas" / "com_conf.xlsx"
+    exportar_xlsx(dados, destino, recibo=recibo)
+
+    wb = load_workbook(destino)
+    assert "Conferência" in wb.sheetnames
+    ws = wb["Conferência"]
+    assert ws["A1"].value == "Classe"
+    assert ws["A2"].value == "Área total da propriedade"
+    # Fixture: recibo 3823… × calculado 100 → divergência
+    assert ws["F2"].value == "não"
 
 
 def test_gerar_mapa_com_xlsx(tmp_path: Path, repo_root: Path) -> None:
