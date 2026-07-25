@@ -3,7 +3,7 @@
 Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, agente e `fsguard`.
 Comunica com o Electron por NDJSON (stdio). Empacotado junto do app (PyInstaller onedir).
 
-**Status:** M1 **bloco A fechado** (auditoria 2026-07-25); **bloco B parcial** (sem ArcMap). v0.3.1.
+**Status:** M1 **bloco A fechado** (auditoria 2026-07-25); **bloco B parcial** (sem ArcMap). v0.3.2.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -39,7 +39,11 @@ nucleo/
       nativo.py           # PDF mínimo (matplotlib)
     scripts/
       arcpy_job.py        # py2.7 — NUNCA importado pelo núcleo 3.12
-    validacao/relatorio.py
+    validacao/
+      relatorio.py
+      comparar_pdf.py   # diff raster B9 (anel 1)
+    quantitativos/
+      calcular.py       # áreas por camada local (F1-08, sem .xlsx ainda)
     mapspec/
       validar.py          # schema JSON + regras (NU-210, NU-220…)
   tests/                  # anel 1 — roda no CI Linux
@@ -74,7 +78,7 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.3.1)
+### Métodos implementados (v0.3.2)
 
 | Método | Descrição |
 |---|---|
@@ -85,7 +89,9 @@ Exemplo de requisição NDJSON:
 | `workspace.reindexar` | atualiza índice |
 | `workspace.inspecionar` | metadados de `.shp` ou PDF |
 | `car.ler_recibo` | parser do recibo (sem CPF) |
-| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo |
+| `mapa.gerar` | materializa SHP/, cópia/patch `.mxd`, PDF nativo, quantitativos; `comparar_baseline` opcional |
+| `quantitativos.calcular` | tabela de áreas a partir das camadas locais |
+| `validacao.comparar_pdf` | diff raster entre dois PDFs (B9, tolerância 0,3%) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` só se hash registrado |
 
@@ -104,5 +110,6 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 ## Próximos passos (bloco B)
 
 - B1 manual: preparar template Dinâmica 2026 no ArcMap + offsets no MANIFEST
-- `ogr2ogr` na materialização; patch de textos (slots UTF-16LE)
-- Comparar PDF com baseline Harmonia (`Mapas/01`)
+- `ogr2ogr` na materialização — feito (opcional); patch de textos aguarda offsets
+- Smoke Harmonia: comparar PDF nativo com `Mapas/01` via `validacao.comparar_pdf` ou `mapa.gerar` com `comparar_baseline: true`
+- Export `.xlsx` de quantitativos (F1-08) — cálculo pronto; falta `openpyxl`

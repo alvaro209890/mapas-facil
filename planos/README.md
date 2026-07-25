@@ -44,9 +44,6 @@ O PR que muda tem de atualizar os planos de fase afetados junto.
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **quase fechado** — [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
-| Fase 1 — desenvolvimento | **próximo: M1** (bloco A do checklist) |
+| M0 — Planos e contratos | **fechado** |
+| Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.3.2) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
 | Fase 2 — desenvolvimento | não iniciado |
-
-Nenhuma linha de código de produção foi escrita. O repositório contém plano, contratos,
-referências visuais e uma ferramenta de segurança.

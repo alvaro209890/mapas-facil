@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+from mapasfacil_nucleo import __version__
 from mapasfacil_nucleo.doctor import _motor_preferido, rodar
 
 
@@ -34,7 +35,7 @@ def test_doctor_sem_arcmap(mock_detectar) -> None:
     assert dados["motor_preferido"] == "nativo"
     assert dados["arcmap"]["encontrado"] is False
     assert "templates" in dados
-    assert dados["nucleo"] == "0.3.3"
+    assert dados["nucleo"] == __version__
 
 
 def test_motor_arcpy_provavel() -> None:

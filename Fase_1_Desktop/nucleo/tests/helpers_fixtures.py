@@ -99,6 +99,17 @@ def escrever_recibo_car_pdf(caminho: Path) -> Path:
     return caminho
 
 
+def escrever_pdf_cor_solido(caminho: Path, *, rgb: tuple[int, int, int]) -> None:
+    """PDF de uma página com retângulo preenchido (testes B9)."""
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    cor = tuple(c / 255.0 for c in rgb)
+    doc = fitz.open()
+    pagina = doc.new_page(width=200, height=200)
+    pagina.draw_rect(fitz.Rect(0, 0, 200, 200), color=cor, fill=cor)
+    doc.save(caminho)
+    doc.close()
+
+
 def montar_workspace_minimo(raiz: Path) -> dict[str, Path]:
     dados = raiz / "dados"
     mapas = raiz / "Mapas"

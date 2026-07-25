@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 from typing import Any, TextIO
 
 from mapasfacil_nucleo import doctor
@@ -18,6 +19,8 @@ from mapasfacil_nucleo.protocolo import (
 from mapasfacil_nucleo.workspace import servico as workspace_servico
 from mapasfacil_nucleo.workspace.recibo_car import parsear as parsear_recibo
 from mapasfacil_nucleo.motores.manifesto import listar_templates, verificar_template
+from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
+from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf
 from mapasfacil_nucleo.workspace.zip_simcar import extrair as zip_extrair
 from mapasfacil_nucleo.workspace.zip_simcar import listar as zip_listar
 
@@ -35,6 +38,8 @@ def criar_roteador() -> Roteador:
     roteador.registrar("zip.extrair", _handler_zip_extrair)
     roteador.registrar("template.listar", _handler_template_listar)
     roteador.registrar("template.verificar", _handler_template_verificar)
+    roteador.registrar("validacao.comparar_pdf", _handler_validacao_comparar_pdf)
+    roteador.registrar("quantitativos.calcular", _handler_quantitativos_calcular)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 
@@ -104,7 +109,13 @@ def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
     estado = workspace_servico.estado_atual()
     if estado is None:
         raise ErroNucleo("NU-040", "Abra um workspace antes de gerar o mapa.")
-    return gerar_mapa(mapspec, estado.guard, _fontes_idx_do_estado(estado))
+    comparar_baseline = bool(params.get("comparar_baseline"))
+    return gerar_mapa(
+        mapspec,
+        estado.guard,
+        _fontes_idx_do_estado(estado),
+        comparar_baseline=comparar_baseline,
+    )
 
 
 def _handler_zip_listar(params: dict[str, Any]) -> dict[str, Any]:
@@ -147,6 +158,52 @@ def _handler_template_verificar(params: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(template_id, str) or not template_id:
         raise ErroNucleo("NU-001", "Parâmetro 'id' é obrigatório.")
     return verificar_template(template_id)
+
+
+def _handler_validacao_comparar_pdf(params: dict[str, Any]) -> dict[str, Any]:
+    gerado = params.get("gerado")
+    referencia = params.get("referencia")
+    if not isinstance(gerado, str) or not gerado:
+        raise ErroNucleo("NU-041", "Parâmetro 'gerado' é obrigatório.")
+    if not isinstance(referencia, str) or not referencia:
+        raise ErroNucleo("NU-041", "Parâmetro 'referencia' é obrigatório.")
+
+    estado = workspace_servico.estado_atual()
+    guard = estado.guard if estado else None
+    gerado_path = Path(gerado)
+    referencia_path = Path(referencia)
+    if guard is not None and not gerado_path.is_absolute():
+        gerado_path = guard.resolver(gerado)
+    if guard is not None and not referencia_path.is_absolute():
+        referencia_path = guard.resolver(referencia)
+
+    dpi = params.get("dpi", 150)
+    tolerancia = params.get("tolerancia_pct", 0.3)
+    if not isinstance(dpi, int) or dpi < 36:
+        raise ErroNucleo("NU-001", "Parâmetro 'dpi' inválido.")
+    if not isinstance(tolerancia, (int, float)) or tolerancia < 0:
+        raise ErroNucleo("NU-001", "Parâmetro 'tolerancia_pct' inválido.")
+
+    return comparar_pdf(
+        gerado_path,
+        referencia_path,
+        dpi=dpi,
+        tolerancia_pct=float(tolerancia),
+    )
+
+
+def _handler_quantitativos_calcular(params: dict[str, Any]) -> dict[str, Any]:
+    mapspec = params.get("mapspec")
+    if not isinstance(mapspec, dict):
+        raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de calcular quantitativos.")
+    return calcular_quantitativos(
+        mapspec,
+        guard=estado.guard,
+        fontes_idx=_fontes_idx_do_estado(estado),
+    )
 
 
 def processar_linha(linha: str, roteador: Roteador | None = None) -> str:

@@ -2,7 +2,7 @@
 
 Lista operacional da Fase 1. Complementa o [roadmap](12-roadmap.md).
 
-Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** — B1
+Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** (v0.3.2) — B1
 automatizado parcialmente via arcpy (`ferramentas/normalizar_mxd_arcpy.py`); faltam 4
 elementos de layout que só a GUI do ArcMap cria.
 
@@ -27,7 +27,17 @@ elementos de layout que só a GUI do ArcMap cria.
 | A5 | Parser recibo CAR (sem CPF) | [x] | |
 | A6 | CLI `doctor` | [x] | stub Linux; ArcMap/rede só no Windows |
 | A7 | PDF nativo + `validacao.json` | [x] | ordem de desenho: menor `ordem` por cima |
-| A8 | pytest + CI | [x] | |
+| A8 | pytest + CI | [x] | 115 testes anel 1 (jul/2026) |
+
+## Bloco A+ — Quantitativos e validação visual (anel 1, sem ArcMap)
+
+| # | Tarefa | Feito | Nota |
+|---|---|---|---|
+| Q1 | `quantitativos.calcular` a partir das camadas locais | [x] | áreas em ha, `TOTAL GERAL`, conferência com `MapSpec.tabela` |
+| Q2 | Export `.xlsx` (F1-08) | [ ] | cálculo pronto; falta `openpyxl` + estilo |
+| V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% padrão |
+| V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST quando pedido |
+| V3 | Smoke Harmonia vs `Mapas/01` | [ ] | infra pronta; baseline real ainda não passa (PDF nativo estrutural) |
 
 ## Bloco B — Motor `.mxd` (M2)
 
@@ -43,7 +53,7 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 | B6 | Textos / definition query | [~] infra UTF-16LE; falta MANIFEST |
 | B7 | Minimapa retângulo + guia | [ ] aguarda B1 |
 | B8 | Patch T2 sem ArcMap | [~] cópia do template preparado (`resolver_caminho_preparado`) |
-| B9 | Diff raster vs `Mapas/01` | [ ] |
+| B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke Harmonia manual pendente |
 
 ## Regras de ouro
 
