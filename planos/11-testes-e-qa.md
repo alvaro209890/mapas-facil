@@ -7,13 +7,12 @@ hospedada**.
 ## O problema central
 
 O entregável é o `.mxd`, e gerar `.mxd` exige `arcpy`, que exige Windows com ArcMap 10.6+ (ou ArcGIS
-Pro) e **licença ativa**. Nenhum runner do GitHub Actions tem isso: não há imagem com ArcMap, a
-licença é por máquina e o interpretador é Python 2.7. O erro seria aceitar isso e não testar o `.mxd`
-— foi o que aconteceu no projeto anterior, onde `mapa.mxd` ficou como "somente quando ArcMap estiver
-configurado" e nunca teve teste ([handoff](../../NexoGeo-Ambiental/docs/NEXOMAP_AGENT_HANDOFF.md)).
-Sem teste automatizado, o `.mxd` volta a ser opcional na prática.
-
-Solução em três anéis, o mesmo código dividido por marcador de pytest:
+Pro) e **licença ativa**. Nenhum runner do GitHub Actions tem isso: não há imagem com ArcMap, a licença
+é por máquina e o interpretador é Python 2.7. O erro seria aceitar isso e não testar o `.mxd` — foi o
+que aconteceu no projeto anterior, onde `mapa.mxd` ficou como "somente quando ArcMap estiver
+configurado" e nunca teve teste ([handoff](../../NexoGeo-Ambiental/docs/NEXOMAP_AGENT_HANDOFF.md)):
+sem teste automatizado, o `.mxd` volta a ser opcional na prática. Solução em três anéis, o mesmo
+código dividido por marcador de pytest:
 
 | Anel | Onde roda | O que cobre | Gate |
 |---|---|---|---|
@@ -31,17 +30,15 @@ temporária apagada no fim. Se o runner estiver offline, o job **falha visivelme
 "skipped" — release não pode passar por ausência de teste.
 
 Descartados: emular `arcpy` (não existe; `arcpy.mapping` é proprietário e o `.mxd` é binário fechado);
-ArcGIS Server em container (licença proibitiva, ver [`00`](00-visao-e-escopo.md)); testar `.mxd` só à
-mão (não escala e regride).
+ArcGIS Server em container (licença proibitiva, ver [`00`](00-visao-e-escopo.md)); testar à mão.
 
 ## Pirâmide adaptada
 
 ```
-              manual (checklist de release)
-    E2E Playwright (fakes)   |   suíte MXD no runner Windows
-    integração de API        |   integração do agente (subprocess e fs reais)
-    unitários do backend | unitários do agente | componentes do frontend
-              contrato (schemas + fixtures)
+manual (checklist de release)  >  E2E Playwright com fakes | suíte MXD no runner Windows
+integração de API | integração do agente (subprocess e fs reais)
+unitários do backend | unitários do agente | componentes do frontend
+contrato (schemas + fixtures)  <  base mais larga
 ```
 
 A base larga é deliberadamente a **validação do `MapSpec`**: é o contrato central, é puro (entra JSON,
@@ -198,10 +195,9 @@ sem nenhum `!` vermelho".
    baseline e falhar se a fração de pixels divergentes passar do limite (ordem de 0,5%), com limiar
    por canal para absorver antialiasing. O diff vira artefato do job de CI.
 2. **Comparação estrutural por região.** A página é dividida em regiões nomeadas (título, mapa
-   principal, legenda, tabela, metadados da imagem, minimapa, norte, logo) e cada uma é comparada
-   isoladamente, com métrica de "tem conteúdo / está vazia / mudou muito". Dá diagnóstico útil ("a
-   legenda mudou, o mapa não") e resiste a deslocamento de poucos pixels que quebraria a comparação
-   global.
+   principal, legenda, tabela, metadados da imagem, minimapa, norte, logo), comparadas isoladamente
+   com métrica de "tem conteúdo / está vazia / mudou muito". Dá diagnóstico útil ("a legenda mudou, o
+   mapa não") e resiste a deslocamento de poucos pixels que quebraria a comparação global.
 
 Complemento barato e estável: extrair o texto do PDF e afirmar que título, matrícula, datum,
 satélite/sensor e os totais da tabela aparecem. Atualizar baseline é ação explícita — comando
@@ -318,8 +314,8 @@ Bloqueante — não sai release:
 | Classe | Exemplo |
 |---|---|
 | Escrita fora da allowlist | qualquer caminho negado que passe; qualquer sobrescrita de arquivo do usuário |
-| Vazamento de dado do cliente | geometria, shapefile ou conteúdo de arquivo saindo para a nuvem ou para a IA |
-| Segredo exposto; falha de autorização | chave em repositório, log, bundle ou SSE; acesso ou despacho cruzando workspace |
+| Vazamento de dado do cliente; segredo exposto | geometria ou conteúdo de arquivo saindo para a nuvem ou para a IA; chave em repositório, log, bundle ou SSE |
+| Falha de autorização | acesso ou despacho cruzando workspace |
 | Mapa fora do padrão IMAP | qualquer check *hard* de [`06`](06-padrao-imap.md) falhando num template da série |
 | Camada quebrada no `.mxd` | `isBroken` verdadeiro em qualquer layer do arquivo entregue |
 | Perda de conversa ou de versão | mensagem, `MapSpec` ou job desaparecendo; `map_specs`/`job_events` deixando de ser append-only |
@@ -330,8 +326,7 @@ Não bloqueante:
 | Classe | Tratamento |
 |---|---|
 | Diferença estética dentro da tolerância visual | atualizar baseline com revisão |
-| Check IMAP *soft* falhando | aviso na UI, job entrega |
-| Erro de WFS externo com fallback (cache ou aviso) | documentar e monitorar |
+| Check IMAP *soft* falhando; erro de WFS externo com fallback | aviso na UI e job entrega; documentar e monitorar |
 | Ausência de ArcMap/licença com fallback funcionando | comportamento esperado, não bug |
 | Eval oscilando na margem; texto de UI, ordenação, atalho | monitorar; próxima release |
 | Fora do escopo de [`00`](00-visao-e-escopo.md) (Linux, QGIS, multiusuário no mesmo agente) | fechar como fora de escopo |
