@@ -1,0 +1,69 @@
+# Dependências e builds
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+out/
+*.egg-info/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.turbo/
+.vercel/
+
+# Empacotamento do agente
+agent/dist/
+agent/build/
+*.spec.bak
+*.exe
+*.msi
+
+# Ambiente e segredos — NUNCA versionar
+.env
+.env.*
+!.env.example
+secrets.local.json
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# IDE / SO
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs e temporários
+*.log
+logs/
+tmp/
+temp/
+.cache/
+*.tmp
+
+# Dados locais de desenvolvimento (shapefiles de teste grandes)
+**/fixtures_large/
+**/*.gdb/
+**/_scratch/
+
+# Artefatos gerados por jobs locais
+**/Resultados/
+**/MapasFacil_out/
+
+# Coverage / Playwright
+playwright-report/
+test-results/
+coverage/
