@@ -4,6 +4,10 @@
   "sources": [
     "Cerebro-Geo-IA/dados/camadas.json",
     "Cerebro-Geo-IA/dados/servicos_geo.json",
-    "GeoForest-IA backend WFS recipes (2026-07-10 BBOX fix)"
-  ]
+    "GeoForest-IA backend WFS recipes (2026-07-10 BBOX fix)",
+    "server-desktop live GetCapabilities SEMA 2026-07-25 (135 layers)",
+    "GeoForest-IA simcar-clip TEMPLATE_LAYERS + mosaicos CURATED_IMAGERY",
+    "GeoForest-IA Automacao_AUAS/ENDPOINTS.md + Oraculo 11-endpoints-sema-descobertos.md"
+  ],
+  "updated": "2026-07-25"
 }

@@ -270,8 +270,7 @@ payload, criado_em)`.
 | `login.magic_link_enviado`, `login.sucesso`, `login.falha` | e-mail mascarado, IP, motivo da falha |
 | `login.refresh_reuso` | família de tokens invalidada (suspeita de roubo) |
 | `agente.pair_code_gerado`, `agente.pareado`, `agente.pair_falhou` | usuário, hostname, SO, versão, pastas iniciais, tentativas |
-| `agente.allowlist_alterada` | diff de pastas, antes e depois |
-| `agente.revogado`, `agente.token_rotacionado` | quem, e o motivo (manual / host divergente) |
+| `agente.allowlist_alterada`; `agente.revogado`; `agente.token_rotacionado` | diff de pastas antes e depois; quem revogou; motivo da rotação (manual / host divergente) |
 | `job.criado`, `job.cancelado` | ator, `agent_id`, `mapspec_id`, `pasta_destino` |
 | `autorizacao.negada`, `artefato.upload_rejeitado` | rota e ids envolvidos; motivo (tipo, tamanho, hash) |
 | `conta.exclusao_solicitada` | prazo |
@@ -294,8 +293,7 @@ Cada item é verificável e tem teste associado em [`11-testes-e-qa.md`](11-test
 [ ] mxd_template resolvido por enum local; valor de travessia rejeitado em teste
 [ ] Alteração de allowlist exige confirmação na UI local (teste manual documentado)
 [ ] Atualização automática desligada enquanto não houver assinatura de código válida
-[ ] agent_token só no Credential Manager; grep confirma ausência em arquivo de config
-[ ] Revogação derruba o WebSocket em menos de 5 s e cancela jobs pendentes
+[ ] agent_token só no Credential Manager; revogação derruba o WebSocket em menos de 5 s
 [ ] Pareamento: TTL, uso único e rate limit cobertos por teste
 [ ] Access token de 15 min; refresh rotativo com detecção de reuso testada
 [ ] Isolamento cross-workspace em toda rota com id; job de outro workspace não despacha
@@ -320,5 +318,4 @@ Cada item é verificável e tem teste associado em [`11-testes-e-qa.md`](11-test
 | S4 | Agente como serviço do Windows ou app de tray | serviço roda sem sessão, mas `arcpy` e licença podem exigir sessão interativa; tray é mais simples e menos privilegiado | durante M2, em máquina real |
 | S5 | Cifrar `pastas_autorizadas` e rótulos no banco | claro (simples, buscável) vs cifrado em coluna (protege dump vazado) | ao primeiro cliente com dado de terceiro sensível |
 | S6 | Sandbox do subprocess ArcPy (Job Object, limite de CPU/memória, sem rede) | `arcpy` é código de terceiro rodando junto do nosso | M2 ou M4 |
-| S7 | Modo totalmente offline (agente sem nuvem, chat desabilitado) | pedido provável de cliente conservador; muda o modelo de auth | pós-v1 |
-| S8 | Pentest externo antes do release público | contratar vs revisão interna com checklist | quando houver receita |
+| S7 | Modo totalmente offline (agente sem nuvem); pentest externo | pedido provável de cliente conservador, mas muda o modelo de auth; contratar vs revisão interna com checklist | pós-v1; quando houver receita |

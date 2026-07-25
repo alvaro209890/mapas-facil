@@ -325,7 +325,107 @@
       "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
       "layer": "Geoportal:AREAS_USO_RESTRITO",
       "auth": "sema_authkey",
-      "descricao": "Areas de uso restrito (declividade/veredas etc.) do SIMCAR digital."
+      "descricao": "Areas de uso restrito (declividade/veredas etc.) do SIMCAR digital.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "terras_indigenas_sema",
+      "nome": "Terras Indígenas (SEMA-MT)",
+      "tema": "areas_protegidas",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:TERRAS_INDIGENAS",
+      "auth": "sema_authkey",
+      "descricao": "Terras indigenas na base da SEMA-MT (alternativa/complemento a Funai:tis_poligonais). Confirmado no GetCapabilities live 2026-07-25.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "vegetacao_radam",
+      "nome": "Vegetação Radam Brasil (SEMA)",
+      "tema": "tipologia",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:VEGETACAO_RADAMBRASIL",
+      "auth": "sema_authkey",
+      "descricao": "Fundo tematico de tipologia vegetal (Radam). Preferir como WMS de fundo no mapa de Tipologia; quantitativos via SIMCAR_D_TIPOLOGIA_VEGETAL.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "dla",
+      "nome": "DLA (SEMA)",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:DLA",
+      "auth": "sema_authkey",
+      "descricao": "Camada DLA da SEMA — template MXD correspondente em Referencias_IMAP.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "car_au",
+      "nome": "CAR - Área de Uso (AU)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_AU",
+      "auth": "sema_authkey",
+      "descricao": "Area de uso do CAR validado (confirmada no GetCapabilities 2026-07-25).",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "car_apprl",
+      "nome": "CAR - APP de Reserva Legal (APPRL)",
+      "tema": "car",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:CAR_APPRL",
+      "auth": "sema_authkey",
+      "descricao": "APP sobreposta a Reserva Legal no CAR validado.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "lim_municipios_mt",
+      "nome": "Limites municipais MT (SEMA)",
+      "tema": "malhas",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:LIM_MUNICIPIOS_MT",
+      "auth": "sema_authkey",
+      "descricao": "Municipios de MT. Geom SHAPE; campos MUNICIPIO e COD_IBGE. Fallback do minimapa quando a malha IBGE falha. CQL: INTERSECTS(SHAPE,POINT(lon lat)).",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "sfb_hidro_trecho",
+      "nome": "Hidrografia SFB - trecho drenagem",
+      "tema": "hidrografia",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/wfs",
+      "layer": "Geoportal:SFB_HIDRO_TRECHO_DRENAGEM",
+      "auth": "sema_authkey",
+      "descricao": "Trechos de drenagem SFB. Endpoint WFS dedicado (nao /ows). Env SFB_WFS_URL no GeoForest.",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "prodes_yearly",
+      "nome": "PRODES INPE - desmate anual",
+      "tema": "desmatamento",
+      "tipo": "wms_wfs",
+      "endpoint": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/ows",
+      "layer": "prodes-legal-amz:yearly_deforestation",
+      "auth": null,
+      "descricao": "Desmatamento anual PRODES (campo year). Layer usado pelo GeoForest (PRODES_LAYER).",
+      "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "mosaico_spot_2008",
+      "nome": "Mosaico SPOT 2008 (SEPLAN)",
+      "tema": "basemap",
+      "tipo": "wms_raster",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Mosaicos:MOSAICO_SPOT_SEPLAN",
+      "auth": "sema_authkey",
+      "descricao": "Basemap historico 2.5m — marco Codigo Florestal. Preferir em Dinamica 2008.",
+      "data_verificacao": "2026-07-25"
     }
   ]
 }

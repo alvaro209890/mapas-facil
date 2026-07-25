@@ -308,12 +308,108 @@ anti-RCE por caminho).
 | Só fundo visual (satélite, mosaico, tipologia como pano) | **WMS** |
 | Serviço só oferece WMS | WMS + documentar `tipo: wms_raster` |
 
+## Inventário live SEMA (server-desktop, 2026-07-25)
+
+GetCapabilities WFS 2.0.0 rodado **no PC `server-desktop`** (IP brasileiro, onde roda o
+backend do GeoForest). Resultado: **135 FeatureTypes** no workspace `Geoportal:`.
+
+Arquivo versionado: [`../shared/catalog/sema_layers_live.json`](../shared/catalog/sema_layers_live.json).
+
+Grupos úteis para a série IMAP (subset do inventário):
+
+| Grupo | Layers (exemplos) |
+|---|---|
+| CAR validado | `CAR_ATP`, `CAR_APP`, `CAR_APPD`, `CAR_APPRL`, `CAR_ARL`, `CAR_AU`, `CAR_AUAS`, `CAR_AVN`, `CAR_NASCENTE` |
+| SIMCAR digital | `SIMCAR_D_APP`, `_ARL`, `_AVN`, `_AUAS`, `_AREA_CONSOLIDADA`, `_TIPOLOGIA_VEGETAL`, `_NASCENTE`, rios, veredas… |
+| Requerimento | `MVW_REQUERIMENTO_ATP`, `MVW_REQUERIMENTO_TAC` |
+| Embargos | `AREA_EMBARGADA_SIGA_POLIGONO` (preferir), `AREAS_EMBARGADAS_SEMA`, desembargos, autos |
+| Áreas protegidas | `UNIDADES_CONSERVACAO`, `TERRAS_INDIGENAS`, `TI_AMORTECIMENTO`, `UC_AMORTECIMENTO` |
+| Tipologia / veg | `SIMCAR_D_TIPOLOGIA_VEGETAL`, `VEGETACAO_RADAMBRASIL`, `VEGETACAO_IBGE` |
+| Uso | `USO_CONSOLIDADO`, `AREAS_USO_RESTRITO`, `FLORESTA_PLANTADA`, `DLA` |
+| Hidro SFB | `SFB_HIDRO_TRECHO_DRENAGEM`, `SFB_HIDRO_MASSA_DAGUA`, `SFB_HIDRO_APP_HIDRICA`… |
+| Município | `LIM_MUNICIPIOS_MT` (`MUNICIPIO`, `COD_IBGE`, geom `SHAPE`) |
+| Desmate SEMA | `DESMATAMENTO_SEMA_2012` … `_2018` |
+
+Mosaicos WMS (não entram no GetCapabilities WFS): ver
+[`mosaicos_sema.json`](../shared/catalog/mosaicos_sema.json) — SPOT 2008, Landsat 5/7/8,
+Sentinel-2 2016–2024, Resourcesat.
+
+## Descoberta fuzzy de layers (receita GeoForest)
+
+O clip SIMCAR do GeoForest não hardcoda todos os nomes: parte de um **template curto**
+(`AVN`, `ARL`, `AREA_CONSOLIDADA`…) e resolve contra o GetCapabilities.
+
+Ordem de candidatos (minúsculas):
+
+```
+Geoportal:SIMCAR_D_<tmpl>
+Geoportal:SIMCAR_<tmpl>
+Geoportal:SIMCAR_CAR_<tmpl>
+Geoportal:CAR_<tmpl>
+Geoportal:<tmpl>
+```
+
+Aliases: `VEREDA`→`SIMCAR_D_VEREDAS`; `ARLREM`→`SIMCAR_ARLD`; `AREA_USO_RESTRITO`→`AREAS_USO_RESTRITO`.
+
+Mapa completo: [`simcar_template_map.json`](../shared/catalog/simcar_template_map.json).
+
+No Mapas Fácil o `id` do catálogo continua estável; a descoberta fuzzy é **fallback** quando o
+`layer` do JSON sumiu do servidor — nunca inventa camada nova sem aviso.
+
+## Mosaicos como basemap da série Dinâmica
+
+| Ano / mapa | Layer WMS | Nota |
+|---|---|---|
+| Marco 2008 (Código Florestal) | `Mosaicos:MOSAICO_SPOT_SEPLAN` | 2,5 m — prevalece sobre Landsat |
+| Dinâmica 2008 (fallback) | `Mosaicos:LANDSAT_5_2008` | 30 m |
+| Dinâmica 2013–2017 | `Mosaicos:LANDSAT_8_<ano>` | |
+| Dinâmica 2019–2024 | `Mosaicos:SENTINEL_2_<ano>` | 10 m |
+| Tipologia (fundo temático) | WMS `VEGETACAO_RADAMBRASIL` ou estilo SEMA | ver padrão IMAP |
+
+GetMap: validar magic bytes; `height` proporcional ao bbox; `authkey` na query.
+
+## SCCON AUAS (referência, fora da v1 de mapas)
+
+Caminho estável validado no GeoForest `Automacao_AUAS`:
+
+1. `GET …/gama-api/auth/token-public-layer?organizationUUID=…`
+2. WFS 1.1.0 `dashboards:vw_v2_dashboard_alerts_all_defo-data_prod-mt` + `viewparams` + bbox EPSG:4674
+3. Para cada `idt_local_alert` → `GET …/api-v2/localAlerts/{id}` (traz `alertDetectedDate`)
+
+Não usar `POST …/api/alerts/search` com geometria em períodos longos (504 frequente).
+
+## API técnica SIMCAR (referência Oráculo)
+
+Base: `https://monitoramento.sema.mt.gov.br/simcar/tecnico.api/api`  
+Auth: header `authorization: TECNICO …` (minúsculo). Sessão única; IP BR.
+
+Útil se no futuro o Mapas Fácil quiser “abrir mapa a partir do nº do CAR” puxando metadados
+(`Municipio.Codigo` IBGE, bbox de abrangência). **Escrita** (import shape, processar geo) fica
+fora do escopo — é domínio do GeoForest Oráculo.
+
+Documento canônico no GeoForest: `docs/planos/simcar-oraculo-proxy/11-endpoints-sema-descobertos.md`.
+
+## Variáveis de ambiente (agente) — só nomes
+
+| Env | Uso |
+|---|---|
+| `SEMA_WMS_AUTHKEY` / `WFS_AUTHKEY` | authkey OWS SEMA |
+| `SFB_WFS_AUTHKEY` | hidro SFB (pode ser a mesma) |
+| `SEMA_WMS_BASE_URL` | default `https://geo.sema.mt.gov.br/geoserver/ows` |
+| `PRODES_WFS_URL` / `PRODES_LAYER` | TerraBrasilis (`yearly_deforestation`) |
+| `PLANET_API_KEY` | basemap Planet |
+| `WFS_TIMEOUT_MS` | default 60000 |
+| `WFS_PAGE_SIZE` | default 2000 (mapa: preferir ≤500–2000) |
+
+**Nunca** versionar o valor da authkey. O `geoforest-backend.env.example` do GeoForest ainda tem
+default hardcoded — dívida técnica; Mapas Fácil usa default **vazio** + gitleaks.
+
 ## Gotchas (checklist de implementação)
 
-Copiados de Cerebro `08-gotchas.md` + changelog GeoForest — cada um precisa de teste:
+Copiados de Cerebro `08-gotchas.md` + changelog GeoForest + sondas no server-desktop:
 
-1. Geo-block SEMA fora do Brasil → agente local
-2. Paginação `startIndex` → fallback single-page
+1. Geo-block SEMA fora do Brasil → agente local (ou PC no Brasil)
+2. Paginação `startIndex` → fallback single-page (`PagingIsTransactionSafe=FALSE`)
 3. INTERSECTS perde feições → BBOX + clip local
 4. WMS HTTP 200 com XML de erro → magic bytes
 5. `Geoportal:TIPOLOGIA` morto → `SIMCAR_D_TIPOLOGIA_VEGETAL`
@@ -326,6 +422,9 @@ Copiados de Cerebro `08-gotchas.md` + changelog GeoForest — cada um precisa de
 12. IBGE malhas gzip → descomprimir
 13. `maxFeatures`/`count` sempre presentes
 14. Authkey hardcoded → proibido (CI gitleaks)
+15. Sessão SIMCAR técnica única → novo login derruba o técnico no browser
+16. SCCON: sem User-Agent de browser → Cloudflare 403
+17. `Chave` município SIMCAR ≠ código IBGE
 
 ## O que o Mapas Fácil NÃO copia do GeoForest
 
@@ -333,17 +432,19 @@ Copiados de Cerebro `08-gotchas.md` + changelog GeoForest — cada um precisa de
 |---|---|
 | Análise Gemini sobre clip SIMCAR | fora de escopo (só mapa) |
 | ZIP de shapefiles para download web | o `.mxd` já aponta para arquivos locais |
-| WMS CBERS próprio em `wms.cursar.space` | fora da v1 (basemap Planet/Esri) |
+| WMS CBERS próprio em `wms.cursar.space` | fora da v1 (basemap Planet/Esri/mosaico SEMA) |
 | Proxy WMS no backend Node | agente baixa direto |
 | Default de authkey no código | **nunca** |
+| Mutação no SIMCAR (import/process) | Oráculo GeoForest, não Mapas Fácil |
 
 ## Pendências e decisões abertas
 
 | # | Pendência |
 |---|---|
-| P1 | Basemap Planet persistido no `.mxd` vs só no PDF |
-| P2 | GeoPackage vs shapefile temporário após o clip WFS (ArcMap lê os dois; Pro prefere GPKG) |
-| P3 | Incluir mosaicos SPOT 2008 como opção de basemap na série Dinâmica 2008 |
-| P4 | Tool `buscar_car_por_numero` no loop de IA (entrada sem shapefile local) — candidato a M3.5 |
-| P5 | Job diário de GetCapabilities que atualiza `data_verificacao` no catálogo |
-| P6 | SCCON / AUAS e WMS CBERS: v2, se houver demanda |
+| P1 | Basemap Planet persistido no `.mxd` vs mosaico SEMA WMS vs só no PDF |
+| P2 | GeoPackage vs shapefile temporário após o clip WFS |
+| P3 | Dinâmica 2008 default = SPOT SEPLAN (recomendado) vs Landsat 5 2008 |
+| P4 | Tool `buscar_car_por_numero` (RPC → `MVW_REQUERIMENTO_ATP`) em M3.5 |
+| P5 | Job diário de GetCapabilities no server-desktop atualizando `sema_layers_live.json` |
+| P6 | SCCON / AUAS e WMS CBERS: v2 |
+| P7 | Incluir `VEGETACAO_RADAMBRASIL` e `TERRAS_INDIGENAS` (SEMA) no `camadas.json` da v1 |

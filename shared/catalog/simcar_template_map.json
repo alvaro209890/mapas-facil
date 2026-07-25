@@ -1,0 +1,41 @@
+{
+  "_descricao": "Mapeamento template SIMCAR (nome curto do ZIP modelo) → candidatos WFS Geoportal. Extraido de GeoForest simcar-clip.ts discoverLayerMapping. Usar GetCapabilities live para confirmar.",
+  "convencao": "Geoportal:SIMCAR_D_<NOME> e o padrao mais comum. AIR/ATP vem do poligono do imovel (nao WFS).",
+  "direct_copy": ["AIR", "ATP"],
+  "river_clip_extension_m": 500,
+  "templates": [
+    {"tmpl": "AREA_CONSOLIDADA", "candidatos": ["Geoportal:SIMCAR_D_AREA_CONSOLIDADA", "Geoportal:SIMCAR_CAR_AREA_CONSOLIDADA"]},
+    {"tmpl": "AREA_USO_RESTRITO", "candidatos": ["Geoportal:AREAS_USO_RESTRITO", "Geoportal:SIMCAR_D_AREA_USO_RESTRITO"]},
+    {"tmpl": "INTERESSE_SOCIAL", "candidatos": ["Geoportal:SIMCAR_D_INTERESSE_SOCIAL"]},
+    {"tmpl": "UTILIDADE_PUBLICA", "candidatos": ["Geoportal:SIMCAR_D_UTILIDADE_PUBLICA", "Geoportal:SIMCAR_CAR_UTILIDADE_PUBLICA"]},
+    {"tmpl": "RIO_ATE_10", "candidatos": ["Geoportal:SIMCAR_D_RIO_ATE_10"]},
+    {"tmpl": "RIO_10_A_50", "candidatos": ["Geoportal:SIMCAR_D_RIO_10_A_50"]},
+    {"tmpl": "RIO_50_A_200", "candidatos": ["Geoportal:SIMCAR_D_RIO_50_A_200"]},
+    {"tmpl": "RIO_200_A_600", "candidatos": ["Geoportal:SIMCAR_D_RIO_200_A_600"]},
+    {"tmpl": "RIO_ACIMA_600", "candidatos": ["Geoportal:SIMCAR_D_RIO_ACIMA_600", "Geoportal:SIMCAR_D_RIO_MAIOR_600"]},
+    {"tmpl": "NASCENTE", "candidatos": ["Geoportal:SIMCAR_D_NASCENTE", "Geoportal:CAR_NASCENTE"]},
+    {"tmpl": "RESERVATORIO_ARTIFICIAL", "candidatos": ["Geoportal:SIMCAR_D_RESERVATORIO_ARTIFICIAL"], "clip": "whole_feature_buffer"},
+    {"tmpl": "LAGOA_NATURAL", "candidatos": ["Geoportal:SIMCAR_D_LAGOA_NATURAL"], "clip": "whole_feature_buffer"},
+    {"tmpl": "TIPOLOGIA_VEGETAL", "candidatos": ["Geoportal:SIMCAR_D_TIPOLOGIA_VEGETAL"], "nota": "Geoportal:TIPOLOGIA NAO existe"},
+    {"tmpl": "MANGUEZAL", "candidatos": ["Geoportal:SIMCAR_D_MANGUEZAL"]},
+    {"tmpl": "RESTINGA", "candidatos": ["Geoportal:SIMCAR_D_RESTINGA"]},
+    {"tmpl": "VEREDA", "candidatos": ["Geoportal:SIMCAR_D_VEREDAS", "Geoportal:SIMCAR_D_VEREDA"]},
+    {"tmpl": "AREA_DECLIVIDADE", "candidatos": ["Geoportal:SIMCAR_D_AREA_DECLIVIDADE"]},
+    {"tmpl": "AREA_TOPO_MORRO", "candidatos": ["Geoportal:SIMCAR_D_AREA_TOPO_MORRO"]},
+    {"tmpl": "BORDA_CHAPADA", "candidatos": ["Geoportal:SIMCAR_D_BORDA_CHAPADA"]},
+    {"tmpl": "ARL", "candidatos": ["Geoportal:SIMCAR_D_ARL", "Geoportal:CAR_ARL"]},
+    {"tmpl": "ARLREM", "candidatos": ["Geoportal:SIMCAR_ARLD", "Geoportal:SIMCAR_D_ARLD"]},
+    {"tmpl": "AUAS", "candidatos": ["Geoportal:SIMCAR_D_AUAS", "Geoportal:CAR_AUAS"]},
+    {"tmpl": "AURD", "candidatos": ["Geoportal:SIMCAR_D_AURD"]},
+    {"tmpl": "AVN", "candidatos": ["Geoportal:SIMCAR_D_AVN", "Geoportal:CAR_AVN"]},
+    {"tmpl": "AREA_UMIDA", "candidatos": ["Geoportal:SIMCAR_D_AREA_UMIDA"]},
+    {"tmpl": "APP", "candidatos": ["Geoportal:SIMCAR_D_APP", "Geoportal:CAR_APP"]}
+  ],
+  "algoritmo_descoberta": [
+    "1. GetCapabilities → Set de nomes (cache 10 min)",
+    "2. Para cada tmpl, tentar candidatos em ordem (SIMCAR_D_ → SIMCAR_ → SIMCAR_CAR_ → CAR_ → bare)",
+    "3. Fallback fuzzy: sufixo do layer == simcar_d_<tmpl> ou <tmpl>",
+    "4. Aliases especiais: vereda→veredas, arlrem→arld, area_uso_restrito→AREAS_USO_RESTRITO"
+  ],
+  "fonte": "GeoForest-IA/backend/simcar-clip.ts (server-desktop, 2026-07-25)"
+}
