@@ -5,7 +5,9 @@ desenvolvedor que trabalha com os `.mxd` de referência.
 
 ## `chaves_mxd.py`
 
-Remove ou reinjeta as chaves de API embutidas nos 24 `.mxd` de [`Referencias_IMAP/MXD/`](../Referencias_IMAP/MXD/).
+Remove ou reinjeta as chaves de API embutidas nos `.mxd` de [`Referencias_IMAP/MXD/`](../Referencias_IMAP/MXD/).
+
+
 
 ### Contexto
 
@@ -49,3 +51,15 @@ manter o repo público, tirar as chaves dos arquivos versionados e documentar o 
 
 Detalhes completos — segredos expostos, modelo de ameaças, LGPD — em
 [`planos/05-seguranca-e-segredos.md`](../planos/05-seguranca-e-segredos.md#incidente-2026-07-25--chaves-dentro-dos-mxd).
+
+## `recuperar_zip_truncado.py`
+
+Recupera arquivos de um ZIP **sem diretório central** (download OneDrive/cortado).
+
+```bash
+python3 ferramentas/recuperar_zip_truncado.py arquivo.zip -o pasta_saida
+# exit 2 se o ZIP estiver truncado (mesmo com arquivos recuperados)
+```
+
+Usado em 2026-07-25 para `Referencias_IMAP/Mapas/03/OneDrive_1_25-07-2026 (1).zip`
+(faltava só `PRODES_Até_2007.mxd`). Ver [`Referencias_IMAP/Mapas/03/README.md`](../Referencias_IMAP/Mapas/03/README.md).

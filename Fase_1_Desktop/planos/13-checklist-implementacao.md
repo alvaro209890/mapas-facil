@@ -13,14 +13,15 @@ e manifesto de templates. **M1 é o próximo passo.**
 - [x] F1-00…F1-12 escritos; F2 rascunhada (legado marcado)
 - [x] Chaves removidas dos `.mxd` (`ferramentas/chaves_mxd.py verificar` = seguro)
 - [x] Acervo PDF em `Referencias_IMAP/Mapas/01` (Harmonia) e `02` (Trevisol)
+- [x] Acervo `Mapas/03` — SIMCAR completo + Dinâmica L5 2003–2008 (ZIP OneDrive recuperado)
 - [x] Receita operacional Harmonia em [`DOCUMENTACAO_MXD_HARMONIA.md`](../../Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md)
 - [x] `shared/schemas/mapspec.schema.json` (draft 2020-12) — validar contra exemplo canônico no 1º PR de código
 - [x] `shared/templates/MANIFEST.json` listando templates v1 (sha256 ainda null até preparação)
 - [x] Fixture mínima: `shared/fixtures/mapspecs/dinamica_2026_canonico.json`
-- [ ] Ambiente de dev: Python 3.12, Node 20+, (opcional) ArcMap 10.8 + QGIS/ogr2ogr
+- [x] Ambiente de dev: Python 3.12 + venv do núcleo (bloco A feito)
 
-**Critério para declarar M0 fechado:** os três itens abertos acima + validação automatizada do
-schema no CI do bloco A + nenhum plano da Fase 1 exigindo backend/site.
+**Critério para declarar M0 fechado:** schema validado no CI (já no anel 1) + nenhum plano da
+Fase 1 exigindo backend/site. **Próximo: bloco B (motor `.mxd`).**
 
 ---
 

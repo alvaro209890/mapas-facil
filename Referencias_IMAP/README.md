@@ -10,7 +10,8 @@ Qualquer ajuste de layout no Mapas Fácil deve ser conferido contra estes arquiv
 |---|---|---|
 | [`Mapas/01/`](Mapas/01/) | PDFs da **Fazenda Harmonia** (Vila Rica/MT, 2026-07) | **fonte da verdade visual** |
 | [`Mapas/02/`](Mapas/02/) | PDFs da **Fazenda Trevisol** (Querência/MT) | contraste — perfil **descartado** |
-| [`MXD/`](MXD/) | Templates `.mxd` reais + documentação da adaptação Harmonia | gabarito para o motor |
+| [`Mapas/03/`](Mapas/03/) | Export SIMCAR completo + Dinâmica L5 2003–2008 | calibração de papéis / anos históricos |
+| [`MXD/`](MXD/) | Templates `.mxd` Harmonia + documentação da adaptação | gabarito para o motor |
 
 ## Documentação operacional
 

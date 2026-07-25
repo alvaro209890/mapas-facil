@@ -84,16 +84,35 @@ Ordem de resolução:
    campos do `.dbf` característicos (`COD_IMOVEL`, `NUM_AREA`, `TIPO`).
 4. **Pergunta ao usuário**, quando ainda ambíguo. Nunca chuta em silêncio.
 
-| Papel | Nomes canônicos | Vira no mapa |
+| Papel | Nomes canônicos (SIMCAR / acervo) | Vira no mapa |
 |---|---|---|
-| Perímetro do imóvel | `ATP`, `AREA_IMOVEL`, `PERIMETRO` | camada amarela + extent + centroide + zona UTM |
+| Perímetro do imóvel | `ATP`, `AREA_IMOVEL`, `PERIMETRO`, `SIEGEF`/`SIGEF` | camada amarela + extent + centroide + zona UTM |
 | Vegetação nativa | `AVN`, `VEGETACAO_NATIVA` | hachura verde `xxx` |
 | Área consolidada | `AREA_CONSOLIDADA`, `AC` | hachura magenta `xxx` |
-| Desmate pós-2008 | `AUAS` | hachura laranja `///` |
-| APP | `APP`, `APPD` | contexto |
-| Reserva legal | `ARL`, `ARLD` | contexto |
+| Desmate pós-2008 | `AUAS` | hachura laranja `///` (0 feições = ok se não pedida) |
+| APP | `APP`, `APPD`, `APPRL` | contexto |
+| Reserva legal | `ARL`, `ARLD`, `ARLREM`, `ARL_*` | contexto |
+| Tipologia | `TIPOLOGIA`, `TIPOLOGIA_VEGETAL` | mapa de Tipologia (`ORIGEM`/`TIPO`) |
+| Alerta | `AIR` | overlay de alertas |
 | Nascente | `NASCENTE` | pontos |
-| Tipologia | `TIPOLOGIA`, `TIPOLOGIA_VEGETAL` | mapa de Tipologia |
+| Hidrografia | `RIO_*`, `RIO_LINHA`, `LAGOA_*`, `RESERVATORIO_*` | contexto |
+| Uso restrito / úmida | `AREA_USO_RESTRITO`, `AREA_UMIDA`, `VEREDA`, `AURD` | contexto |
+
+Catálogo completo medido num export real: [`../Referencias_IMAP/Mapas/03/`](../Referencias_IMAP/Mapas/03/README.md)
+(37 layers do “Arquivo Processado”).
+
+### Camadas vazias do SIMCAR
+
+O zip do CAR costuma trazer **todas** as layers do modelo, muitas com 0 feições e `.shp` de
+~100 bytes (`AUAS`, `MANGUEZAL`, `VEREDA`, …). Isso **não é erro**:
+
+| Situação | Comportamento do núcleo |
+|---|---|
+| Layer opcional com `n=0` | indexar, marcar `vazia=true`, seguir |
+| Layer **obrigatória** no `MapSpec` com `n=0` | falha `NU-120` / aviso HARD na validação |
+| Quatro arquivos `.shp/.shx/.dbf/.prj` presentes | ok mesmo se geometria vazia |
+
+Baseline de teste: `Referencias_IMAP/Mapas/03/Arquivo Processado (11)/` (ATP ≈ 64,4229 ha).
 
 ## Validação de shapefile
 
@@ -105,7 +124,8 @@ conversa, não exceção silenciosa.
       adivinhado pela magnitude das coordenadas e o usuário é avisado
 - [ ] CRS identificado; se geográfico, reprojeta para a UTM do centroide antes de calcular área
 - [ ] Tipo de geometria coerente com o papel (perímetro = polígono)
-- [ ] Nº de feições > 0
+- [ ] Nº de feições > 0 **se a camada for obrigatória no MapSpec**; 0 feições em layer
+      opcional do SIMCAR é normal (ver [camadas vazias](#camadas-vazias-do-simcar))
 - [ ] Geometrias válidas — `make_valid`/`buffer(0)` com contagem de quantas foram corrigidas
 - [ ] Anéis fechados (GeoJSON com anel aberto quebra a conversão para WKT)
 - [ ] Encoding do `.dbf`: tenta `latin-1` **primeiro**, depois `utf-8`, depois `cp1252`

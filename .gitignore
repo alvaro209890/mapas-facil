@@ -67,3 +67,7 @@ temp/
 playwright-report/
 test-results/
 coverage/
+
+# ZIPs truncados / downloads OneDrive incompletos (conteúdo útil já extraído)
+Referencias_IMAP/Mapas/03/OneDrive*.zip
+**/OneDrive_*.zip
