@@ -12,18 +12,23 @@ export interface EnvelopeEvento<D = Record<string, unknown>> {
   dados: D;
 }
 
-/** As 10 etapas de `mapa.gerar`, na ordem do contrato, com o rótulo da UI. */
+/**
+ * As 10 etapas de `mapa.gerar`, na ordem do contrato, com o rótulo da UI.
+ *
+ * `peso` é a fatia de `pct` que cada etapa vale e **espelha**
+ * `nucleo/mapasfacil_nucleo/progresso.py` — os dois têm de somar 100 e mudar juntos.
+ */
 export const ETAPAS_JOB = [
-  { id: "validando_spec", rotulo: "validando a especificação" },
-  { id: "resolvendo_camadas_locais", rotulo: "resolvendo camadas locais" },
-  { id: "baixando_externas", rotulo: "baixando camadas externas" },
-  { id: "calculando_quantitativos", rotulo: "calculando quantitativos" },
-  { id: "gerando_tabela", rotulo: "gerando a tabela" },
-  { id: "preparando_template", rotulo: "preparando o template" },
-  { id: "aplicando_layout", rotulo: "aplicando o layout" },
-  { id: "salvando_mxd", rotulo: "salvando o .mxd" },
-  { id: "exportando_pdf", rotulo: "exportando o PDF" },
-  { id: "validando_saida", rotulo: "validando a saída" },
+  { id: "validando_spec", rotulo: "validando a especificação", peso: 3 },
+  { id: "resolvendo_camadas_locais", rotulo: "resolvendo camadas locais", peso: 7 },
+  { id: "baixando_externas", rotulo: "baixando camadas externas", peso: 20 },
+  { id: "calculando_quantitativos", rotulo: "calculando quantitativos", peso: 10 },
+  { id: "gerando_tabela", rotulo: "gerando a tabela", peso: 5 },
+  { id: "preparando_template", rotulo: "preparando o template", peso: 10 },
+  { id: "aplicando_layout", rotulo: "aplicando o layout", peso: 15 },
+  { id: "salvando_mxd", rotulo: "salvando o .mxd", peso: 5 },
+  { id: "exportando_pdf", rotulo: "exportando o PDF", peso: 15 },
+  { id: "validando_saida", rotulo: "validando a saída", peso: 10 },
 ] as const;
 
 export type EtapaJob = (typeof ETAPAS_JOB)[number]["id"];
@@ -34,6 +39,13 @@ export function indiceDaEtapa(etapa: string): number {
 
 export function rotuloDaEtapa(etapa: string): string {
   return ETAPAS_JOB.find((e) => e.id === etapa)?.rotulo ?? etapa;
+}
+
+/** `pct` acumulado quando a etapa termina: 3, 10, 30, 40, 45, 55, 70, 75, 90, 100. */
+export function pctAoConcluir(etapa: string): number {
+  const indice = indiceDaEtapa(etapa);
+  if (indice < 0) return 0;
+  return ETAPAS_JOB.slice(0, indice + 1).reduce((soma, e) => soma + e.peso, 0);
 }
 
 /**
@@ -94,9 +106,14 @@ export type EventoNucleo =
   | (EnvelopeEvento<DadosMapspecAtualizado> & { evento: "mapspec.atualizado" })
   | (EnvelopeEvento<DadosAviso> & { evento: "aviso" });
 
+/** `job.progresso` já estreitado, mantendo o envelope genérico que a ponte entrega. */
+export type EventoJobProgresso = EnvelopeEvento<Record<string, unknown> & DadosJobProgresso> & {
+  evento: "job.progresso";
+};
+
 export function ehJobProgresso(
   evento: EnvelopeEvento<Record<string, unknown>>,
-): evento is EnvelopeEvento<DadosJobProgresso> & { evento: "job.progresso" } {
+): evento is EventoJobProgresso {
   if (evento.evento !== "job.progresso") return false;
   const { etapa, pct } = evento.dados;
   return typeof etapa === "string" && indiceDaEtapa(etapa) >= 0 && typeof pct === "number";

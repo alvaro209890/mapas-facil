@@ -1,0 +1,32 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e3);
+  padding: var(--mf-e3) var(--mf-e4);
+  background: var(--mf-superficie-2);
+  border-bottom: 1px solid var(--mf-erro);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.codigo {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-erro);
+}
+
+.detalhe {
+  color: var(--mf-texto-2);
+}
+
+.acao {
+  margin-left: auto;
+  padding: var(--mf-e1) var(--mf-e3);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-1);
+  color: var(--mf-texto);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.acao:hover {
+  background: var(--mf-superficie-3);
+}

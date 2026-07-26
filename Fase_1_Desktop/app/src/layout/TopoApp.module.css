@@ -1,0 +1,59 @@
+.topo {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e4);
+  height: 44px;
+  padding: 0 var(--mf-e4);
+  background: var(--mf-superficie-1);
+  border-bottom: 1px solid var(--mf-borda);
+}
+
+/* A marca em `--mf-fs-hero` é só na primeira viewport do login (F1-16 §Tipografia). */
+.marca {
+  font-family: var(--mf-fonte-display);
+  font-size: 15px;
+  letter-spacing: var(--mf-tracking-display);
+  color: var(--mf-texto);
+}
+
+.breadcrumb {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  margin-left: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  padding: var(--mf-e1) var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  transition: color var(--mf-dur-2) var(--mf-ease-saida),
+    border-color var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.chip[data-estado="pronto"] {
+  color: var(--mf-ok);
+  border-color: var(--mf-borda-forte);
+}
+
+.chip[data-estado="iniciando"] {
+  color: var(--mf-aviso);
+}
+
+.chip[data-estado="caido"] {
+  color: var(--mf-erro);
+  border-color: var(--mf-erro);
+}

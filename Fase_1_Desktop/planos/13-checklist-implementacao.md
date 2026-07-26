@@ -13,7 +13,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | A — fundação do núcleo | M1 | **fechado** exceto A10–A13 (A9 fechou em 2026-07-26) |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
-| C — shell + design system | M3 | **parcial** — scaffold + ponte + tokens + fontes; sem entrada do renderer |
+| C — shell + design system | M3 | **parcial** — C1–C6 fechados (renderer, ponte testada, tokens, fontes, `AppShell`, barra de progresso); C7–C11 abertos |
 | D — galeria | M4 | **não iniciado** |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
@@ -85,23 +85,28 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 ## Bloco C — Shell Electron + design system (M3)
 
 Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
-**A pasta `Fase_1_Desktop/app/` existe e está parcial** — estado detalhado em
-[`../app/README.md`](../app/README.md). Falta a entrada do renderer (`index.html`, `main.tsx`,
-`App.tsx`): hoje `pnpm build`/`pnpm dev` **não rodam**, e nenhum `pnpm install` foi feito.
+**A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
+[`../app/README.md`](../app/README.md). Em 2026-07-26 o app passou a ter entrada de renderer e
+`pnpm install` → `typecheck` → `test` (17) → `build` foram executados e ficaram verdes. O que
+falta do bloco é conteúdo de painel (C7–C11), não infraestrutura.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| C1 | Scaffold Electron + Vite + React 19 + TS | [~] | `app/package.json`, `app/electron/main.ts`, `app/electron/preload.ts`, `vite.config.ts`, `tsconfig*.json` — **falta a entrada do renderer**; install/build/typecheck não rodados |
-| C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [~] | `app/electron/nucleo/ponte.ts` — código completo (framing, pendentes rejeitadas, 3 reinícios, `UI-001`); **sem teste executado** |
+| C1 | Scaffold Electron + Vite + React 19 + TS | [x] | `app/index.html`, `app/src/main.tsx`, `app/src/App.tsx` + scaffold anterior; `pnpm install/typecheck/test/build` verdes (2026-07-26) |
+| C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [x] | `app/electron/nucleo/ponte.ts` + `app/tests/ponte.test.ts` (7 testes com sidecar real). O teste achou e o commit corrigiu: `exit` de processo já substituído derrubava o novo após `reiniciar()` |
 | C3 | Tokens de cor, tipografia e movimento | [x] | `app/src/estilos/tokens.css` (+ `reset.css`); escuro default, claro em `[data-tema="claro"]`, reduced-motion ≤ 80 ms |
 | C4 | Fontes embarcadas (Space Grotesk, IBM Plex Sans/Mono) | [x] | `app/src/estilos/fontes/` — woff2 latin/latin-ext + `@font-face` + licenças OFL; zero CDN |
-| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [ ] | `app/src/layout/AppShell.tsx` — IPC de preferências já existe (`preferencias.ts`) |
-| C6 | `barra-progresso-job` consumindo `job.progresso` | [ ] | **desbloqueado por A9**; contrato tipado em `app/src/estado/eventos.ts` |
+| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [x] | `app/src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `app/src/estado/preferencias.ts` — arrasto + teclado, larguras e colapso em `config.json`. **Conteúdo dos painéis é placeholder** (C7–C11) |
+| C6 | `barra-progresso-job` consumindo `job.progresso` | [x] | `app/src/componentes/BarraProgressoJob.tsx` + `app/src/estado/progressoJob.ts`; `app/tests/barra-progresso-job.test.tsx` (10 testes: sem evento não há barra, 10 etapas pt-BR, `pct` monotônico) |
 | C7 | `painel-workspace` com metadados inline | [ ] | `app/src/paineis/Workspace.tsx` |
 | C8 | `doctor-resumo` + tela completa | [ ] | `app/src/componentes/Doctor*.tsx` |
 | C9 | Estados vazios e de erro (tabela de F1-02) | [ ] | `app/src/componentes/EstadoVazio.tsx` |
 | C10 | Paleta de comandos `Ctrl+K` + atalhos | [ ] | `app/src/paleta/` |
-| C11 | Testes de tema, contraste e reduced-motion | [ ] | `app/tests/visual/` |
+| C11 | Testes de tema, contraste e reduced-motion | [ ] | `app/tests/visual/` — `axe-core` ainda não é dependência do app |
+
+Fora da tabela, no mesmo commit: `app/src/motion/tokens.ts` e `useReducedMotion.ts` (F1-16
+§Movimento) e `app/vitest.config.ts` separado do `vite.config.ts` — o `defineConfig` do Vitest 2
+carrega os tipos do Vite 5 e conflita com o Vite 6 do build.
 
 ## Bloco D — Galeria (M4)
 

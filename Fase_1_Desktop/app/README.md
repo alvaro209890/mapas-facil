@@ -6,43 +6,52 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Parcial e não executável ainda.** A pasta saiu do zero nesta rodada; o que existe é o
-scaffold, a ponte com o núcleo e a base visual. **Não há entrada do renderer** (`index.html`,
-`src/main.tsx`, `App.tsx`), então `pnpm build` e `pnpm dev` **não rodam**. Nenhum
-`pnpm install` foi executado neste repositório — não há `pnpm-lock.yaml`.
+**Roda.** O corte vertical do shell está fechado: a janela abre, os quatro painéis existem e são
+redimensionáveis, e a barra de progresso reage a `job.progresso` de verdade. `pnpm install`,
+`typecheck`, `test` (17 testes) e `build` foram executados nesta rodada e ficaram verdes.
+
+O que ainda **não** existe é conteúdo de painel: árvore da pasta, chat do agente, galeria,
+preview e doctor são C7–C11 e marcos posteriores. Os painéis mostram placeholder que diz de qual
+marco cada coisa é — nenhum deles inventa dado do núcleo.
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
-| C1 | Scaffold Electron + Vite + React 19 + TS | **parcial** | `package.json`, `tsconfig*.json`, `vite.config.ts`, `scripts/build-electron.mjs`, `electron/main.ts`, `electron/preload.ts` |
-| C2 | Ponte NDJSON (spawn, reinício, `UI-001`) | **parcial** — código completo, **sem teste executado** | `electron/nucleo/ponte.ts` |
-| C3 | Tokens de cor, tipografia e movimento | **feito** | `src/estilos/tokens.css`, `src/estilos/reset.css` |
+| C1 | Scaffold Electron + Vite + React 19 + TS | **feito** | `index.html`, `src/main.tsx`, `src/App.tsx`, `package.json`, `vite.config.ts`, `vitest.config.ts`, `tsconfig*.json`, `electron/main.ts`, `electron/preload.ts` |
+| C2 | Ponte NDJSON (spawn, reinício, `UI-001`) | **feito** | `electron/nucleo/ponte.ts` + `tests/ponte.test.ts` |
+| C3 | Tokens de cor, tipografia e movimento | **feito** | `src/estilos/tokens.css`, `src/estilos/reset.css`, `src/motion/tokens.ts` |
 | C4 | Fontes embarcadas | **feito** | `src/estilos/fontes/` (+ licenças OFL) |
-| C5 | `AppShell` com 4 painéis redimensionáveis | **não iniciado** | — |
-| C6 | `barra-progresso-job` consumindo `job.progresso` | **não iniciado** | — |
+| C5 | `AppShell` com 4 painéis redimensionáveis | **feito** | `src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `src/estado/preferencias.ts` |
+| C6 | `barra-progresso-job` consumindo `job.progresso` | **feito** | `src/componentes/BarraProgressoJob.tsx`, `src/estado/progressoJob.ts` + teste |
 | C7–C11 | workspace, doctor, estados vazios, `Ctrl+K`, testes visuais | **não iniciado** | — |
 
-O núcleo já emite `job.progresso` (A9, v0.4.0), então **C6 está desbloqueado**: o contrato do
-evento está tipado em `src/estado/eventos.ts`, incluindo os rótulos pt-BR das 10 etapas.
+### O que a rodada de C1–C6 mudou no que já existia
+
+- `electron/nucleo/ponte.ts` — **defeito corrigido**: depois de `reiniciar()`, o `exit` do
+  processo antigo era tratado como queda do novo (zerava `this.processo`, rejeitava as pendentes
+  e agendava outro reinício). Agora cada ouvinte é amarrado ao processo que o registrou. Achado
+  pelo teste, não por leitura.
+- `src/estado/eventos.ts` — ganhou o `peso` de cada etapa (espelho de `progresso.py`, soma 100) e
+  `pctAoConcluir`; o type predicate de `ehJobProgresso` não compilava e foi consertado.
+- `package.json` — `pnpm.onlyBuiltDependencies` com `electron` e `esbuild`: sem isso o pnpm 10
+  ignora os postinstall e o binário do Electron nunca é baixado.
+- `vitest.config.ts` — a configuração de teste saiu do `vite.config.ts`: o `defineConfig` do
+  Vitest 2 carrega os tipos do Vite 5 e conflita com o Vite 6 usado no build.
 
 ## O que falta, na ordem
 
-1. `index.html` + `src/main.tsx` + `src/App.tsx` — a entrada do renderer, importando
-   `estilos/fontes/fontes.css`, `estilos/tokens.css`, `estilos/reset.css` e fixando
-   `document.documentElement.dataset.tema = "escuro"` como default (D15/AP-08).
-2. `src/layout/AppShell.tsx` + `TopoApp.tsx` e os quatro painéis (`barra-chats`,
-   `painel-workspace`, `painel-chat`, `painel-direito`), redimensionáveis, com as larguras
-   persistidas via `window.mapasfacil.gravarPreferencias` (C5).
-3. `src/componentes/BarraProgressoJob.tsx` (C6): 10 segmentos nomeados, `role="progressbar"`
-   com `aria-valuenow`. Sem evento → texto "gerando…" **sem** barra de porcentagem (AP-07).
-4. `src/motion/tokens.ts` e `useReducedMotion.ts` espelhando o CSS.
-5. Testes: `tests/ponte.test.ts` (sidecar de mentira em Node, reinício, `UI-001`) e
-   `tests/barra-progresso-job.test.tsx` (evento injetado, `pct` monotônico).
-6. `pnpm install` + `pnpm typecheck` + `pnpm test` + `pnpm build` — nada disso foi rodado.
+1. `src/paineis/Workspace.tsx` (C7) — árvore da pasta com metadados inline; depende de
+   `workspace.abrir` e do diálogo de pasta no processo main.
+2. `src/componentes/Doctor*.tsx` (C8) e `src/componentes/EstadoVazio.tsx` (C9).
+3. `src/paleta/PaletaComandos.tsx` (C10) e os atalhos de F1-02.
+4. `tests/visual/` (C11) — contraste com `axe-core` (ainda não é dependência) e varredura de
+   `prefers-reduced-motion`.
+5. Chat, preview e galeria: M4, M6 e M7 — dependem de eventos que o núcleo ainda não emite.
 
-## Arquitetura do que já existe
+## Arquitetura
 
 ```
 app/
+  index.html                 #raiz, tema escuro no HTML, CSP sem origem externa
   electron/                  processo main — Node, sem acesso do renderer
     main.ts                  janela 1280×800 mín., tema escuro, IPC, ciclo da ponte
     preload.ts               contextBridge → window.mapasfacil (chamar, eventos, preferências)
@@ -54,9 +63,14 @@ app/
       localizar.ts           onde está o Python (venv no dev, PyInstaller no pacote)
       ulid.ts                ULID local, sem dependência
   src/                       renderer — React
-    estado/eventos.ts        os 8 eventos do contrato; só job.progresso tem emissor hoje
-    estado/ponte.ts          acesso tipado a window.mapasfacil (no-op fora do Electron)
+    main.tsx                 monta o React; fontes → tokens → reset; tema escuro default
+    App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
+    layout/                  AppShell (4 painéis), TopoApp, Divisor
+    componentes/             BarraProgressoJob
+    estado/                  eventos.ts, ponte.ts, progressoJob.ts, preferencias.ts, tema.ts
+    motion/                  tokens.ts, useReducedMotion.ts
     estilos/                 tokens.css, reset.css, fontes/
+  tests/                     ponte.test.ts, barra-progresso-job.test.tsx
 ```
 
 ### Fronteiras respeitadas
@@ -65,18 +79,27 @@ app/
   (fronteira 1 de F1-01). `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`.
 - O transporte é stdio, nunca porta TCP (AP-14).
 - Núcleo caído → `UI-001`, com as requisições pendentes **rejeitadas**, não penduradas; a ponte
-  tenta 3 reinícios automáticos antes de ficar em `caido`, e `reiniciar()` é o botão do banner.
+  tenta 3 reinícios automáticos antes de ficar em `caido`, e o banner do `App` chama `reiniciar()`.
+- Fora do Electron (vitest, `vite dev` no navegador) a ponte é no-op explícito: nenhuma tela finge
+  que o núcleo respondeu.
 
-## Comandos (quando a entrada do renderer existir)
+### Honestidade de progresso (AP-07)
+
+`BarraProgressoJob` só desenha barra e porcentagem quando chega `job.progresso` — o único evento
+que o núcleo emite hoje (A9, v0.4.0). Sem evento, o texto é "gerando…", sem número. `pct` vem do
+evento e é monotônico; não há `setInterval` em `src/motion/` nem em `src/componentes/`.
+
+## Comandos
 
 ```bash
 cd Fase_1_Desktop/app
 pnpm install
-pnpm typecheck
-pnpm test
+pnpm typecheck        # tsc -b (projetos app + node)
+pnpm test             # vitest run — 17 testes
 pnpm build            # renderer (Vite) + main/preload (esbuild)
-pnpm dev              # servidor Vite; pnpm dev:electron abre a janela
+pnpm dev              # servidor Vite em :5273
+pnpm dev:electron     # compila main/preload e abre a janela
 ```
 
 O `pnpm dev:electron` procura o Python em `../nucleo/.venv/`; se não achar, cai em `python3` do
-`PATH`. Rode `pip install -e ".[dev]"` no núcleo antes.
+`PATH`. Rode `pip install -e ".[dev]"` no núcleo antes, senão a ponte sobe direto para `UI-001`.

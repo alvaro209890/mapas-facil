@@ -13,11 +13,12 @@ pasta ou função. Se diz `parcial`, leia a nota — ela lista o que falta.
 Verificações rápidas de realidade (rode antes de planejar):
 
 ```bash
-ls Fase_1_Desktop/app                      # parcial: scaffold+ponte+tokens, SEM entrada do renderer
+ls Fase_1_Desktop/app                      # roda: renderer + AppShell + barra de progresso (C1–C6)
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (148 testes)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (149 testes, 1 skip)
+cd Fase_1_Desktop/app && pnpm test         # 17 testes: ponte NDJSON e barra de progresso
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0)
@@ -31,7 +32,7 @@ cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (148 testes
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **17 métodos** implementados | `Fase_1_Desktop/nucleo/` |
 | Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
-| App Electron | **parcial**: scaffold, ponte NDJSON, tokens, fontes. Sem entrada do renderer, sem `pnpm install` | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **parcial**: C1–C6 fechados (renderer, ponte testada, tokens, fontes, `AppShell`, `barra-progresso-job`); C7–C11 abertos | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -41,9 +42,10 @@ cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (148 testes
 
 ## O que NÃO existe (não invente que existe)
 
-- Interface de verdade: `Fase_1_Desktop/app/` tem scaffold, ponte, tokens e fontes, mas **nenhum
-  componente React** — sem `index.html`, `main.tsx`, `App.tsx`, `AppShell` ou barra de progresso.
-  `pnpm install`/`build`/`test` nunca rodaram ali. Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
+- Conteúdo dos painéis: o `AppShell` existe e é redimensionável, mas `barra-chats`,
+  `painel-workspace`, `painel-chat` e `painel-direito` são **placeholder** — sem árvore de pasta,
+  sem chat, sem galeria, sem preview e sem doctor (C7–C11). Detalhe em
+  [`app/README.md`](Fase_1_Desktop/app/README.md).
 - Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
   `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato especificado, zero implementação**.
   Só `job.progresso` tem emissor.
@@ -127,10 +129,10 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — scaffold + ponte NDJSON (C1/C2); sem renderer e sem `AppShell` | `app/index.html`, `app/src/main.tsx`, `app/src/layout/AppShell.tsx` |
-| R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — falta só o `data-tema` ser aplicado por um renderer que ainda não existe | `app/src/estilos/tokens.css` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — C1/C2/C5 fechados: renderer, ponte testada e `AppShell` com os 4 painéis redimensionáveis e persistidos; o conteúdo deles é placeholder (C7–C11) | `app/src/paineis/Workspace.tsx`, `app/src/paineis/Chat.tsx`, `app/src/paineis/PainelDireito.tsx` |
+| R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
-| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **ausente** | `app/src/motion/` |
+| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **parcial** — tokens de motion e `useReducedMotion` existem; só **A4** (progresso do job) está ligada a evento. A2 e A3 dependem de `chat.delta`/`chat.tool` (M7) | `app/src/motion/`, `app/src/componentes/BarraProgressoJob.tsx` |
 | R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato novo | **ausente — contrato só especificado** | `nucleo/.../motores/gerar.py`, `protocolo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **ausente** | `shared/galeria/modelos.json`, `nucleo/.../galeria/` |
