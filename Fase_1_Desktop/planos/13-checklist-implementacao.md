@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
-| G — agente | M7 | **não iniciado** |
+| G — agente | M7 | **parcial** — G2 (`limites.py`) fechado; G1/G3–G10 ausentes |
 | H — motion e preview | M8 | **não iniciado** |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
