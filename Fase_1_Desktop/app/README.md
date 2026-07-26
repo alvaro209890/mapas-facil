@@ -8,15 +8,17 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados/parciais + A12.** A janela abre, conecta pasta, indexa,
+**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados + A12/A13.** A janela abre, conecta pasta, indexa,
 mostra doctor, responde a `Ctrl+K`/atalhos, lista a galeria, monta MapSpec, mantém histórico local
 de conversas (`barra-chats`, `Ctrl+N` / `Ctrl+F`), conversa com o agente (streaming, cartões de
 tool, "Parar") e mostra o `painel-preview` acompanhando a geração — esqueleto de camadas por
 `job.progresso` e imagem real por `job.artefato_parcial`. O workspace atualiza sozinho via
-`workspace.mudou` (debounce 500 ms) com realce de arquivo novo. `pnpm typecheck`, `test` e `build` verdes.
+`workspace.mudou` (debounce 500 ms) com realce de arquivo novo. **H6 fechou** (2026-07-26):
+`linha-versoes` navega entre versões do MapSpec com `mapspec.atualizado` real (crossfade do card
+de diff + flash das linhas alteradas, sem timer). `pnpm typecheck`, `test` e `build` verdes.
 
-O que ainda **não** existe: menus/tray do processo main; microinteração A6 de troca de versão
-(`mapspec.atualizado` ainda sem emissor — não simulada, AP-07).
+O que ainda **não** existe: menus/tray do processo main; aviso de arquivo novo gravado no
+transcript do chat (o evento já traz `resumo`, falta usar).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -57,6 +59,24 @@ recente é `abrirProjetoRecente(indice)`, e quem traduz índice → caminho é o
 A12: o watcher do núcleo emite `workspace.mudou` (debounce 500 ms) e a árvore atualiza sozinha,
 com realce de 2 s em arquivo novo. O botão de reindexar permanece como fallback.
 
+### H6 — troca de versão do MapSpec (`linha-versoes`)
+
+`mapspec.atualizado` (`{id, versao, diff}`) é emitido pelo núcleo em `agente/tools.py` —
+`_editar` (as 10 tools de edição), `criar_mapa` e `usar_modelo_da_galeria` — sempre que o
+`ctx["emissor"]` do turno existir (mesmo canal de `chat.delta`/`chat.tool`). `diff` carrega as
+operações estruturadas de `mapspec.diff` **e** o resumo em português de `edicao.descrever_diff`.
+
+No app, `src/estado/mapspecVersoes.ts` acumula o histórico e segue a versão mais recente;
+`src/componentes/LinhaVersoes.tsx` desenha `◀ v1 v2 ▶` + o card de diff, montado em
+`AppShell.tsx` logo abaixo do `painel-preview` (aba "preview"). Sem `mapspec.atualizado` nenhum,
+o componente não renderiza nada — não existe "v1" antes de qualquer edição real (AP-07). O
+crossfade (`--mf-dur-3`) e o flash das linhas (`--mf-acento-fraco`) reiniciam via `key` no
+contêiner do diff, remontado a cada troca (evento novo ou clique) — nenhum `setInterval`.
+
+Limite honesto: o crossfade é do **card de diff**, não de uma imagem do mapa por versão — o
+núcleo não gera um PNG por versão do MapSpec (só por etapa de `mapa.gerar`, via
+`job.artefato_parcial`), então não há o que crossfadear ali sem inventar imagem.
+
 ### O que as rodadas de C1–C9 mudaram no que já existia
 
 - `electron/nucleo/ponte.ts` — **defeito corrigido**: depois de `reiniciar()`, o `exit` do
@@ -80,7 +100,6 @@ com realce de 2 s em arquivo novo. O botão de reindexar permanece como fallback
 
 1. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
 2. Aviso de arquivo novo no chat (sistema) — o evento já traz `resumo`; falta gravar no transcript.
-3. Microinteração A6 de troca de versão (`mapspec.atualizado`).
 
 ## Arquitetura
 
@@ -147,8 +166,10 @@ texto é "gerando…", sem número. `pct` vem do evento e é monotônico; não h
 O mesmo vale para o M8: o indicador "pensando" (A1) sai do estado real do turno, os cartões de
 tool (A3) vêm de `chat.tool`, e o `painel-preview` (A5) só troca o esqueleto pela imagem quando
 `job.artefato_parcial` traz um `preview_png` — cujos bytes são lidos pelo núcleo (`artefato.ler`),
-nunca do disco pelo renderer. `tests/visual/motion-eventos.test.tsx` prova cada uma nas duas
-metades: antes do evento não existe, depois do evento aparece.
+nunca do disco pelo renderer. `linha-versoes` (A6/H6) segue a mesma regra: sem `mapspec.atualizado`
+o componente não existe no DOM — nada de "v1" fixo antes de qualquer edição real.
+`tests/visual/motion-eventos.test.tsx` prova cada uma nas duas metades: antes do evento não
+existe, depois do evento aparece.
 
 ## Comandos
 

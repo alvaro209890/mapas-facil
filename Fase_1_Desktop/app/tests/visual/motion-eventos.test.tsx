@@ -14,8 +14,10 @@ import {
   cancelarPendentes,
   formatarDuracao,
 } from "../../src/componentes/CartaoTool.js";
+import { LinhaVersoes } from "../../src/componentes/LinhaVersoes.js";
 import { ARTEFATOS_INICIAL, aplicarArtefato } from "../../src/estado/artefatos.js";
 import { ehJobArtefatoParcial } from "../../src/estado/eventos.js";
+import { useMapspecVersoes } from "../../src/estado/mapspecVersoes.js";
 import { PainelChat } from "../../src/paineis/PainelChat.js";
 import { Preview } from "../../src/paineis/Preview.js";
 import { desligarPonteFake, ligarPonteFake } from "../ponte-fake.js";
@@ -260,5 +262,69 @@ describe("A5 — preview de construção", () => {
     expect(estado.total).toBe(2);
     expect(estado.previewPng).toBeNull();
     expect(ARTEFATOS_INICIAL.camadas).toHaveLength(0); // estado inicial não é mutado
+  });
+});
+
+// --------------------------------------------------------------------- A6 troca de versão
+
+function LinhaVersoesLigada() {
+  const versoes = useMapspecVersoes();
+  return (
+    <LinhaVersoes
+      versoes={versoes.estado.versoes}
+      indiceExibido={versoes.estado.indiceExibido}
+      aoNavegar={versoes.navegar}
+      aoIrPara={versoes.irPara}
+    />
+  );
+}
+
+describe("A6 — troca de versão (mapspec.atualizado)", () => {
+  it("sem evento não há navegador de versões; mapspec.atualizado liga v1 com o diff", async () => {
+    const ponte = ligarPonteFake();
+    const { container } = render(<LinhaVersoesLigada />);
+    expect(container).toBeEmptyDOMElement();
+
+    ponte.emitir({
+      evento: "mapspec.atualizado",
+      dados: {
+        id: "01MAPSPECV1",
+        versao: 1,
+        diff: {
+          operacoes: [{ op: "adicionar", caminho: "titulo", depois: "Fazenda Harmonia" }],
+          resumo: ["título: adicionado (Fazenda Harmonia)"],
+        },
+      } as unknown as Record<string, unknown>,
+    });
+
+    await waitFor(() => expect(screen.getByText("v1")).toBeInTheDocument());
+    expect(screen.getByText(/título: adicionado/)).toBeInTheDocument();
+  });
+
+  it("segundo evento (edição) acrescenta v2 e o diff muda para o da edição", async () => {
+    const ponte = ligarPonteFake();
+    render(<LinhaVersoesLigada />);
+
+    ponte.emitir({
+      evento: "mapspec.atualizado",
+      dados: {
+        id: "01V1",
+        versao: 1,
+        diff: { operacoes: [], resumo: ["título: adicionado (Fazenda Harmonia)"] },
+      } as unknown as Record<string, unknown>,
+    });
+    await waitFor(() => expect(screen.getByText("v1")).toBeInTheDocument());
+
+    ponte.emitir({
+      evento: "mapspec.atualizado",
+      dados: {
+        id: "01V2",
+        versao: 2,
+        diff: { operacoes: [], resumo: ["elemento “tabela”: ligado → desligado"] },
+      } as unknown as Record<string, unknown>,
+    });
+
+    await waitFor(() => expect(screen.getByText("v2")).toBeInTheDocument());
+    expect(screen.getByText(/tabela.*ligado → desligado/)).toBeInTheDocument();
   });
 });

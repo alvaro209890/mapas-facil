@@ -102,10 +102,31 @@ export interface DadosChatTool {
   ms?: number;
   ok?: boolean;
 }
+/** Uma operação do diff estrutural — mesma forma de `mapspec/diff.py::diff`. */
+export interface OperacaoDiffMapspec {
+  op: "adicionar" | "remover" | "alterar";
+  caminho: string;
+  antes?: unknown;
+  depois?: unknown;
+  nota?: string;
+}
+
+/** `diff` de `mapspec.atualizado`: operações estruturadas + resumo em português. */
+export interface DiffMapspec {
+  operacoes: OperacaoDiffMapspec[];
+  total?: number;
+  id_antes?: string | null;
+  id_depois?: string | null;
+  versao_antes?: number | null;
+  versao_depois?: number | null;
+  /** Linhas prontas para exibir — `agente/edicao.py::descrever_diff`. */
+  resumo: string[];
+}
+
 export interface DadosMapspecAtualizado {
   id: string;
   versao: number;
-  diff: unknown;
+  diff: DiffMapspec;
 }
 export interface DadosAviso {
   codigo: string;
@@ -177,5 +198,29 @@ export function ehWorkspaceMudou(
     if (typeof m.acao !== "string" || !ACOES_MUDANCA.includes(m.acao as never)) return false;
     if (typeof m.tipo !== "string" || !TIPOS_MUDANCA.includes(m.tipo as never)) return false;
     return true;
+  });
+}
+
+/** `mapspec.atualizado` estreitado (H6/A6 — troca de versão). */
+export type EventoMapspecAtualizado = EnvelopeEvento<
+  Record<string, unknown> & DadosMapspecAtualizado
+> & { evento: "mapspec.atualizado" };
+
+const OPS_DIFF = ["adicionar", "remover", "alterar"] as const;
+
+export function ehMapspecAtualizado(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoMapspecAtualizado {
+  if (evento.evento !== "mapspec.atualizado") return false;
+  const { id, versao, diff } = evento.dados;
+  if (typeof id !== "string" || id === "") return false;
+  if (typeof versao !== "number") return false;
+  if (typeof diff !== "object" || diff === null) return false;
+  const { operacoes, resumo } = diff as Partial<DiffMapspec>;
+  if (!Array.isArray(operacoes) || !Array.isArray(resumo)) return false;
+  return operacoes.every((op) => {
+    if (typeof op !== "object" || op === null) return false;
+    const o = op as Partial<OperacaoDiffMapspec>;
+    return typeof o.caminho === "string" && typeof o.op === "string" && OPS_DIFF.includes(o.op as never);
   });
 }

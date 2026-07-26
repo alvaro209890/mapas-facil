@@ -14,7 +14,7 @@ verdade visual da **interface**; o visual do **mapa** continua sendo
 | Item | Atual | Alvo |
 |---|---|---|
 | Tokens, tema, fontes | **existem e são consumidos** (C3/C4) pelo renderer (C1/C5) | `app/src/estilos/tokens.css` + fontes embarcadas |
-| Eventos NDJSON que alimentam animação | **`job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou` emitidos** | falta só `mapspec.atualizado` |
+| Eventos NDJSON que alimentam animação | **`job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou`, `mapspec.atualizado` emitidos** (H6 fechou 2026-07-26) | todos os 6 emitidos; só `job.log`/`aviso` seguem sem emissor |
 | `job.artefato_parcial` (preview em construção) | **implementado** (M8) — 4 tipos, caminho relativo | `nucleo/.../artefatos.py` + emissão no pipeline |
 | `prefers-reduced-motion` | **respeitado** em `tokens.css` (≤ 80 ms, só opacidade/cor) | respeitado |
 
@@ -149,15 +149,15 @@ Windows ("Mostrar animações no Windows" em Facilidade de Acesso).
 
 ## Contratos — eventos que alimentam as animações
 
-### Já especificados, ainda não emitidos
+### Estado por evento (2026-07-26)
 
 | Evento | Dados | Quem emite | Estado |
 |---|---|---|---|
 | `job.progresso` | `{etapa, pct, item?}` | `motores/gerar.py` | **implementado** (A9) — emitido ao concluir cada etapa |
 | `job.log` | `{linha}` | núcleo | a implementar |
-| `chat.delta` | `{texto}` | agente | a implementar (M7) |
-| `chat.tool` | `{trace_id, tool, fase:"inicio"\|"fim", args_resumo?, resultado_resumo?, ms?, ok?}` | agente | a implementar (M7) |
-| `mapspec.atualizado` | `{id, versao, diff}` | núcleo | a implementar |
+| `chat.delta` | `{texto}` | agente | **implementado** (M7) |
+| `chat.tool` | `{trace_id, tool, fase:"inicio"\|"fim", args_resumo?, resultado_resumo?, ms?, ok?}` | agente | **implementado** (M7) |
+| `mapspec.atualizado` | `{id, versao, diff}` | `agente/tools.py` | **implementado** (H6) — `_editar`/`criar_mapa`/`usar_modelo_da_galeria` |
 | `aviso` | `{codigo, mensagem}` | núcleo | a implementar |
 
 `item` é novo em `job.progresso` e existe para a animação de construção: quando a etapa é
@@ -312,10 +312,15 @@ a linha da pilha, que é o que o dado sustenta.
 |---|---|---|
 | Abrir pasta | itens da árvore entram com opacidade + `translateY(4px)`, defasagem 24 ms, **máximo 12 itens** animados; o resto aparece direto | resposta de `workspace.abrir` |
 | Seleção na galeria | cartão vai a `scale(1.02)` e ganha borda `--mf-acento` em `--mf-dur-1`; preview do painel direito faz crossfade | clique |
-| Troca de versão `◀ v1 v2 ▶` | crossfade do preview em `--mf-dur-3`; as linhas do diff que mudaram piscam uma vez em `--mf-acento-fraco` | `mapspec.atualizado` ou clique |
+| Troca de versão `◀ v1 v2 ▶` | crossfade do card de diff em `--mf-dur-3`; as linhas do diff piscam uma vez em `--mf-acento-fraco` (`linha-versoes`, H6)¹ | `mapspec.atualizado` ou clique |
 | Arquivo novo na pasta | linha entra na árvore com realce que decai em 2 s | `workspace.mudou` |
 | Doctor mudou de estado | chip troca de cor em `--mf-dur-2`, sem chamar atenção | `doctor.rodar` |
 | Cancelar turno (`Esc`) | cursor some, cartões pendentes viram "cancelado" em `--mf-texto-3` | `chat.cancelar` |
+
+¹ O núcleo não gera um PNG por versão do MapSpec (só por etapa de `mapa.gerar`, via
+`job.artefato_parcial`) — não há imagem do mapa para crossfadear por versão sem inventar uma. O
+crossfade real é do card de diff/resumo da versão; o dia em que existir um render por versão, o
+mesmo canal de evento serve para animar o mapa também.
 
 ## Acessibilidade
 
@@ -336,12 +341,15 @@ a linha da pilha, que é o que o dado sustenta.
 - [x] `app/src/estilos/reset.css`
 - [x] `app/src/motion/tokens.ts` — durações e easings espelhando o CSS, para animação em JS
 - [x] `app/src/motion/useReducedMotion.ts`
-- [ ] Componentes da tabela de IDs, um arquivo por linha
+- [~] Componentes da tabela de IDs, um arquivo por linha — faltam `PainelDireito`, `MapSpecView`,
+      `Conformidade`; `LinhaVersoes` fechou em H6
 - [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — **emitir `job.progresso`** nas 10 etapas,
       com `item` nas etapas de camada
-- [ ] `nucleo/mapasfacil_nucleo/protocolo.py` — registrar `job.artefato_parcial` no vocabulário
-- [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.artefato_parcial` (M8)
-- [~] `app/src/estado/eventos.ts` — assinatura pronta + `peso`/`pctAoConcluir`; o store existe só para `job.progresso` (`app/src/estado/progressoJob.ts`)
+- [x] `nucleo/mapasfacil_nucleo/protocolo.py` — registrar `job.artefato_parcial` no vocabulário (M8)
+- [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.artefato_parcial` (M8)
+- [x] `nucleo/mapasfacil_nucleo/agente/tools.py` — emitir `mapspec.atualizado` (H6)
+- [x] `app/src/estado/eventos.ts` — assinatura dos 6 eventos emitidos, com `peso`/`pctAoConcluir`
+      e os type guards `eh*`; stores: `progressoJob.ts`, `artefatos.ts`, `mapspecVersoes.ts` (H6)
 - [x] `app/tests/visual/` — tema default, contraste AA/tokens + axe, reduced-motion ≤ 80 ms,
       layout 1280×800, hectares mono (`tests/visual/*.test.tsx`)
 
@@ -356,15 +364,15 @@ Cada item é um comando ou assert, não uma opinião:
 - [x] `grep -rniE "inter|roboto|arial|helvetica|system-ui" app/src/estilos/tokens.css` só aparece
       **depois** de uma família embarcada na pilha
 - [x] `grep -rn "https://fonts\.\|cdn\." app/src/` não retorna nada — zero requisição externa de fonte
-- [~] **≥ 3 animações ligadas a estado real**, provadas por teste com eventos NDJSON injetados:
-      A2 (streaming), A3 (tool), A4 (progresso). **A4 está provada**
-      (`app/tests/barra-progresso-job.test.tsx`); A2 e A3 esperam `chat.delta`/`chat.tool` (M7).
-      Cada teste emite o evento fake e assere a classe ou o atributo resultante — nenhum usa
-      timer sozinho
+- [x] **≥ 3 animações ligadas a estado real**, provadas por teste com eventos NDJSON injetados:
+      A2 (streaming), A3 (tool), A4 (progresso), A5 (preview) e A6 (troca de versão) — todas em
+      `app/tests/visual/motion-eventos.test.tsx` (+ `app/tests/barra-progresso-job.test.tsx` para
+      A4, `app/tests/linha-versoes.test.tsx` para A6). Cada teste emite o evento fake e assere a
+      classe ou o atributo resultante — nenhum usa timer sozinho
 - [x] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` não retorna nada
       (progresso não é simulado)
-- [ ] **Preview reage à geração:** teste emite `job.progresso` com `item:"avn"` e assere que a
-      linha `preview-camada-avn` mudou de estado
+- [x] **Preview reage à geração:** `job.progresso` com `item:"avn"` muda `[data-camada="avn"]`
+      para `data-estado="pronta"` (`motion-eventos.test.tsx`, seção A5)
 - [x] **Reduced motion:** com `prefers-reduced-motion: reduce`, nenhum elemento tem
       `animation-duration` ou `transition-duration` maior que 80 ms
       (`app/tests/visual/reduced-motion.test.tsx`)

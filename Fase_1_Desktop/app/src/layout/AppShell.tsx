@@ -12,11 +12,13 @@ import { AvisoAtalho } from "../componentes/AvisoAtalho.js";
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
+import { LinhaVersoes } from "../componentes/LinhaVersoes.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useAuth, sairConta } from "../estado/auth.js";
 import { useConversas } from "../estado/conversas.js";
 import { useDoctor } from "../estado/doctor.js";
 import { useGaleria } from "../estado/galeria.js";
+import { useMapspecVersoes } from "../estado/mapspecVersoes.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
@@ -103,6 +105,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const galeria = useGaleria();
   const conversas = useConversas(workspace.indice?.raiz ?? null);
   const progressoJob = useProgressoJob();
+  const mapspecVersoes = useMapspecVersoes();
   const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
@@ -311,7 +314,15 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
             ))}
           </div>
           {abaDireita === "preview" ? (
-            <Preview mapspec={galeria.mapspecMontado} />
+            <>
+              <Preview mapspec={galeria.mapspecMontado} />
+              <LinhaVersoes
+                versoes={mapspecVersoes.estado.versoes}
+                indiceExibido={mapspecVersoes.estado.indiceExibido}
+                aoNavegar={mapspecVersoes.navegar}
+                aoIrPara={mapspecVersoes.irPara}
+              />
+            </>
           ) : galeria.detalhe !== null ? (
             <GaleriaDetalhe
               detalhe={galeria.detalhe}

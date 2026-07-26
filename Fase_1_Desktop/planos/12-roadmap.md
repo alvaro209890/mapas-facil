@@ -268,9 +268,9 @@ real. Inclui o contrato novo `job.artefato_parcial` no núcleo.
 - [~] Nenhum spinner sem evento correspondente — coberto por teste (cada animação tem o caso
       "antes do evento não existe"); a revisão manual entra na release
 
-**Fora do marco, por falta de evento:** as microinterações A6 de watcher de pasta e de troca de
-versão dependem de `workspace.mudou` e `mapspec.atualizado`, que ainda não têm emissor. Não foram
-simuladas (AP-07).
+As microinterações A6 de watcher de pasta e de troca de versão fecharam depois deste marco, em
+A12 (`workspace.mudou`) e H6 (`mapspec.atualizado`) — nenhuma foi simulada antes de o evento
+existir (AP-07).
 
 **Dependências:** M7 (para `chat.delta`/`chat.tool`) e M1 (para `job.progresso`).
 

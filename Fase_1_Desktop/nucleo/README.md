@@ -60,7 +60,7 @@ nucleo/
     mapspec/
       validar.py
       diff.py
-  tests/                    # anel 1 — CI Linux (133 testes coletados)
+  tests/                    # anel 1 — CI Linux (365 testes coletados, 1 skip)
 ```
 
 ## Desenvolvimento
@@ -134,6 +134,7 @@ catálogo fora de `wms_wfs` (`arcgis_rest`, `wfs_gml`, `wms_raster` — `camada.
 | `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar`, ao concluir cada etapa |
 | `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | M8 — artefato intermediário pronto (`camada`, `tabela_png`, `preview_png`, `pdf`) |
 | `chat.delta` / `chat.tool` | ver [F1-06](../planos/06-agente-eng-florestal.md) | M7 — durante `chat.enviar` |
+| `mapspec.atualizado` | `{id, versao, diff}` | H6 — toda tool que cria/edita o MapSpec do turno (`agente/tools.py`) |
 
 Semântica (fixada em `progresso.py`): o evento sai **ao concluir** uma etapa — `etapa` é a que
 terminou e `pct` é o acumulado (3, 10, 30, 40, 45, 55, 70, 75, 90, 100). Nas etapas de camada
@@ -153,9 +154,11 @@ são geradas quando há canal de eventos. Para os bytes, o renderer chama `artef
 o disco direto (F1-01, fronteira 1).
 
 O vocabulário de eventos é fechado em `protocolo.EVENTOS`: emitir nome fora da lista levanta erro.
-Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`, **`workspace.mudou`**
-(A12 — watcher com debounce 500 ms; eventos fora de req saem pelo `configurar_sink_assincrono`).
-Ainda sem emissor: `job.log`, `mapspec.atualizado`, `aviso`.
+Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`, `workspace.mudou`
+(A12 — watcher com debounce 500 ms; eventos fora de req saem pelo `configurar_sink_assincrono`),
+**`mapspec.atualizado`** (H6 — `agente/tools.py::_emitir_mapspec_atualizado`, via `ctx["emissor"]`
+do turno; `diff` combina as operações de `mapspec.diff` com o resumo em português de
+`agente/edicao.py::descrever_diff`). Ainda sem emissor: `job.log`, `aviso`.
 
 ### Limites conhecidos (honestos)
 
@@ -179,12 +182,12 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~A10 — `mapa.cancelar`~~ **fechado** (`jobs.py`, `NU-050`)
 - ~~A11 — `cofre.*`~~ **fechado** (`cofre.py` + `keyring`)
 - ~~A13 — `catalogo.listar` / `camada.resolver`~~ **fechado** (`camadas/`; `consultar_sema`/`distancia_ate` reais)
+- ~~H6 — `mapspec.atualizado`~~ **fechado** (`agente/tools.py`; `app/` tem `linha-versoes`)
+- ~~Galeria (M4)~~ **fechada** — `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
+- ~~Conta local (M5)~~ **fechada** — `conta.*` + `sessao.*` + gate `AUTH-030`
+- ~~Conversas (M6)~~ **fechada** — `chats.sqlite` e os métodos `chat.*` de histórico
+- ~~Agente (M7)~~ **fechado** — `agente/`, ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
+- ~~UI Electron (M3–M8)~~ **fechado** — ver o [README do app](../app/README.md) para o que falta lá
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
-- Galeria (M4) — métodos `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
-- Conta local (M5) — `conta.criar`/`entrar`/`sair`/`estado` + `sessao.*` + gate `AUTH-030`
-- Conversas (M6) — `chats.sqlite` e os 9 métodos `chat.*` de histórico
-- Agente (M7) — pasta `agente/` não existe; ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
-- UI Electron (M3) — `Fase_1_Desktop/app/` existe e está **parcial**: scaffold, ponte NDJSON,
-  tokens e fontes; falta o shell de painéis e a barra de progresso (ver o README de lá)

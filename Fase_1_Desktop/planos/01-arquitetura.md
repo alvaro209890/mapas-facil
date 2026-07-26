@@ -130,8 +130,9 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 ### Eventos
 
 **Emitidos hoje:** `job.progresso` (A9), `chat.delta` e `chat.tool` (M7), `job.artefato_parcial`
-(M8). O vocabulário é fechado em `protocolo.EVENTOS` — emitir nome fora da lista levanta erro, em
-vez de virar evento órfão que nenhuma UI consome. A mecânica é a mesma:
+(M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6). Só `job.log` e `aviso` seguem sem
+emissor. O vocabulário é fechado em `protocolo.EVENTOS` — emitir nome fora da lista levanta erro,
+em vez de virar evento órfão que nenhuma UI consome. A mecânica é a mesma:
 `protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)` + registro com `com_eventos=True`.
 Quem implementar os outros eventos reaproveita esse canal.
 
@@ -143,7 +144,7 @@ Quem implementar os outros eventos reaproveita esse canal.
 | `workspace.mudou` | `{mudancas:[], workspace}` | watcher detectou alteração (debounce 500 ms) | **existe** (A12) — `workspace/watcher.py`; `mudancas[].acao` = adicionado/removido/modificado |
 | `chat.delta` | `{texto}` | pedaço da resposta | **existe** (M7) |
 | `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | **existe** (M7) |
-| `mapspec.atualizado` | `{id, versao, diff}` | nova versão | falta |
+| `mapspec.atualizado` | `{id, versao, diff}` | nova versão do MapSpec do turno | **existe** (H6) — `agente/tools.py` (`_editar`, `criar_mapa`, `usar_modelo_da_galeria`) via `ctx["emissor"]`; `diff` = operações de `mapspec.diff` + `resumo` em português |
 | `aviso` | `{codigo, mensagem}` | avisos não fatais | falta |
 
 ### Etapas reportadas em `job.progresso`
@@ -338,6 +339,8 @@ só a checagem de sanidade no boot (`UI-010`).
 - [x] `nucleo/mapasfacil_nucleo/workspace/watcher.py` — debounce 500 ms + `workspace.mudou`
 - [x] `nucleo/mapasfacil_nucleo/jobs.py` — `mapa.cancelar` com `taskkill /T /F` (Windows) + cancel cooperativo
 - [x] `nucleo/mapasfacil_nucleo/camadas/{catalogo,http,wfs,clip,cache,resolver}.py` — `catalogo.listar` + `camada.resolver` (A13)
+- [x] `nucleo/mapasfacil_nucleo/agente/tools.py` — emitir `mapspec.atualizado` em toda tool que cria/edita o MapSpec (H6)
+- [x] `app/src/estado/mapspecVersoes.ts` + `app/src/componentes/LinhaVersoes.tsx` — consumir `mapspec.atualizado` (H6/A6)
 - [x] `app/electron/main.ts`, `app/electron/nucleo/ponte.ts` — spawn, NDJSON, reinício *(sem teste executado)*
 - [x] `app/electron/ipc/` — canais tipados; nenhum expõe caminho absoluto sem passar pelo núcleo
 - [x] `app/src/estado/eventos.ts` — assinatura dos 8 eventos

@@ -17,7 +17,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
 from mapasfacil_nucleo.agente import limites
-from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, nova_versao, resumo_versao
+from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, descrever_diff, nova_versao, resumo_versao
 from mapasfacil_nucleo.camadas import clip as clip_camadas
 from mapasfacil_nucleo.camadas.resolver import resolver_camada
 from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared
@@ -26,6 +26,7 @@ from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
 from mapasfacil_nucleo.geo import area as geo_area
 from mapasfacil_nucleo.geo.distancia import distancia_minima_km
+from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
 from mapasfacil_nucleo.mapspec.validar import ESTILOS_PERMITIDOS, OPERADORES_FILTRO
 from mapasfacil_nucleo.mapspec.validar import validar as validar_mapspec_fn
 from mapasfacil_nucleo.motores.manifesto import listar_templates, obter_template
@@ -336,9 +337,12 @@ def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
         pacote = montar_mapspec(modelo_id, sobrescritas=sobrescritas or {})
     except ErroNucleo as exc:
         return _erro(exc.codigo, exc.mensagem, detalhes=exc.detalhes)
-    ctx["mapspec"] = pacote.get("mapspec")
+    novo = pacote.get("mapspec")
+    ctx["mapspec"] = novo
     ctx["mapspec_origem"] = "galeria"
     ctx["modelo_id"] = modelo_id
+    if isinstance(novo, dict):
+        _emitir_mapspec_atualizado(ctx, novo, mapspec_diff({}, novo))
     return _ok(
         {
             "mapspec_id": pacote["mapspec"].get("id"),
@@ -351,6 +355,30 @@ def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
 
 
 # --------------------------------------------------------------------------- edição
+
+
+def _emitir_mapspec_atualizado(
+    ctx: dict[str, Any], mapspec: dict[str, Any], diff: dict[str, Any]
+) -> None:
+    """`mapspec.atualizado` (H6/A6) — troca de versão na UI. Sem `Emissor`, não-op.
+
+    Payload fechado em F1-01/F1-16: `{id, versao, diff}`. `diff` carrega as
+    operações estruturadas de `mapspec.diff` **e** o resumo em português de
+    `edicao.descrever_diff` — a UI usa as operações para achar a linha que mudou
+    e o resumo para o texto. Nunca geometria/WKT/CPF (AP-06/AP-09): o `MapSpec`
+    já não guarda nenhum dos dois, e o diff só compara os campos dele.
+    """
+    emissor = ctx.get("emissor")
+    if emissor is None:
+        return
+    emissor.emitir(
+        "mapspec.atualizado",
+        {
+            "id": mapspec.get("id"),
+            "versao": mapspec.get("versao"),
+            "diff": {**diff, "resumo": descrever_diff(diff)},
+        },
+    )
 
 
 def _editar(ctx: dict[str, Any], mutar: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
@@ -370,6 +398,7 @@ def _editar(ctx: dict[str, Any], mutar: Callable[[dict[str, Any]], None]) -> dic
             erros=exc.erros[:5],
         )
     ctx["mapspec"] = novo
+    _emitir_mapspec_atualizado(ctx, novo, diff)
     return _ok(resumo_versao(novo, diff))
 
 
@@ -452,6 +481,7 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         )
     ctx["mapspec"] = mapspec
     ctx["mapspec_origem"] = "criar_mapa"
+    _emitir_mapspec_atualizado(ctx, mapspec, mapspec_diff({}, mapspec))
     return _ok(
         {
             "mapspec_id": mapspec["id"],

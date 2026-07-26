@@ -18,7 +18,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 26/27 tools desde A13; 1× `IA-022` até F1-07) |
-| H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6: galeria/abas + realce de arquivo novo (A12); versões esperam `mapspec.atualizado` |
+| H — motion e preview | M8 | **fechado** — H1–H7 (H6 fechou em 2026-07-26: `mapspec.atualizado` emitido + `linha-versoes`) |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
 ## Pré-voo
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: `mapspec.atualizado` (resto do H6), ou M2 quando houver ArcMap.
+Próximos marcos sem ArcMap: bloco I (conformidade/instalador/piloto) ou M2 quando houver ArcMap.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -184,7 +184,7 @@ Plano: [F1-16](16-design-system-dark.md).
 | H3 | A4 progresso segmentado (10 etapas) | [x] | `app/src/componentes/BarraProgressoJob.tsx` (C6 + varredura do segmento ativo) |
 | H4 | A5 fase 1 — esqueleto de camadas por `item` | [x] | `app/src/paineis/Preview.tsx` |
 | H5 | A5 fase 2 — rasterização real com crossfade | [x] | `paineis/Preview.tsx` + `estado/artefatos.ts` |
-| H6 | A6 microinterações | [~] | seleção na galeria (`CartaoModelo`), abas do painel direito e realce de arquivo novo (`workspace.mudou`); versões esperam `mapspec.atualizado` — não foram fingidas |
+| H6 | A6 microinterações | [x] | seleção na galeria (`CartaoModelo`), abas do painel direito, realce de arquivo novo (`workspace.mudou`) e **troca de versão** — `mapspec.atualizado` emitido em `agente/tools.py` (`_editar`/`criar_mapa`/`usar_modelo_da_galeria`) + `linha-versoes` (`estado/mapspecVersoes.ts`, `componentes/LinhaVersoes.tsx`) |
 | H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)
