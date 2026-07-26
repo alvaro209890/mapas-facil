@@ -109,9 +109,14 @@ export class PonteNucleo extends EventEmitter {
     this.processo = processo;
     processo.stdout.setEncoding("utf8");
     processo.stderr.setEncoding("utf8");
-    processo.stdout.on("data", (pedaco: string) => this.receber(pedaco));
+    // Todo ouvinte é amarrado a **este** processo: depois de `reiniciar()` o
+    // `exit` do processo antigo ainda chega, e sem isso derrubaria o novo.
+    processo.stdout.on("data", (pedaco: string) => {
+      if (this.processo === processo) this.receber(pedaco);
+    });
     processo.stderr.on("data", (pedaco: string) => this.emit("log", pedaco));
     processo.on("error", (causa) => {
+      if (this.processo !== null && this.processo !== processo) return;
       this.derrubar(
         new ErroPonte("UI-001", "O núcleo do Mapas Fácil não subiu.", {
           comando: this.opcoes.comando,
@@ -119,7 +124,7 @@ export class PonteNucleo extends EventEmitter {
         }),
       );
     });
-    processo.on("exit", (codigo, sinal) => this.aoSair(codigo, sinal));
+    processo.on("exit", (codigo, sinal) => this.aoSair(processo, codigo, sinal));
 
     this.trocarEstado("pronto");
   }
@@ -251,7 +256,13 @@ export class PonteNucleo extends EventEmitter {
     }
   }
 
-  private aoSair(codigo: number | null, sinal: NodeJS.Signals | null): void {
+  private aoSair(
+    processo: ChildProcessWithoutNullStreams,
+    codigo: number | null,
+    sinal: NodeJS.Signals | null,
+  ): void {
+    // Saída de um processo já substituído (reinício manual): não é queda do atual.
+    if (this.processo !== null && this.processo !== processo) return;
     this.processo = null;
     this.buffer = "";
     if (this.encerrandoDeProposito) {
