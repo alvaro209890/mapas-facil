@@ -1,18 +1,23 @@
 // C5 — `AppShell`: os quatro painéis de F1-02, redimensionáveis, com as larguras
 // persistidas em `config.json` pelo IPC de preferências.
 //
-// Escopo desta fatia: o esqueleto e a `barra-progresso-job`. O conteúdo de cada
-// painel (`barra-chats` C7/M6, `painel-workspace` C7, `painel-chat` M7,
-// `painel-direito` M4) é placeholder honesto — diz o que falta, não finge dado
-// que o núcleo não mandou.
+// O `painel-workspace` já é real (C7) e o rodapé dele é o `doctor-resumo` (C8) —
+// o doctor roda **uma vez** aqui e o resultado desce por prop. `barra-chats`
+// (M6), `painel-chat` (M7) e `painel-direito` (M4) mostram estado vazio honesto,
+// que diz de qual marco cada coisa é (C9); nada finge dado do núcleo.
 
 import type { ReactNode } from "react";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Map as MapaIcone, MessageSquare, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
+import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
+import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
+import { useDoctor } from "../estado/doctor.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
+import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
+import { Workspace } from "../paineis/Workspace.js";
 import { Divisor } from "./Divisor.js";
 import { TopoApp } from "./TopoApp.js";
 import estilos from "./AppShell.module.css";
@@ -67,18 +72,15 @@ function Trilho({ titulo, aoAbrir }: { titulo: string; aoAbrir: () => void }) {
   );
 }
 
-function Pendente({ titulo, nota }: { titulo: string; nota: string }) {
-  return (
-    <div className={estilos.placeholder}>
-      <strong>{titulo}</strong>
-      <span>{nota}</span>
-    </div>
-  );
-}
-
 export function AppShell({ nucleo, banner }: PropsAppShell) {
   const { paineis, definirLargura, alternarColapso, gravar } = usePaineis();
   const { larguras, colapsados } = paineis;
+  const workspace = useWorkspace();
+  const doctor = useDoctor();
+
+  // Informativos que o doctor sustenta com dado real; sem relatório, nada aparece.
+  const semChaveIa = doctor.relatorio !== null && !doctor.relatorio.chaves.deepseek;
+  const semArcMap = doctor.relatorio !== null && !doctor.relatorio.arcmap.encontrado;
 
   const divisor = (painel: PainelLateral, rotulo: string, invertido = false) => (
     <Divisor
@@ -93,7 +95,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
 
   return (
     <div className={estilos.shell}>
-      <TopoApp nucleo={nucleo.estado} />
+      <TopoApp nucleo={nucleo.estado} projeto={nomeDoProjeto(workspace.indice)} />
       {banner}
       <div className={estilos.corpo}>
         {colapsados.barraChats ? (
@@ -106,9 +108,10 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               largura={larguras.barraChats}
               aoColapsar={() => alternarColapso("barraChats")}
             >
-              <Pendente
+              <EstadoVazio
                 titulo="Sem histórico ainda"
-                nota="A persistência de conversas é o M6 (F1-17); a lista aparece aqui quando existir."
+                descricao="A persistência de conversas é do M6 (F1-17). Enquanto ela não existe, nada é guardado entre sessões — e o app não finge que guardou."
+                icone={<MessageSquare size={18} aria-hidden="true" />}
               />
             </Painel>
             {divisor("barraChats", "conversas")}
@@ -125,9 +128,14 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               largura={larguras.workspace}
               aoColapsar={() => alternarColapso("workspace")}
             >
-              <Pendente
-                titulo="Nenhuma pasta conectada"
-                nota="A árvore com feições, CRS e área em hectare é o C7; conectar pasta é do processo main (Ctrl+O, C10)."
+              <Workspace
+                estado={workspace}
+                aoConectar={() => void workspace.conectar()}
+                aoAbrirRecente={(indice) => void workspace.abrirRecente(indice)}
+                aoReindexar={() => void workspace.reindexar()}
+                rodape={
+                  <DoctorResumoPuro estado={doctor} aoRodar={() => void doctor.rodar()} />
+                }
               />
             </Painel>
             {divisor("workspace", "pasta do projeto")}
@@ -140,10 +148,13 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           aria-label="conversa"
         >
           <div className={estilos.conversa} role="log" aria-live="polite">
-            <Pendente
+            <EstadoVazio
               titulo="Chat do agente ainda não implementado"
-              nota="Streaming, cartões de tool e bloco de raciocínio dependem de chat.delta e chat.tool, que o núcleo ainda não emite (M7)."
+              descricao="Streaming, cartões de tool e bloco de raciocínio dependem de chat.delta e chat.tool, que o núcleo ainda não emite (M7)."
+              icone={<MessageSquare size={18} aria-hidden="true" />}
             />
+            {semChaveIa && <SemChaveDeepSeek />}
+            {semArcMap && <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} />}
           </div>
           <div className={estilos.rodapeChat}>
             <BarraProgressoJob />
@@ -160,9 +171,10 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           largura={larguras.painelDireito}
           className={estilos.painelDireito}
         >
-          <Pendente
+          <EstadoVazio
             titulo="Sem mapa gerado"
-            nota="As abas preview, galeria, mapspec e checks chegam no M4; o preview em construção precisa do MapSpec do job."
+            descricao="As abas preview, galeria, mapspec e checks chegam no M4; o preview em construção precisa do MapSpec do job."
+            icone={<MapaIcone size={18} aria-hidden="true" />}
           />
         </Painel>
       </div>

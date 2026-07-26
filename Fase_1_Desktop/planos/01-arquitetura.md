@@ -299,7 +299,7 @@ suporte.
 | `AG-1xx` | geração | `AG-101` fonte quebrada no `.mxd` · `AG-110` PDF em branco · `AG-120` elemento obrigatório ausente |
 | `IA-0xx` | agente | `IA-001` chave ausente · `IA-010` provedor indisponível · `IA-020` tool inexistente · `IA-030` limite de rodadas · `IA-040` contexto excedido após compressão · `IA-041` teto de tokens da conversa · `IA-050` resposta truncada por `max_tokens` |
 | `AUTH-0xx` | conta e sessão | `AUTH-001` sem login · `AUTH-011` refresh expirado · `AUTH-020` backend inalcançável · `AUTH-030` operação exige sessão · `AUTH-040` `state` divergente · `AUTH-050` cofre indisponível · `AUTH-060` relógio fora de sincronia — tabela completa em [F1-14](14-auth-e-conta.md) |
-| `UI-0xx` | app | `UI-001` núcleo não subiu · `UI-010` versão do núcleo incompatível |
+| `UI-0xx` | app | `UI-001` núcleo não subiu · `UI-010` versão do núcleo incompatível · `UI-020` projeto recente não está mais na lista |
 
 ## Matriz de ambiente
 

@@ -6,13 +6,13 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Roda.** O corte vertical do shell está fechado: a janela abre, os quatro painéis existem e são
-redimensionáveis, e a barra de progresso reage a `job.progresso` de verdade. `pnpm install`,
-`typecheck`, `test` (17 testes) e `build` foram executados nesta rodada e ficaram verdes.
+**Roda, e já faz trabalho útil.** A janela abre, conecta uma pasta pelo diálogo nativo, indexa
+pelo núcleo e mostra as camadas com feições, CRS e área em hectare. `pnpm typecheck`, `test`
+(50 testes) e `build` foram executados nesta rodada e ficaram verdes.
 
-O que ainda **não** existe é conteúdo de painel: árvore da pasta, chat do agente, galeria,
-preview e doctor são C7–C11 e marcos posteriores. Os painéis mostram placeholder que diz de qual
-marco cada coisa é — nenhum deles inventa dado do núcleo.
+O que ainda **não** existe: chat do agente, galeria e preview — dependem de M4/M6/M7 e mostram
+estado vazio que diz de qual marco cada coisa é. Do bloco C faltam a paleta `Ctrl+K` (C10) e os
+testes visuais com `axe-core` (C11).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -22,9 +22,30 @@ marco cada coisa é — nenhum deles inventa dado do núcleo.
 | C4 | Fontes embarcadas | **feito** | `src/estilos/fontes/` (+ licenças OFL) |
 | C5 | `AppShell` com 4 painéis redimensionáveis | **feito** | `src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `src/estado/preferencias.ts` |
 | C6 | `barra-progresso-job` consumindo `job.progresso` | **feito** | `src/componentes/BarraProgressoJob.tsx`, `src/estado/progressoJob.ts` + teste |
-| C7–C11 | workspace, doctor, estados vazios, `Ctrl+K`, testes visuais | **não iniciado** | — |
+| C7 | `painel-workspace` com metadados inline | **feito** | `src/paineis/Workspace.tsx`, `src/estado/workspace.ts`, `src/formato/numeros.ts`, `electron/projetos.ts` + diálogo em `electron/main.ts` |
+| C8 | `doctor-resumo` + diagnóstico completo | **feito** | `src/componentes/DoctorResumo.tsx`, `src/estado/doctor.ts` |
+| C9 | Estados vazios e de erro | **feito** | `src/componentes/EstadoVazio.tsx` |
+| C10 | Paleta `Ctrl+K` + atalhos | **não iniciado** | — |
+| C11 | Testes de tema, contraste e reduced-motion | **não iniciado** | `axe-core` ainda não é dependência |
 
-### O que a rodada de C1–C6 mudou no que já existia
+### Conectar pasta — onde cada coisa acontece
+
+```
+renderer  "quero conectar"        →  window.mapasfacil.conectarPasta()
+main      dialog.showOpenDialog      (só o main tem dialog e o caminho absoluto)
+main      ponte.chamar("workspace.abrir", {caminho})
+núcleo    WorkspaceGuard(raiz) + varredura            ← allowlist do fsguard
+main      registra o projeto recente em config.json
+renderer  recebe o índice pronto e desenha a árvore
+```
+
+O renderer não abre arquivo, não recebe `fs` e não manda caminho de disco: reabrir um projeto
+recente é `abrirProjetoRecente(indice)`, e quem traduz índice → caminho é o main.
+
+Sem watcher nesta fatia: `workspace.mudou` não é emitido pelo núcleo, então reindexar é um botão
+explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
+
+### O que as rodadas de C1–C9 mudaram no que já existia
 
 - `electron/nucleo/ponte.ts` — **defeito corrigido**: depois de `reiniciar()`, o `exit` do
   processo antigo era tratado como queda do novo (zerava `this.processo`, rejeitava as pendentes
@@ -36,16 +57,21 @@ marco cada coisa é — nenhum deles inventa dado do núcleo.
   ignora os postinstall e o binário do Electron nunca é baixado.
 - `vitest.config.ts` — a configuração de teste saiu do `vite.config.ts`: o `defineConfig` do
   Vitest 2 carrega os tipos do Vite 5 e conflita com o Vite 6 usado no build.
+- `electron/main.ts` — **defeito corrigido**: `CANAL_ESTADO` só saía em transição de estado, e o
+  renderer monta depois; quem abrisse a janela com o núcleo já pronto nunca recebia o estado.
+  Agora o estado atual vai junto no `did-finish-load`.
+- `src/paineis/Workspace.tsx` — o `doctor-resumo` sumia enquanto não havia pasta conectada.
+  Achado pelo teste de fumaça do shell; o estado do ambiente é justamente o que interessa antes
+  de conectar.
 
 ## O que falta, na ordem
 
-1. `src/paineis/Workspace.tsx` (C7) — árvore da pasta com metadados inline; depende de
-   `workspace.abrir` e do diálogo de pasta no processo main.
-2. `src/componentes/Doctor*.tsx` (C8) e `src/componentes/EstadoVazio.tsx` (C9).
-3. `src/paleta/PaletaComandos.tsx` (C10) e os atalhos de F1-02.
-4. `tests/visual/` (C11) — contraste com `axe-core` (ainda não é dependência) e varredura de
+1. `src/paleta/PaletaComandos.tsx` (C10) e os atalhos de F1-02 (`Ctrl+O`, `Ctrl+N`, `Ctrl+F`,
+   `Ctrl+K`, `F1`), com os menus e o tray do processo main.
+2. `tests/visual/` (C11) — contraste com `axe-core` (ainda não é dependência) e varredura de
    `prefers-reduced-motion`.
-5. Chat, preview e galeria: M4, M6 e M7 — dependem de eventos que o núcleo ainda não emite.
+3. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
+4. Chat, preview e galeria: M4, M6 e M7 — dependem de eventos que o núcleo ainda não emite.
 
 ## Arquitetura
 
@@ -53,7 +79,8 @@ marco cada coisa é — nenhum deles inventa dado do núcleo.
 app/
   index.html                 #raiz, tema escuro no HTML, CSP sem origem externa
   electron/                  processo main — Node, sem acesso do renderer
-    main.ts                  janela 1280×800 mín., tema escuro, IPC, ciclo da ponte
+    main.ts                  janela 1280×800 mín., tema escuro, IPC, ciclo da ponte, diálogo de pasta
+    projetos.ts              projetos recentes em config.json (o renderer só vê índice + nome)
     preload.ts               contextBridge → window.mapasfacil (chamar, eventos, preferências)
     preferencias.ts          config.json em %APPDATA%\MapasFacil\ (sem segredo)
     ipc/canais.ts            nomes dos canais IPC
@@ -66,11 +93,14 @@ app/
     main.tsx                 monta o React; fontes → tokens → reset; tema escuro default
     App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
     layout/                  AppShell (4 painéis), TopoApp, Divisor
-    componentes/             BarraProgressoJob
-    estado/                  eventos.ts, ponte.ts, progressoJob.ts, preferencias.ts, tema.ts
+    paineis/                 Workspace (árvore da pasta com metadados inline)
+    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio
+    estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema
+    formato/                 numeros.ts (hectare pt-BR com 4 casas)
     motion/                  tokens.ts, useReducedMotion.ts
     estilos/                 tokens.css, reset.css, fontes/
-  tests/                     ponte.test.ts, barra-progresso-job.test.tsx
+  tests/                     ponte, barra-progresso-job, workspace, doctor-resumo,
+                             estado-vazio, app-shell + fixtures/ (geradas pelo núcleo)
 ```
 
 ### Fronteiras respeitadas
@@ -82,6 +112,20 @@ app/
   tenta 3 reinícios automáticos antes de ficar em `caido`, e o banner do `App` chama `reiniciar()`.
 - Fora do Electron (vitest, `vite dev` no navegador) a ponte é no-op explícito: nenhuma tela finge
   que o núcleo respondeu.
+
+### Fixtures dos testes
+
+`tests/fixtures/*.json` **não são escritas à mão**: `tests/fixtures/gerar-fixture-workspace.py`
+monta uma pasta com shapefiles de verdade, chama `workspace.abrir` e `doctor.rodar` e grava a
+resposta. Assim a UI é testada contra o formato que o núcleo produz, e mudança de contrato quebra
+o teste do app. Para regerar:
+
+```bash
+cd Fase_1_Desktop/nucleo
+.venv/bin/python ../app/tests/fixtures/gerar-fixture-workspace.py
+```
+
+A raiz é reescrita para um caminho neutro e nenhum recibo do CAR entra na fixture (AP-09).
 
 ### Honestidade de progresso (AP-07)
 
@@ -95,7 +139,7 @@ evento e é monotônico; não há `setInterval` em `src/motion/` nem em `src/com
 cd Fase_1_Desktop/app
 pnpm install
 pnpm typecheck        # tsc -b (projetos app + node)
-pnpm test             # vitest run — 17 testes
+pnpm test             # vitest run — 50 testes
 pnpm build            # renderer (Vite) + main/preload (esbuild)
 pnpm dev              # servidor Vite em :5273
 pnpm dev:electron     # compila main/preload e abre a janela

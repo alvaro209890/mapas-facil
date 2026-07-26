@@ -15,11 +15,25 @@ export interface EstadoNucleo {
   erro: { codigo: string; mensagem: string } | null;
 }
 
+/** Conectar pasta: `cancelado` é o usuário fechando o diálogo nativo, não erro. */
+export interface RespostaConectar extends Partial<RespostaNucleo> {
+  cancelado: boolean;
+}
+
+export interface ProjetoRecente {
+  indice: number;
+  nome: string;
+  abertoEm: string;
+}
+
 export interface ApiMapasFacil {
   chamar(metodo: string, params?: Record<string, unknown>): Promise<RespostaNucleo>;
   reiniciarNucleo(): Promise<{ estado: string }>;
   aoEvento(ouvinte: (evento: EnvelopeEvento) => void): () => void;
   aoEstadoNucleo(ouvinte: (estado: EstadoNucleo) => void): () => void;
+  conectarPasta(): Promise<RespostaConectar>;
+  projetosRecentes(): Promise<ProjetoRecente[]>;
+  abrirProjetoRecente(indice: number): Promise<RespostaConectar>;
   lerPreferencias(): Promise<Record<string, unknown>>;
   gravarPreferencias(parcial: Record<string, unknown>): Promise<Record<string, unknown>>;
 }

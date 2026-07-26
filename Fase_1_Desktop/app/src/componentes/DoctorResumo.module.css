@@ -1,0 +1,129 @@
+/* C8 — `doctor-resumo` no rodapé do painel-workspace. Discreto: o estado do
+   ambiente não pode competir com o conteúdo (F1-02 §painel-workspace). */
+
+.doctor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+}
+
+.resumo {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  cursor: pointer;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  list-style: none;
+}
+
+.resumo::-webkit-details-marker {
+  display: none;
+}
+
+.pastilha {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+}
+
+.pastilha[data-tom="ok"] {
+  color: var(--mf-ok);
+}
+
+.pastilha[data-tom="aviso"] {
+  color: var(--mf-aviso);
+}
+
+.pastilha[data-tom="erro"] {
+  color: var(--mf-erro);
+}
+
+.pastilha[data-tom="desconhecido"] {
+  color: var(--mf-texto-3);
+}
+
+.seta {
+  margin-left: auto;
+  color: var(--mf-texto-3);
+  transition: transform var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.doctor[open] .seta {
+  transform: rotate(180deg);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  padding-top: var(--mf-e2);
+}
+
+.check {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  font-size: 11px;
+  color: var(--mf-texto-3);
+}
+
+.rotulo {
+  color: var(--mf-texto-2);
+}
+
+.valor {
+  margin-left: auto;
+  text-align: right;
+}
+
+.valor[data-tom="ok"] {
+  color: var(--mf-ok);
+}
+
+.valor[data-tom="aviso"] {
+  color: var(--mf-aviso);
+}
+
+.valor[data-tom="erro"] {
+  color: var(--mf-erro);
+}
+
+.valor[data-tom="desconhecido"] {
+  color: var(--mf-texto-3);
+}
+
+.detalhe {
+  flex-basis: 100%;
+  color: var(--mf-texto-3);
+}
+
+.linhaAcoes {
+  display: flex;
+  gap: var(--mf-e2);
+  padding-top: var(--mf-e2);
+}
+
+.acao {
+  padding: var(--mf-e1) var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  font-size: 11px;
+  color: var(--mf-texto-2);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.acao:hover {
+  background: var(--mf-superficie-3);
+  color: var(--mf-texto);
+}
+
+.estado {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.codigo {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-erro);
+}
