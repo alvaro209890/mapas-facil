@@ -70,13 +70,13 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
 | M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver checklist |
 | M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `Fase_1_Desktop/app/` está vazia |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M6 fechados**; M5/M7/M8 não iniciados |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |
 | Fase 2 — identidade (bloqueia o M5) | não iniciada |
 | Fase 2 — restante | não iniciado; começa depois do M11 |
 
-Nenhum evento NDJSON é emitido hoje: `protocolo.envelope_evt` existe sem chamador. Isso bloqueia
-a barra de progresso e as animações de construção do mapa — é o item A9 do checklist.
+`job.progresso` é emitido (A9). Os demais eventos NDJSON (`chat.delta`, `job.artefato_parcial`,
+etc.) ainda não têm emissor — bloqueiam M7/M8.
 
 ## Licença
 

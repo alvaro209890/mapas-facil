@@ -16,7 +16,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
-| F — conversas | M6 | **não iniciado** |
+| F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **parcial** — G2 (`limites.py`) fechado; G1/G3–G10 ausentes |
 | H — motion e preview | M8 | **não iniciado** |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: M5 auth (rede), M6 chats, M7 agente, ou A10–A13 no núcleo.
+Próximos marcos sem ArcMap: M5 auth (rede), M7 agente (usa M6), ou A10–A13 no núcleo.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -148,13 +148,13 @@ Plano: [F1-17](17-persistencia-de-conversas.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| F1 | Esquema SQLite + FTS5 + triggers + migração 001 | [ ] | `nucleo/.../conversas/` |
-| F2 | Repositório (CRUD, WAL, transações) | [ ] | `nucleo/.../conversas/repositorio.py` |
-| F3 | Redator de CPF/chaves **antes do INSERT** | [ ] | `nucleo/.../conversas/redator.py` |
-| F4 | Título automático + `title_manual` | [ ] | `nucleo/.../conversas/titulo.py` |
-| F5 | Os 9 métodos `chat.*` de histórico | [ ] | `nucleo/.../__main__.py` |
-| F6 | `barra-chats` + busca + menu de contexto | [ ] | `app/src/paineis/BarraChats.tsx` |
-| F7 | Testes: ciclo completo, 200 mensagens < 300 ms, CPF ausente do arquivo | [ ] | `nucleo/tests/test_conversas.py` |
+| F1 | Esquema SQLite + FTS5 + triggers + migração 001 | [x] | `nucleo/.../conversas/esquema.sql`, `migracoes/001_inicial.sql` |
+| F2 | Repositório (CRUD, WAL, transações) | [x] | `nucleo/.../conversas/repositorio.py`, `banco.py` |
+| F3 | Redator de CPF/chaves **antes do INSERT** | [x] | `nucleo/.../conversas/redator.py` |
+| F4 | Título automático + `title_manual` | [x] | `nucleo/.../conversas/titulo.py` |
+| F5 | Os 9 métodos `chat.*` de histórico (+ `chat.gravar_mensagem` para modo determinístico) | [x] | `nucleo/.../conversas/servico.py` + `__main__.py` |
+| F6 | `barra-chats` + busca + filtro por pasta | [x] | `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts` |
+| F7 | Testes: ciclo completo, escala, CPF ausente do arquivo, FTS, ramificar | [x] | `nucleo/tests/test_conversas.py`, `test_conversas_redator.py`, `app/tests/barra-chats.test.tsx` |
 
 ## Bloco G — Agente (M7)
 

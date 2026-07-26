@@ -63,11 +63,11 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
-cd Fase_1_Desktop/app && pnpm test         # shell + galeria + visual/axe
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~198)
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/axe (~77)
 ```
 
-## O que existe hoje (2026-07-26, núcleo v0.4.0)
+## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
 
 | Camada | Estado | Onde |
 |---|---|---|
@@ -76,10 +76,11 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + visual/axe
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **20 métodos** implementados (incl. `galeria.*`) | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **30 métodos** implementados (incl. `galeria.*` + 10 `chat.*`) | `Fase_1_Desktop/nucleo/` |
 | Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
-| App Electron | **M3 fechado** (C1–C11) + **galeria M4** no painel direito | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **barra de chats M6** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
+| Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -89,19 +90,18 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + visual/axe
 
 ## O que NÃO existe (não invente que existe)
 
-- Chat e preview em construção: `barra-chats` e preview ainda vazios (M6/M7/M8). A **galeria**
-  no painel direito é real (M4). Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
+- Chat do agente e preview em construção: `painel-chat` ainda vazio (M7/M8). A **barra de
+  chats** (M6) e a **galeria** (M4) são reais. Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
 - Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
 - Menus e tray do Electron (só diálogo de pasta + IPC).
-- Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
-  `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato especificado, zero implementação**.
-  Só `job.progresso` tem emissor.
+- Os outros eventos NDJSON além de `job.progresso`: `job.log`, `job.artefato_parcial`,
+  `workspace.mudou`, `chat.delta`, `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato
+  especificado, zero implementação**. Só `job.progresso` tem emissor.
 - Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão — **exceto**
-  `agente/limites.py` (G2: tetos de orçamento + helpers puros, testados).
+  `agente/limites.py` (G2) e a **persistência** de transcript (M6).
 - Autenticação, conta, site de login, backend de identidade.
-- Persistência de conversas (`chats.sqlite` não existe).
 - Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
-- Qualquer código da Fase 2.
+- Qualquer código da Fase 2 além do que M5 exigir.
 
 ## Ordem de implementação (dependências, nunca calendário)
 
@@ -175,7 +175,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3 + M4: shell/workspace/galeria fechados; chat/preview esperam M6/M7 | `app/src/paineis/Chat.tsx`, preview |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3+M4+M6: shell/workspace/galeria/barra-chats; `painel-chat`/preview esperam M7/M8 | `app/src/paineis/` |
+| R02 | Ponte NDJSON Electron ↔ sidecar | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** | `app/electron/nucleo/ponte.ts` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
 | R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **parcial** — tokens de motion e `useReducedMotion` existem; só **A4** (progresso do job) está ligada a evento. A2 e A3 dependem de `chat.delta`/`chat.tool` (M7) | `app/src/motion/`, `app/src/componentes/BarraProgressoJob.tsx` |
@@ -187,8 +188,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R10 | Backend de identidade + site de login | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **ausente** | `Fase_2_Site/backend/`, `Fase_2_Site/web/` |
 | R11 | Tokens no Windows Credential Manager | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/cofre.ts` |
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `nucleo/.../sessao.py`, `motores/gerar.py` |
-| R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **ausente** | `nucleo/.../conversas/` |
-| R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **ausente** | `app/src/paineis/BarraChats.tsx` |
+| R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
+| R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **ausente** | `nucleo/.../agente/deepseek.py` |
 | R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) — tetos + fase 8→4 + envelope tool truncada + gates | `nucleo/.../agente/limites.py` |
 | R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **ausente** (usa `limites`) | `nucleo/.../agente/contexto.py` |

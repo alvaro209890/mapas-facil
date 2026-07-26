@@ -84,9 +84,9 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.4.0)
+### Métodos implementados (v0.4.0 + M6)
 
-Registrados em `criar_roteador()` — 17 métodos:
+Registrados em `criar_roteador()` — **30 métodos**:
 
 | Método | Descrição |
 |---|---|
@@ -105,8 +105,12 @@ Registrados em `criar_roteador()` — 17 métodos:
 | `validacao.comparar_pdf` | diff raster entre PDFs (tolerância 0,3%) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` se hash registrado |
+| `galeria.listar` / `detalhar` / `montar_mapspec` | M4 — catálogo e MapSpec determinístico |
+| `chat.criar_conversa` / `listar_conversas` / `abrir_conversa` / `carregar_anteriores` | M6 — histórico local |
+| `chat.renomear` / `arquivar` / `apagar` / `ramificar` / `buscar` | M6 — gestão e FTS |
+| `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM; `chat.enviar` é M7) |
 
-**Não implementado neste sidecar:** agente IA, chat, tools DeepSeek, cliente WFS/SEMA em runtime.
+**Não implementado neste sidecar:** agente IA (`chat.enviar`), tools DeepSeek, cliente WFS/SEMA em runtime.
 
 ### Eventos emitidos (v0.4.0)
 

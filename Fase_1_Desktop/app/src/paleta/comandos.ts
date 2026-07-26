@@ -93,21 +93,19 @@ export function listarComandos(contexto: ContextoComandos): Comando[] {
     },
     {
       id: "nova-conversa",
-      grupo: "em-breve",
+      grupo: "pasta",
       rotulo: "Nova conversa",
       descricao: "Abre um chat vazio na barra de conversas",
       atalho: "Ctrl+N",
-      disponivel: false,
-      motivo: "Depende da persistência de chats (M6)",
+      disponivel: true,
     },
     {
       id: "buscar-chats",
-      grupo: "em-breve",
+      grupo: "pasta",
       rotulo: "Buscar nas conversas",
       descricao: "Filtra o histórico local por texto",
       atalho: "Ctrl+F",
-      disponivel: false,
-      motivo: "Depende da persistência de chats (M6)",
+      disponivel: true,
     },
   ];
 }

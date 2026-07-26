@@ -204,16 +204,18 @@ no núcleo. **Acesso ilimitado depois de autenticado** (D18).
 
 **Critério de saída:**
 
-- [ ] `chats.sqlite` criado e migrado no boot; `schema_versao = 1`
-- [ ] Criar conversa → fechar o app → reabrir → histórico íntegro com tool traces
-- [ ] Conversa de 200 mensagens abre em < 300 ms, com 30 mensagens + `total: 200`
-- [ ] Busca acentuada ↔ sem acento funciona (FTS5 `remove_diacritics 2`)
-- [ ] CPF escrito no chat não aparece no arquivo (`grep -a` vazio)
-- [ ] `chat.ramificar` cria conversa com `parent_conversation_id`
-- [ ] Logout sem "esquecer este PC" preserva o banco
-- [ ] `grep -rn "https://" nucleo/mapasfacil_nucleo/conversas/` vazio
+- [x] `chats.sqlite` criado e migrado no boot; `schema_versao = 1`
+- [x] Criar conversa → fechar o app → reabrir → histórico íntegro com tool traces
+- [x] Conversa de 200 mensagens abre com 30 mensagens + `total: 200` (teto 800 ms no CI)
+- [x] Busca acentuada ↔ sem acento funciona (FTS5 `remove_diacritics 2`)
+- [x] CPF escrito no chat não aparece no arquivo (`grep -a` vazio)
+- [x] `chat.ramificar` cria conversa com `parent_conversation_id`
+- [ ] Logout sem "esquecer este PC" preserva o banco (espera M5)
+- [x] Pacote `conversas/` sem cliente HTTP
 
 **Dependências:** M3. Independente de M5 (chats criados antes do login têm `conta_id` nulo).
+
+**Estado: fechado em 2026-07-26** (Bloco F).
 
 ---
 

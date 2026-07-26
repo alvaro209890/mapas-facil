@@ -1,0 +1,124 @@
+/* Barra lateral de conversas (M6). */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  height: 100%;
+  min-height: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mf-e2);
+  align-items: center;
+}
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--mf-borda);
+  background: var(--mf-superficie);
+  color: var(--mf-texto);
+  border-radius: var(--mf-raio);
+  padding: 4px 8px;
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  cursor: pointer;
+}
+
+.botao:hover {
+  background: var(--mf-superficie-2, var(--mf-superficie));
+}
+
+.botaoAtivo {
+  border-color: var(--mf-accent, var(--mf-texto));
+  color: var(--mf-accent, var(--mf-texto));
+}
+
+.busca {
+  width: 100%;
+  border: 1px solid var(--mf-borda);
+  background: var(--mf-fundo);
+  color: var(--mf-texto);
+  border-radius: var(--mf-raio);
+  padding: 6px 8px;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+}
+
+.lista {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rotuloGrupo {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 6px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--mf-texto);
+  border-radius: var(--mf-raio);
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--mf-superficie);
+}
+
+.itemAtivo {
+  border-color: var(--mf-borda);
+  background: var(--mf-superficie);
+}
+
+.titulo {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trecho {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.estado {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  padding: var(--mf-e3);
+}

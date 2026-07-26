@@ -69,6 +69,23 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
         if (metodo === "galeria.listar") {
           return Promise.resolve({ ok: true, resultado: { galeria_version: 1, modelos: [] } });
         }
+        if (metodo === "chat.listar_conversas") {
+          return Promise.resolve({ ok: true, resultado: { conversas: [], tem_mais: false } });
+        }
+        if (metodo === "chat.criar_conversa") {
+          sequencia += 1;
+          return Promise.resolve({
+            ok: true,
+            resultado: {
+              conversation_id: `01TEST${String(sequencia).padStart(20, "0")}`,
+              title: "Conversa sem título",
+              created_at: new Date().toISOString(),
+            },
+          });
+        }
+        if (metodo === "chat.buscar") {
+          return Promise.resolve({ ok: true, resultado: { resultados: [] } });
+        }
         return Promise.resolve({
           ok: false,
           erro: { codigo: "UI-001", mensagem: `teste sem resposta para ${metodo}` },

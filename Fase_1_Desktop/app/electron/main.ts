@@ -60,7 +60,12 @@ function criarJanela(): BrowserWindow {
 
 function ligarPonte(destino: BrowserWindow): PonteNucleo {
   const { comando, args, cwd } = localizarNucleo(app.getAppPath(), app.isPackaged);
-  const nova = new PonteNucleo({ comando, args, cwd });
+  const env = {
+    ...process.env,
+    // D13: chats.sqlite sob userData/chats (mesmo root do config.json)
+    MAPASFACIL_DADOS: app.getPath("userData"),
+  };
+  const nova = new PonteNucleo({ comando, args, cwd, env });
 
   nova.on("evt", (evento: Evento) => {
     if (!destino.isDestroyed()) destino.webContents.send(CANAL_EVENTO, evento);

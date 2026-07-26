@@ -13,7 +13,9 @@ export interface AcoesAtalho {
   conectarPasta: () => void;
   verificarAmbiente: () => void;
   abrirPreferencias: () => void;
-  /** Ctrl+N / Ctrl+F / Ctrl+Enter enquanto M6/M7 não existem. */
+  novaConversa: () => void;
+  focarBuscaChats: () => void;
+  /** Ctrl+Enter enquanto M7 não existe. */
   aoIndisponivel: (mensagem: string) => void;
 }
 
@@ -71,12 +73,12 @@ export function useAtalhosGlobais(acoes: AcoesAtalho): void {
       }
       if (tecla === "n") {
         evento.preventDefault();
-        atual.aoIndisponivel("Nova conversa chega com a persistência de chats (M6).");
+        atual.novaConversa();
         return;
       }
       if (tecla === "f") {
         evento.preventDefault();
-        atual.aoIndisponivel("Busca no histórico chega com a persistência de chats (M6).");
+        atual.focarBuscaChats();
         return;
       }
       if (tecla === "enter") {

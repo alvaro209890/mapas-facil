@@ -1,0 +1,40 @@
+# Redator de CPF e segredos — aplicado ANTES do INSERT (F1-17 / AP-09).
+# Compartilhável com log e, depois, com o montador de contexto do M7.
+
+from __future__ import annotations
+
+import re
+
+_CPF = re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b")
+_API_KEY = re.compile(r"(?i)(api[_-]?key\s*=\s*)([^\s&\"']+)")
+_AUTHKEY = re.compile(r"(?i)(authkey\s*=\s*)([^\s&\"']+)")
+_BEARER = re.compile(r"(?i)(Bearer\s+)([A-Za-z0-9\-._~+/]+=*)")
+_PLAK = re.compile(r"\bPLAK[A-Za-z0-9]{32}\b")
+_DEEPSEEK_SK = re.compile(r"\bsk-[a-f0-9]{32}\b", re.IGNORECASE)
+_SEMA_UUID = re.compile(
+    r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b",
+    re.IGNORECASE,
+)
+
+
+def redigir(texto: str) -> str:
+    """Remove CPF e padrões de chave do texto. Idempotente."""
+    if not texto:
+        return texto
+    saida = _CPF.sub("[CPF removido]", texto)
+    saida = _API_KEY.sub(r"\1***", saida)
+    saida = _AUTHKEY.sub(r"\1***", saida)
+    saida = _BEARER.sub(r"\1***", saida)
+    saida = _PLAK.sub("PLAK***", saida)
+    saida = _DEEPSEEK_SK.sub("sk-***", saida)
+    return saida
+
+
+def truncar(texto: str, limite: int) -> str:
+    if limite <= 0:
+        return ""
+    if len(texto) <= limite:
+        return texto
+    if limite <= 1:
+        return "…"
+    return texto[: limite - 1] + "…"

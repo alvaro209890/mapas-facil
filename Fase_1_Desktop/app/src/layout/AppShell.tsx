@@ -2,8 +2,8 @@
 // persistidas em `config.json` pelo IPC de preferências.
 //
 // C10: paleta `Ctrl+K`, atalhos globais e preferências de tema. O `painel-workspace`
-// é real (C7); doctor no rodapé (C8). `barra-chats` (M6), `painel-chat` (M7) e
-// `painel-direito` (M4) mostram estado vazio honesto (C9).
+// é real (C7); doctor no rodapé (C8). `barra-chats` (M6) lista o histórico local;
+// `painel-chat` (M7) e preview ainda mostram estado vazio honesto onde falta marco.
 
 import { useCallback, useState, type ReactNode } from "react";
 import { Map as MapaIcone, MessageSquare, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -14,11 +14,13 @@ import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useDoctor } from "../estado/doctor.js";
+import { useConversas } from "../estado/conversas.js";
 import { useGaleria } from "../estado/galeria.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
 import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
+import { BarraChats } from "../paineis/BarraChats.js";
 import { Galeria } from "../paineis/Galeria.js";
 import { GaleriaDetalhe } from "../paineis/GaleriaDetalhe.js";
 import { Workspace } from "../paineis/Workspace.js";
@@ -93,6 +95,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const workspace = useWorkspace();
   const doctor = useDoctor();
   const galeria = useGaleria();
+  const conversas = useConversas(workspace.indice?.raiz ?? null);
   const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
@@ -104,6 +107,13 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const abrirPreferencias = useCallback(() => setPreferenciasAbertas(true), []);
   const fecharPreferencias = useCallback(() => setPreferenciasAbertas(false), []);
   const limparAviso = useCallback(() => setAviso(null), []);
+
+  const focarBuscaChats = useCallback(() => {
+    if (colapsados.barraChats) alternarColapso("barraChats");
+    requestAnimationFrame(() => {
+      document.getElementById("busca-chats")?.focus();
+    });
+  }, [alternarColapso, colapsados.barraChats]);
 
   const verificarAmbiente = useCallback(() => {
     void doctor.rodar().then(() => focarDoctor());
@@ -131,11 +141,17 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           setFocoGaleria((n) => n + 1);
           document.getElementById("painel-galeria")?.scrollIntoView({ block: "nearest" });
           break;
+        case "nova-conversa":
+          void conversas.criar();
+          break;
+        case "buscar-chats":
+          focarBuscaChats();
+          break;
         default:
           break;
       }
     },
-    [verificarAmbiente, workspace],
+    [conversas, focarBuscaChats, verificarAmbiente, workspace],
   );
 
   useAtalhosGlobais({
@@ -147,6 +163,8 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
     conectarPasta: () => void workspace.conectar(),
     verificarAmbiente,
     abrirPreferencias,
+    novaConversa: () => void conversas.criar(),
+    focarBuscaChats,
     aoIndisponivel: setAviso,
   });
 
@@ -185,10 +203,20 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               largura={larguras.barraChats}
               aoColapsar={() => alternarColapso("barraChats")}
             >
-              <EstadoVazio
-                titulo="Sem histórico ainda"
-                descricao="A persistência de conversas é do M6 (F1-17). Enquanto ela não existe, nada é guardado entre sessões — e o app não finge que guardou."
-                icone={<MessageSquare size={18} aria-hidden="true" />}
+              <BarraChats
+                situacao={conversas.situacao}
+                conversas={conversas.conversas}
+                busca={conversas.busca}
+                resultadosBusca={conversas.resultadosBusca}
+                filtrarPastaAtual={conversas.filtrarPastaAtual}
+                conversaAtiva={conversas.conversaAtiva}
+                workspaceNome={nomeDoProjeto(workspace.indice) ?? null}
+                erro={conversas.erro}
+                aoCriar={() => void conversas.criar()}
+                aoBuscar={(termo) => void conversas.buscar(termo)}
+                aoSelecionar={conversas.selecionar}
+                aoAlternarFiltro={conversas.alternarFiltroPasta}
+                aoApagar={(id) => void conversas.apagar(id)}
               />
             </Painel>
             {divisor("barraChats", "conversas")}
