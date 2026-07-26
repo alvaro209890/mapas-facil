@@ -86,11 +86,10 @@ export function listarComandos(contexto: ContextoComandos): Comando[] {
     },
     {
       id: "gerar-mapa-serie",
-      grupo: "em-breve",
+      grupo: "pasta",
       rotulo: "Gerar mapa da série",
-      descricao: "Monta o MapSpec pela galeria e chama mapa.gerar",
-      disponivel: false,
-      motivo: "Depende da galeria (M4)",
+      descricao: "Abre a galeria de modelos no painel direito",
+      disponivel: true,
     },
     {
       id: "nova-conversa",

@@ -14,10 +14,13 @@ import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useDoctor } from "../estado/doctor.js";
+import { useGaleria } from "../estado/galeria.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
 import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
+import { Galeria } from "../paineis/Galeria.js";
+import { GaleriaDetalhe } from "../paineis/GaleriaDetalhe.js";
 import { Workspace } from "../paineis/Workspace.js";
 import type { IdComando } from "../paleta/comandos.js";
 import { PaletaComandos } from "../paleta/PaletaComandos.js";
@@ -89,9 +92,12 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const { larguras, colapsados } = paineis;
   const workspace = useWorkspace();
   const doctor = useDoctor();
+  const galeria = useGaleria();
+  const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [focoGaleria, setFocoGaleria] = useState(0);
 
   const abrirPaleta = useCallback(() => setPaletaAberta(true), []);
   const fecharPaleta = useCallback(() => setPaletaAberta(false), []);
@@ -120,6 +126,10 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           break;
         case "alternar-tema":
           void alternarTema();
+          break;
+        case "gerar-mapa-serie":
+          setFocoGaleria((n) => n + 1);
+          document.getElementById("painel-galeria")?.scrollIntoView({ block: "nearest" });
           break;
         default:
           break;
@@ -234,15 +244,40 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
         {divisor("painelDireito", "preview e artefatos", true)}
         <Painel
           id="painel-direito"
-          titulo="preview e artefatos"
+          titulo="galeria e artefatos"
           largura={larguras.painelDireito}
           className={estilos.painelDireito}
         >
-          <EstadoVazio
-            titulo="Sem mapa gerado"
-            descricao="As abas preview, galeria, mapspec e checks chegam no M4; o preview em construção precisa do MapSpec do job."
-            icone={<MapaIcone size={18} aria-hidden="true" />}
-          />
+          {/* focoGaleria força relistar quando a paleta pede "gerar mapa da série" */}
+          <span hidden data-foco-galeria={focoGaleria} />
+          {galeria.detalhe !== null ? (
+            <GaleriaDetalhe
+              detalhe={galeria.detalhe}
+              mapspec={galeria.mapspecMontado}
+              avisos={galeria.avisosMontagem}
+              erro={galeria.erro}
+              montando={montando}
+              aoVoltar={galeria.limparDetalhe}
+              aoMontar={() => {
+                setMontando(true);
+                void galeria.montar(galeria.detalhe!.id).finally(() => setMontando(false));
+              }}
+            />
+          ) : (
+            <Galeria
+              modelos={galeria.modelos}
+              situacao={galeria.situacao}
+              erro={galeria.erro}
+              aoAbrir={(id) => void galeria.detalhar(id)}
+            />
+          )}
+          {galeria.detalhe === null && galeria.situacao === "pronta" && galeria.modelos.length === 0 && (
+            <EstadoVazio
+              titulo="Sem mapa gerado"
+              descricao="As abas preview e checks complementam a galeria; o preview em construção precisa do MapSpec do job."
+              icone={<MapaIcone size={18} aria-hidden="true" />}
+            />
+          )}
         </Painel>
       </div>
 

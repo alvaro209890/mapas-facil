@@ -1,0 +1,100 @@
+/* Detalhe do modelo + montagem do MapSpec. */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.voltar {
+  align-self: flex-start;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-acento);
+}
+
+.titulo {
+  font: var(--mf-fs-t2) var(--mf-fonte-display);
+  letter-spacing: var(--mf-tracking-display);
+}
+
+.desc {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+}
+
+.rotulo {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lista {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mf-e2);
+  padding: var(--mf-e1) 0;
+  border-bottom: 1px solid var(--mf-borda);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mf-e2);
+}
+
+.botao {
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.botao[data-primario="true"] {
+  background: var(--mf-acento-fraco);
+  border-color: var(--mf-acento);
+}
+
+.botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.json {
+  margin: 0;
+  padding: var(--mf-e3);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  color: var(--mf-texto-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.aviso {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-aviso);
+}
+
+.erro {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-erro);
+}

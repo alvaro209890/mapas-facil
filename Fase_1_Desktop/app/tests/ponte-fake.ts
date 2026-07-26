@@ -65,6 +65,10 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
       fake.chamadas.push({ metodo, params });
       const resposta = respostas.get(metodo);
       if (resposta === undefined) {
+        // Galeria vazia por padrão: testes antigos do shell não precisam mockar M4.
+        if (metodo === "galeria.listar") {
+          return Promise.resolve({ ok: true, resultado: { galeria_version: 1, modelos: [] } });
+        }
         return Promise.resolve({
           ok: false,
           erro: { codigo: "UI-001", mensagem: `teste sem resposta para ${metodo}` },

@@ -14,11 +14,12 @@ Verificações rápidas de realidade (rode antes de planejar):
 
 ```bash
 ls Fase_1_Desktop/app                      # M3 fechado: C1–C11 (shell, workspace, paleta, visual)
+ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (149 testes, 1 skip)
-cd Fase_1_Desktop/app && pnpm test         # 71 testes: ponte, UI, paleta, visual/axe
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + visual/axe
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0)
@@ -30,9 +31,10 @@ cd Fase_1_Desktop/app && pnpm test         # 71 testes: ponte, UI, paleta, visua
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **17 métodos** implementados | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **20 métodos** implementados (incl. `galeria.*`) | `Fase_1_Desktop/nucleo/` |
 | Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
-| App Electron | **M3 fechado** (C1–C11): shell, workspace, doctor, estados, paleta/`Ctrl+K`, testes visuais | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **M3 fechado** (C1–C11) + **galeria M4** no painel direito | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -42,10 +44,8 @@ cd Fase_1_Desktop/app && pnpm test         # 71 testes: ponte, UI, paleta, visua
 
 ## O que NÃO existe (não invente que existe)
 
-- Chat, galeria e preview: `barra-chats`, `painel-chat` e `painel-direito` mostram **estado
-  vazio honesto**, não conteúdo — dependem de M4, M6 e M7. O `painel-workspace` e o
-  `doctor-resumo`, esses, são reais (C7/C8). Detalhe em
-  [`app/README.md`](Fase_1_Desktop/app/README.md).
+- Chat e preview em construção: `barra-chats` e preview ainda vazios (M6/M7/M8). A **galeria**
+  no painel direito é real (M4). Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
 - Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
 - Menus e tray do Electron (só diálogo de pasta + IPC).
 - Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
@@ -53,8 +53,6 @@ cd Fase_1_Desktop/app && pnpm test         # 71 testes: ponte, UI, paleta, visua
   Só `job.progresso` tem emissor.
 - Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão.
 - Autenticação, conta, site de login, backend de identidade.
-- Galeria de modelos (`shared/galeria/` não existe).
-- Design system, tema, animações.
 - Persistência de conversas (`chats.sqlite` não existe).
 - Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
 - Qualquer código da Fase 2.
@@ -131,14 +129,14 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3/C1–C11 fechados (shell, workspace, doctor, paleta, visual); chat/galeria/preview esperam M4/M6/M7 | `app/src/paineis/Chat.tsx`, `app/src/paineis/PainelDireito.tsx` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3 + M4: shell/workspace/galeria fechados; chat/preview esperam M6/M7 | `app/src/paineis/Chat.tsx`, preview |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
 | R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **parcial** — tokens de motion e `useReducedMotion` existem; só **A4** (progresso do job) está ligada a evento. A2 e A3 dependem de `chat.delta`/`chat.tool` (M7) | `app/src/motion/`, `app/src/componentes/BarraProgressoJob.tsx` |
 | R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato novo | **ausente — contrato só especificado** | `nucleo/.../motores/gerar.py`, `protocolo.py` |
-| R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **ausente** | `shared/galeria/modelos.json`, `nucleo/.../galeria/` |
-| R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **ausente** | `nucleo/.../galeria/servico.py` |
+| R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
+| R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
 | R09 | Login obrigatório Google via site → app | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/auth/`, `Fase_2_Site/backend/` |
 | R10 | Backend de identidade + site de login | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **ausente** | `Fase_2_Site/backend/`, `Fase_2_Site/web/` |
 | R11 | Tokens no Windows Credential Manager | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/cofre.ts` |

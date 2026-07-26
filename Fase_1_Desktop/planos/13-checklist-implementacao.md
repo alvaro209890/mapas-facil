@@ -14,7 +14,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
-| D — galeria | M4 | **não iniciado** |
+| D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
 | G — agente | M7 | **não iniciado** |
@@ -87,7 +87,8 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
-com `pnpm typecheck` → `test` (71) → `build` verdes. Próximo marco sem ArcMap: M4 galeria.
+com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
+Próximos marcos sem ArcMap: M5 auth (rede), M6 chats, M7 agente, ou A10–A13 no núcleo.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -95,7 +96,7 @@ com `pnpm typecheck` → `test` (71) → `build` verdes. Próximo marco sem ArcM
 | C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [x] | `app/electron/nucleo/ponte.ts` + `app/tests/ponte.test.ts` (7 testes com sidecar real). O teste achou e o commit corrigiu: `exit` de processo já substituído derrubava o novo após `reiniciar()` |
 | C3 | Tokens de cor, tipografia e movimento | [x] | `app/src/estilos/tokens.css` (+ `reset.css`); escuro default, claro em `[data-tema="claro"]`, reduced-motion ≤ 80 ms |
 | C4 | Fontes embarcadas (Space Grotesk, IBM Plex Sans/Mono) | [x] | `app/src/estilos/fontes/` — woff2 latin/latin-ext + `@font-face` + licenças OFL; zero CDN |
-| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [x] | `app/src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `app/src/estado/preferencias.ts` — arrasto + teclado, larguras e colapso em `config.json`. Workspace real (C7); chat/galeria/preview ainda honestos até M4/M6/M7 |
+| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [x] | `app/src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `app/src/estado/preferencias.ts` — arrasto + teclado, larguras e colapso em `config.json`. Workspace (C7) + galeria (D8); chat/preview ainda honestos até M6/M7 |
 | C6 | `barra-progresso-job` consumindo `job.progresso` | [x] | `app/src/componentes/BarraProgressoJob.tsx` + `app/src/estado/progressoJob.ts`; `app/tests/barra-progresso-job.test.tsx` (10 testes: sem evento não há barra, 10 etapas pt-BR, `pct` monotônico) |
 | C7 | `painel-workspace` com metadados inline | [x] | `app/src/paineis/Workspace.tsx`, `app/src/estado/workspace.ts`, `app/src/formato/numeros.ts` + diálogo nativo e recentes em `app/electron/main.ts`/`projetos.ts`; `app/tests/workspace.test.tsx` (11 testes, fixture gerada pelo núcleo) |
 | C8 | `doctor-resumo` + tela completa | [x] | `app/src/componentes/DoctorResumo.tsx` + `app/src/estado/doctor.ts`; resumo colapsado + diagnóstico completo em `<details>`, `app/tests/doctor-resumo.test.tsx` (8 testes). `sondar_arcpy` fica sob demanda (Windows) |
@@ -113,15 +114,15 @@ Plano: [F1-15](15-galeria-de-modelos.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| D1 | `modelos.json` com os 5 modelos + schema | [ ] | `shared/galeria/` |
-| D2 | Previews PNG extraídos de `Referencias_IMAP/Mapas/01/` | [ ] | `shared/galeria/previews/` |
-| D3 | Carga e validação do catálogo | [ ] | `nucleo/.../galeria/catalogo.py` |
-| D4 | Cálculo de `status` (MANIFEST × índice) | [ ] | `nucleo/.../galeria/estado.py` |
-| D5 | `montar_mapspec` — os 13 passos determinísticos | [ ] | `nucleo/.../galeria/montar.py` |
-| D6 | Métodos `galeria.*` no roteador | [ ] | `nucleo/.../__main__.py` |
-| D7 | Erros `NU-230`…`NU-234` | [ ] | `nucleo/.../erros.py` |
-| D8 | `painel-galeria` + `painel-galeria-detalhe` + `CartaoModelo` | [ ] | `app/src/paineis/` |
-| D9 | Testes de determinismo e de requisito ausente | [ ] | `nucleo/tests/test_galeria.py` |
+| D1 | `modelos.json` com os 5 modelos + schema | [x] | `shared/galeria/modelos.json`, `schema.json`, `README.md` |
+| D2 | Previews PNG extraídos de `Referencias_IMAP/Mapas/01/` | [x] | `shared/galeria/previews/` (+ cópia em `app/public/galeria/` para o renderer) |
+| D3 | Carga e validação do catálogo | [x] | `nucleo/.../galeria/catalogo.py` |
+| D4 | Cálculo de `status` (MANIFEST × índice) | [x] | `nucleo/.../galeria/estado.py` |
+| D5 | `montar_mapspec` — os 13 passos determinísticos | [x] | `nucleo/.../galeria/montar.py` |
+| D6 | Métodos `galeria.*` no roteador | [x] | `galeria.listar` / `detalhar` / `montar_mapspec` em `__main__.py` |
+| D7 | Erros `NU-230`…`NU-234` | [x] | códigos usados em `catalogo`/`montar` via `ErroNucleo` |
+| D8 | `painel-galeria` + `painel-galeria-detalhe` + `CartaoModelo` | [x] | `app/src/paineis/Galeria*.tsx`, `CartaoModelo.tsx`; `app/tests/galeria.test.tsx` |
+| D9 | Testes de determinismo e de requisito ausente | [x] | `nucleo/tests/test_galeria.py` (9 testes) |
 
 ## Bloco E — Conta e autenticação (M5)
 

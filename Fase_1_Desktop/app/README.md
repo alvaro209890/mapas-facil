@@ -1,17 +1,18 @@
-# app/ — shell Electron + React (Fase 1, bloco C)
+# app/ — shell Electron + React (Fase 1, bloco C + D)
 
 Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 [F1-16](../planos/16-design-system-dark.md) (tokens, tipografia, animações),
+[F1-15](../planos/15-galeria-de-modelos.md) (galeria / M4),
 [F1-01](../planos/01-arquitetura.md) (protocolo NDJSON e fronteiras).
 
 ## Estado — 2026-07-26
 
-**Bloco C (M3) fechado.** A janela abre, conecta pasta, indexa, mostra doctor, responde a
-`Ctrl+K`/atalhos e passa os asserts visuais. `pnpm typecheck`, `test` (**71** testes) e `build`
-verdes nesta rodada.
+**Bloco C (M3) e bloco D (M4) fechados.** A janela abre, conecta pasta, indexa, mostra doctor,
+responde a `Ctrl+K`/atalhos, lista a galeria de modelos no painel direito e monta MapSpec
+determinístico. `pnpm typecheck`, `test` (**73** testes) e `build` verdes nesta rodada.
 
-O que ainda **não** existe: chat do agente, galeria e preview — dependem de M4/M6/M7 e mostram
-estado vazio que diz de qual marco cada coisa é. Menus/tray do processo main também faltam.
+O que ainda **não** existe: chat do agente e preview em construção — dependem de M6/M7/M8 e
+mostram estado vazio que diz de qual marco cada coisa é. Menus/tray do processo main também faltam.
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -26,6 +27,10 @@ estado vazio que diz de qual marco cada coisa é. Menus/tray do processo main ta
 | C9 | Estados vazios e de erro | **feito** | `src/componentes/EstadoVazio.tsx` |
 | C10 | Paleta `Ctrl+K` + atalhos | **feito** | `src/paleta/`, `src/componentes/Preferencias.tsx`, `tests/paleta-comandos.test.tsx` |
 | C11 | Testes de tema, contraste e reduced-motion | **feito** | `tests/visual/` + `axe-core` |
+
+| # | Tarefa (F1-13 bloco D) | Estado | Onde |
+|---|---|---|---|
+| D8 | `painel-galeria` + detalhe + `CartaoModelo` | **feito** | `src/paineis/Galeria*.tsx`, `src/componentes/CartaoModelo.tsx`, `src/estado/galeria.ts`, `tests/galeria.test.tsx` |
 
 ### Conectar pasta — onde cada coisa acontece
 
@@ -65,10 +70,10 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 ## O que falta, na ordem
 
-1. Galeria de modelos + geração determinística (M4 / bloco D).
-2. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
-3. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
-4. Chat, preview e auth: M5–M7 — dependem de eventos/backend que ainda não existem.
+1. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
+2. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
+3. Chat, preview e auth: M5–M7 — dependem de eventos/backend que ainda não existem.
+4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (auth M5 + motor).
 
 ## Arquitetura
 
@@ -90,15 +95,16 @@ app/
     main.tsx                 monta o React; fontes → tokens → reset; tema escuro default
     App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
     layout/                  AppShell (4 painéis), TopoApp, Divisor
-    paineis/                 Workspace (árvore da pasta com metadados inline)
-    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, AvisoAtalho
+    paineis/                 Workspace (árvore), Galeria + GaleriaDetalhe (M4)
+    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, CartaoModelo
     paleta/                  PaletaComandos + atalhos globais (C10)
-    estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema
+    estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema, galeria
     formato/                 numeros.ts (hectare pt-BR com 4 casas)
     motion/                  tokens.ts, useReducedMotion.ts
     estilos/                 tokens.css, reset.css, fontes/
+  public/galeria/            cópia dos previews PNG para o Vite
   tests/                     ponte, barra, workspace, doctor, estado-vazio, app-shell, paleta,
-                             visual/ (tema, contraste/axe, reduced-motion, layout) + fixtures/
+                             galeria, visual/ (tema, contraste/axe, reduced-motion, layout) + fixtures/
 ```
 
 ### Fronteiras respeitadas
@@ -137,7 +143,7 @@ evento e é monotônico; não há `setInterval` em `src/motion/` nem em `src/com
 cd Fase_1_Desktop/app
 pnpm install
 pnpm typecheck        # tsc -b (projetos app + node)
-pnpm test             # vitest run — 71 testes
+pnpm test             # vitest run — 73 testes
 pnpm build            # renderer (Vite) + main/preload (esbuild)
 pnpm dev              # servidor Vite em :5273
 pnpm dev:electron     # compila main/preload e abre a janela

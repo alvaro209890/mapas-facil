@@ -1,0 +1,324 @@
+{
+  "galeria_version": 1,
+  "contract_version": 2,
+  "modelos": [
+    {
+      "id": "dinamica_2026_retrato",
+      "nome": "Dinâmica de uso do solo",
+      "subtitulo": "Série Dinâmica · A4 retrato",
+      "descricao": "Perímetro, vegetação nativa, área consolidada e desmate após 2008, com tabela de quantitativos.",
+      "template": "dinamica_retrato",
+      "perfil": "harmonia",
+      "preview": "previews/dinamica_2026_retrato.png",
+      "orientacao": "retrato",
+      "tags": ["dinamica", "car", "quantitativos"],
+      "saidas_padrao": ["mxd", "pdf", "png", "xlsx"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        },
+        {
+          "papel": "AVN",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área de vegetação nativa",
+          "estilo": "avn",
+          "ordem": 30
+        },
+        {
+          "papel": "AC",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área consolidada",
+          "estilo": "ac",
+          "ordem": 40
+        },
+        {
+          "papel": "AUAS",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área Derivada de Desmate Após 2008",
+          "estilo": "auas",
+          "ordem": 20
+        }
+      ],
+      "camadas_catalogo": [
+        {
+          "fonte": "catalogo.lim_municipios_mt",
+          "nome_no_mxd": "Limite municipal",
+          "estilo": "limite_municipal",
+          "ordem": 90,
+          "filtro_de": "imovel.municipio.nome"
+        }
+      ],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": true,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP", "AVN", "AC", "AUAS"],
+        "total_geral": true,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    },
+    {
+      "id": "dinamica_2026_quantitativos",
+      "nome": "Dinâmica com quantitativos",
+      "subtitulo": "Série Dinâmica · A4 retrato · tabela em destaque",
+      "descricao": "Mesma série Dinâmica com ênfase na tabela de quantitativos no layout.",
+      "template": "dinamica_quantitativos_retrato",
+      "perfil": "harmonia",
+      "preview": "previews/dinamica_2026_quantitativos.png",
+      "orientacao": "retrato",
+      "tags": ["dinamica", "car", "quantitativos"],
+      "saidas_padrao": ["mxd", "pdf", "png", "xlsx"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        },
+        {
+          "papel": "AVN",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área de vegetação nativa",
+          "estilo": "avn",
+          "ordem": 30
+        },
+        {
+          "papel": "AC",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área consolidada",
+          "estilo": "ac",
+          "ordem": 40
+        },
+        {
+          "papel": "AUAS",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área Derivada de Desmate Após 2008",
+          "estilo": "auas",
+          "ordem": 20
+        }
+      ],
+      "camadas_catalogo": [
+        {
+          "fonte": "catalogo.lim_municipios_mt",
+          "nome_no_mxd": "Limite municipal",
+          "estilo": "limite_municipal",
+          "ordem": 90,
+          "filtro_de": "imovel.municipio.nome"
+        }
+      ],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": true,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP", "AVN", "AC", "AUAS"],
+        "total_geral": true,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    },
+    {
+      "id": "tipologia_paisagem",
+      "nome": "Tipologia vegetal",
+      "subtitulo": "A4 paisagem",
+      "descricao": "Mapa de tipologia vegetal sobre o imóvel.",
+      "template": "tipologia_paisagem",
+      "perfil": "harmonia",
+      "preview": "previews/tipologia_paisagem.png",
+      "orientacao": "paisagem",
+      "tags": ["tipologia", "car"],
+      "saidas_padrao": ["mxd", "pdf", "png"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        }
+      ],
+      "camadas_catalogo": [],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": false,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP"],
+        "total_geral": false,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    },
+    {
+      "id": "terras_indigenas_paisagem",
+      "nome": "Terras Indígenas",
+      "subtitulo": "A4 paisagem",
+      "descricao": "Sobreposição do imóvel com terras indígenas.",
+      "template": "terras_indigenas_paisagem",
+      "perfil": "harmonia",
+      "preview": "previews/terras_indigenas_paisagem.png",
+      "orientacao": "paisagem",
+      "tags": ["terras_indigenas", "car"],
+      "saidas_padrao": ["mxd", "pdf", "png"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        }
+      ],
+      "camadas_catalogo": [],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": false,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP"],
+        "total_geral": false,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    },
+    {
+      "id": "uc_paisagem",
+      "nome": "Unidades de Conservação",
+      "subtitulo": "A4 paisagem",
+      "descricao": "Sobreposição do imóvel com unidades de conservação.",
+      "template": "uc_paisagem",
+      "perfil": "harmonia",
+      "preview": "previews/uc_paisagem.png",
+      "orientacao": "paisagem",
+      "tags": ["uc", "car"],
+      "saidas_padrao": ["mxd", "pdf", "png"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        }
+      ],
+      "camadas_catalogo": [],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": false,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP"],
+        "total_geral": false,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    }
+  ]
+}

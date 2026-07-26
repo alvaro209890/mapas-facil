@@ -158,14 +158,15 @@ um modelo na galeria. É o caminho de teste em CI e o fallback de todo o produto
 
 **Critério de saída:**
 
-- [ ] `shared/galeria/modelos.json` + schema + previews reais extraídos de `Referencias_IMAP/Mapas/01/`
-- [ ] `galeria.listar` devolve status coerente com o MANIFEST e com o índice da pasta
-- [ ] `galeria.montar_mapspec` do `dinamica_2026_retrato` passa em `mapspec.validar` sem erros
-- [ ] Determinismo: 3 execuções produzem JSON idêntico (exceto ULID)
-- [ ] Pasta sem `ATP` → `NU-233` com `requisitos_faltando`
-- [ ] `sobrescritas` fora da allowlist → `NU-232`
-- [ ] Clicar num cartão `indisponivel` não dispara requisição
+- [x] `shared/galeria/modelos.json` + schema + previews reais extraídos de `Referencias_IMAP/Mapas/01/`
+- [x] `galeria.listar` devolve status coerente com o MANIFEST e com o índice da pasta
+- [x] `galeria.montar_mapspec` do `dinamica_2026_retrato` passa em `mapspec.validar` sem erros
+- [x] Determinismo: 3 execuções produzem JSON idêntico (exceto ULID)
+- [x] Pasta sem `ATP` → `NU-233` com `requisitos_faltando`
+- [x] `sobrescritas` fora da allowlist → `NU-232`
+- [x] Clicar num cartão `indisponivel` não dispara requisição
 - [ ] Fluxo completo pela UI: galeria → montar → validar → gerar → preview
+      (montar na UI fechado; validar/gerar/preview dependem de auth M5 + motor + M8)
 
 **Dependências:** M3.
 
