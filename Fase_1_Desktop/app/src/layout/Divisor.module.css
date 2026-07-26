@@ -1,0 +1,12 @@
+.divisor {
+  flex: 0 0 5px;
+  cursor: col-resize;
+  background: var(--mf-borda);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+  touch-action: none;
+}
+
+.divisor:hover,
+.divisor:focus-visible {
+  background: var(--mf-acento);
+}

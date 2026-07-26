@@ -1,0 +1,131 @@
+/* C5 — os quatro painéis. Janela mínima 1280×800; nenhum painel rola na
+   horizontal, cada um rola por dentro (F1-02 §Layout). */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--mf-bg);
+}
+
+.corpo {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.painel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--mf-superficie-1);
+  border-right: 1px solid var(--mf-borda);
+}
+
+/* `painel-chat` é o principal: ocupa o que sobra e nunca colapsa (F1-02). */
+.painelChat {
+  flex: 1 1 auto;
+  min-width: 320px;
+  background: var(--mf-bg);
+  border-right: none;
+}
+
+.painelDireito {
+  border-right: none;
+  border-left: 1px solid var(--mf-borda);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  padding: var(--mf-e2) var(--mf-e3);
+  border-bottom: 1px solid var(--mf-borda);
+}
+
+.titulo {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mf-texto-3);
+}
+
+.botaoColapso {
+  margin-left: auto;
+  display: inline-flex;
+  color: var(--mf-texto-3);
+  transition: color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.botaoColapso:hover {
+  color: var(--mf-texto);
+}
+
+.conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--mf-e3);
+}
+
+/* Painel colapsado vira trilho: some o conteúdo, fica o botão de reabrir. */
+.trilho {
+  display: flex;
+  flex: 0 0 32px;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: var(--mf-e2);
+  background: var(--mf-superficie-1);
+  border-right: 1px solid var(--mf-borda);
+  color: var(--mf-texto-3);
+}
+
+.trilho:hover {
+  color: var(--mf-texto);
+}
+
+/* Corpo do chat: as mensagens rolam, a barra de progresso e a entrada ficam
+   ancoradas embaixo (F1-02 §painel-chat). */
+.conversa {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--mf-e4);
+}
+
+.rodapeChat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  padding: var(--mf-e3) var(--mf-e4) var(--mf-e4);
+  border-top: 1px solid var(--mf-borda);
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.placeholder strong {
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.placeholder code {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-texto-2);
+}
+
+.entradaDesativada {
+  padding: var(--mf-e3);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
