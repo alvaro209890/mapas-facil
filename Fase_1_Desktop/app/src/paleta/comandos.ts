@@ -13,7 +13,7 @@ export type IdComando =
   | "nova-conversa"
   | "buscar-chats";
 
-export type GrupoComando = "pasta" | "ambiente" | "aparencia" | "em-breve";
+export type GrupoComando = "pasta" | "ambiente" | "aparencia" | "conversas" | "em-breve";
 
 export interface Comando {
   id: IdComando;
@@ -35,6 +35,7 @@ const ROTULO_GRUPO: Record<GrupoComando, string> = {
   pasta: "Pasta",
   ambiente: "Ambiente",
   aparencia: "Aparência",
+  conversas: "Conversas",
   "em-breve": "Em breve",
 };
 
@@ -93,21 +94,19 @@ export function listarComandos(contexto: ContextoComandos): Comando[] {
     },
     {
       id: "nova-conversa",
-      grupo: "em-breve",
+      grupo: "conversas",
       rotulo: "Nova conversa",
-      descricao: "Abre um chat vazio na barra de conversas",
+      descricao: "Cria um chat vazio na barra de conversas (histórico local, M6)",
       atalho: "Ctrl+N",
-      disponivel: false,
-      motivo: "Depende da persistência de chats (M6)",
+      disponivel: true,
     },
     {
       id: "buscar-chats",
-      grupo: "em-breve",
+      grupo: "conversas",
       rotulo: "Buscar nas conversas",
-      descricao: "Filtra o histórico local por texto",
+      descricao: "Foca a busca do histórico local (FTS5, sem acento importar)",
       atalho: "Ctrl+F",
-      disponivel: false,
-      motivo: "Depende da persistência de chats (M6)",
+      disponivel: true,
     },
   ];
 }

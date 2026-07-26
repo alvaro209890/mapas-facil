@@ -1,0 +1,100 @@
+/* Busca do histórico (Ctrl+F) e seus resultados com trecho destacado. */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  min-height: 0;
+}
+
+.campo {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  padding: var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto-3);
+}
+
+.campo:focus-within {
+  border-color: var(--mf-acento);
+}
+
+.campo input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--mf-texto);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+}
+
+.campo input:focus {
+  outline: none;
+}
+
+.campo button {
+  border: 0;
+  background: transparent;
+  color: var(--mf-texto-3);
+  cursor: pointer;
+}
+
+.resultados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.contagem {
+  margin: 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lista button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--mf-e2);
+  border: 0;
+  border-radius: var(--mf-raio-2);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lista button:hover {
+  background: var(--mf-superficie-2);
+}
+
+.tituloResultado {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.trecho {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.trecho mark {
+  padding: 0 2px;
+  border-radius: 2px;
+  background: var(--mf-acento-fraco);
+  color: var(--mf-texto);
+}

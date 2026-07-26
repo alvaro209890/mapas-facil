@@ -1,0 +1,110 @@
+/* barra-chats — lista do histórico local (F1-17 / F1-16 §tokens). */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  height: 100%;
+  min-height: 0;
+}
+
+.acoes {
+  display: flex;
+  gap: var(--mf-e2);
+}
+
+.novo {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mf-e2);
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  cursor: pointer;
+  transition: background var(--mf-dur-1) var(--mf-ease-ambos);
+}
+
+.novo:hover,
+.iconeAcao:hover {
+  background: var(--mf-superficie-3);
+}
+
+.iconeAcao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto-2);
+  cursor: pointer;
+}
+
+.filtros {
+  display: flex;
+  gap: var(--mf-e2);
+}
+
+.filtros button {
+  padding: 2px var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  background: transparent;
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  cursor: pointer;
+}
+
+.filtros button[data-ativo] {
+  border-color: var(--mf-acento);
+  color: var(--mf-texto);
+  background: var(--mf-acento-fraco);
+}
+
+.filtros button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.grupo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tituloGrupo {
+  margin: 0 0 var(--mf-e1);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mf-texto-3);
+}
+
+.maisAntigas {
+  align-self: stretch;
+  padding: var(--mf-e2);
+  border: 1px dashed var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: transparent;
+  color: var(--mf-texto-2);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  cursor: pointer;
+}

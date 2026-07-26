@@ -148,13 +148,13 @@ Plano: [F1-17](17-persistencia-de-conversas.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| F1 | Esquema SQLite + FTS5 + triggers + migração 001 | [ ] | `nucleo/.../conversas/` |
-| F2 | Repositório (CRUD, WAL, transações) | [ ] | `nucleo/.../conversas/repositorio.py` |
-| F3 | Redator de CPF/chaves **antes do INSERT** | [ ] | `nucleo/.../conversas/redator.py` |
-| F4 | Título automático + `title_manual` | [ ] | `nucleo/.../conversas/titulo.py` |
-| F5 | Os 9 métodos `chat.*` de histórico | [ ] | `nucleo/.../__main__.py` |
-| F6 | `barra-chats` + busca + menu de contexto | [ ] | `app/src/paineis/BarraChats.tsx` |
-| F7 | Testes: ciclo completo, 200 mensagens < 300 ms, CPF ausente do arquivo | [ ] | `nucleo/tests/test_conversas.py` |
+| F1 | Esquema SQLite + FTS5 + triggers + migração 001 | [x] | `nucleo/.../conversas/` |
+| F2 | Repositório (CRUD, WAL, transações) | [x] | `nucleo/.../conversas/repositorio.py` |
+| F3 | Redator de CPF/chaves **antes do INSERT** | [x] | `nucleo/.../conversas/redator.py` |
+| F4 | Título automático + `title_manual` | [x] | `nucleo/.../conversas/titulo.py` |
+| F5 | Os 9 métodos `chat.*` de histórico | [x] | `nucleo/.../__main__.py` |
+| F6 | `barra-chats` + busca + menu de contexto | [x] | `app/src/paineis/BarraChats.tsx` |
+| F7 | Testes: ciclo completo, 200 mensagens < 300 ms, CPF ausente do arquivo | [x] | `nucleo/tests/test_conversas.py` |
 
 ## Bloco G — Agente (M7)
 
