@@ -4,6 +4,33 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
+## Chave DeepSeek para desenvolvimento e testes (M7)
+
+Neste PC de desenvolvimento a chave de **teste** já está em `secrets.local.json` (gitignored),
+campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — viola AP-03.
+
+| O quê | Valor / onde |
+|---|---|
+| Arquivo local | `secrets.local.json` na raiz do repositório |
+| Campo | `deepseek_api_key` |
+| Template público (vazio) | `secrets.example.json` |
+| Endpoint | `https://api.deepseek.com/chat/completions` |
+| Modelos planejados | `deepseek-v4-pro` (chat + tools), `deepseek-v4-flash` (título, `compact_summary`) |
+| Quem lê hoje | `nucleo/mapasfacil_nucleo/doctor.py` → `doctor.rodar` → `chaves.deepseek` |
+| Cliente HTTP | **ausente** — `nucleo/.../agente/deepseek.py` ainda não existe (G1 do checklist) |
+
+Para testar manualmente (curl, script isolado, implementação futura do G1):
+
+```bash
+python3 -c "import json; print(json.load(open('secrets.local.json'))['deepseek_api_key'])"
+```
+
+Ao implementar o cliente, ler a chave só do cofre local (`secrets.local.json` em dev;
+Credential Manager em produção — ver [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md)).
+Nunca hardcodar, nunca logar, nunca enviar ao renderer Electron. Detalhe de privacidade do
+prompt: [`planos/05-seguranca-e-segredos.md`](planos/05-seguranca-e-segredos.md) (§o que vai
+para a DeepSeek).
+
 ## Regra zero
 
 **Nenhum plano descreve código que já existe, a não ser onde diz explicitamente que existe.**

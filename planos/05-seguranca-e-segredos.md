@@ -103,6 +103,11 @@ Detalhe do fluxo e do armazenamento de sessão:
 Neste PC de desenvolvimento, todos vivem em `secrets.local.json` na raiz do repositório —
 gitignored, jamais commitado. Template público: `secrets.example.json`.
 
+**DeepSeek (teste local, 2026-07-26).** O campo `deepseek_api_key` em `secrets.local.json` traz a
+chave de teste do dono para implementar e exercitar o marco M7 neste Acer. Agentes implementadores:
+leia [`AGENT_BRIEF.md`](../AGENT_BRIEF.md) (§Chave DeepSeek para desenvolvimento e testes). O valor
+**não** entra em commit, log, `MapSpec` nem prompt de exemplo em markdown versionado.
+
 ### Regras invioláveis
 
 1. **Default vazio, sempre.** Nenhum segredo tem valor default no código. Chave ausente →

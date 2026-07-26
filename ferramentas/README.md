@@ -60,10 +60,11 @@ Crie `secrets.local.json` a partir de [`secrets.example.json`](../secrets.exampl
 
 ### Placeholders
 
-| Chave em `secrets.local.json` | Placeholder |
+| Chave em `secrets.local.json` | Placeholder / nota |
 |---|---|
 | `planet_api_key` | `PLAK_CHAVE_REMOVIDA_VER_FERRAMENTAS_` |
 | `planet_api_key_antiga` | `PLANET_ANTIGA_CHAVE_REMOVIDA_VER` |
+| `deepseek_api_key` | não tem placeholder em `.mxd`; chave de teste só em `secrets.local.json` neste PC — ver [`AGENT_BRIEF.md`](../AGENT_BRIEF.md) §DeepSeek |
 | `sema_authkey` | `5ema4key-0000-0000-0000-remov1da0000` |
 
 Cada placeholder tem exatamente o mesmo comprimento da chave real. O comando `verificar` confere
