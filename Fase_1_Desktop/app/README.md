@@ -40,7 +40,7 @@ transcript do chat (o evento já traz `resumo`, falta usar).
 
 | # | Tarefa (F1-13 bloco F) | Estado | Onde |
 |---|---|---|---|
-| F6 | `barra-chats` + busca + filtro pasta | **feito** | `src/paineis/BarraChats.tsx`, `src/estado/conversas.ts`, `tests/barra-chats.test.tsx` |
+| F6 | `barra-chats` + busca + filtro pasta + menu de contexto (R14) | **feito** | `src/paineis/BarraChats.tsx`, `src/estado/conversas.ts`, `tests/barra-chats.test.tsx`, `tests/barra-chats-menu.test.tsx` |
 
 ### Conectar pasta — onde cada coisa acontece
 

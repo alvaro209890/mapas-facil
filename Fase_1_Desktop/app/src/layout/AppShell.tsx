@@ -230,6 +230,11 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
                 aoSelecionar={conversas.selecionar}
                 aoAlternarFiltro={conversas.alternarFiltroPasta}
                 aoApagar={(id) => void conversas.apagar(id)}
+                aoRenomear={(id, title) => void conversas.renomear(id, title)}
+                aoArquivar={(id, arquivada) => void conversas.arquivar(id, arquivada)}
+                aoRamificar={(conversa) => void conversas.ramificar(conversa)}
+                mostrarArquivadas={conversas.mostrarArquivadas}
+                aoAlternarArquivadas={conversas.alternarArquivadas}
               />
             </Painel>
             {divisor("barraChats", "conversas")}

@@ -151,7 +151,7 @@ Plano: [F1-17](17-persistencia-de-conversas.md).
 | F3 | Redator de CPF/chaves **antes do INSERT** | [x] | `nucleo/.../conversas/redator.py` |
 | F4 | Título automático + `title_manual` | [x] | `nucleo/.../conversas/titulo.py` |
 | F5 | Os 9 métodos `chat.*` de histórico (+ `chat.gravar_mensagem` para modo determinístico) | [x] | `nucleo/.../conversas/servico.py` + `__main__.py` |
-| F6 | `barra-chats` + busca + filtro por pasta | [x] | `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts` |
+| F6 | `barra-chats` + busca + filtro por pasta + menu de contexto | [x] | `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts`; menu R14 completo (renomear/arquivar/ramificar/apagar) em `app/tests/barra-chats-menu.test.tsx` |
 | F7 | Testes: ciclo completo, escala, CPF ausente do arquivo, FTS, ramificar | [x] | `nucleo/tests/test_conversas.py`, `test_conversas_redator.py`, `app/tests/barra-chats.test.tsx` |
 
 ## Bloco G — Agente (M7)

@@ -39,6 +39,10 @@ export function useConversas(workspacePath: string | null): {
   definirBusca: (termo: string) => void;
   apagar: (conversationId: string) => Promise<void>;
   renomear: (conversationId: string, title: string) => Promise<void>;
+  arquivar: (conversationId: string, arquivada: boolean) => Promise<void>;
+  ramificar: (conversa: ConversaResumo) => Promise<string | null>;
+  mostrarArquivadas: boolean;
+  alternarArquivadas: () => void;
 } {
   const [situacao, setSituacao] = useState<"idle" | "carregando" | "pronta" | "erro">("idle");
   const [conversas, setConversas] = useState<ConversaResumo[]>([]);
@@ -47,6 +51,7 @@ export function useConversas(workspacePath: string | null): {
   const [filtrarPastaAtual, setFiltrarPastaAtual] = useState(false);
   const [conversaAtiva, setConversaAtiva] = useState<string | null>(null);
   const [erro, setErro] = useState<{ codigo: string; mensagem: string } | null>(null);
+  const [mostrarArquivadas, setMostrarArquivadas] = useState(false);
 
   const listar = useCallback(async () => {
     const ponte = api();
@@ -59,6 +64,7 @@ export function useConversas(workspacePath: string | null): {
     setErro(null);
     const params: Record<string, unknown> = {};
     if (filtrarPastaAtual && workspacePath) params.workspace = workspacePath;
+    if (mostrarArquivadas) params.incluir_arquivadas = true;
     const resposta = await ponte.chamar("chat.listar_conversas", params);
     if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
       setSituacao("erro");
@@ -68,7 +74,7 @@ export function useConversas(workspacePath: string | null): {
     const bruto = resposta.resultado as { conversas?: ConversaResumo[] };
     setConversas(bruto.conversas ?? []);
     setSituacao("pronta");
-  }, [filtrarPastaAtual, workspacePath]);
+  }, [filtrarPastaAtual, mostrarArquivadas, workspacePath]);
 
   useEffect(() => {
     void listar();
@@ -129,6 +135,51 @@ export function useConversas(workspacePath: string | null): {
     [listar],
   );
 
+  const arquivar = useCallback(
+    async (conversationId: string, arquivada: boolean) => {
+      const ponte = api();
+      if (ponte === undefined) return;
+      const resposta = await ponte.chamar("chat.arquivar", {
+        conversation_id: conversationId,
+        arquivada,
+      });
+      if (!resposta.ok) {
+        setErro(resposta.erro ?? { codigo: "UI-001", mensagem: "Falha ao arquivar." });
+        return;
+      }
+      // Arquivar a conversa aberta tira ela da lista padrão: soltar a seleção
+      // evita o painel de chat apontando para algo que sumiu da barra.
+      if (arquivada && !mostrarArquivadas) {
+        setConversaAtiva((ativa) => (ativa === conversationId ? null : ativa));
+      }
+      await listar();
+    },
+    [listar, mostrarArquivadas],
+  );
+
+  const ramificar = useCallback(
+    async (conversa: ConversaResumo) => {
+      const ponte = api();
+      if (ponte === undefined) return null;
+      // "Ramificar daqui" na barra = a partir do fim da conversa. `seq` é
+      // append-only (MAX(seq)+1) e mensagem não é apagada individualmente, então
+      // `mensagens_total` é o seq da última — o núcleo copia tudo até ele.
+      const resposta = await ponte.chamar("chat.ramificar", {
+        conversation_id: conversa.conversation_id,
+        a_partir_do_seq: Math.max(1, conversa.mensagens_total),
+      });
+      if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
+        setErro(resposta.erro ?? { codigo: "UI-001", mensagem: "Falha ao ramificar." });
+        return null;
+      }
+      const cid = (resposta.resultado as { conversation_id?: string }).conversation_id ?? null;
+      if (cid) setConversaAtiva(cid);
+      await listar();
+      return cid;
+    },
+    [listar],
+  );
+
   return {
     situacao,
     conversas,
@@ -145,6 +196,10 @@ export function useConversas(workspacePath: string | null): {
     definirBusca: setBusca,
     apagar,
     renomear,
+    arquivar,
+    ramificar,
+    mostrarArquivadas,
+    alternarArquivadas: () => setMostrarArquivadas((v) => !v),
   };
 }
 
