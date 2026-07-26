@@ -48,7 +48,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | **A10** | `mapa.cancelar` com `taskkill /T /F` | [x] | `jobs.py`; cancel cooperativo + `taskkill` no Windows; loop NDJSON em thread para cancel chegar no meio |
 | **A11** | `cofre.definir` / `existe` / `testar` | [x] | `cofre.py` via `keyring`; valor nunca no stdio; Preferências grava DeepSeek |
 | **A12** | `workspace.mudou` (watcher, debounce 500 ms) | [x] | `workspace/watcher.py` + sink assíncrono; UI atualiza árvore + realce 2 s; `tests/test_workspace_watcher.py` |
-| **A13** | `catalogo.listar` e `camada.resolver` | [x] | WFS em runtime (`wms_wfs`, 33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES); `camadas/{catalogo,http,wfs,clip,cache,resolver}.py`; cache TTL por tema fora do workspace; `NU-101/102/110/120/130/140`; `consultar_sema`/`distancia_ate` saíram de `IA-022`. Fora do escopo: `arcgis_rest`/`wfs_gml`/`wms_raster` (8/41 camadas) — `NU-140` tipado, não fingido |
+| **A13** | `catalogo.listar` e `camada.resolver` | [x] | WFS em runtime (`wms_wfs`, 33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES); `camadas/{catalogo,http,wfs,clip,cache,resolver}.py`; cache TTL por tema fora do workspace; `NU-101/102/110/120/130/140`; `consultar_sema`/`distancia_ate` saíram de `IA-022`. Os outros 3 tipos (`arcgis_rest`/`wfs_gml`/`wms_raster`) fecharam no épico seguinte — **41/41 camadas com cliente** |
 
 ## Bloco A+ — Quantitativos e validação (anel 1, sem ArcMap)
 

@@ -14,10 +14,12 @@ from typing import Any
 from mapasfacil_nucleo.config import caminho_shared
 from mapasfacil_nucleo.erros import ErroNucleo
 
-# Tipos de serviço com cliente implementado nesta versão (A13). Os demais
-# (arcgis_rest, wfs_gml, wms_raster) ainda não têm cliente — `camada.resolver`
-# degrada com NU-140 em vez de fingir que funciona.
-TIPOS_SUPORTADOS: frozenset[str] = frozenset({"wms_wfs"})
+# Tipos de serviço com cliente implementado. A13 abriu com `wms_wfs`; o épico
+# seguinte fechou os outros três — hoje **todos os 4 tipos do catálogo** têm
+# cliente, então `camada.resolver` nunca mais devolve "ainda não implementei".
+TIPOS_VETORIAIS: frozenset[str] = frozenset({"wms_wfs", "arcgis_rest", "wfs_gml"})
+TIPOS_RASTER: frozenset[str] = frozenset({"wms_raster"})
+TIPOS_SUPORTADOS: frozenset[str] = TIPOS_VETORIAIS | TIPOS_RASTER
 
 CAMPOS_OBRIGATORIOS = ("id", "nome", "tema", "tipo", "endpoint", "layer")
 
@@ -97,6 +99,8 @@ def listar(tema: str | None = None) -> dict[str, Any]:
             "tipo": c.get("tipo"),
             "auth": c.get("auth"),
             "suportada": c.get("tipo") in TIPOS_SUPORTADOS,
+            # vetor → shapefile com feições/área; raster → imagem de fundo, sem área
+            "saida": "raster" if c.get("tipo") in TIPOS_RASTER else "vetor",
             "descricao": c.get("descricao"),
         }
         for c in itens

@@ -118,7 +118,7 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 | `template.listar` / `template.verificar` | `{id?}` | MANIFEST + `sha256_ok` | **existe** |
 | `mapa.cancelar` | `{job_id?}` | marca cancel + mata subprocesso ArcPy | **existe** (A10) |
 | `catalogo.listar` | `{tema?}` | camadas do catálogo (`shared/catalog/camadas.json`), filtro por tema | **existe** (A13) |
-| `camada.resolver` | `{fonte, bbox, crs}` | shapefile materializado, dentro do workspace | **existe** (A13) — só `wms_wfs` (33/41); outros tipos → `NU-140` |
+| `camada.resolver` | `{fonte, bbox, crs}` | shapefile (vetor) ou imagem (raster) dentro do workspace | **existe** — 4 tipos do catálogo, 41/41 camadas; `tipo_saida` distingue vetor de raster |
 | `cofre.definir` / `cofre.existe` / `cofre.testar` | `{chave, valor?}` | ok/erro — **nunca** o valor | **existe** (A11) |
 | `sessao.definir` / `sessao.estado` | `{estado, conta_id?, expira_em?}` | estado | **falta** — [F1-14](14-auth-e-conta.md) |
 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | ver [F1-15](15-galeria-de-modelos.md) | — | **falta** |
@@ -291,7 +291,7 @@ suporte.
 | Faixa | Camada | Exemplos |
 |---|---|---|
 | `NU-0xx` | núcleo / workspace | `NU-001` pasta não existe · `NU-010` caminho fora da allowlist · `NU-020` shapefile sem `.prj` |
-| `NU-1xx` | camadas / rede | `NU-101` timeout/rede · `NU-102` chave do cofre ausente · `NU-110` resposta inesperada (XML de erro) · `NU-120` camada vazia após clip (aviso) · `NU-130` fonte fora do catálogo · `NU-140` tipo de serviço ainda sem cliente (A13) |
+| `NU-1xx` | camadas / rede | `NU-101` timeout/rede · `NU-102` chave do cofre ausente · `NU-110` resposta inesperada (XML de erro) · `NU-120` camada vazia após clip (aviso) · `NU-130` fonte fora do catálogo · `NU-111` feição ignorada pelo parser GML · `NU-112` camada raster (sem feição/área) · `NU-140` tipo de serviço desconhecido (salvaguarda — hoje todos os 4 tipos têm cliente) |
 | `NU-2xx` | `MapSpec` | `NU-201` schema inválido · `NU-210` camada fora do catálogo · `NU-220` escala não permitida |
 | `NU-23x` | **galeria** | `NU-230` modelo inexistente · `NU-231` template ausente/`sha256` divergente · `NU-232` sobrescrita fora da allowlist · `NU-233` requisito obrigatório ausente · `NU-234` `modelos.json` inválido |
 | `AG-0xx` | ambiente ArcGIS | `AG-001` ArcMap não encontrado · `AG-010` licença indisponível · `AG-020` timeout do ArcPy · `AG-030` template com `sha256` diferente |

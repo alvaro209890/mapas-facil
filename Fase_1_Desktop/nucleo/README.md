@@ -128,9 +128,10 @@ Registrados em `criar_roteador()` — **45 métodos** (`grep -c "roteador.regist
 `consultar_sema`/`distancia_ate` saíram em A13 (`camada.resolver`); `analisar_referencia` saiu em
 F1-07 (`agente/visao/` — determinístico completo para imagem/PDF/`.mxd`/`.zip`; o modelo de visão
 em si degrada com `IA-060` até alguém confirmar qual DeepSeek da conta enxerga imagem — P1 do
-plano). Tipos de catálogo fora de `wms_wfs` (`arcgis_rest`, `wfs_gml`, `wms_raster`) seguem sem
-cliente — `camada.resolver` devolve `NU-140`, tipado, sem fingir. Cliente WFS em runtime
-(SEMA/FUNAI/MapBiomas/PRODES, 33/41 camadas) **existe desde A13**.
+plano). **Os 4 tipos do catálogo têm cliente** (41/41 camadas): `wms_wfs` (A13),
+`arcgis_rest` (IBAMA PAMGIA), `wfs_gml` (INCRA — GML 1.0, reprojeta do EPSG nativo 4326) e
+`wms_raster` (mosaicos/SISCOM — devolve **imagem**, `tipo_saida="raster"`, sem contagem de
+feições nem área). `NU-140` virou salvaguarda de tipo desconhecido, não "ainda não implementei".
 
 ### Eventos emitidos (v0.4.0)
 

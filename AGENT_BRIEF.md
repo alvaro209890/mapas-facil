@@ -76,7 +76,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
-| Cliente WFS em runtime (A13) | **fechado** para `wms_wfs` (33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES); cache TTL por tema; `NU-101/102/110/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,clip,cache,resolver}.py` |
+| Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
 | Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), **`mapspec.atualizado`** (H6) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py` |
 | App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
@@ -109,9 +109,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
   +40 MB (F1-07 P2); sem chave, o print fica só na análise determinística (sem texto lido).
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
-- Cliente WFS/WMS em runtime para os tipos `arcgis_rest` (IBAMA PAMGIA), `wfs_gml` (INCRA
-  SIGEF/SNCI) e `wms_raster` (mosaicos, SISCOM, PRODES) — só `wms_wfs` (33/41 camadas) tem
-  cliente; `camada.resolver` devolve `NU-140` tipado para os outros, não finge. Instalador.
+- Instalador Windows (M10) — nada de empacotamento neste repositório ainda.
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
 ## Ordem de implementação (dependências, nunca calendário)
@@ -209,7 +207,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **feito** (G9) | `nucleo/tests/test_contexto_vazamento.py` |
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
-| R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A13) — `wms_wfs` (33/41); `arcgis_rest`/`wfs_gml`/`wms_raster` fora do escopo (`NU-140`) | `nucleo/.../camadas/` |
+| R21 | `catalogo.listar` e `camada.resolver` (clientes em runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** — A13 abriu com `wms_wfs`; o épico seguinte fechou `arcgis_rest`, `wfs_gml` e `wms_raster`. **41/41 camadas com cliente** | `nucleo/.../camadas/` |
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |

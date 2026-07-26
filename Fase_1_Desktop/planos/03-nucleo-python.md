@@ -22,10 +22,10 @@ nucleo/
 │  ├─ catalogo.py            lê shared/catalog/camadas.json (A13 ✅)
 │  ├─ http.py                cliente com retry, timeout, User-Agent, redator de URL (A13 ✅)
 │  ├─ wfs.py                 GetFeature, fallback 2.0.0→1.0.0 (A13 ✅) — sem DescribeFeatureType/hits
-│  ├─ wms.py                 GetMap + validação de magic bytes — ainda não existe
-│  ├─ rest_arcgis.py         PAMGIA (IBAMA) — ainda não existe
-│  ├─ gml_incra.py           parser GML 1.0 — ainda não existe
-│  ├─ ibge.py                malhas municipais (gzip!) — ainda não existe
+│  ├─ wms.py                 GetMap 1.1.1 + magic bytes (✅) — saída raster, sem feição
+│  ├─ rest_arcgis.py         PAMGIA (IBAMA) (✅) — erro em HTTP 200, exceededTransferLimit
+│  ├─ gml_incra.py           parser GML 1.0 (✅) — anel fechado, EPSG:4326 nativo
+│  ├─ ibge.py                malhas municipais (gzip!) — sem camada no catálogo hoje
 │  ├─ clip.py                bbox → clip fino local (A13 ✅) — bbox e polígono do imóvel
 │  ├─ materializar.py        escreve shapefile local (`local.<id>`) na pasta de saída
 │  ├─ resolver.py            A13 ✅ — orquestra catálogo→cache→wfs→clip→shapefile (`camada.resolver`)
@@ -191,10 +191,12 @@ mapa.
 - [ ] Leitor de shapefile: `.prj`, encoding em cascata, bbox por cabeçalho
 - [ ] Parser de recibo do CAR com descarte de CPF
 - [ ] Leitor de `.zip` com anti zip slip
-- [~] Clientes WFS/WMS/REST/GML/IBGE com todos os gotchas cobertos — **A13**: WFS `wms_wfs`
-      (33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES; fallback 2.0.0→1.0.0, bbox+clip fino, retry).
-      Faltam WMS GetMap, ArcGIS REST (IBAMA PAMGIA), GML (INCRA), IBGE malhas — `camada.resolver`
-      devolve `NU-140` tipado para esses tipos, não finge
+- [x] Clientes WFS/WMS/REST/GML com os gotchas cobertos — **41/41 camadas do catálogo**:
+      `wfs.py` (A13, fallback 2.0.0→1.0.0), `rest_arcgis.py` (erro em HTTP 200 +
+      `exceededTransferLimit`), `gml_incra.py` (GML 1.0, anel fechado, EPSG:4326 nativo
+      reprojetado no resolver), `wms.py` (GetMap 1.1.1 + magic bytes contra XML de erro).
+      **IBGE malhas fica fora** — não há camada `ibge` no catálogo hoje; entra junto com o
+      minimapa quando alguém precisar dela
 - [x] Cache com TTL por tema (`camadas/cache.py`, A13) — fora do workspace, `%LOCALAPPDATA%`/XDG
 - [~] `geo/`: zona UTM (`crs.py`), área (`area.py`), distância (`distancia.py`, A13) — falta `overlay.py`
 - [ ] Ponte ArcPy com as 7 armadilhas tratadas

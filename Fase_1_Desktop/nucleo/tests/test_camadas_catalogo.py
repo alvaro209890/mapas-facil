@@ -45,12 +45,24 @@ def test_listar_sem_tema_devolve_tudo() -> None:
     assert resultado["total"] == 41
 
 
-def test_listar_marca_tipos_suportados_e_nao_suportados() -> None:
+def test_listar_marca_todos_os_tipos_como_suportados() -> None:
+    """Os 4 tipos do catálogo têm cliente — nenhum 'ainda não implementei' silencioso."""
     resultado = catalogo.listar(None)
     por_id = {c["id"]: c for c in resultado["camadas"]}
-    assert por_id["embargos_siga"]["suportada"] is True  # wms_wfs — A13
-    assert por_id["embargos_ibama"]["suportada"] is False  # arcgis_rest — fora de A13
-    assert por_id["sigef_particular_mt"]["suportada"] is False  # wfs_gml — fora de A13
+    assert por_id["embargos_siga"]["suportada"] is True  # wms_wfs
+    assert por_id["embargos_ibama"]["suportada"] is True  # arcgis_rest
+    assert por_id["sigef_particular_mt"]["suportada"] is True  # wfs_gml
+    assert por_id["mosaico_spot_2008"]["suportada"] is True  # wms_raster
+    assert all(c["suportada"] for c in resultado["camadas"])
+
+
+def test_listar_distingue_saida_vetor_de_raster() -> None:
+    """Raster serve de fundo: não produz feição para contar nem área para somar."""
+    por_id = {c["id"]: c for c in catalogo.listar(None)["camadas"]}
+    assert por_id["embargos_siga"]["saida"] == "vetor"
+    assert por_id["sigef_particular_mt"]["saida"] == "vetor"
+    assert por_id["mosaico_spot_2008"]["saida"] == "raster"
+    assert por_id["prodes_inpe"]["saida"] == "raster"
 
 
 def test_nenhuma_camada_com_auth_expoe_nome_de_variavel_estranho() -> None:

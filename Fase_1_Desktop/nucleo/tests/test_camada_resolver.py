@@ -163,11 +163,14 @@ def test_resolver_camada_fonte_fora_do_catalogo_e_nu130(
     assert exc.value.codigo == "NU-130"
 
 
-def test_resolver_camada_tipo_nao_suportado_e_nu140(guard: WorkspaceGuard, cache_dir: Path) -> None:
-    # sigef_particular_mt é `wfs_gml` — fora do escopo A13 (só wms_wfs).
-    with pytest.raises(ErroNucleo) as exc:
-        resolver_camada("sigef_particular_mt", BBOX, "EPSG:4674", guard=guard, cache_base=cache_dir)
-    assert exc.value.codigo == "NU-140"
+def test_todo_tipo_do_catalogo_tem_cliente() -> None:
+    """NU-140 virou salvaguarda de tipo desconhecido, não 'ainda não implementei'."""
+    from mapasfacil_nucleo.camadas import catalogo as catalogo_mod
+
+    tipos_no_catalogo = {c["tipo"] for c in catalogo_mod.camadas()}
+    assert tipos_no_catalogo <= catalogo_mod.TIPOS_SUPORTADOS, (
+        f"tipo sem cliente no catálogo: {tipos_no_catalogo - catalogo_mod.TIPOS_SUPORTADOS}"
+    )
 
 
 def test_resolver_camada_bbox_invalido_e_nu001(guard: WorkspaceGuard, cache_dir: Path) -> None:
@@ -264,3 +267,101 @@ def test_ndjson_camada_resolver_sem_workspace_e_nu040() -> None:
     _evts, res = eventos_e_resposta(saida)
     assert res["ok"] is False
     assert res["erro"]["codigo"] == "NU-040"
+
+
+# ------------------------------------------------ tipos além de wms_wfs (épico pós-A13)
+
+
+def test_resolver_arcgis_rest_gera_shapefile(guard: WorkspaceGuard, cache_dir: Path) -> None:
+    """`embargos_ibama` é `arcgis_rest` e não exige chave (auth: null)."""
+    corpo = json.dumps(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-58.01, -11.01],
+                                [-57.99, -11.01],
+                                [-57.99, -10.99],
+                                [-58.01, -10.99],
+                                [-58.01, -11.01],
+                            ]
+                        ],
+                    },
+                    "properties": {},
+                }
+            ],
+        }
+    ).encode()
+    http.configurar_transporte(
+        lambda url, timeout: http.RespostaHttp(
+            status=200, corpo=corpo, content_type="application/json"
+        )
+    )
+    r = resolver_camada("embargos_ibama", BBOX, "EPSG:4674", guard=guard, cache_base=cache_dir)
+    assert r.tipo_saida == "vetor"
+    assert r.feicoes == 1
+    assert (guard.raiz / r.arquivo_rel).exists()
+
+
+def test_resolver_wfs_gml_reprojeta_do_epsg_nativo(guard: WorkspaceGuard, cache_dir: Path) -> None:
+    """INCRA declara `epsg: 4326`; pedindo 31982 o resolver tem de reprojetar."""
+    gml = (
+        '<?xml version="1.0"?><wfs:FeatureCollection '
+        'xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml">'
+        "<gml:featureMember><f><gml:Polygon><gml:outerBoundaryIs><gml:LinearRing>"
+        "<gml:coordinates>-58.01,-11.01 -57.99,-11.01 -57.99,-10.99 -58.01,-10.99"
+        "</gml:coordinates></gml:LinearRing></gml:outerBoundaryIs></gml:Polygon></f>"
+        "</gml:featureMember></wfs:FeatureCollection>"
+    ).encode()
+    http.configurar_transporte(
+        lambda url, timeout: http.RespostaHttp(status=200, corpo=gml, content_type="text/xml")
+    )
+    # bbox em UTM 22S cobrindo onde (-58,-11) cai depois de reprojetado
+    # (≈ x -267.5k, y 8.774M). Se o resolver NÃO reprojetasse, a geometria ficaria
+    # em graus (~-58) e o clip a descartaria — a contagem prova a conversão.
+    bbox_utm = (-270_000.0, 8_770_000.0, -263_000.0, 8_779_000.0)
+    r = resolver_camada(
+        "sigef_particular_mt", bbox_utm, "EPSG:31982", guard=guard, cache_base=cache_dir
+    )
+    assert r.tipo_saida == "vetor"
+    assert r.epsg == 31982
+    assert r.feicoes == 1, "geometria sobreviveu ao clip ⇒ foi reprojetada de 4326 para 31982"
+    assert r.vazia is False
+
+
+def test_resolver_wms_raster_salva_imagem_e_marca_tipo_saida(
+    guard: WorkspaceGuard, cache_dir: Path
+) -> None:
+    (guard.raiz / "Mapas").mkdir(exist_ok=True)
+    cofre.definir("sema_authkey", CHAVE_TESTE)
+    png = (
+        b"\x89PNG\r\n\x1a\n"
+        b"\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+    )
+    http.configurar_transporte(
+        lambda url, timeout: http.RespostaHttp(status=200, corpo=png, content_type="image/png")
+    )
+    r = resolver_camada("mosaico_spot_2008", BBOX, "EPSG:4674", guard=guard, cache_base=cache_dir)
+    assert r.tipo_saida == "raster"
+    assert r.arquivo_rel.endswith(".png")
+    assert r.feicoes == 0  # WMS não devolve feição — nunca fingir contagem
+    assert (guard.raiz / r.arquivo_rel).read_bytes() == png
+    assert any(a["codigo"] == "NU-112" for a in r.avisos)
+
+
+def test_resolver_wms_raster_nao_devolve_authkey_no_ndjson(
+    guard: WorkspaceGuard, cache_dir: Path
+) -> None:
+    (guard.raiz / "Mapas").mkdir(exist_ok=True)
+    cofre.definir("sema_authkey", CHAVE_TESTE)
+    png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
+    http.configurar_transporte(
+        lambda url, timeout: http.RespostaHttp(status=200, corpo=png, content_type="image/png")
+    )
+    r = resolver_camada("mosaico_spot_2008", BBOX, "EPSG:4674", guard=guard, cache_base=cache_dir)
+    assert CHAVE_TESTE not in json.dumps(r.para_ndjson(), ensure_ascii=False)
