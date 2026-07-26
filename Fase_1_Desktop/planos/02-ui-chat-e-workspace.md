@@ -13,12 +13,13 @@ Este documento é o que amarra os quatro num layout.
 
 | Item | Atual | Alvo |
 |---|---|---|
-| `Fase_1_Desktop/app/` | **parcial** — C1–C6 fechados, `pnpm install/typecheck/test/build` verdes | app Electron + React completo |
-| Componentes de UI | **esqueleto** — `AppShell` com os 4 painéis, `TopoApp`, `Divisor`, `BarraProgressoJob`; o conteúdo dos painéis é placeholder | tabela de IDs abaixo |
+| `Fase_1_Desktop/app/` | **parcial** — C1–C9 fechados, `pnpm typecheck/test/build` verdes (50 testes) | app Electron + React completo |
+| Componentes de UI | **shell + workspace** — `AppShell`, `TopoApp`, `Divisor`, `BarraProgressoJob`, `Workspace`, `DoctorResumo`, `EstadoVazio`; chat, galeria e preview seguem vazios | tabela de IDs abaixo |
 | Eventos que a UI consome | **só `job.progresso`** é emitido pelo núcleo, e é o único consumido | 8 eventos ([F1-01](01-arquitetura.md)) |
 
-Quem continuar o M3 começa pelo conteúdo dos painéis (C7 em diante): o shell, a ponte testada e a
-barra de progresso já estão no repositório — ver [`../app/README.md`](../app/README.md).
+Quem continuar o M3 começa pela paleta de comandos e pelos atalhos (C10) e pelos testes visuais
+(C11); o conteúdo que falta nos outros painéis depende de M4/M6/M7 — ver
+[`../app/README.md`](../app/README.md).
 
 ## Dependências
 
@@ -222,24 +223,26 @@ claro é opção, nunca o padrão (AP-08).
 ## Tarefas agentáveis
 
 - [x] `Fase_1_Desktop/app/` — scaffold Electron + Vite + React 19 + TS + entrada do renderer
-- [~] `app/electron/main.ts` — janela e ciclo da ponte prontos; menus, diálogo de pasta e tray faltam
+- [~] `app/electron/main.ts` — janela, ciclo da ponte e **diálogo de pasta** prontos; menus e tray faltam
 - [x] `app/electron/nucleo/ponte.ts` — spawn do sidecar, NDJSON, reinício, `UI-001` *(7 testes)*
 - [x] `app/src/layout/AppShell.tsx` — os quatro painéis, redimensionáveis e persistidos
-- [ ] `app/src/paineis/Workspace.tsx` — árvore com metadados inline
+- [x] `app/src/paineis/Workspace.tsx` — árvore com metadados inline (feições, CRS, ha pt-BR)
 - [ ] `app/src/paineis/Chat.tsx` + `componentes/CartaoTool.tsx` + `BlocoRaciocinio.tsx`
 - [x] `app/src/componentes/BarraProgressoJob.tsx` — 10 etapas nomeadas, `role="progressbar"`
 - [ ] `app/src/paineis/Preview.tsx` — esqueleto de camadas + `pdf.js` + `linha-versoes`
 - [ ] `app/src/paineis/PainelDireito.tsx` — abas
 - [ ] `app/src/componentes/CampoEntrada.tsx` — textarea, anexos, enviar/cancelar
-- [ ] `app/src/componentes/EstadoVazio.tsx` — todos os casos da tabela
+- [~] `app/src/componentes/EstadoVazio.tsx` — os casos com dado real; login/sessão/offline esperam M5
 - [ ] `app/src/paleta/PaletaComandos.tsx` — `Ctrl+K`
 - [ ] `app/tests/` — os asserts dos critérios de aceite
 
 ## Critérios de aceite
 
 - [x] `pnpm test` verde (17) e `pnpm build` produz o bundle — rodados em `Fase_1_Desktop/app/`
-- [ ] Abrir a pasta Harmonia: `painel-workspace` mostra ATP, AVN, AC, AUAS e o recibo, com áreas
-      em ha formatadas pt-BR com 4 casas
+- [~] Abrir a pasta Harmonia: `painel-workspace` mostra ATP, AVN, AC, AUAS e o recibo, com áreas
+      em ha formatadas pt-BR com 4 casas — provado com a **fixture gerada pelo núcleo**
+      (`app/tests/workspace.test.tsx`); falta o teste com a pasta Harmonia real, que exige o
+      acervo local
 - [ ] Gerar mapa pela galeria (sem IA) produz arquivos em `Mapas/` e o preview atualiza
 - [x] Com `job.progresso` injetado, `barra-progresso-job` mostra as 10 etapas em português e
       `pct` monotônico; sem o evento, mostra "gerando…" **sem** barra
