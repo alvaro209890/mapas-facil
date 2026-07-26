@@ -8,6 +8,7 @@ Scripts presentes:
 | Script | Função |
 |---|---|
 | `chaves_mxd.py` | remove/reinjeta chaves de API nos `.mxd` versionados |
+| `deepseek_smoke.py` | smoke manual da chave DeepSeek (dev local; **não** roda no CI) |
 | `inspecionar_mxd_arcpy.py` | diagnóstico de layout (requer ArcMap) |
 | `normalizar_mxd_arcpy.py` | B1 automatizado parcial (renomear elementos) |
 | `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala para offsets |
@@ -77,6 +78,18 @@ manter o repo público, tirar as chaves dos arquivos versionados e documentar o 
 
 Detalhes completos — segredos expostos, modelo de ameaças, LGPD — em
 [`planos/05-seguranca-e-segredos.md`](../planos/05-seguranca-e-segredos.md#incidente-2026-07-25--chaves-dentro-dos-mxd).
+
+## `deepseek_smoke.py`
+
+Smoke **manual** da chave de teste em `secrets.local.json`. Não faz parte do pytest nem do CI
+(o GitHub Actions não tem a chave; M7 usará provedor fake — ver F1-10 §anel 2).
+
+```bash
+python3 ferramentas/deepseek_smoke.py
+```
+
+Saída esperada: `OK — modelo=deepseek-v4-flash …`. Não imprime a chave. Estado dos testes
+automatizados: [`AGENT_BRIEF.md`](../AGENT_BRIEF.md) §Testes que dependem da chave.
 
 ## Preparação de template (B1/B2 — requer ArcMap)
 

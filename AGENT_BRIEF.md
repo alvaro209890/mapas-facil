@@ -19,6 +19,24 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 | Quem lê hoje | `nucleo/mapasfacil_nucleo/doctor.py` → `doctor.rodar` → `chaves.deepseek` |
 | Cliente HTTP | **ausente** — `nucleo/.../agente/deepseek.py` ainda não existe (G1 do checklist) |
 
+### Testes que dependem da chave (estado 2026-07-26)
+
+| Suíte | Precisa da chave ao vivo? | Resultado neste PC |
+|---|---|---|
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — 180 pass, 1 skip (`fsguard` Windows) | verde |
+| `Fase_1_Desktop/app` Vitest | **não** — usa fixtures com `deepseek: false` | 73 pass |
+| `test_paridade_galeria_agente.py` (G10) | **não no CI** — arquivo **ainda não existe**; plano: fake/VCR |
+| `chat.enviar` / cliente `deepseek.py` (G1–G7) | **não implementados** | nada a rodar |
+
+**Conclusão:** não há teste automatizado pendente que exija a chave real. A chave serve para
+implementar M7 e para o smoke manual abaixo.
+
+Smoke da chave (fora do CI, não versiona segredo):
+
+```bash
+python3 ferramentas/deepseek_smoke.py
+```
+
 Para testar manualmente (curl, script isolado, implementação futura do G1):
 
 ```bash
