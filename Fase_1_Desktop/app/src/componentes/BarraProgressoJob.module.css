@@ -49,6 +49,14 @@
   }
 }
 
+/* Com reduced-motion a varredura some: só sobra a cor do segmento (F1-16). */
+@media (prefers-reduced-motion: reduce) {
+  .segmento[data-estado="ativa"]::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 .linha {
   display: flex;
   align-items: baseline;

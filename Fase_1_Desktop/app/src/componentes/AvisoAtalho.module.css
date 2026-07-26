@@ -1,0 +1,17 @@
+/* Aviso curto no topo — atalho cujo marco ainda não existe. */
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: var(--mf-e5);
+  z-index: 50;
+  transform: translateX(-50%);
+  max-width: min(480px, calc(100vw - 32px));
+  padding: var(--mf-e3) var(--mf-e4);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-2);
+  box-shadow: var(--mf-sombra);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}

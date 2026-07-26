@@ -6,13 +6,12 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Roda, e já faz trabalho útil.** A janela abre, conecta uma pasta pelo diálogo nativo, indexa
-pelo núcleo e mostra as camadas com feições, CRS e área em hectare. `pnpm typecheck`, `test`
-(50 testes) e `build` foram executados nesta rodada e ficaram verdes.
+**Bloco C (M3) fechado.** A janela abre, conecta pasta, indexa, mostra doctor, responde a
+`Ctrl+K`/atalhos e passa os asserts visuais. `pnpm typecheck`, `test` (**71** testes) e `build`
+verdes nesta rodada.
 
 O que ainda **não** existe: chat do agente, galeria e preview — dependem de M4/M6/M7 e mostram
-estado vazio que diz de qual marco cada coisa é. Do bloco C faltam a paleta `Ctrl+K` (C10) e os
-testes visuais com `axe-core` (C11).
+estado vazio que diz de qual marco cada coisa é. Menus/tray do processo main também faltam.
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -25,8 +24,8 @@ testes visuais com `axe-core` (C11).
 | C7 | `painel-workspace` com metadados inline | **feito** | `src/paineis/Workspace.tsx`, `src/estado/workspace.ts`, `src/formato/numeros.ts`, `electron/projetos.ts` + diálogo em `electron/main.ts` |
 | C8 | `doctor-resumo` + diagnóstico completo | **feito** | `src/componentes/DoctorResumo.tsx`, `src/estado/doctor.ts` |
 | C9 | Estados vazios e de erro | **feito** | `src/componentes/EstadoVazio.tsx` |
-| C10 | Paleta `Ctrl+K` + atalhos | **não iniciado** | — |
-| C11 | Testes de tema, contraste e reduced-motion | **não iniciado** | `axe-core` ainda não é dependência |
+| C10 | Paleta `Ctrl+K` + atalhos | **feito** | `src/paleta/`, `src/componentes/Preferencias.tsx`, `tests/paleta-comandos.test.tsx` |
+| C11 | Testes de tema, contraste e reduced-motion | **feito** | `tests/visual/` + `axe-core` |
 
 ### Conectar pasta — onde cada coisa acontece
 
@@ -66,12 +65,10 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 ## O que falta, na ordem
 
-1. `src/paleta/PaletaComandos.tsx` (C10) e os atalhos de F1-02 (`Ctrl+O`, `Ctrl+N`, `Ctrl+F`,
-   `Ctrl+K`, `F1`), com os menus e o tray do processo main.
-2. `tests/visual/` (C11) — contraste com `axe-core` (ainda não é dependência) e varredura de
-   `prefers-reduced-motion`.
-3. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
-4. Chat, preview e galeria: M4, M6 e M7 — dependem de eventos que o núcleo ainda não emite.
+1. Galeria de modelos + geração determinística (M4 / bloco D).
+2. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
+3. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
+4. Chat, preview e auth: M5–M7 — dependem de eventos/backend que ainda não existem.
 
 ## Arquitetura
 
@@ -94,13 +91,14 @@ app/
     App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
     layout/                  AppShell (4 painéis), TopoApp, Divisor
     paineis/                 Workspace (árvore da pasta com metadados inline)
-    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio
+    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, AvisoAtalho
+    paleta/                  PaletaComandos + atalhos globais (C10)
     estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema
     formato/                 numeros.ts (hectare pt-BR com 4 casas)
     motion/                  tokens.ts, useReducedMotion.ts
     estilos/                 tokens.css, reset.css, fontes/
-  tests/                     ponte, barra-progresso-job, workspace, doctor-resumo,
-                             estado-vazio, app-shell + fixtures/ (geradas pelo núcleo)
+  tests/                     ponte, barra, workspace, doctor, estado-vazio, app-shell, paleta,
+                             visual/ (tema, contraste/axe, reduced-motion, layout) + fixtures/
 ```
 
 ### Fronteiras respeitadas
@@ -139,7 +137,7 @@ evento e é monotônico; não há `setInterval` em `src/motion/` nem em `src/com
 cd Fase_1_Desktop/app
 pnpm install
 pnpm typecheck        # tsc -b (projetos app + node)
-pnpm test             # vitest run — 50 testes
+pnpm test             # vitest run — 71 testes
 pnpm build            # renderer (Vite) + main/preload (esbuild)
 pnpm dev              # servidor Vite em :5273
 pnpm dev:electron     # compila main/preload e abre a janela

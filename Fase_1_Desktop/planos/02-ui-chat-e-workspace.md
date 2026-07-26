@@ -13,13 +13,12 @@ Este documento é o que amarra os quatro num layout.
 
 | Item | Atual | Alvo |
 |---|---|---|
-| `Fase_1_Desktop/app/` | **parcial** — C1–C9 fechados, `pnpm typecheck/test/build` verdes (50 testes) | app Electron + React completo |
-| Componentes de UI | **shell + workspace** — `AppShell`, `TopoApp`, `Divisor`, `BarraProgressoJob`, `Workspace`, `DoctorResumo`, `EstadoVazio`; chat, galeria e preview seguem vazios | tabela de IDs abaixo |
+| `Fase_1_Desktop/app/` | **M3 fechado** — C1–C11, `pnpm typecheck/test/build` verdes (71 testes) | app Electron + React completo (falta conteúdo M4/M6/M7) |
+| Componentes de UI | **shell + workspace + paleta** — `AppShell`, `TopoApp`, `Divisor`, `BarraProgressoJob`, `Workspace`, `DoctorResumo`, `EstadoVazio`, `PaletaComandos`, `Preferencias`; chat, galeria e preview seguem vazios | tabela de IDs abaixo |
 | Eventos que a UI consome | **só `job.progresso`** é emitido pelo núcleo, e é o único consumido | 8 eventos ([F1-01](01-arquitetura.md)) |
 
-Quem continuar o M3 começa pela paleta de comandos e pelos atalhos (C10) e pelos testes visuais
-(C11); o conteúdo que falta nos outros painéis depende de M4/M6/M7 — ver
-[`../app/README.md`](../app/README.md).
+Quem continuar depois do M3 começa pela galeria (M4 / bloco D); o shell, a ponte, o workspace,
+a paleta e os asserts visuais já fecharam — ver [`../app/README.md`](../app/README.md).
 
 ## Dependências
 
@@ -233,12 +232,12 @@ claro é opção, nunca o padrão (AP-08).
 - [ ] `app/src/paineis/PainelDireito.tsx` — abas
 - [ ] `app/src/componentes/CampoEntrada.tsx` — textarea, anexos, enviar/cancelar
 - [~] `app/src/componentes/EstadoVazio.tsx` — os casos com dado real; login/sessão/offline esperam M5
-- [ ] `app/src/paleta/PaletaComandos.tsx` — `Ctrl+K`
+- [x] `app/src/paleta/PaletaComandos.tsx` — `Ctrl+K` (+ atalhos F1-02; preferências de tema)
 - [ ] `app/tests/` — os asserts dos critérios de aceite
 
 ## Critérios de aceite
 
-- [x] `pnpm test` verde (17) e `pnpm build` produz o bundle — rodados em `Fase_1_Desktop/app/`
+- [x] `pnpm test` verde (71) e `pnpm build` produz o bundle — rodados em `Fase_1_Desktop/app/`
 - [~] Abrir a pasta Harmonia: `painel-workspace` mostra ATP, AVN, AC, AUAS e o recibo, com áreas
       em ha formatadas pt-BR com 4 casas — provado com a **fixture gerada pelo núcleo**
       (`app/tests/workspace.test.tsx`); falta o teste com a pasta Harmonia real, que exige o
@@ -251,8 +250,10 @@ claro é opção, nunca o padrão (AP-08).
 - [ ] Renderer não consegue ler arquivo fora do workspace — teste tenta `../../Windows/System32`
       e espera `NU-010`
 - [ ] `linha-versoes` navega v1↔v2 e troca o preview; o diff aparece no chat em português
-- [ ] `axe-core` sem violação nas telas: login, app vazio, app com job, app com erro
-- [ ] Janela 1280×800 sem scroll horizontal em nenhum painel
+- [~] `axe-core` sem violação nas telas existentes (app vazio, app com job, app com erro) —
+      `app/tests/visual/contraste.test.tsx`; login espera M5
+- [~] Janela 1280×800 sem scroll horizontal — assert em `app/tests/visual/layout-e-numeros.test.tsx`
+      (jsdom; smoke de layout)
 - [ ] Fechar e reabrir o app restaura larguras de painel, projeto recente e a conversa aberta
 
 ## Fora de escopo

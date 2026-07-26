@@ -1,23 +1,27 @@
 // C5 — `AppShell`: os quatro painéis de F1-02, redimensionáveis, com as larguras
 // persistidas em `config.json` pelo IPC de preferências.
 //
-// O `painel-workspace` já é real (C7) e o rodapé dele é o `doctor-resumo` (C8) —
-// o doctor roda **uma vez** aqui e o resultado desce por prop. `barra-chats`
-// (M6), `painel-chat` (M7) e `painel-direito` (M4) mostram estado vazio honesto,
-// que diz de qual marco cada coisa é (C9); nada finge dado do núcleo.
+// C10: paleta `Ctrl+K`, atalhos globais e preferências de tema. O `painel-workspace`
+// é real (C7); doctor no rodapé (C8). `barra-chats` (M6), `painel-chat` (M7) e
+// `painel-direito` (M4) mostram estado vazio honesto (C9).
 
-import type { ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Map as MapaIcone, MessageSquare, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
+import { AvisoAtalho } from "../componentes/AvisoAtalho.js";
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
+import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useDoctor } from "../estado/doctor.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
 import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
 import { Workspace } from "../paineis/Workspace.js";
+import type { IdComando } from "../paleta/comandos.js";
+import { PaletaComandos } from "../paleta/PaletaComandos.js";
+import { useAtalhosGlobais } from "../paleta/useAtalhosGlobais.js";
 import { Divisor } from "./Divisor.js";
 import { TopoApp } from "./TopoApp.js";
 import estilos from "./AppShell.module.css";
@@ -72,11 +76,69 @@ function Trilho({ titulo, aoAbrir }: { titulo: string; aoAbrir: () => void }) {
   );
 }
 
+function focarDoctor(): void {
+  const doctor = document.getElementById("doctor-resumo");
+  if (doctor instanceof HTMLDetailsElement) doctor.open = true;
+  if (doctor !== null && typeof doctor.scrollIntoView === "function") {
+    doctor.scrollIntoView({ block: "nearest" });
+  }
+}
+
 export function AppShell({ nucleo, banner }: PropsAppShell) {
   const { paineis, definirLargura, alternarColapso, gravar } = usePaineis();
   const { larguras, colapsados } = paineis;
   const workspace = useWorkspace();
   const doctor = useDoctor();
+  const [paletaAberta, setPaletaAberta] = useState(false);
+  const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  const abrirPaleta = useCallback(() => setPaletaAberta(true), []);
+  const fecharPaleta = useCallback(() => setPaletaAberta(false), []);
+  const abrirPreferencias = useCallback(() => setPreferenciasAbertas(true), []);
+  const fecharPreferencias = useCallback(() => setPreferenciasAbertas(false), []);
+  const limparAviso = useCallback(() => setAviso(null), []);
+
+  const verificarAmbiente = useCallback(() => {
+    void doctor.rodar().then(() => focarDoctor());
+  }, [doctor.rodar]);
+
+  const executarComando = useCallback(
+    (id: IdComando) => {
+      switch (id) {
+        case "conectar-pasta":
+          void workspace.conectar();
+          break;
+        case "reindexar-pasta":
+          void workspace.reindexar();
+          break;
+        case "verificar-ambiente":
+          verificarAmbiente();
+          break;
+        case "preferencias":
+          setPreferenciasAbertas(true);
+          break;
+        case "alternar-tema":
+          void alternarTema();
+          break;
+        default:
+          break;
+      }
+    },
+    [verificarAmbiente, workspace],
+  );
+
+  useAtalhosGlobais({
+    abrirPaleta,
+    fecharPaleta,
+    paletaAberta,
+    preferenciasAbertas,
+    fecharPreferencias,
+    conectarPasta: () => void workspace.conectar(),
+    verificarAmbiente,
+    abrirPreferencias,
+    aoIndisponivel: setAviso,
+  });
 
   // Informativos que o doctor sustenta com dado real; sem relatório, nada aparece.
   const semChaveIa = doctor.relatorio !== null && !doctor.relatorio.chaves.deepseek;
@@ -95,7 +157,12 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
 
   return (
     <div className={estilos.shell}>
-      <TopoApp nucleo={nucleo.estado} projeto={nomeDoProjeto(workspace.indice)} />
+      <TopoApp
+        nucleo={nucleo.estado}
+        projeto={nomeDoProjeto(workspace.indice)}
+        aoAbrirPaleta={abrirPaleta}
+        aoAbrirDoctor={verificarAmbiente}
+      />
       {banner}
       <div className={estilos.corpo}>
         {colapsados.barraChats ? (
@@ -178,6 +245,15 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           />
         </Painel>
       </div>
+
+      <PaletaComandos
+        aberta={paletaAberta}
+        temPasta={workspace.indice !== null}
+        aoFechar={fecharPaleta}
+        aoExecutar={executarComando}
+      />
+      <Preferencias aberta={preferenciasAbertas} aoFechar={fecharPreferencias} />
+      <AvisoAtalho mensagem={aviso} aoFechar={limparAviso} />
     </div>
   );
 }

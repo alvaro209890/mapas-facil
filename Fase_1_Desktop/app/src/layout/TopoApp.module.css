@@ -57,3 +57,36 @@
   color: var(--mf-erro);
   border-color: var(--mf-erro);
 }
+
+.chipBotao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  padding: var(--mf-e1) var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  transition: color var(--mf-dur-2) var(--mf-ease-saida),
+    border-color var(--mf-dur-2) var(--mf-ease-saida),
+    background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.chipBotao:hover {
+  background: var(--mf-superficie-3);
+  color: var(--mf-texto);
+}
+
+.chipBotao[data-estado="pronto"] {
+  color: var(--mf-ok);
+  border-color: var(--mf-borda-forte);
+}
+
+.chipBotao[data-estado="iniciando"] {
+  color: var(--mf-aviso);
+}
+
+.chipBotao[data-estado="caido"] {
+  color: var(--mf-erro);
+  border-color: var(--mf-erro);
+}
