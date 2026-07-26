@@ -13,7 +13,7 @@ verdade visual da **interface**; o visual do **mapa** continua sendo
 
 | Item | Atual | Alvo |
 |---|---|---|
-| Tokens, tema, fontes | **existem** (C3/C4) — sem consumidor ainda | `app/src/estilos/tokens.css` + fontes embarcadas |
+| Tokens, tema, fontes | **existem e são consumidos** (C3/C4) pelo renderer (C1/C5) | `app/src/estilos/tokens.css` + fontes embarcadas |
 | Eventos NDJSON que alimentam animação | **`job.progresso` emitido** (A9); `chat.delta`/`chat.tool` ainda não | `job.progresso` no M3/M8; `chat.delta`/`chat.tool` no M7 |
 | `job.artefato_parcial` (preview em construção) | **não existe nem como contrato** | contrato definido aqui, implementado no M8 |
 | `prefers-reduced-motion` | **respeitado** em `tokens.css` (≤ 80 ms, só opacidade/cor) | respeitado |
@@ -27,7 +27,7 @@ de porcentagem.
 
 | Precisa de | Estado |
 |---|---|
-| M3 — shell Electron + React | ausente |
+| M3 — shell Electron + React | **parcial** — `AppShell` e `barra-progresso-job` prontos (C1–C6) |
 | Emissor de `job.progresso` no núcleo | **existe** (A9, núcleo v0.4.0) |
 | `chat.delta` / `chat.tool` | ausentes — [F1-06](06-agente-eng-florestal.md), M7 |
 | `job.artefato_parcial` | ausente — contrato abaixo, M8 |
@@ -324,14 +324,14 @@ Enquanto o M8 não fecha, a Fase 2 **não é simulada**. O DoD visual aceita a F
 - [x] `app/src/estilos/tokens.css` — todos os tokens acima, `:root` escuro + `[data-tema="claro"]`
 - [x] `app/src/estilos/fontes/` — Space Grotesk, IBM Plex Sans, IBM Plex Mono (woff2) + `@font-face`
 - [x] `app/src/estilos/reset.css`
-- [ ] `app/src/motion/tokens.ts` — durações e easings espelhando o CSS, para animação em JS
-- [ ] `app/src/motion/useReducedMotion.ts`
+- [x] `app/src/motion/tokens.ts` — durações e easings espelhando o CSS, para animação em JS
+- [x] `app/src/motion/useReducedMotion.ts`
 - [ ] Componentes da tabela de IDs, um arquivo por linha
 - [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — **emitir `job.progresso`** nas 10 etapas,
       com `item` nas etapas de camada
 - [ ] `nucleo/mapasfacil_nucleo/protocolo.py` — registrar `job.artefato_parcial` no vocabulário
 - [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.artefato_parcial` (M8)
-- [~] `app/src/estado/eventos.ts` — assinatura dos eventos NDJSON pronta; falta o store
+- [~] `app/src/estado/eventos.ts` — assinatura pronta + `peso`/`pctAoConcluir`; o store existe só para `job.progresso` (`app/src/estado/progressoJob.ts`)
 - [ ] `app/tests/visual/` — testes do DoD abaixo
 
 ## Critérios de aceite (DoD visual verificável)
@@ -343,11 +343,13 @@ Cada item é um comando ou assert, não uma opinião:
 - [ ] `getComputedStyle(document.body).backgroundColor` resolve para `--mf-bg` (`rgb(11, 14, 17)`)
 - [ ] `grep -rniE "inter|roboto|arial|helvetica|system-ui" app/src/estilos/tokens.css` só aparece
       **depois** de uma família embarcada na pilha
-- [ ] `grep -rn "https://fonts\.\|cdn\." app/src/` não retorna nada — zero requisição externa de fonte
-- [ ] **≥ 3 animações ligadas a estado real**, provadas por teste com eventos NDJSON injetados:
-      A2 (streaming), A3 (tool), A4 (progresso). Cada teste emite o evento fake e assere a classe
-      ou o atributo resultante — nenhum usa timer sozinho
-- [ ] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` não retorna nada
+- [x] `grep -rn "https://fonts\.\|cdn\." app/src/` não retorna nada — zero requisição externa de fonte
+- [~] **≥ 3 animações ligadas a estado real**, provadas por teste com eventos NDJSON injetados:
+      A2 (streaming), A3 (tool), A4 (progresso). **A4 está provada**
+      (`app/tests/barra-progresso-job.test.tsx`); A2 e A3 esperam `chat.delta`/`chat.tool` (M7).
+      Cada teste emite o evento fake e assere a classe ou o atributo resultante — nenhum usa
+      timer sozinho
+- [x] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` não retorna nada
       (progresso não é simulado)
 - [ ] **Preview reage à geração:** teste emite `job.progresso` com `item:"avn"` e assere que a
       linha `preview-camada-avn` mudou de estado
@@ -357,7 +359,7 @@ Cada item é um comando ou assert, não uma opinião:
 - [ ] Contraste: `axe-core` sem violação de `color-contrast` nas telas login, app vazio, app com
       job rodando
 - [ ] Janela de 1280×800 não produz scroll horizontal em nenhum painel
-- [ ] Nenhum emoji em componente de interface: `grep -rnP "[\x{1F300}-\x{1FAFF}]" app/src/componentes/` vazio
+- [x] Nenhum emoji em componente de interface: `grep -rnP "[\x{1F300}-\x{1FAFF}]" app/src/componentes/` vazio
 - [ ] Números em hectare renderizam em `--mf-fonte-mono` com `tabular-nums` — teste de snapshot da
       árvore do `painel-workspace`
 
