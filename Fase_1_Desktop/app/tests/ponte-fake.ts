@@ -69,6 +69,65 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
         if (metodo === "galeria.listar") {
           return Promise.resolve({ ok: true, resultado: { galeria_version: 1, modelos: [] } });
         }
+        // Histórico local vazio por padrão (M6): testes do shell não precisam mockar chat.*.
+        if (metodo === "chat.listar_conversas") {
+          return Promise.resolve({ ok: true, resultado: { conversas: [], tem_mais: false } });
+        }
+        if (metodo === "chat.criar_conversa") {
+          const conversation_id = `01JTESTECHAT${String(fake.chamadas.length).padStart(4, "0")}`;
+          return Promise.resolve({
+            ok: true,
+            resultado: {
+              conversation_id,
+              title: "Conversa sem título",
+              created_at: "2026-07-26T12:00:00.000Z",
+            },
+          });
+        }
+        if (metodo === "chat.abrir_conversa") {
+          const conversation_id =
+            typeof params.conversation_id === "string" ? params.conversation_id : "01JTESTECHAT0000";
+          return Promise.resolve({
+            ok: true,
+            resultado: {
+              conversa: {
+                conversation_id,
+                title: "Conversa sem título",
+                title_manual: false,
+                created_at: "2026-07-26T12:00:00.000Z",
+                updated_at: "2026-07-26T12:00:00.000Z",
+                workspace_nome: null,
+                workspace_fingerprint: "sem-workspace",
+                workspace_path: null,
+                conta_id: null,
+                arquivada: false,
+                parent_conversation_id: null,
+                parent_message_seq: null,
+                modelo: null,
+                tokens_entrada: 0,
+                tokens_saida: 0,
+                compact_ate_seq: null,
+              },
+              mensagens: [],
+              compact_summary: null,
+              total: 0,
+              tem_anteriores: false,
+              tool_traces: [],
+              mapspecs: [],
+            },
+          });
+        }
+        if (
+          metodo === "chat.renomear" ||
+          metodo === "chat.arquivar" ||
+          metodo === "chat.apagar" ||
+          metodo === "chat.ramificar" ||
+          metodo === "chat.carregar_anteriores" ||
+          metodo === "chat.buscar" ||
+          metodo === "chat.registrar_mensagem"
+        ) {
+          return Promise.resolve({ ok: true, resultado: {} });
+        }
         return Promise.resolve({
           ok: false,
           erro: { codigo: "UI-001", mensagem: `teste sem resposta para ${metodo}` },

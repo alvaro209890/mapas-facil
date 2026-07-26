@@ -3,16 +3,18 @@
 Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 [F1-16](../planos/16-design-system-dark.md) (tokens, tipografia, animações),
 [F1-15](../planos/15-galeria-de-modelos.md) (galeria / M4),
+[F1-17](../planos/17-persistencia-de-conversas.md) (histórico local / M6),
 [F1-01](../planos/01-arquitetura.md) (protocolo NDJSON e fronteiras).
 
 ## Estado — 2026-07-26
 
-**Bloco C (M3) e bloco D (M4) fechados.** A janela abre, conecta pasta, indexa, mostra doctor,
-responde a `Ctrl+K`/atalhos, lista a galeria de modelos no painel direito e monta MapSpec
-determinístico. `pnpm typecheck`, `test` (**73** testes) e `build` verdes nesta rodada.
+**Blocos C (M3), D (M4) e F (M6) fechados.** A janela abre, conecta pasta, indexa, mostra doctor,
+responde a `Ctrl+K`/atalhos, lista a galeria de modelos no painel direito, monta MapSpec
+determinístico e persiste o histórico de conversas na `barra-chats` (`chats.sqlite` global em
+`%APPDATA%/MapasFacil/chats/`, D13). `pnpm typecheck`, `test` (**73** testes) e `build` verdes.
 
-O que ainda **não** existe: chat do agente e preview em construção — dependem de M6/M7/M8 e
-mostram estado vazio que diz de qual marco cada coisa é. Menus/tray do processo main também faltam.
+O que ainda **não** existe: enviar mensagem no agente e preview em construção — dependem de M7/M8
+e o `campo-entrada` continua desativado com texto honesto. Menus/tray do processo main também faltam.
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -31,6 +33,10 @@ mostram estado vazio que diz de qual marco cada coisa é. Menus/tray do processo
 | # | Tarefa (F1-13 bloco D) | Estado | Onde |
 |---|---|---|---|
 | D8 | `painel-galeria` + detalhe + `CartaoModelo` | **feito** | `src/paineis/Galeria*.tsx`, `src/componentes/CartaoModelo.tsx`, `src/estado/galeria.ts`, `tests/galeria.test.tsx` |
+
+| # | Tarefa (F1-13 bloco F) | Estado | Onde |
+|---|---|---|---|
+| F6 | `barra-chats` + busca + menu de contexto | **feito** | `src/paineis/BarraChats.tsx`, `src/componentes/ItemChat.tsx`, `src/componentes/BuscaChats.tsx`, `src/estado/conversas.ts`, `src/paineis/Transcricao.tsx` |
 
 ### Conectar pasta — onde cada coisa acontece
 
@@ -72,8 +78,8 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 1. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
 2. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
-3. Chat, preview e auth: M5–M7 — dependem de eventos/backend que ainda não existem.
-4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (auth M5 + motor).
+3. Agente e auth: M5–M7 — `chat.enviar`, streaming (`chat.delta`) e cartão de tool ao vivo (`chat.tool`).
+4. Preview em construção (M8) e validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar`.
 
 ## Arquitetura
 
@@ -95,10 +101,10 @@ app/
     main.tsx                 monta o React; fontes → tokens → reset; tema escuro default
     App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
     layout/                  AppShell (4 painéis), TopoApp, Divisor
-    paineis/                 Workspace (árvore), Galeria + GaleriaDetalhe (M4)
-    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, CartaoModelo
+    paineis/                 Workspace (árvore), Galeria + GaleriaDetalhe (M4), BarraChats + Transcricao (M6)
+    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, CartaoModelo, ItemChat, BuscaChats
     paleta/                  PaletaComandos + atalhos globais (C10)
-    estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema, galeria
+    estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema, galeria, conversas
     formato/                 numeros.ts (hectare pt-BR com 4 casas)
     motion/                  tokens.ts, useReducedMotion.ts
     estilos/                 tokens.css, reset.css, fontes/

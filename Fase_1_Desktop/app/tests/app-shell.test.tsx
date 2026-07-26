@@ -90,8 +90,7 @@ describe("AppShell", () => {
       erro: { codigo: "UI-001", mensagem: "O núcleo do Mapas Fácil parou de responder." },
     });
 
-    const banner = await screen.findByRole("alert");
-    expect(banner).toHaveTextContent("UI-001");
-    expect(screen.getByRole("button", { name: "Reiniciar o núcleo" })).toBeInTheDocument();
+    const banner = await screen.findByRole("button", { name: "Reiniciar o núcleo" });
+    expect(banner.closest('[role="alert"]')).toHaveTextContent("UI-001");
   });
 });

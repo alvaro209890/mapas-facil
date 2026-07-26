@@ -65,12 +65,12 @@ describe("PaletaComandos e atalhos (C10)", () => {
     );
   });
 
-  it("comando de nova conversa aparece indisponível com motivo M6", async () => {
+  it("comando de nova conversa está disponível (M6)", async () => {
     await montarApp();
     await userEvent.keyboard("{Control>}k{/Control}");
     const opcao = screen.getByRole("option", { name: /Nova conversa/i });
-    expect(opcao).toBeDisabled();
-    expect(opcao).toHaveTextContent("Depende da persistência de chats (M6)");
+    expect(opcao).toHaveAttribute("data-disponivel", "true");
+    expect(opcao).not.toBeDisabled();
   });
 
   it("Ctrl+O dispara conectar pasta sem abrir a paleta", async () => {
@@ -85,10 +85,19 @@ describe("PaletaComandos e atalhos (C10)", () => {
     await waitFor(() => expect(ponte.conexoes).toBe(1));
   });
 
-  it("Ctrl+N avisa que o chat ainda é M6", async () => {
-    await montarApp();
+  it("Ctrl+N cria conversa via chat.criar_conversa", async () => {
+    const ponte = ligarPonteFake({
+      respostas: { "doctor.rodar": { ok: true, resultado: RELATORIO } },
+      conectar: { cancelado: false, ok: true, resultado: WORKSPACE },
+    });
+    render(<App />);
+    await waitFor(() => expect(document.getElementById("doctor-resumo")).toBeInTheDocument());
+
     await userEvent.keyboard("{Control>}n{/Control}");
-    expect(await screen.findByRole("status")).toHaveTextContent(/persistência de chats \(M6\)/i);
+    await waitFor(() =>
+      expect(ponte.chamadas.some((c) => c.metodo === "chat.criar_conversa")).toBe(true),
+    );
+    expect(await screen.findByText("Conversa sem título")).toBeInTheDocument();
   });
 
   it("F1 roda o doctor de novo", async () => {

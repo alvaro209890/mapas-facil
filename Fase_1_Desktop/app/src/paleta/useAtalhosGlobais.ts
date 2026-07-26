@@ -1,6 +1,9 @@
 // Atalhos globais de F1-02 / F1-16. A paleta (`Ctrl+K`) e o Esc (fecha a paleta
 // antes de qualquer outra coisa) vivem aqui; ações cujo marco ainda não existe
 // disparam o callback `aoIndisponivel` com uma mensagem honesta — sem no-op mudo.
+//
+// M6 tirou `Ctrl+N` e `Ctrl+F` dessa fila: agora criam conversa e focam a busca de
+// verdade. Sobrou `Ctrl+Enter`, que depende do agente (M7).
 
 import { useEffect, useRef } from "react";
 
@@ -13,7 +16,11 @@ export interface AcoesAtalho {
   conectarPasta: () => void;
   verificarAmbiente: () => void;
   abrirPreferencias: () => void;
-  /** Ctrl+N / Ctrl+F / Ctrl+Enter enquanto M6/M7 não existem. */
+  /** Ctrl+N — cria conversa no histórico local (M6). */
+  novaConversa: () => void;
+  /** Ctrl+F — foca a busca da barra-chats (M6). */
+  buscarNoHistorico: () => void;
+  /** Ctrl+Enter enquanto o agente (M7) não existe. */
   aoIndisponivel: (mensagem: string) => void;
 }
 
@@ -71,12 +78,12 @@ export function useAtalhosGlobais(acoes: AcoesAtalho): void {
       }
       if (tecla === "n") {
         evento.preventDefault();
-        atual.aoIndisponivel("Nova conversa chega com a persistência de chats (M6).");
+        atual.novaConversa();
         return;
       }
       if (tecla === "f") {
         evento.preventDefault();
-        atual.aoIndisponivel("Busca no histórico chega com a persistência de chats (M6).");
+        atual.buscarNoHistorico();
         return;
       }
       if (tecla === "enter") {

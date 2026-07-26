@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, TextIO
 
 from mapasfacil_nucleo import doctor
+from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
 from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
@@ -52,6 +53,18 @@ def criar_roteador() -> Roteador:
     roteador.registrar("galeria.listar", galeria_servico.listar)
     roteador.registrar("galeria.detalhar", galeria_servico.detalhar)
     roteador.registrar("galeria.montar_mapspec", galeria_servico.montar)
+    # Histórico de conversas (F1-17). Nenhum tem gate de sessão: ler o próprio
+    # histórico offline é permitido. `chat.enviar`/`chat.cancelar` são do M7.
+    roteador.registrar("chat.criar_conversa", conversas_servico.criar_conversa)
+    roteador.registrar("chat.listar_conversas", conversas_servico.listar_conversas)
+    roteador.registrar("chat.abrir_conversa", conversas_servico.abrir_conversa)
+    roteador.registrar("chat.carregar_anteriores", conversas_servico.carregar_anteriores)
+    roteador.registrar("chat.renomear", conversas_servico.renomear)
+    roteador.registrar("chat.arquivar", conversas_servico.arquivar)
+    roteador.registrar("chat.apagar", conversas_servico.apagar)
+    roteador.registrar("chat.ramificar", conversas_servico.ramificar)
+    roteador.registrar("chat.buscar", conversas_servico.buscar)
+    roteador.registrar("chat.registrar_mensagem", conversas_servico.registrar_mensagem)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 

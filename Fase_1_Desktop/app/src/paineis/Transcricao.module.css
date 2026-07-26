@@ -1,0 +1,139 @@
+/* Transcrição somente-leitura da conversa reaberta (painel-chat). */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mf-e3);
+  position: sticky;
+  top: 0;
+  padding-bottom: var(--mf-e2);
+  background: var(--mf-bg);
+  border-bottom: 1px solid var(--mf-borda);
+}
+
+.titulo {
+  margin: 0;
+  font: var(--mf-fs-t2) var(--mf-fonte-display);
+  letter-spacing: var(--mf-tracking-display);
+  color: var(--mf-texto);
+}
+
+.meta {
+  margin: 2px 0 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.fechar,
+.anteriores {
+  padding: var(--mf-e1) var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  background: transparent;
+  color: var(--mf-texto-2);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  cursor: pointer;
+}
+
+.anteriores {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+}
+
+.faixaPasta {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  margin: 0;
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-borda-forte);
+  border-left: 3px solid var(--mf-info);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-2);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.resumo {
+  border: 1px dashed var(--mf-borda-forte);
+  border-radius: var(--mf-raio-2);
+  padding: var(--mf-e2) var(--mf-e3);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.resumo summary {
+  cursor: pointer;
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+}
+
+.mensagens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+}
+
+.mensagem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  padding: var(--mf-e2) var(--mf-e3);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-1);
+}
+
+.mensagem[data-papel="usuario"] {
+  background: var(--mf-superficie-2);
+}
+
+.mensagem[data-foco] {
+  box-shadow: 0 0 0 1px var(--mf-acento);
+}
+
+.papel {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mf-texto-3);
+}
+
+.conteudo {
+  margin: 0;
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+  white-space: pre-wrap;
+}
+
+.cancelada {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-aviso);
+}
+
+.traco {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  margin: 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  color: var(--mf-erro);
+}
+
+.traco[data-ok] {
+  color: var(--mf-texto-3);
+}

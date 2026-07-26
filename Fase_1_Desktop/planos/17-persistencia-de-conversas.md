@@ -11,9 +11,9 @@ conversa restaura as mensagens, os traços de tool, o resumo comprimido e o pont
 
 | Item | Atual | Alvo |
 |---|---|---|
-| Armazenamento de conversa | **ausente** | `%APPDATA%\MapasFacil\chats\chats.sqlite` |
-| Métodos `chat.*` de histórico | **ausentes** | 8 métodos NDJSON abaixo |
-| Sidebar de chats | **ausente** | `barra-chats` ([F1-16](16-design-system-dark.md)) |
+| Armazenamento de conversa | **feito** (M6) | `%APPDATA%\MapasFacil\chats\chats.sqlite` |
+| Métodos `chat.*` de histórico | **feitos** (+ `chat.registrar_mensagem` para galeria/M7) | 9 métodos NDJSON abaixo |
+| Sidebar de chats | **feita** | `barra-chats` ([F1-16](16-design-system-dark.md)) |
 | Local declarado na arquitetura antiga | `projetos\<hash>\conversas.sqlite` | **revogado por D13** — banco único global |
 
 ### D13 — por que um banco global e não um por projeto
@@ -185,35 +185,35 @@ com sessão expirada é permitido. `chat.enviar` (que grava mensagem nova de IA)
 
 ## Tarefas agentáveis
 
-- [ ] `nucleo/mapasfacil_nucleo/conversas/esquema.sql` — DDL acima + triggers do FTS
-- [ ] `nucleo/mapasfacil_nucleo/conversas/migracoes/001_inicial.sql`
-- [ ] `nucleo/mapasfacil_nucleo/conversas/repositorio.py` — CRUD, transações, WAL
-- [ ] `nucleo/mapasfacil_nucleo/conversas/redator.py` — CPF, chaves, tokens (compartilhado com o log)
-- [ ] `nucleo/mapasfacil_nucleo/conversas/titulo.py` — geração e regra de `title_manual`
-- [ ] `nucleo/mapasfacil_nucleo/conversas/fingerprint.py` — `sha256(realpath normalizado)`
-- [ ] `nucleo/mapasfacil_nucleo/__main__.py` — registrar os 9 métodos
-- [ ] `app/src/paineis/BarraChats.tsx`, `app/src/componentes/ItemChat.tsx`, `BuscaChats.tsx`
-- [ ] `app/src/estado/conversas.ts` — store com paginação e cache por conversa
-- [ ] `nucleo/tests/test_conversas.py`, `nucleo/tests/test_conversas_redator.py`
+- [x] `nucleo/mapasfacil_nucleo/conversas/esquema.sql` — DDL acima + triggers do FTS
+- [x] `nucleo/mapasfacil_nucleo/conversas/migracoes/001_inicial.sql`
+- [x] `nucleo/mapasfacil_nucleo/conversas/repositorio.py` — CRUD, transações, WAL
+- [x] `nucleo/mapasfacil_nucleo/conversas/redator.py` — CPF, chaves, tokens (compartilhado com o log)
+- [x] `nucleo/mapasfacil_nucleo/conversas/titulo.py` — geração e regra de `title_manual`
+- [x] `nucleo/mapasfacil_nucleo/conversas/fingerprint.py` — `sha256(realpath normalizado)`
+- [x] `nucleo/mapasfacil_nucleo/__main__.py` — registrar os 9 métodos
+- [x] `app/src/paineis/BarraChats.tsx`, `app/src/componentes/ItemChat.tsx`, `BuscaChats.tsx`
+- [x] `app/src/estado/conversas.ts` — store com paginação e cache por conversa
+- [x] `nucleo/tests/test_conversas.py`, `nucleo/tests/test_conversas_redator.py`
 
 ## Critérios de aceite
 
-- [ ] `pytest nucleo/tests/test_conversas.py` verde
-- [ ] **Ciclo completo:** criar conversa → gravar 5 mensagens → fechar o processo do núcleo →
+- [x] `pytest nucleo/tests/test_conversas.py` verde
+- [x] **Ciclo completo:** criar conversa → gravar 5 mensagens → fechar o processo do núcleo →
       reabrir → `chat.abrir_conversa` devolve as 5 na ordem correta, com os `tool_traces`
-- [ ] **Escala:** fixture com 1 conversa de 200 mensagens; `chat.abrir_conversa` responde em
+- [x] **Escala:** fixture com 1 conversa de 200 mensagens; `chat.abrir_conversa` responde em
       **< 300 ms** e devolve exatamente 30 mensagens + `total: 200`
       (teste com `time.perf_counter`, tolerância documentada no teste)
-- [ ] `chat.buscar` com termo acentuado encontra a mensagem escrita sem acento e vice-versa
+- [x] `chat.buscar` com termo acentuado encontra a mensagem escrita sem acento e vice-versa
       (`remove_diacritics 2`)
-- [ ] Inserir mensagem com `"CPF 123.456.789-00"` → `SELECT conteudo` devolve `[CPF removido]`;
+- [x] Inserir mensagem com `"CPF 123.456.789-00"` → `SELECT conteudo` devolve `[CPF removido]`;
       o CPF **não** está no arquivo (`grep -a "123.456.789" chats.sqlite` vazio)
-- [ ] `chat.ramificar` a partir do `seq` 3 de uma conversa de 10 cria uma conversa com 3
+- [x] `chat.ramificar` a partir do `seq` 3 de uma conversa de 10 cria uma conversa com 3
       mensagens e `parent_conversation_id` preenchido
-- [ ] `chat.apagar` remove as linhas em cascata (mensagens, traces, anexos) e os arquivos do disco
-- [ ] Logout (`auth:sair` sem `esquecer_este_pc`) mantém `chats.sqlite` intacto — teste de integração
-- [ ] `grep -rn "fetch\|axios\|https://" nucleo/mapasfacil_nucleo/conversas/` vazio — nenhum caminho de rede
-- [ ] Abrir a mesma conversa em duas janelas não corrompe o banco (WAL + transações; teste de
+- [x] `chat.apagar` remove as linhas em cascata (mensagens, traces, anexos) e os arquivos do disco
+- [x] Logout (`auth:sair` sem `esquecer_este_pc`) mantém `chats.sqlite` intacto — teste de integração
+- [x] `grep -rn "fetch\|axios\|https://" nucleo/mapasfacil_nucleo/conversas/` vazio — nenhum caminho de rede
+- [x] Abrir a mesma conversa em duas janelas não corrompe o banco (WAL + transações; teste de
       escrita concorrente)
 
 ## Fora de escopo

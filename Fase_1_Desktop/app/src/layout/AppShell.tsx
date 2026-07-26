@@ -1,9 +1,13 @@
 // C5 — `AppShell`: os quatro painéis de F1-02, redimensionáveis, com as larguras
 // persistidas em `config.json` pelo IPC de preferências.
 //
-// C10: paleta `Ctrl+K`, atalhos globais e preferências de tema. O `painel-workspace`
-// é real (C7); doctor no rodapé (C8). `barra-chats` (M6), `painel-chat` (M7) e
-// `painel-direito` (M4) mostram estado vazio honesto (C9).
+// C10: paleta `Ctrl+K`, atalhos globais e preferências de tema. `painel-workspace`
+// é real (C7), doctor no rodapé (C8), `painel-direito` é a galeria (M4) e
+// `barra-chats` é o histórico local de verdade (M6/F1-17).
+//
+// O que ainda é estado vazio honesto: **enviar** mensagem no `painel-chat`. A
+// conversa reaberta aparece somente-leitura; streaming (`chat.delta`) e cartão de
+// tool ao vivo (`chat.tool`) são M7 e o núcleo não emite nenhum dos dois.
 
 import { useCallback, useState, type ReactNode } from "react";
 import { Map as MapaIcone, MessageSquare, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -13,8 +17,11 @@ import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
+import { useConversas } from "../estado/conversas.js";
 import { useDoctor } from "../estado/doctor.js";
 import { useGaleria } from "../estado/galeria.js";
+import { BarraChats } from "../paineis/BarraChats.js";
+import { Transcricao } from "../paineis/Transcricao.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
@@ -93,6 +100,8 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const workspace = useWorkspace();
   const doctor = useDoctor();
   const galeria = useGaleria();
+  const conversas = useConversas(workspace.indice?.raiz ?? null);
+  const [focoBusca, setFocoBusca] = useState(0);
   const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
@@ -131,11 +140,17 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           setFocoGaleria((n) => n + 1);
           document.getElementById("painel-galeria")?.scrollIntoView({ block: "nearest" });
           break;
+        case "nova-conversa":
+          void conversas.criar();
+          break;
+        case "buscar-chats":
+          setFocoBusca((n) => n + 1);
+          break;
         default:
           break;
       }
     },
-    [verificarAmbiente, workspace],
+    [conversas.criar, verificarAmbiente, workspace],
   );
 
   useAtalhosGlobais({
@@ -147,6 +162,11 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
     conectarPasta: () => void workspace.conectar(),
     verificarAmbiente,
     abrirPreferencias,
+    novaConversa: () => void conversas.criar(),
+    buscarNoHistorico: () => {
+      if (colapsados.barraChats) alternarColapso("barraChats");
+      setFocoBusca((n) => n + 1);
+    },
     aoIndisponivel: setAviso,
   });
 
@@ -185,10 +205,10 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               largura={larguras.barraChats}
               aoColapsar={() => alternarColapso("barraChats")}
             >
-              <EstadoVazio
-                titulo="Sem histórico ainda"
-                descricao="A persistência de conversas é do M6 (F1-17). Enquanto ela não existe, nada é guardado entre sessões — e o app não finge que guardou."
-                icone={<MessageSquare size={18} aria-hidden="true" />}
+              <BarraChats
+                estado={conversas}
+                pastaAberta={nomeDoProjeto(workspace.indice) ?? null}
+                focoBusca={focoBusca}
               />
             </Painel>
             {divisor("barraChats", "conversas")}
@@ -225,11 +245,22 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           aria-label="conversa"
         >
           <div className={estilos.conversa} role="log" aria-live="polite">
-            <EstadoVazio
-              titulo="Chat do agente ainda não implementado"
-              descricao="Streaming, cartões de tool e bloco de raciocínio dependem de chat.delta e chat.tool, que o núcleo ainda não emite (M7)."
-              icone={<MessageSquare size={18} aria-hidden="true" />}
-            />
+            {conversas.aberta !== null ? (
+              // Conversa guardada, somente leitura (M6). Streaming e cartão de tool
+              // ao vivo continuam sendo M7 — o rodapé abaixo diz isso.
+              <Transcricao
+                aberta={conversas.aberta}
+                pastaAberta={nomeDoProjeto(workspace.indice) ?? null}
+                aoCarregarAnteriores={() => void conversas.carregarAnteriores()}
+                aoFechar={conversas.fechar}
+              />
+            ) : (
+              <EstadoVazio
+                titulo="Nenhuma conversa aberta"
+                descricao="Escolha uma conversa na barra da esquerda para reler o histórico guardado neste PC. Enviar mensagem nova depende do agente (M7): chat.delta e chat.tool ainda não são emitidos."
+                icone={<MessageSquare size={18} aria-hidden="true" />}
+              />
+            )}
             {semChaveIa && <SemChaveDeepSeek />}
             {semArcMap && <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} />}
           </div>
