@@ -129,9 +129,9 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 
 ### Eventos
 
-**Emitidos hoje:** `job.progresso` (A9), `chat.delta` e `chat.tool` (M7), `job.artefato_parcial`
-(M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6). Só `job.log` e `aviso` seguem sem
-emissor. O vocabulário é fechado em `protocolo.EVENTOS` — emitir nome fora da lista levanta erro,
+**Emitidos hoje: os 8.** `job.progresso` (A9), `chat.delta`/`chat.tool` (M7),
+`job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), `job.log` e
+`aviso`. O vocabulário de `protocolo.EVENTOS` está inteiro com emissor. O vocabulário é fechado em `protocolo.EVENTOS` — emitir nome fora da lista levanta erro,
 em vez de virar evento órfão que nenhuma UI consome. A mecânica é a mesma:
 `protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)` + registro com `com_eventos=True`.
 Quem implementar os outros eventos reaproveita esse canal.
@@ -139,13 +139,13 @@ Quem implementar os outros eventos reaproveita esse canal.
 | Evento | Dados | Quando | Estado |
 |---|---|---|---|
 | `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` | **existe** (A9) — emitido ao concluir cada etapa; `pct` acumulado e monotônico |
-| `job.log` | `{linha}` | log técnico do job | falta |
+| `job.log` | `{linha, job_id?}` | log técnico do job | **existe** — `progresso.RastreadorProgresso.log`, teto de 500 linhas com aviso de corte |
 | `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | artefato intermediário pronto | **existe** (M8) — 4 tipos, caminho relativo; ver [F1-16](16-design-system-dark.md) |
 | `workspace.mudou` | `{mudancas:[], workspace}` | watcher detectou alteração (debounce 500 ms) | **existe** (A12) — `workspace/watcher.py`; `mudancas[].acao` = adicionado/removido/modificado |
 | `chat.delta` | `{texto}` | pedaço da resposta | **existe** (M7) |
 | `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | **existe** (M7) |
 | `mapspec.atualizado` | `{id, versao, diff}` | nova versão do MapSpec do turno | **existe** (H6) — `agente/tools.py` (`_editar`, `criar_mapa`, `usar_modelo_da_galeria`) via `ctx["emissor"]`; `diff` = operações de `mapspec.diff` + `resumo` em português |
-| `aviso` | `{codigo, mensagem}` | avisos não fatais | falta |
+| `aviso` | `{codigo, mensagem, job_id?}` | não-fatal; o job continua | **existe** — `RastreadorProgresso.aviso`; o mesmo aviso vai para o evento **e** para o `validacao.json` |
 
 ### Etapas reportadas em `job.progresso`
 
@@ -291,7 +291,7 @@ suporte.
 | Faixa | Camada | Exemplos |
 |---|---|---|
 | `NU-0xx` | núcleo / workspace | `NU-001` pasta não existe · `NU-010` caminho fora da allowlist · `NU-020` shapefile sem `.prj` |
-| `NU-1xx` | camadas / rede | `NU-101` timeout/rede · `NU-102` chave do cofre ausente · `NU-110` resposta inesperada (XML de erro) · `NU-120` camada vazia após clip (aviso) · `NU-130` fonte fora do catálogo · `NU-111` feição ignorada pelo parser GML · `NU-112` camada raster (sem feição/área) · `NU-140` tipo de serviço desconhecido (salvaguarda — hoje todos os 4 tipos têm cliente) |
+| `NU-1xx` | camadas / rede | `NU-101` timeout/rede · `NU-102` chave do cofre ausente · `NU-110` resposta inesperada (XML de erro) · `NU-120` camada vazia após clip (aviso) · `NU-130` fonte fora do catálogo · `NU-111` feição ignorada pelo parser GML · `NU-112` camada raster (sem feição/área) · `NU-121`…`NU-126` avisos de job (materialização, quantitativos, tabela, `.mxd`, baseline, conferência) · `NU-140` tipo de serviço desconhecido (salvaguarda — hoje todos os 4 tipos têm cliente) |
 | `NU-2xx` | `MapSpec` | `NU-201` schema inválido · `NU-210` camada fora do catálogo · `NU-220` escala não permitida |
 | `NU-23x` | **galeria** | `NU-230` modelo inexistente · `NU-231` template ausente/`sha256` divergente · `NU-232` sobrescrita fora da allowlist · `NU-233` requisito obrigatório ausente · `NU-234` `modelos.json` inválido |
 | `AG-0xx` | ambiente ArcGIS | `AG-001` ArcMap não encontrado · `AG-010` licença indisponível · `AG-020` timeout do ArcPy · `AG-030` template com `sha256` diferente |

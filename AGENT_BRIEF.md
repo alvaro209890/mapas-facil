@@ -23,8 +23,8 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~421 pass | verde |
-| `Fase_1_Desktop/app` Vitest | **não** | ~111 pass |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~457 pass | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~124 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 
@@ -61,9 +61,9 @@ ls Fase_1_Desktop/app                      # M3 fechado: C1–C11 (shell, worksp
 ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
-#   → definição + chamadores: 6 dos 8 eventos do vocabulário são emitidos; `job.log`/`aviso`, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~421)
-cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~111)
+#   → definição + chamadores: os 8 eventos do vocabulário têm emissor
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~457)
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~124)
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
@@ -77,7 +77,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
 | Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
-| Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), **`mapspec.atualizado`** (H6) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py` |
+| Eventos NDJSON com emissor | **os 8 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), **`job.log` e `aviso`** | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
 | App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
@@ -94,9 +94,6 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 ## O que NÃO existe (não invente que existe)
 
 - Menus e tray do Electron (só diálogo de pasta + IPC).
-- Eventos NDJSON ainda sem emissor: `job.log`, `aviso`.
-  Emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou`,
-  `mapspec.atualizado` (H6).
 - Crossfade de **imagem do mapa** por versão do MapSpec: o núcleo não gera PNG por versão (só por
   etapa de `mapa.gerar`); `linha-versoes` crossfadeia o card de diff/resumo, não uma imagem — ver
   nota em [16-design-system-dark.md §A6](Fase_1_Desktop/planos/16-design-system-dark.md#a6--microinterações).

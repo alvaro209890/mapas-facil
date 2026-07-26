@@ -141,6 +141,8 @@ feições nem área). `NU-140` virou salvaguarda de tipo desconhecido, não "ain
 | `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | M8 — artefato intermediário pronto (`camada`, `tabela_png`, `preview_png`, `pdf`) |
 | `chat.delta` / `chat.tool` | ver [F1-06](../planos/06-agente-eng-florestal.md) | M7 — durante `chat.enviar` |
 | `mapspec.atualizado` | `{id, versao, diff}` | H6 — toda tool que cria/edita o MapSpec do turno (`agente/tools.py`) |
+| `job.log` | `{linha, job_id?}` | linha técnica de `mapa.gerar` — teto de 500 linhas, com aviso de corte |
+| `aviso` | `{codigo, mensagem, job_id?}` | não-fatal durante o job; o mesmo aviso vai para o `validacao.json` |
 
 Semântica (fixada em `progresso.py`): o evento sai **ao concluir** uma etapa — `etapa` é a que
 terminou e `pct` é o acumulado (3, 10, 30, 40, 45, 55, 70, 75, 90, 100). Nas etapas de camada
@@ -164,7 +166,8 @@ Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`, `w
 (A12 — watcher com debounce 500 ms; eventos fora de req saem pelo `configurar_sink_assincrono`),
 **`mapspec.atualizado`** (H6 — `agente/tools.py::_emitir_mapspec_atualizado`, via `ctx["emissor"]`
 do turno; `diff` combina as operações de `mapspec.diff` com o resumo em português de
-`agente/edicao.py::descrever_diff`). Ainda sem emissor: `job.log`, `aviso`.
+`agente/edicao.py::descrever_diff`), **`job.log`** e **`aviso`** (`motores/gerar.py` via
+`RastreadorProgresso`). O vocabulário está 8/8 com emissor — nenhum evento órfão.
 
 ### Limites conhecidos (honestos)
 

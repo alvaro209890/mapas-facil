@@ -19,6 +19,13 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 EVENTO = "job.progresso"
+EVENTO_LOG = "job.log"
+EVENTO_AVISO = "aviso"
+
+# `job.log` é log técnico: a UI mostra colapsado, ninguém lê linha a linha. Teto
+# por job para uma pasta patológica não encher a memória do renderer.
+MAX_LINHAS_LOG = 500
+MAX_TAMANHO_LINHA = 500
 
 
 @dataclass(frozen=True)
@@ -83,6 +90,7 @@ class RastreadorProgresso:
         self._job_id = job_id
         self._pct = 0
         self._concluidas = -1
+        self._linhas_log = 0
 
     @property
     def job_id(self) -> str | None:
@@ -132,6 +140,47 @@ class RastreadorProgresso:
             self._concluidas = i_etapa
             pct = _ACUMULADO[i_etapa]
         return self._despachar(etapa, pct, item)
+
+    def log(self, linha: str) -> dict[str, Any] | None:
+        """Emite `job.log` — linha técnica do job (F1-01 §Eventos).
+
+        Diferente de `aviso`: log é rastro de execução ("materializou 4 camadas"),
+        não algo que o usuário precisa decidir. A UI mostra colapsado. Corta em
+        `MAX_LINHAS_LOG` para pasta patológica não encher a memória do renderer;
+        a última linha avisa que cortou, em vez de sumir em silêncio.
+        """
+        texto = str(linha).strip()
+        if not texto:
+            return None
+        if self._linhas_log > MAX_LINHAS_LOG:
+            return None
+        self._linhas_log += 1
+        if self._linhas_log > MAX_LINHAS_LOG:
+            texto = f"(log truncado em {MAX_LINHAS_LOG} linhas)"
+        else:
+            texto = texto[:MAX_TAMANHO_LINHA]
+        dados: dict[str, Any] = {"linha": texto}
+        if self._job_id is not None:
+            dados["job_id"] = self._job_id
+        if self._emitir is not None:
+            self._emitir(EVENTO_LOG, dados)
+        return dados
+
+    def aviso(self, codigo: str, mensagem: str) -> dict[str, Any]:
+        """Emite `aviso` — não-fatal que o usuário precisa ver (F1-01 §Eventos).
+
+        O job continua: camada vazia, cache expirado, arquivo que sumiu. Fatal
+        levanta `ErroNucleo`, não passa por aqui.
+        """
+        dados: dict[str, Any] = {
+            "codigo": str(codigo),
+            "mensagem": str(mensagem)[:MAX_TAMANHO_LINHA],
+        }
+        if self._job_id is not None:
+            dados["job_id"] = self._job_id
+        if self._emitir is not None:
+            self._emitir(EVENTO_AVISO, dados)
+        return dados
 
     def artefato(
         self,

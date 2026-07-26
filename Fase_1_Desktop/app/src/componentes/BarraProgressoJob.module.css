@@ -94,3 +94,66 @@
   background: var(--mf-superficie-3);
   color: var(--mf-texto);
 }
+
+/* --- avisos (evento `aviso`) e log técnico (evento `job.log`) ------------- */
+
+.avisos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aviso {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  padding: var(--mf-e1) var(--mf-e2);
+  border-left: 2px solid var(--mf-aviso);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-superficie-2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.avisoCodigo {
+  color: var(--mf-aviso);
+  font-family: var(--mf-fonte-mono);
+  flex-shrink: 0;
+}
+
+.avisoVezes {
+  margin-left: auto;
+  color: var(--mf-texto-3);
+  font-family: var(--mf-fonte-mono);
+}
+
+/* Log técnico nasce colapsado: é rastro de execução, não algo para ler (F1-02). */
+.log {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.logResumo {
+  cursor: pointer;
+  color: var(--mf-texto-2);
+}
+
+.logLinhas {
+  margin: var(--mf-e1) 0 0;
+  padding: var(--mf-e2);
+  max-height: 180px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-superficie-1);
+}
+
+.logLinha {
+  font-family: var(--mf-fonte-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

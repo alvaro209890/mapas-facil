@@ -1,14 +1,17 @@
 // C6 — `barra-progresso-job` (F1-02 §painel-chat, F1-16 §A4).
 //
-// Consome **só** `job.progresso` (A9). Cancelar geração usa `mapa.cancelar` (A10).
-// Regras que este componente obedece, e que o teste cobre:
+// Consome `job.progresso` (A9), `job.log` e `aviso`. Cancelar geração usa
+// `mapa.cancelar` (A10). Regras que este componente obedece, e que o teste cobre:
 //   * sem evento → "gerando…", sem barra e sem porcentagem (AP-07);
 //   * `pct` vem do evento, nunca de timer ou interpolação;
 //   * 10 segmentos nomeados em português, na ordem do contrato;
 //   * `role="progressbar"` com `aria-valuenow` (F1-16 §Acessibilidade);
-//   * cancelar o job é botão próprio — nunca o mesmo do `Esc` do turno (F1-02).
+//   * cancelar o job é botão próprio — nunca o mesmo do `Esc` do turno (F1-02);
+//   * log técnico fica **colapsado** (F1-02) e só existe se `job.log` chegou;
+//   * avisos aparecem visíveis, um por (código + mensagem), com contador.
 
 import { ETAPAS_JOB, rotuloDaEtapa } from "../estado/eventos.js";
+import { useLogJob } from "../estado/logJob.js";
 import type { EstadoProgressoJob } from "../estado/progressoJob.js";
 import { useProgressoJob } from "../estado/progressoJob.js";
 import estilos from "./BarraProgressoJob.module.css";
@@ -33,7 +36,8 @@ function estadoDoSegmento(indice: number, progresso: EstadoProgressoJob): Estado
 
 export function BarraProgressoJob({ ativo = false, onCancelar }: PropsBarraProgressoJob) {
   const progresso = useProgressoJob();
-  if (!ativo && progresso === null) return null;
+  const { linhas, avisos } = useLogJob();
+  if (!ativo && progresso === null && linhas.length === 0 && avisos.length === 0) return null;
 
   return (
     <div id="barra-progresso-job" className={estilos.barra}>
@@ -70,6 +74,39 @@ export function BarraProgressoJob({ ativo = false, onCancelar }: PropsBarraProgr
           </p>
         </>
       )}
+      {avisos.length > 0 && (
+        <ul className={estilos.avisos} data-testid="avisos-job" aria-label="avisos da geração">
+          {avisos.map((aviso) => (
+            <li
+              key={`${aviso.codigo}-${aviso.mensagem}`}
+              className={estilos.aviso}
+              data-codigo={aviso.codigo}
+            >
+              <span className={`${estilos.avisoCodigo} mf-num`}>{aviso.codigo}</span>
+              <span>{aviso.mensagem}</span>
+              {aviso.vezes > 1 && (
+                <span className={`${estilos.avisoVezes} mf-num`}>×{aviso.vezes}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {linhas.length > 0 && (
+        <details className={estilos.log} data-testid="log-job">
+          <summary className={estilos.logResumo}>
+            log técnico <span className="mf-num">({linhas.length})</span>
+          </summary>
+          <ol className={estilos.logLinhas}>
+            {linhas.map((linha, indice) => (
+              <li key={`${indice}-${linha}`} className={estilos.logLinha}>
+                {linha}
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+
       {onCancelar !== undefined && (
         <button type="button" className={estilos.cancelar} onClick={onCancelar}>
           Cancelar geração

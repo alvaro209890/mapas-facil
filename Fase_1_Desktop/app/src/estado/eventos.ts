@@ -1,8 +1,10 @@
 // Assinatura dos eventos NDJSON que o núcleo emite (F1-01 §Eventos).
 //
-// Emitidos hoje: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`,
-// `workspace.mudou` (A12). Os demais estão no contrato sem emissor — a UI não
-// simula nenhum deles (AP-07).
+// Os **8** eventos do vocabulário têm emissor: `job.progresso` (A9),
+// `job.artefato_parcial` (M8), `chat.delta`/`chat.tool` (M7), `workspace.mudou`
+// (A12), `mapspec.atualizado` (H6) e — os últimos a fechar — `job.log` e `aviso`.
+// Nenhum é simulado pela UI: sem evento, o componente correspondente não existe
+// (AP-07).
 
 export interface EnvelopeEvento<D = Record<string, unknown>> {
   v: number;
@@ -61,9 +63,10 @@ export interface DadosJobProgresso {
   job_id?: string;
 }
 
-// ---------------------------------------------------------------- ainda não emitidos
+/** `job.log` — linha técnica do job. A UI mostra colapsado; ninguém lê linha a linha. */
 export interface DadosJobLog {
   linha: string;
+  job_id?: string;
 }
 export interface DadosJobArtefatoParcial {
   tipo: "camada" | "tabela_png" | "preview_png" | "pdf";
@@ -128,9 +131,11 @@ export interface DadosMapspecAtualizado {
   versao: number;
   diff: DiffMapspec;
 }
+/** `aviso` — não-fatal que o usuário precisa ver; o job continua. */
 export interface DadosAviso {
   codigo: string;
   mensagem: string;
+  job_id?: string;
 }
 
 export type EventoNucleo =
@@ -223,4 +228,30 @@ export function ehMapspecAtualizado(
     const o = op as Partial<OperacaoDiffMapspec>;
     return typeof o.caminho === "string" && typeof o.op === "string" && OPS_DIFF.includes(o.op as never);
   });
+}
+
+/** `job.log` estreitado — log técnico do job. */
+export type EventoJobLog = EnvelopeEvento<Record<string, unknown> & DadosJobLog> & {
+  evento: "job.log";
+};
+
+export function ehJobLog(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoJobLog {
+  if (evento.evento !== "job.log") return false;
+  const { linha } = evento.dados;
+  return typeof linha === "string" && linha !== "";
+}
+
+/** `aviso` estreitado — não-fatal, o job continua. */
+export type EventoAviso = EnvelopeEvento<Record<string, unknown> & DadosAviso> & {
+  evento: "aviso";
+};
+
+export function ehAviso(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoAviso {
+  if (evento.evento !== "aviso") return false;
+  const { codigo, mensagem } = evento.dados;
+  return typeof codigo === "string" && codigo !== "" && typeof mensagem === "string" && mensagem !== "";
 }

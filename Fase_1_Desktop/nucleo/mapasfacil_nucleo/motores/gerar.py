@@ -32,6 +32,27 @@ def _resolver_fonte_local(fonte: str, fontes_idx: dict[str, str]) -> str | None:
     return fontes_idx.get(chave) or fontes_idx.get(chave.upper())
 
 
+def _escala_numerica(escala: Any) -> float | None:
+    """`MapSpec.escala` aceita número **ou** `"auto"` (plano 02) — só o número
+    vira patch de escala no `.mxd`.
+
+    `"auto"` significa "deixe o data frame como o template define"; tratar como
+    número derrubava `mapa.gerar` com `ValueError` sem código — e `"auto"` é
+    justamente o default dos modelos da galeria.
+    """
+    if escala is None or isinstance(escala, bool):
+        return None
+    if isinstance(escala, (int, float)):
+        return float(escala)
+    texto = str(escala).strip()
+    if not texto or texto.lower() == "auto":
+        return None
+    try:
+        return float(texto.replace(".", "").replace(",", "."))
+    except ValueError:
+        return None
+
+
 def _resolver_bbox_utm(
     mapspec: dict[str, Any],
     *,
@@ -162,6 +183,25 @@ def _gerar_mapa_corpo(
     avisos: list[str] = []
     resultado: dict[str, Any] = {"artefatos": artefatos, "avisos": avisos}
 
+    def _avisar(codigo: str, mensagens: Any) -> None:
+        """Aviso não-fatal: entra no `validacao.json` **e** sai como evento `aviso`.
+
+        Um lugar só para os dois destinos — antes o aviso ficava só no relatório
+        e a UI nunca ficava sabendo enquanto o job rodava.
+        """
+        lista = [mensagens] if isinstance(mensagens, str) else list(mensagens or [])
+        for mensagem in lista:
+            texto = str(mensagem).strip()
+            if not texto:
+                continue
+            avisos.append(texto)
+            prog.aviso(codigo, texto)
+
+    prog.log(
+        f"job iniciado · template={mapspec.get('template') or '(nenhum)'} "
+        f"· saidas={','.join(saidas)}"
+    )
+
     ordem_por_camada = {
         c.get("id"): c.get("ordem") for c in mapspec.get("camadas") or [] if c.get("id")
     }
@@ -189,7 +229,11 @@ def _gerar_mapa_corpo(
             ao_materializar=_camada_pronta,
         )
         artefatos["materializacao"] = materializacao
-        avisos.extend(materializacao.get("avisos", []))
+        prog.log(
+            f"camadas locais materializadas em {pasta_shp}/: "
+            f"{len(materializacao.get('materializados') or [])}"
+        )
+        _avisar("NU-121", materializacao.get("avisos", []))
     prog.concluir_se_pendente("resolvendo_camadas_locais")
 
     # Camadas externas (WFS/WMS) ainda não são resolvidas em runtime — `camada.resolver`
@@ -209,7 +253,8 @@ def _gerar_mapa_corpo(
         quant = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
         artefatos["quantitativos"] = quant
         resultado["quantitativos"] = quant
-        avisos.extend(quant.get("avisos", []))
+        prog.log(f"quantitativos calculados · total {quant.get('total_geral')} ha")
+        _avisar("NU-122", quant.get("avisos", []))
     prog.concluir("calculando_quantitativos")
 
     # PNG antes do PDF para permitir overlay (F1-05 / F1-08).
@@ -229,10 +274,11 @@ def _gerar_mapa_corpo(
         resultado["png_tabela"] = rel_png
         artefatos["png_tabela"] = {**meta_png, "png": rel_png}
         prog.artefato("tabela_png", caminho=rel_png, etapa="gerando_tabela", raiz=guard.raiz)
+        prog.log(f"tabela PNG gerada · {meta_png.get('dpi_efetivo')} dpi · {rel_png}")
         if not meta_png.get("ok_dpi"):
-            avisos.append(
-                f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
-                "(alvo ≥ 600)."
+            _avisar(
+                "NU-123",
+                f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} (alvo ≥ 600).",
             )
     prog.concluir("gerando_tabela")
 
@@ -243,17 +289,21 @@ def _gerar_mapa_corpo(
         if not mapspec.get("template"):
             raise ErroNucleo("NU-205", "MapSpec pede .mxd mas não informa template.")
         bbox = _resolver_bbox_utm(mapspec, guard=guard, fontes_idx=fontes_idx)
-        escala = mapspec.get("escala")
+        escala = _escala_numerica(mapspec.get("escala"))
         mxd_info = gerar_mxd_t2(
             mapspec,
             guard=guard,
             bbox=bbox,
-            escala=float(escala) if escala is not None else None,
+            escala=escala,
             ao_etapa=prog.concluir,
         )
         artefatos["mxd"] = mxd_info
         resultado["mxd"] = mxd_info["mxd"]
-        avisos.extend(mxd_info.get("patch", {}).get("avisos", []))
+        prog.log(
+            f".mxd gerado por '{mxd_info.get('motor')}' "
+            f"(confiança {mxd_info.get('confianca')}) · {mxd_info['mxd']}"
+        )
+        _avisar("NU-124", mxd_info.get("patch", {}).get("avisos", []))
     prog.concluir_se_pendente("preparando_template")
     prog.concluir_se_pendente("aplicando_layout")
     prog.concluir_se_pendente("salvando_mxd")
@@ -282,6 +332,7 @@ def _gerar_mapa_corpo(
         )
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
+        prog.log(f"PDF exportado · {pdf_artefatos['pdf']}")
         if pdf_artefatos.get("tabela_sobreposta"):
             resultado["tabela_sobreposta"] = True
 
@@ -294,9 +345,10 @@ def _gerar_mapa_corpo(
                     artefatos["comparacao_baseline"] = comp
                     resultado["comparacao_baseline"] = comp
                     if not comp["ok"]:
-                        avisos.append(
+                        _avisar(
+                            "NU-125",
                             f"Diff raster {comp['diferenca_pct']:.2f}% "
-                            f"(tolerância {comp['tolerancia_pct']}%)."
+                            f"(tolerância {comp['tolerancia_pct']}%).",
                         )
     prog.concluir("exportando_pdf")
     if resultado.get("pdf"):
@@ -326,7 +378,8 @@ def _gerar_mapa_corpo(
         conf = montar_conferencia(quant, recibo_efetivo)
         artefatos["conferencia"] = conf
         resultado["conferencia"] = conf
-        avisos.extend(conf.get("avisos", []))
+        prog.log(f"planilha exportada · {resultado['xlsx']}")
+        _avisar("NU-126", conf.get("avisos", []))
 
     relatorio = _montar_validacao_job(mapspec, artefatos, avisos)
     pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
@@ -334,6 +387,7 @@ def _gerar_mapa_corpo(
     json_path = salvar_validacao(pasta_saida / f"{nome_base}_validacao.json", relatorio)
     resultado["validacao"] = str(json_path.relative_to(guard.raiz))
     resultado["validacao_dados"] = relatorio
+    prog.log(f"job concluído · {len(avisos)} aviso(s) · {resultado['validacao']}")
     prog.concluir("validando_saida")
 
     return resultado
