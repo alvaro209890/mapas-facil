@@ -15,7 +15,7 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 | Campo | `deepseek_api_key` |
 | Template público (vazio) | `secrets.example.json` |
 | Endpoint | `https://api.deepseek.com/chat/completions` |
-| Modelos planejados | `deepseek-v4-pro` (chat + tools), `deepseek-v4-flash` (título, `compact_summary`) |
+| Modelos planejados | `deepseek-v4-pro` (chat + tools), `deepseek-v4-flash` (título, `compact_summary`) — **só texto na API**; sem modelo de visão hospedado (P1 F1-07) |
 | Quem lê hoje | `doctor.py` + `agente/chave.py` → `chat.enviar` |
 | Cliente HTTP | **feito** — `agente/deepseek.py` (SSE) + `FakeProvedor` no CI |
 
