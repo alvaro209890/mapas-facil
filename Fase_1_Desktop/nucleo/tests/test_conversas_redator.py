@@ -23,10 +23,10 @@ def test_redige_api_key_authkey_bearer_plak_sk():
     assert "541085de" not in saida
     assert "eyJhbGci" not in saida
     assert "ed926829" not in saida
-    assert "api_key=***" in saida
-    assert "authkey=***" in saida
-    assert "Bearer ***" in saida
-    assert "sk-***" in saida
+    assert "authkey" not in saida.lower()
+    assert "PLAK" not in saida
+    assert "sk-ed9" not in saida
+    assert "[segredo removido]" in saida or "[chave" in saida
 
 
 def test_redigir_idempotente():

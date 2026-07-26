@@ -2,11 +2,11 @@
 // persistidas em `config.json` pelo IPC de preferências.
 //
 // C10: paleta `Ctrl+K`, atalhos globais e preferências de tema. O `painel-workspace`
-// é real (C7); doctor no rodapé (C8). `barra-chats` (M6) lista o histórico local;
-// `painel-chat` (M7) e preview ainda mostram estado vazio honesto onde falta marco.
+// é real (C7); doctor no rodapé (C8). `barra-chats` (M6) e `painel-chat` (M7) são reais;
+// preview em construção ainda espera M8.
 
 import { useCallback, useState, type ReactNode } from "react";
-import { Map as MapaIcone, MessageSquare, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Map as MapaIcone, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { AvisoAtalho } from "../componentes/AvisoAtalho.js";
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
@@ -23,6 +23,7 @@ import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
 import { BarraChats } from "../paineis/BarraChats.js";
 import { Galeria } from "../paineis/Galeria.js";
 import { GaleriaDetalhe } from "../paineis/GaleriaDetalhe.js";
+import { PainelChat } from "../paineis/PainelChat.js";
 import { Workspace } from "../paineis/Workspace.js";
 import type { IdComando } from "../paleta/comandos.js";
 import { PaletaComandos } from "../paleta/PaletaComandos.js";
@@ -252,20 +253,14 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           className={`${estilos.painel} ${estilos.painelChat}`}
           aria-label="conversa"
         >
-          <div className={estilos.conversa} role="log" aria-live="polite">
-            <EstadoVazio
-              titulo="Chat do agente ainda não implementado"
-              descricao="Streaming, cartões de tool e bloco de raciocínio dependem de chat.delta e chat.tool, que o núcleo ainda não emite (M7)."
-              icone={<MessageSquare size={18} aria-hidden="true" />}
-            />
-            {semChaveIa && <SemChaveDeepSeek />}
-            {semArcMap && <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} />}
-          </div>
+          <PainelChat
+            conversationId={conversas.conversaAtiva}
+            semChaveIa={semChaveIa}
+            bannerChave={semChaveIa ? <SemChaveDeepSeek /> : null}
+            bannerArc={semArcMap ? <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} /> : null}
+          />
           <div className={estilos.rodapeChat}>
             <BarraProgressoJob />
-            <p className={estilos.entradaDesativada}>
-              campo-entrada — C7/M7: enviar depende do agente e de mapa.gerar pela galeria.
-            </p>
           </div>
         </section>
 

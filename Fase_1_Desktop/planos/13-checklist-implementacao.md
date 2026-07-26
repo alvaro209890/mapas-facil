@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **parcial** — G2 (`limites.py`) fechado; G1/G3–G10 ausentes |
+| G — agente | M7 | **parcial** — G1–G7 + testes fake fechados; G8 cassetes/VCR e tools stub restantes; G10 paridade coberta no teste de galeria |
 | H — motion e preview | M8 | **não iniciado** |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: M5 auth (rede), M7 agente (usa M6), ou A10–A13 no núcleo.
+Próximos marcos sem ArcMap: completar tools G5, M8 motion/preview, ou M5 auth (rede).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -162,16 +162,16 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| G1 | Interface de provedor + cliente DeepSeek (stream, tools, cancelar) | [ ] | `nucleo/.../agente/` |
-| G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06, fase 8→4, `truncar_resultado_tool`, gates; `tests/test_limites.py` (23) |
-| G3 | Montador de contexto + compressão (memória, transcript, diff) | [ ] | `nucleo/.../agente/contexto.py` |
-| G4 | `compact_summary` com `deepseek-v4-flash` | [ ] | `nucleo/.../agente/resumo.py` |
-| G5 | As 26 tools tipadas, incluindo `usar_modelo_da_galeria` | [ ] | `nucleo/.../agente/tools.py` |
-| G6 | System prompt versionado + teste de teto | [ ] | `nucleo/.../agente/prompt.py` |
-| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [ ] | `nucleo/.../__main__.py` |
-| G8 | Cassetes VCR + fixture de 120 turnos | [ ] | `nucleo/tests/agente/` |
-| G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [ ] | `nucleo/tests/test_contexto_vazamento.py` |
-| G10 | Teste de paridade galeria ↔ chat | [ ] | `nucleo/tests/test_paridade_galeria_agente.py` |
+| G1 | Interface de provedor + cliente DeepSeek (stream, tools, cancelar) | [x] | `agente/provedor.py`, `deepseek.py`, `fake.py`, `chave.py` |
+| G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06; `tests/test_limites.py` |
+| G3 | Montador de contexto + compressão (memória, transcript, diff) | [x] | `agente/contexto.py` |
+| G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
+| G5 | Tools tipadas (26+ registradas; núcleo operacional + stubs) | [~] | `agente/tools.py` — galeria/estado/listar/validar reais; demais stub `IA-022` |
+| G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
+| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` |
+| G8 | Cassetes VCR + fixture de 120 turnos | [~] | FakeProvedor no anel 1; VCR HTTP real ainda não |
+| G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
+| G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
 
 ## Bloco H — Motion e preview de construção (M8)
 

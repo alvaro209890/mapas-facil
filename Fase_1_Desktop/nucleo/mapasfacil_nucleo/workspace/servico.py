@@ -15,6 +15,7 @@ from mapasfacil_nucleo.workspace.recibo_car import parsear
 class EstadoWorkspace:
     guard: WorkspaceGuard
     indice: dict[str, Any] = field(default_factory=dict)
+    recibo: dict[str, Any] | None = None
 
 
 _estado: EstadoWorkspace | None = None
@@ -28,7 +29,7 @@ def abrir(caminho: str) -> dict[str, Any]:
     if idx.get("recibo_car"):
         recibo_dados = parsear(guard.resolver(idx["recibo_car"])).para_dict()
 
-    _estado = EstadoWorkspace(guard=guard, indice=idx)
+    _estado = EstadoWorkspace(guard=guard, indice=idx, recibo=recibo_dados)
     doctor_resumo = doctor.rodar(sondar_arcpy=False)
     return {
         "workspace": idx,

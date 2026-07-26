@@ -11,22 +11,25 @@ _AUTHKEY = re.compile(r"(?i)(authkey\s*=\s*)([^\s&\"']+)")
 _BEARER = re.compile(r"(?i)(Bearer\s+)([A-Za-z0-9\-._~+/]+=*)")
 _PLAK = re.compile(r"\bPLAK[A-Za-z0-9]{32}\b")
 _DEEPSEEK_SK = re.compile(r"\bsk-[a-f0-9]{32}\b", re.IGNORECASE)
-_SEMA_UUID = re.compile(
-    r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b",
+_WKT = re.compile(
+    r"\b(?:MULTI)?(?:POLYGON|LINESTRING|POINT|GEOMETRYCOLLECTION)\s*\([^)]*(?:\([^)]*\)[^)]*)*\)",
     re.IGNORECASE,
 )
+_CAMINHO_USERS = re.compile(r"[A-Za-z]:[\\/]+Users[\\/]+[^\s\"']+", re.IGNORECASE)
 
 
 def redigir(texto: str) -> str:
-    """Remove CPF e padrões de chave do texto. Idempotente."""
+    """Remove CPF, chaves, WKT e caminhos absolutos. Idempotente."""
     if not texto:
         return texto
     saida = _CPF.sub("[CPF removido]", texto)
-    saida = _API_KEY.sub(r"\1***", saida)
-    saida = _AUTHKEY.sub(r"\1***", saida)
-    saida = _BEARER.sub(r"\1***", saida)
-    saida = _PLAK.sub("PLAK***", saida)
-    saida = _DEEPSEEK_SK.sub("sk-***", saida)
+    saida = _WKT.sub("[geometria removida]", saida)
+    saida = _CAMINHO_USERS.sub("[caminho removido]", saida)
+    saida = _API_KEY.sub("[segredo removido]", saida)
+    saida = _AUTHKEY.sub("[segredo removido]", saida)
+    saida = _BEARER.sub("[segredo removido]", saida)
+    saida = _PLAK.sub("[chave planet removida]", saida)
+    saida = _DEEPSEEK_SK.sub("[chave deepseek removida]", saida)
     return saida
 
 

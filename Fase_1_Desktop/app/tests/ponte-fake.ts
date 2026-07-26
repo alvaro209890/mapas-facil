@@ -86,6 +86,18 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
         if (metodo === "chat.buscar") {
           return Promise.resolve({ ok: true, resultado: { resultados: [] } });
         }
+        if (metodo === "chat.abrir_conversa") {
+          return Promise.resolve({
+            ok: true,
+            resultado: { conversa: {}, mensagens: [], total: 0, mapspecs: [], compact_summary: null },
+          });
+        }
+        if (metodo === "chat.enviar") {
+          return Promise.resolve({
+            ok: false,
+            erro: { codigo: "IA-001", mensagem: "chave ausente no teste" },
+          });
+        }
         return Promise.resolve({
           ok: false,
           erro: { codigo: "UI-001", mensagem: `teste sem resposta para ${metodo}` },

@@ -528,6 +528,45 @@ class RepositorioConversas:
         ]
         return {"resultados": resultados}
 
+    def atualizar_tokens_e_resumo(
+        self,
+        conversation_id: str,
+        *,
+        tokens_entrada_delta: int = 0,
+        tokens_saida_delta: int = 0,
+        compact_summary: str | None = None,
+        compact_ate_seq: int | None = None,
+    ) -> None:
+        self._obter_ou_404(conversation_id)
+        if compact_summary is not None:
+            self._conn.execute(
+                """
+                UPDATE conversas SET
+                  compact_summary = ?,
+                  compact_ate_seq = COALESCE(?, compact_ate_seq),
+                  tokens_entrada = tokens_entrada + ?,
+                  tokens_saida = tokens_saida + ?
+                WHERE conversation_id = ?
+                """,
+                (
+                    compact_summary,
+                    compact_ate_seq,
+                    max(0, tokens_entrada_delta),
+                    max(0, tokens_saida_delta),
+                    conversation_id,
+                ),
+            )
+        else:
+            self._conn.execute(
+                """
+                UPDATE conversas SET
+                  tokens_entrada = tokens_entrada + ?,
+                  tokens_saida = tokens_saida + ?
+                WHERE conversation_id = ?
+                """,
+                (max(0, tokens_entrada_delta), max(0, tokens_saida_delta), conversation_id),
+            )
+
     def conteudo_bruto(self, conversation_id: str, seq: int) -> str | None:
         """Leitura direta do banco (testes de redação)."""
         row = self._conn.execute(

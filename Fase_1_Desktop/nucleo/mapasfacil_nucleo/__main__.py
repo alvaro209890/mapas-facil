@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, TextIO
 
 from mapasfacil_nucleo import doctor
+from mapasfacil_nucleo.agente import servico as agente_servico
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
@@ -63,6 +64,8 @@ def criar_roteador() -> Roteador:
     roteador.registrar("chat.ramificar", conversas_servico.ramificar)
     roteador.registrar("chat.buscar", conversas_servico.buscar)
     roteador.registrar("chat.gravar_mensagem", conversas_servico.gravar_mensagem)
+    roteador.registrar("chat.enviar", agente_servico.enviar, com_eventos=True)
+    roteador.registrar("chat.cancelar", agente_servico.cancelar)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 

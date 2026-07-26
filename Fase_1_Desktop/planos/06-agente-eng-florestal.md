@@ -11,25 +11,25 @@ custo em pastas reais), os guard rails e os testes.
 
 | Item | Atual | Alvo |
 |---|---|---|
-| Cliente DeepSeek | **ausente** | streaming + tool calling + cancelamento |
-| Tools | **ausentes** | 26 tools tipadas |
-| Orçamento (`limites.py`) | **feito** (G2) — constantes + helpers puros | tetos F1-06 testados |
-| Montador de contexto / compressão | **ausente** | pipeline obrigatório abaixo |
-| `chat.enviar` / `chat.cancelar` | **ausentes** | métodos NDJSON |
-| Modo determinístico | **ausente** como código; o caminho equivalente é a galeria | [F1-15](15-galeria-de-modelos.md) |
-| Fake do provedor (VCR) | **ausente** | anel 2 no CI |
+| Cliente DeepSeek | **feito** (stream SSE + fake CI) | streaming + tool calling + cancelamento |
+| Tools | **parcial** — 27 registradas; núcleo operacional + stubs | 26 tools tipadas |
+| Orçamento (`limites.py`) | **feito** (G2) | tetos F1-06 testados |
+| Montador de contexto / compressão | **feito** (G3) | pipeline obrigatório abaixo |
+| `chat.enviar` / `chat.cancelar` | **feitos** (G7) + UI `PainelChat` | métodos NDJSON |
+| Modo determinístico | galeria (M4) | [F1-15](15-galeria-de-modelos.md) |
+| Fake do provedor (VCR) | **FakeProvedor** no anel 1; VCR HTTP pendente | anel 2 no CI |
 
-A pasta `agente/` existe com `limites.py` (G2). Demais módulos do M7 ainda ausentes.
+A pasta `agente/` cobre G1–G7/G9/G10 com testes sem rede.
 
 ## Dependências
 
 | Precisa de | Estado |
 |---|---|
 | `mapspec.validar`, `mapspec.diff`, `mapa.gerar` | **existem** |
-| `galeria.montar_mapspec` | ausente — [F1-15](15-galeria-de-modelos.md) |
-| `chats.sqlite` (transcript e `compact_summary`) | ausente — [F1-17](17-persistencia-de-conversas.md) |
-| Cofre (chave BYOK) | ausente — [F1-03](03-nucleo-python.md#cofre) |
-| Sessão válida (gate de `chat.enviar`) | ausente — [F1-14](14-auth-e-conta.md) |
+| `galeria.montar_mapspec` | **existe** (M4) |
+| `chats.sqlite` (transcript e `compact_summary`) | **existe** (M6) |
+| Cofre (chave BYOK) | parcial — `secrets.local.json` / env; Credential Manager é M5/A11 |
+| Sessão válida (gate de `chat.enviar`) | ausente — [F1-14](14-auth-e-conta.md); gate AUTH-030 adiado a M5 |
 
 ## Princípio de segurança
 
@@ -402,41 +402,30 @@ da série tem de ser gerável sem IA nenhuma.
 
 ## Tarefas agentáveis
 
-- [ ] `nucleo/mapasfacil_nucleo/agente/provedor.py` — interface `enviar_stream`/`cancelar`
-- [ ] `nucleo/mapasfacil_nucleo/agente/deepseek.py` — implementação com streaming e tool calling
+- [x] `nucleo/mapasfacil_nucleo/agente/provedor.py` — interface `enviar_stream`/`cancelar`
+- [x] `nucleo/mapasfacil_nucleo/agente/deepseek.py` — implementação com streaming e tool calling
 - [x] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
-- [ ] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
-- [ ] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` com `deepseek-v4-flash`
-- [ ] `nucleo/mapasfacil_nucleo/agente/tools.py` — as 26 tools, tipadas e validadas
-- [ ] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
-- [ ] `nucleo/mapasfacil_nucleo/agente/redator.py` — reusa o redator de [F1-17](17-persistencia-de-conversas.md)
+- [x] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
+- [x] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` (heurística CI + LLM opcional)
+- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; subset operacional + stubs
+- [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
+- [x] redator reusa `conversas/redator.py` (WKT/CPF/chaves/caminhos)
 - [ ] `nucleo/mapasfacil_nucleo/agente/visao.py` — print/zip → `MapSpec` ([F1-07](07-visao-print-e-zip.md))
-- [ ] `nucleo/mapasfacil_nucleo/__main__.py` — `chat.enviar`, `chat.cancelar` + eventos
-- [ ] `nucleo/tests/agente/cassetes/` — VCR do provedor
-- [ ] `nucleo/tests/agente/fixtures/conversa_longa.json` — 120 turnos, força compressão
-- [ ] `nucleo/tests/test_contexto_vazamento.py`
+- [x] `nucleo/mapasfacil_nucleo/__main__.py` — `chat.enviar`, `chat.cancelar` + eventos
+- [~] FakeProvedor (anel 1); VCR HTTP em `tests/agente/cassetes/` ainda não
+- [x] `nucleo/tests/test_contexto_vazamento.py`
 
 ## Critérios de aceite
 
-- [ ] `pytest nucleo/tests/agente/ -q` verde **sem rede e sem chave** (tudo por cassete)
-- [ ] **Teto de rodadas:** cassete com 13 tool calls encadeadas → `IA-030` na 13ª, com mensagem
-      que explica e oferece continuar
-- [ ] **Compressão:** com `conversa_longa.json` (120 turnos), o payload montado tem
-      ≤ 60.000 tokens, contém exatamente **8** turnos verbatim e um `compact_summary` não vazio
-- [ ] **Sem vazamento** (`test_contexto_vazamento.py`), sobre o JSON serializado do request:
-      - `re.search(r"(MULTI)?POLYGON\s*\(\(", payload)` é `None`
-      - `re.search(r"\d{3}\.?\d{3}\.?\d{3}-?\d{2}", payload)` é `None`
-      - `re.search(r"[A-Za-z]:\\\\Users\\\\", payload)` é `None`
-      - `"PLAK" not in payload` e `"authkey" not in payload`
-- [ ] **Galeria antes de montar do zero:** cassete do pedido "faz a Dinâmica 2026" registra
-      `usar_modelo_da_galeria` e **nenhuma** chamada a `criar_mapa`
-- [ ] **Paridade:** o `MapSpec` final desse cassete tem o mesmo `template`, as mesmas
-      `camadas[].id` e o mesmo `elementos_layout` que `galeria.montar_mapspec` direto
-- [ ] **Cancelamento:** `chat.cancelar` no meio do stream encerra o request, grava a mensagem
-      parcial com `cancelada: 1` e não deixa tarefa pendente (`asyncio.all_tasks()` limpo)
-- [ ] **Sem chave:** `chat.enviar` devolve `IA-001` e a UI aponta a galeria; nenhum request sai
-- [ ] `grep -rn "temperature" nucleo/mapasfacil_nucleo/agente/` vazio ou comentado como ignorado
-- [ ] System prompt cabe no teto: teste conta tokens e falha acima de 2.500
+- [x] `pytest` do agente verde **sem rede e sem chave** (FakeProvedor)
+- [x] **Teto de rodadas:** 13 tool calls → `IA-030`
+- [x] **Compressão:** 120 turnos → payload ≤ 60k com summary e verbatim limitado
+- [x] **Sem vazamento** (`test_contexto_vazamento.py`)
+- [x] **Galeria antes de montar do zero** + **paridade** template/camadas/layout
+- [~] **Cancelamento:** `chat.cancelar` marca flag e encerra stream (teste de integração fino pendente)
+- [x] **Sem chave:** `chat.enviar` → `IA-001`
+- [x] `temperature` não é enviado no request DeepSeek
+- [x] System prompt ≤ 2.500 tokens estimados
 
 ## Suíte de avaliação (evals)
 

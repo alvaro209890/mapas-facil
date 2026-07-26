@@ -16,20 +16,19 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 | Template público (vazio) | `secrets.example.json` |
 | Endpoint | `https://api.deepseek.com/chat/completions` |
 | Modelos planejados | `deepseek-v4-pro` (chat + tools), `deepseek-v4-flash` (título, `compact_summary`) |
-| Quem lê hoje | `nucleo/mapasfacil_nucleo/doctor.py` → `doctor.rodar` → `chaves.deepseek` |
-| Cliente HTTP | **ausente** — `nucleo/.../agente/deepseek.py` ainda não existe (G1 do checklist) |
+| Quem lê hoje | `doctor.py` + `agente/chave.py` → `chat.enviar` |
+| Cliente HTTP | **feito** — `agente/deepseek.py` (SSE) + `FakeProvedor` no CI |
 
 ### Testes que dependem da chave (estado 2026-07-26)
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — 180 pass, 1 skip (`fsguard` Windows) | verde |
-| `Fase_1_Desktop/app` Vitest | **não** — usa fixtures com `deepseek: false` | 73 pass |
-| `test_paridade_galeria_agente.py` (G10) | **não no CI** — arquivo **ainda não existe**; plano: fake/VCR |
-| `chat.enviar` / cliente `deepseek.py` (G1–G7) | **não implementados** | nada a rodar |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~209 pass | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~77 pass |
+| `test_agente.py` / vazamento / paridade galeria | **não** — fake | verde |
+| Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 
-**Conclusão:** não há teste automatizado pendente que exija a chave real. A chave serve para
-implementar M7 e para o smoke manual abaixo.
+**Conclusão:** o CI não usa a chave real. A chave serve para smoke local e turnos reais no app.
 
 Smoke da chave (fora do CI, não versiona segredo):
 
@@ -76,11 +75,12 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/ax
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **30 métodos** implementados (incl. `galeria.*` + 10 `chat.*`) | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **32 métodos** (galeria + chat histórico + `chat.enviar`/`cancelar`) | `Fase_1_Desktop/nucleo/` |
 | Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
 | App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **barra de chats M6** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
+| Agente DeepSeek | **parcial** (M7) — orquestrador + fake CI + `PainelChat`; tools stub restantes | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -90,17 +90,15 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/ax
 
 ## O que NÃO existe (não invente que existe)
 
-- Chat do agente e preview em construção: `painel-chat` ainda vazio (M7/M8). A **barra de
-  chats** (M6) e a **galeria** (M4) são reais. Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
+- Preview em construção (M8) e motion A2/A3/A5 ainda incompletos.
 - Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
 - Menus e tray do Electron (só diálogo de pasta + IPC).
-- Os outros eventos NDJSON além de `job.progresso`: `job.log`, `job.artefato_parcial`,
-  `workspace.mudou`, `chat.delta`, `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato
-  especificado, zero implementação**. Só `job.progresso` tem emissor.
-- Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão — **exceto**
-  `agente/limites.py` (G2) e a **persistência** de transcript (M6).
-- Autenticação, conta, site de login, backend de identidade.
+- Eventos NDJSON ainda sem emissor: `job.log`, `job.artefato_parcial`, `workspace.mudou`,
+  `mapspec.atualizado`, `aviso`. Emitidos: `job.progresso`, `chat.delta`, `chat.tool`.
+- Tools do agente ainda stub (`IA-022`) exceto estado/listar/inspecionar/recibo/galeria/validar.
+- Autenticação, conta, site de login, backend de identidade (gate AUTH-030 em `chat.enviar` adiado).
 - Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
+- Visão / `analisar_referencia` (F1-07).
 - Qualquer código da Fase 2 além do que M5 exigir.
 
 ## Ordem de implementação (dependências, nunca calendário)
@@ -175,7 +173,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3+M4+M6: shell/workspace/galeria/barra-chats; `painel-chat`/preview esperam M7/M8 | `app/src/paineis/` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3+M4+M6+M7: shell/workspace/galeria/chats/chat; preview espera M8 | `app/src/paineis/` |
 | R02 | Ponte NDJSON Electron ↔ sidecar | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** | `app/electron/nucleo/ponte.ts` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
@@ -190,11 +188,11 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `nucleo/.../sessao.py`, `motores/gerar.py` |
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
-| R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **ausente** | `nucleo/.../agente/deepseek.py` |
-| R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) — tetos + fase 8→4 + envelope tool truncada + gates | `nucleo/.../agente/limites.py` |
-| R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **ausente** (usa `limites`) | `nucleo/.../agente/contexto.py` |
-| R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **ausente** | `nucleo/tests/agente/cassetes/` |
-| R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **ausente** | `nucleo/tests/test_contexto_vazamento.py` |
+| R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |
+| R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) | `nucleo/.../agente/limites.py` |
+| R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G3) | `nucleo/.../agente/contexto.py` |
+| R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **parcial** — FakeProvedor; VCR HTTP pendente | `nucleo/.../agente/fake.py` |
+| R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **feito** (G9) | `nucleo/tests/test_contexto_vazamento.py` |
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **ausente** | `nucleo/.../__main__.py` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../camadas/` |

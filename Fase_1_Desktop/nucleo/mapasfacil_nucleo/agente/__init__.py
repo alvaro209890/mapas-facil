@@ -1,8 +1,7 @@
 # F1-06 — agente de engenharia florestal (M7).
 #
-# G2: `limites` exporta o orçamento de contexto (constantes + helpers puros).
-# Demais módulos (provedor, deepseek, contexto, tools, prompt) entram nos
-# itens G1/G3–G10 do checklist.
+# G2: limites · G1: provedor/deepseek/fake · G3: contexto · G4: resumo ·
+# G5: tools · G6: prompt · G7: orquestrador/servico.
 
 from . import limites
 
