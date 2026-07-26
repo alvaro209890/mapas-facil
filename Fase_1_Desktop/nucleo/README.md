@@ -84,9 +84,9 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.4.0 + M6)
+### Métodos implementados (v0.4.0 + M6 + M7)
 
-Registrados em `criar_roteador()` — **30 métodos**:
+Registrados em `criar_roteador()` — **32 métodos**:
 
 | Método | Descrição |
 |---|---|
@@ -108,9 +108,10 @@ Registrados em `criar_roteador()` — **30 métodos**:
 | `galeria.listar` / `detalhar` / `montar_mapspec` | M4 — catálogo e MapSpec determinístico |
 | `chat.criar_conversa` / `listar_conversas` / `abrir_conversa` / `carregar_anteriores` | M6 — histórico local |
 | `chat.renomear` / `arquivar` / `apagar` / `ramificar` / `buscar` | M6 — gestão e FTS |
-| `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM; `chat.enviar` é M7) |
+| `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM) |
+| `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool` |
 
-**Não implementado neste sidecar:** agente IA (`chat.enviar`), tools DeepSeek, cliente WFS/SEMA em runtime.
+**Não implementado neste sidecar:** tools stub do agente (`IA-022`), visão, cliente WFS/SEMA em runtime, gate AUTH.
 
 ### Eventos emitidos (v0.4.0)
 
