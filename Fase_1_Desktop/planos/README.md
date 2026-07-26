@@ -26,6 +26,7 @@ ganha — e a divergência tem de ser corrigida no mesmo PR.
 | F1-15 | [Galeria de modelos](15-galeria-de-modelos.md) | catálogo, `galeria.*`, montagem determinística de `MapSpec` |
 | F1-16 | [Design system dark e animações](16-design-system-dark.md) | tokens, tipografia, motion amarrado a evento real |
 | F1-17 | [Persistência de conversas](17-persistencia-de-conversas.md) | `chats.sqlite`, sidebar, busca, ramificação |
+| — | [**Guia Windows M2→M11**](../GUIA_WINDOWS.md) | **passo a passo no PC com ArcMap** — comece aqui no Windows |
 
 ## Ordem de leitura
 

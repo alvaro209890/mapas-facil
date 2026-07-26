@@ -59,5 +59,6 @@ nenhum. Login = conta **local** (e-mail + senha em SQLite) — [F1-14](planos/14
 3. **M10** — instalador assinado + auto-update
 4. **M11** — piloto instala, loga e gera o 1º mapa
 
-Detalhe: [`planos/12-roadmap.md`](planos/12-roadmap.md) · snapshot em
-[`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
+**Guia operacional (Windows):** [`GUIA_WINDOWS.md`](GUIA_WINDOWS.md) — passo a passo com
+comandos PowerShell. Detalhe de planos: [`planos/12-roadmap.md`](planos/12-roadmap.md) ·
+snapshot em [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).

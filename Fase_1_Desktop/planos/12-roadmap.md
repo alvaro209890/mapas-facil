@@ -21,6 +21,8 @@ A Fase 2 (site/backend geo) **não entra neste roadmap**. Conta do app = **local
 Backlog desktop **sem** ArcMap: esgotado. Detalhe vivo:
 [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
 
+**No PC Windows:** execute [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) (M2 → M9 → M10 → M11).
+
 ## Grafo
 
 ```

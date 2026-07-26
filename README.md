@@ -70,6 +70,9 @@ Fase 1 (Windows)                    Fase 2 (depois do M11)
 **Backlog desktop sem ArcMap: esgotado.** No Linux Mint deste projeto só sobra polish opcional;
 o eixo que falta é **M2 → M9 → M10 → M11** em PC Windows.
 
+**No Windows agora:** siga o guia passo a passo  
+[`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md).
+
 Eventos NDJSON emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`,
 `workspace.mudou`, `mapspec.atualizado`, `job.log`, `aviso` (vocabulário completo).
 

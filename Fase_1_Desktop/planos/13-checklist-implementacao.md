@@ -24,6 +24,8 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 **Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → M10 → M11**.
 Fase 2 começa após M11.
 
+**Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md).
+
 ## Pré-voo
 
 - [x] Repositório em duas fases + planos comuns
@@ -69,7 +71,8 @@ Fase 2 começa após M11.
 
 ## Bloco B — Motor `.mxd` (M2)
 
-Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arcmap.md).
+**No Windows:** siga [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) §1.  
+Detalhe histórico sem ArcMap: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arcmap.md).
 
 | # | Tarefa | Feito | Nota |
 |---|---|---|---|
@@ -191,6 +194,8 @@ Plano: [F1-16](16-design-system-dark.md).
 | H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)
+
+**No Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) §2–4.
 
 | # | Tarefa | Feito |
 |---|---|---|

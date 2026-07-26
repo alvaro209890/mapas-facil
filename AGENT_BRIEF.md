@@ -16,6 +16,12 @@ em qualquer coisa.
 
 Ordem obrigatória do que resta: **M2 → M9 → M10 → M11**.
 
+### Guia passo a passo no Windows
+
+**→ [`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md)** — checklist detalhado
+(preparar máquina → B1/B2/T1 → Harmonia → instalador → piloto), com comandos PowerShell e
+critérios de saída. **Comece por esse arquivo no PC com ArcMap.**
+
 Limites conhecidos (não são “falta de feature”): API DeepSeek V4 **sem** visão (`IA-060` no
 print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do MapSpec inexistente
 (núcleo não gera PNG por versão); V3/smoke Harmonia só fecha de verdade com motor M2/M9.
@@ -279,7 +285,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | "faz a galeria" | F1-15 → `planos/02-mapspec-contrato.md` → F1-04 (§MANIFEST) |
 | "faz o agente" | F1-06 → F1-17 → `planos/05-seguranca-e-segredos.md` (§o que vai para a DeepSeek) |
 | "faz o chat salvar" | F1-17 → F1-01 (§estado local) |
-| "faz o `.mxd`" | F1-04 → `Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md` → F1-13 |
+| "faz o `.mxd`" / "estou no Windows com ArcMap" | **[`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md)** → F1-04 → `DOCUMENTACAO_MXD_HARMONIA.md` → F1-13 Bloco B |
 | "melhora o PDF" | F1-05 → `planos/01-padrao-imap-harmonia.md` → F1-09 |
 | "mexe no acervo de referência" | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) → **rode `chaves_mxd.py limpar` antes de commitar** |
 
