@@ -1,0 +1,113 @@
+/* C9 — estados vazios, de carregamento e de erro (F1-02 §Estados). */
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mf-e3);
+  padding: var(--mf-e4);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-left-width: 3px;
+  border-radius: var(--mf-raio-2);
+}
+
+.bloco[data-tom="erro"] {
+  border-left-color: var(--mf-erro);
+}
+
+.bloco[data-tom="aviso"] {
+  border-left-color: var(--mf-aviso);
+}
+
+.bloco[data-tom="info"] {
+  border-left-color: var(--mf-info);
+}
+
+.bloco[data-tom="neutro"] {
+  border-left-color: var(--mf-borda-forte);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+}
+
+.icone[data-tom="erro"] {
+  color: var(--mf-erro);
+}
+
+.icone[data-tom="aviso"] {
+  color: var(--mf-aviso);
+}
+
+.icone[data-tom="info"] {
+  color: var(--mf-info);
+}
+
+.icone[data-tom="neutro"] {
+  color: var(--mf-texto-3);
+}
+
+.titulo {
+  font: var(--mf-fs-t2) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.codigo {
+  font-family: var(--mf-fonte-mono);
+  font-size: 12px;
+  color: var(--mf-texto-2);
+}
+
+.descricao {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  max-width: 52ch;
+}
+
+/* "o que fazer" — a regra de erro de F1-02 exige a saída, não só o diagnóstico. */
+.saidas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.saida::before {
+  content: "→ ";
+  color: var(--mf-texto-3);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mf-e2);
+}
+
+.acao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.acao:hover {
+  background: var(--mf-superficie-3);
+}
+
+.acao[data-primaria="true"] {
+  border-color: var(--mf-acento);
+  color: var(--mf-acento);
+}
+
+.acao[data-primaria="true"]:hover {
+  background: var(--mf-acento-fraco);
+}
