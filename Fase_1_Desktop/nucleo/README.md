@@ -121,8 +121,16 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 
 ## Próximos passos (realidade)
 
+Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.md) (M0–M11).
+
+- **A9 — emitir `job.progresso`**: `protocolo.envelope_evt` existe e **não tem nenhum chamador**.
+  Nenhum evento NDJSON é emitido hoje; isso bloqueia a barra de progresso e as animações da UI
+- A10 — `mapa.cancelar`; A11 — `cofre.*`; A12 — watcher/`workspace.mudou`; A13 — `catalogo.listar`
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
-- UI Electron (M3) — pasta `app/` ainda não existe
-- Agente (M4) — não iniciado
+- Galeria (M4) — métodos `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
+- Sessão (M5) — `sessao.definir`/`sessao.estado` + gate `AUTH-030`
+- Conversas (M6) — `chats.sqlite` e os 9 métodos `chat.*` de histórico
+- Agente (M7) — pasta `agente/` não existe; ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
+- UI Electron (M3) — `Fase_1_Desktop/app/` está vazia e não versionada

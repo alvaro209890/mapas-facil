@@ -74,7 +74,13 @@ pode não pegar.
 | `sema_authkey` | Windows Credential Manager | env do backend | em `.mxd` versionado, em URL de log |
 | `planet_api_key` | Windows Credential Manager | env do backend | idem |
 | `sccon_bearer` | fora da v1 | fora da v1 | — |
-| Segredo de sessão / JWT | não se aplica | env do backend | no repositório |
+| `access_token` / `refresh_token` da conta | Windows Credential Manager, escrito **só pelo processo main** do Electron | não se aplica | no renderer, no NDJSON do sidecar, em `config.json`, em log |
+| `GOOGLE_CLIENT_SECRET`, `JWT_PRIVATE_KEY` | **não existe no desktop** (PKCE, cliente público) | env do serviço systemd, permissão `600` | no repositório, no instalador |
+| `refresh_token` no servidor | — | **só o `sha256`** em `sessoes.refresh_hash` | em claro no banco |
+
+Detalhe do fluxo e do armazenamento de sessão:
+[F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) e
+[F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md).
 
 Neste PC de desenvolvimento, todos vivem em `secrets.local.json` na raiz do repositório —
 gitignored, jamais commitado. Template público: `secrets.example.json`.
@@ -144,6 +150,35 @@ absoluto do disco (só o caminho relativo à pasta do projeto).
 O recibo do CAR **contém CPF do proprietário**. O parser extrai nome do imóvel, município, área e
 número do CAR; **o CPF é descartado na entrada**, não apenas omitido do prompt.
 
+### Verificação automática do que vai para a DeepSeek
+
+A regra acima só vale se for testada. `nucleo/tests/test_contexto_vazamento.py` roda sobre o JSON
+serializado do request e falha se encontrar:
+
+| Padrão | Regex |
+|---|---|
+| Geometria | `(MULTI)?POLYGON\s*\(\(` , `"coordinates"\s*:` |
+| CPF | `\d{3}\.?\d{3}\.?\d{3}-?\d{2}` |
+| Caminho absoluto do Windows | `[A-Za-z]:\\\\Users\\\\` |
+| Chave Planet / authkey | `PLAK` , `authkey` |
+| Token de sessão | `eyJ` (prefixo de JWT), `Bearer ` |
+
+Orçamento, compressão e a lista fechada do que nunca entra no contexto:
+[F1-06](../Fase_1_Desktop/planos/06-agente-eng-florestal.md#orçamento-de-contexto-vinculante).
+
+### Conversas gravadas no disco do usuário
+
+O histórico local (`%APPDATA%\MapasFacil\chats\chats.sqlite`) é dado do usuário, não do produto:
+
+| Regra | Como se cumpre |
+|---|---|
+| Sem CPF e sem chave no transcript | redator aplicado **antes do INSERT**, nunca só na exibição |
+| Sem sincronização para nuvem na v1 | D20 — não existe código de upload; `grep -rn "https://" nucleo/.../conversas/` tem de ficar vazio |
+| Logout não apaga o histórico | D14 — apagar é ação explícita "Sair e esquecer este PC", com confirmação digitada |
+| Não gravar dentro da pasta do cliente | o `.zip` de entrega não pode levar o histórico junto |
+
+Detalhe: [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md).
+
 ### Fase 2 — o mínimo no servidor
 
 O backend guarda: conta, projetos, conversas, `MapSpec`, metadados de job e — só com opt-in
@@ -163,7 +198,10 @@ job, com TTL máximo de 24 h.
 | A6 | Vazamento de chave por log | URL com `authkey` num traceback | redator de URL antes de qualquer escrita de log |
 | A7 | Backend da Fase 2 comprometido vira RCE no desktop | backend manda job malicioso | o desktop não aceita comando remoto na v1. Se a ponte existir, ela transporta `MapSpec` validado localmente de novo |
 | A8 | Instalador adulterado | download de terceiro | binário assinado + `sha256` publicado; atualização só por canal assinado |
-| A9 | Exposição do backend pelo tunnel | Cloudflare Tunnel publica o serviço | tunnel dedicado, só as duas hostnames do Mapas Fácil; backend com auth em todas as rotas exceto healthcheck |
+| A9 | Exposição do backend pelo tunnel | Cloudflare Tunnel publica o serviço | tunnel dedicado, só as duas hostnames do Mapas Fácil; backend com auth em todas as rotas exceto healthcheck e o fluxo OAuth |
+| A10 | **Open redirect no login** | `redirect_uri` arbitrária em `/auth/desktop/start` rouba o código de autorização | `redirect_uri` tem de casar `^http://127\.0\.0\.1:\d{1,5}/callback$`; `state` conferido no app; `code_app` de 60 s e uso único |
+| A11 | **Roubo de `refresh_token`** | arquivo lido do PC, ou vazamento do dump do banco | token no Credential Manager (nunca em arquivo); no servidor só o `sha256`; rotação a cada uso + revogação da família inteira ao detectar replay |
+| A12 | **Token vazando para o renderer** | `contextBridge` mal desenhado expõe o token à camada React | o main nunca envia token pelo IPC; teste `grep -rn "access_token" app/src/` tem de ficar vazio |
 
 ### A1 em detalhe
 
@@ -211,10 +249,19 @@ argumentos fixos e o payload num arquivo JSON no disco.
 - [ ] Aviso de chave embutida antes de gravar `.mxd` com basemap autenticado
 - [ ] Instalador assinado; `sha256` publicado
 - [ ] Modo determinístico sem IA funciona de ponta a ponta
+- [ ] Tokens de sessão só no Credential Manager; `grep -rn "access_token\|refresh_token" app/src/` vazio
+- [ ] Redator cobre `Authorization`, `Bearer`, `code=`, `refresh_token`
+- [ ] Teste de vazamento de contexto verde (regexes da tabela acima)
+- [ ] Redator de CPF aplicado **antes do INSERT** em `chats.sqlite`; `grep -a` do CPF no arquivo vazio
+- [ ] Nenhum caminho de rede em `nucleo/mapasfacil_nucleo/conversas/`
 
 ### Fase 2
 
-- [ ] Todas as rotas autenticadas exceto `/health`
+- [ ] Todas as rotas autenticadas exceto `/health` e o fluxo OAuth (protegido por PKCE + `state`)
+- [ ] `redirect_uri` validada contra a regex de loopback; `code_challenge_method` só `S256`
+- [ ] `refresh_token` guardado como `sha256`; rotação e detecção de replay testadas
+- [ ] `ip_hash` em vez de IP em claro
+- [ ] Nenhuma tabela de quota/plano/cobrança (D18 / AP-05)
 - [ ] Tunnel dedicado; `saldopro-config.yml` e `/etc/cloudflared/config.yml` **intocados**
 - [ ] Segredos só em env do serviço systemd, com `EnvironmentFile` de permissão `600`
 - [ ] Rate limit ativo

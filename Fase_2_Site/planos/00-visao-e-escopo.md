@@ -10,6 +10,10 @@ Não é o produto principal. O `.mxd` nasce na [Fase 1](../../Fase_1_Desktop/REA
 dá o que o desktop sozinho não tem: memória de projeto, mapa por número do CAR sem instalar nada,
 e uma vitrine pública.
 
+> **Exceção de ordem (D10):** o **serviço de identidade** de
+> [`05-auth-e-memoria.md`](05-auth-e-memoria.md) é dependência bloqueante do marco M5 da Fase 1,
+> porque o app desktop exige login. Ele sobe **antes** do resto desta fase.
+
 ## Por que depois da Fase 1
 
 1. O NexoGeo priorizou a web e deixou o `.mxd` para "depois" — nunca saiu.

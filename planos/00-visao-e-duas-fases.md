@@ -66,8 +66,9 @@ calcula quantitativos e conversa com o usuário.
 |---|---|
 | Stack | Electron + React (UI) + sidecar Python (geo, `.mxd`, planilha) |
 | IA | **DeepSeek V4 Pro**, chave do próprio usuário (BYOK), guardada no Windows Credential Manager |
-| Funciona offline? | Sim para o essencial. Sem internet: gera mapa com os shapes locais e o cache; sem chave DeepSeek: modo determinístico por template |
-| Depende da Fase 2? | **Não.** É um produto completo sozinho |
+| Conta | **login obrigatório** com Google; depois de autenticado, **sem limite de uso** (D10, D18) |
+| Funciona offline? | Sim, **enquanto a sessão em cache vale** (12 h): gera mapa com os shapes locais e o cache. Sessão expirada → modo leitura (D11). Sem chave DeepSeek: galeria/modo determinístico |
+| Depende da Fase 2? | **Só do serviço de identidade** ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)). Todo o resto da Fase 2 vem depois |
 | Motor de `.mxd` | ArcPy quando há ArcMap; **patch de template** quando não há |
 
 ### Fase 2 — Site de engenharia florestal e mapas
@@ -124,6 +125,14 @@ Nada aqui nasce do zero. Três sistemas do mesmo dono já resolveram partes do p
 
 ### Dentro (Fase 1)
 
+- **Conta obrigatória**: login com Google via site → app, sem limites de uso depois de
+  autenticado ([F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md)).
+- **Galeria de modelos** com preview real e montagem determinística de `MapSpec` — a porta que
+  funciona sem chave de IA ([F1-15](../Fase_1_Desktop/planos/15-galeria-de-modelos.md)).
+- **Interface escura** com tipografia embarcada e animações amarradas a eventos reais do núcleo
+  ([F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md)).
+- **Histórico de conversas local**, reabrível, com busca e ramificação
+  ([F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md)).
 - Chat com histórico, streaming e ferramentas visíveis, conectado a uma pasta do PC.
 - Leitura automática da pasta: shapefiles, `.zip` do SIMCAR, recibo do CAR em PDF, prints.
 - Geração de `.mxd` + `.pdf` + `.png` + `.xlsx` no padrão Harmonia.
@@ -144,10 +153,19 @@ Nada aqui nasce do zero. Três sistemas do mesmo dono já resolveram partes do p
 - Ponte com o app desktop, para o `.mxd` ser gerado na máquina certa.
 - Backend neste PC via Cloudflare Tunnel dedicado, **sem tocar nos tunnels existentes**.
 
-### Fora, e por quê
+### Fora da v1, e por quê (tabela vinculante)
+
+Incluir qualquer item desta tabela exige alterar **este documento** e
+[`../Fase_1_Desktop/planos/00-visao-e-escopo.md`](../Fase_1_Desktop/planos/00-visao-e-escopo.md)
+no mesmo commit.
 
 | Fora da v1 | Motivo |
 |---|---|
+| **Cobrança, planos, trial** | a v1 valida o produto, não o modelo de negócio |
+| **Quota, rate limit de produto, feature flag de cobrança** | D18: autenticado = ilimitado. Rate limit de *abuso* nos endpoints de auth não conta |
+| **Sync de conversas para a nuvem** | D20: local-only; espelho é Fase 2 e opt-in |
+| **Marketplace/compartilhamento de modelos de galeria** | modelo novo exige template preparado no ArcMap |
+| **Multi-conta simultânea, times, organizações** | uma conta por instalação |
 | Agente/app em Linux ou macOS | `arcpy` é Windows-only; o núcleo Python roda em Linux, mas sem `.mxd` |
 | Edição de geometria (desenhar, cortar polígono) | é trabalho de GIS, não de cartografia — usa-se o ArcMap ou o QGIS |
 | Pareceres, laudos e análises jurídicas | escopo do NexoGeo Ambiental e do GeoForest Oráculo |
@@ -203,3 +221,29 @@ Nada aqui nasce do zero. Três sistemas do mesmo dono já resolveram partes do p
 | D7 | Backend da Fase 2 **neste PC** + tunnel dedicado | 2026-07-25 | Render/Vercel (geo-block da SEMA); reusar tunnel existente (risco aos outros sistemas) |
 | D8 | Acesso à SEMA só por WFS/WMS + recibo PDF | 2026-07-25 | API técnica do SIMCAR (sessão única); scraping do portal público (frágil) |
 | D9 | Repositório público, chaves fora dos `.mxd` | 2026-07-25 | privar o repo; reescrever o histórico |
+
+### D10–D20 — conta, interface, galeria e contexto (2026-07-25)
+
+Fechadas com o dono do produto na rodada que reescreveu os planos para agentes. Cada uma tem a
+alternativa descartada registrada, para que nenhum agente reabra a discussão sozinho.
+
+| # | Decisão | Alternativa descartada | Plano dono |
+|---|---|---|---|
+| D10 | **Login obrigatório**, com serviço de identidade **próprio neste PC** + tunnel dedicado. Consequência aceita: [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) vira **dependência bloqueante da Fase 1** | Firebase Auth (menos código, outra conta/plano de dados); Clerk/Auth0 (custo e dependência SaaS) | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D11 | Sem sessão válida, `mapa.gerar` é **bloqueado** (`AUTH-030`); o app fica em modo leitura. `access_token` com TTL de 12 h cobre o dia de campo offline | carência offline de 30 dias (mais amigável, mais estado para auditar). Revisão futura = aumentar o TTL, não remover o gate | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D12 | Redirect do desktop por **loopback** `127.0.0.1` (RFC 8252); `mapasfacil://` só como fallback registrado pelo instalador | esquema customizado como primário (frágil em dev e em política de grupo) | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D13 | Conversas num **banco SQLite único** em `%APPDATA%\MapasFacil\chats\chats.sqlite`, agrupadas por `workspace_fingerprint` | um banco por projeto (sidebar só via chats do workspace aberto); JSON por conversa (busca e paginação manuais) | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
+| D14 | **Logout não apaga** o histórico local; existe ação separada "Sair e esquecer este PC" | apagar no logout (usuário perde trabalho ao trocar de conta) | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
+| D15 | **Tema escuro por padrão**; tipografia Space Grotesk (display) + IBM Plex Sans (UI) + IBM Plex Mono (números), **embarcadas** | Inter/Roboto/system (genérico); serifada editorial; tema claro default | [F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md) |
+| D16 | **Galeria** em `shared/galeria/modelos.json`, versionada por `galeria_version`; galeria e chat produzem **o mesmo** `MapSpec` pelo mesmo código | galeria como atalho de UI que monta spec por conta própria | [F1-15](../Fase_1_Desktop/planos/15-galeria-de-modelos.md) |
+| D17 | **Compressão de contexto obrigatória**: memória de trabalho + últimos 8 turnos verbatim + resumo por `deepseek-v4-flash`; `MapSpec` por diff | mandar índice e spec completos a cada turno (estoura contexto e custo) | [F1-06](../Fase_1_Desktop/planos/06-agente-eng-florestal.md) |
+| D18 | **v1 autenticada é ilimitada**: sem quota, paywall, rate limit de produto ou feature flag de cobrança | trial/limite "só para começar" | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D19 | Eventos de construção parcial (`job.artefato_parcial`) são **contrato novo a implementar** no núcleo (M8). Até lá, a animação usa só `job.progresso` — **nunca** loader falso | simular progresso na UI enquanto o núcleo não reporta | [F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md) |
+| D20 | Conversas **local-only** na v1; espelho na conta é Fase 2 e opt-in | sync automático para a conta | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
+
+### Como um agente lê estas decisões
+
+Uma decisão fechada **não é sugestão**. Se a implementação parecer pedir o contrário, o caminho é
+registrar a divergência como pendência no plano dono e perguntar — não decidir sozinho no código.
+Os anti-padrões derivados destas decisões estão em
+[`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#anti-padrões--vinculantes-para-qualquer-agente-implementador).

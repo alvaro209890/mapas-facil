@@ -8,8 +8,11 @@ O modelo mental é o de um agente de programação (Cursor, Codex, Claude Code),
 cartografia: **você aponta uma pasta e conversa.**
 
 > Este repositório contém **planos, contratos, referências visuais** e o **núcleo Python**
-> da Fase 1 (sidecar). A UI Electron ainda não foi iniciada. Comece por
-> [`planos/`](planos/README.md) e o [checklist de implementação](Fase_1_Desktop/planos/13-checklist-implementacao.md).
+> da Fase 1 (sidecar). A UI Electron ainda não foi iniciada.
+>
+> **Agente de IA: comece por [`AGENT_BRIEF.md`](AGENT_BRIEF.md)** — estado real do código, ordem
+> dos marcos, gap analysis e anti-padrões vinculantes. Os planos são escritos para serem
+> executados por agentes, não lidos por humanos.
 
 ## As duas fases
 
@@ -36,6 +39,7 @@ Fase 1 (Windows)                    Fase 2 (depois)
 
 | Pasta | O que é |
 |---|---|
+| [`AGENT_BRIEF.md`](AGENT_BRIEF.md) | **entrada para agentes**: estado real, ordem de marcos, gap analysis, anti-padrões |
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** |
 | [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend neste PC via Cloudflare Tunnel |
@@ -53,18 +57,26 @@ Fase 1 (Windows)                    Fase 2 (depois)
 
 ## Leitura recomendada
 
-1. [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md) — visão, escopo, decisões
-2. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md) — **comece a implementar por aqui**
-3. [`Fase_1_Desktop/planos/README.md`](Fase_1_Desktop/planos/README.md) — índice da fase principal
-4. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md) — o contrato de dados central
+1. [`AGENT_BRIEF.md`](AGENT_BRIEF.md) — **primeiro de tudo** se você é um agente implementador
+2. [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md) — visão, escopo, decisões D1–D20
+3. [`Fase_1_Desktop/planos/12-roadmap.md`](Fase_1_Desktop/planos/12-roadmap.md) — marcos M0–M11 e critérios de saída
+4. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md) — blocos A–I, o que fazer agora
+5. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md) — o contrato de dados central
 
 ## Estado atual
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **fechado** |
-| M1 — Núcleo + MapSpec + fsguard | **A fechado** · **B parcial** (v0.3.6) — ver checklist |
-| Fase 2 — desenvolvimento | não iniciado |
+| M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
+| M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.3.6) — ver checklist |
+| M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `Fase_1_Desktop/app/` está vazia |
+| M9–M11 — Harmonia, instalador, piloto | não iniciados |
+| Fase 2 — identidade (bloqueia o M5) | não iniciada |
+| Fase 2 — restante | não iniciado; começa depois do M11 |
+
+Nenhum evento NDJSON é emitido hoje: `protocolo.envelope_evt` existe sem chamador. Isso bloqueia
+a barra de progresso e as animações de construção do mapa — é o item A9 do checklist.
 
 ## Licença
 

@@ -1,12 +1,15 @@
 # Planos comuns às duas fases
 
+> **Agente de IA?** Comece por [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md): estado real do código,
+> ordem dos marcos, gap analysis e anti-padrões vinculantes.
+
 Estes seis documentos valem para o **app desktop (Fase 1)** e para o **site (Fase 2)**. Se um
 plano de fase divergir de um destes, **este ganha** — e a divergência tem de ser corrigida no
-mesmo PR.
+mesmo commit.
 
 | # | Documento | Conteúdo |
 |---|---|---|
-| 00 | [Visão e as duas fases](00-visao-e-duas-fases.md) | problema real, proposta, escopo, riscos, decisões D1–D9 |
+| 00 | [Visão e as duas fases](00-visao-e-duas-fases.md) | problema real, proposta, escopo, riscos, decisões **D1–D20** |
 | 01 | [Padrão IMAP — perfil Harmonia](01-padrao-imap-harmonia.md) | **fonte da verdade visual**: geometria medida, cores, checks HARD/SOFT |
 | 02 | [`MapSpec` — o contrato](02-mapspec-contrato.md) | o JSON que descreve um mapa, campo a campo |
 | 03 | [WFS e serviços geo](03-wfs-e-servicos-geo.md) | endpoints, receitas de request, gotchas de SEMA/IBAMA/FUNAI/INCRA |
@@ -44,6 +47,8 @@ O PR que muda tem de atualizar os planos de fase afetados junto.
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **fechado** |
+| M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 (D10–D20) |
 | Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.3.6) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
-| Fase 2 — desenvolvimento | não iniciado |
+| Fase 1 — app Electron, galeria, auth, conversas, agente | não iniciados |
+| Fase 2 — identidade ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)) | **não iniciada, mas bloqueia o M5 da Fase 1** (D10) |
+| Fase 2 — restante | não iniciado; começa depois do M11 |

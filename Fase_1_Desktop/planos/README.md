@@ -20,19 +20,29 @@ ganha — e a divergência tem de ser corrigida no mesmo PR.
 | F1-09 | [Validação de conformidade](09-validacao-conformidade.md) | checks HARD/SOFT na prática |
 | F1-10 | [Testes e QA](10-testes-e-qa.md) | como testar sem ArcGIS no CI |
 | F1-11 | [Empacotamento e instalador](11-empacotamento-instalador.md) | virar `.exe` assinado |
-| F1-12 | [Roadmap](12-roadmap.md) | milestones com checklist |
-| F1-13 | [Checklist de implementação](13-checklist-implementacao.md) | kickoff — o que fazer agora |
+| F1-12 | [Roadmap](12-roadmap.md) | marcos M0–M11 com critério de saída |
+| F1-13 | [Checklist de implementação](13-checklist-implementacao.md) | blocos A–I — o que fazer agora |
+| F1-14 | [Conta e autenticação](14-auth-e-conta.md) | login Google via site, PKCE, tokens, gate `AUTH-030` |
+| F1-15 | [Galeria de modelos](15-galeria-de-modelos.md) | catálogo, `galeria.*`, montagem determinística de `MapSpec` |
+| F1-16 | [Design system dark e animações](16-design-system-dark.md) | tokens, tipografia, motion amarrado a evento real |
+| F1-17 | [Persistência de conversas](17-persistencia-de-conversas.md) | `chats.sqlite`, sidebar, busca, ramificação |
 
 ## Ordem de leitura
 
-A mesma de [F1-00 — Ordem de leitura dos planos](00-visao-e-escopo.md#ordem-de-leitura-dos-planos):
+**Agentes começam por [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md)** — estado real do código,
+ordem dos marcos, gap analysis e anti-padrões vinculantes. Depois, a ordem de
+[F1-00](00-visao-e-escopo.md#ordem-de-leitura-dos-planos):
 
 | # | Documento | Por quê |
 |---|---|---|
-| 01 | [Arquitetura](01-arquitetura.md) | como as peças se encaixam; leia antes de tudo |
+| 01 | [Arquitetura](01-arquitetura.md) | contratos internos; leia antes de tudo |
+| 02 | [UI e workspace](02-ui-chat-e-workspace.md) | os painéis e os estados |
+| 16 | [Design system dark](16-design-system-dark.md) | tokens, tipografia, animações |
+| 15 | [Galeria de modelos](15-galeria-de-modelos.md) | a porta determinística |
+| 14 | [Conta e autenticação](14-auth-e-conta.md) | login, tokens, gate |
+| 17 | [Persistência de conversas](17-persistencia-de-conversas.md) | histórico local |
+| 06 | [Agente](06-agente-eng-florestal.md) | tools, prompt, orçamento de contexto |
 | 04 | [Motor `.mxd`](04-motor-mxd.md) | o coração do produto e a parte mais difícil |
-| 06 | [Agente](06-agente-eng-florestal.md) | tools, prompt, guard rails |
-| 02 | [UI e workspace](02-ui-chat-e-workspace.md) | a experiência |
 | 03 | [Núcleo Python](03-nucleo-python.md) | onde a geo acontece |
 | 05 | [Renderizador nativo](05-motor-pdf-nativo.md) | preview e fallback |
 | 07 | [Print → mapa](07-visao-print-e-zip.md) | "faz igual a esse aqui" |
@@ -40,7 +50,7 @@ A mesma de [F1-00 — Ordem de leitura dos planos](00-visao-e-escopo.md#ordem-de
 | 09 | [Validação](09-validacao-conformidade.md) | os checks HARD/SOFT na prática |
 | 10 | [Testes](10-testes-e-qa.md) | como se testa isso sem ArcGIS no CI |
 | 11 | [Empacotamento](11-empacotamento-instalador.md) | virar `.exe` |
-| 12 | [Roadmap](12-roadmap.md) | milestones com checklist |
+| 12 | [Roadmap](12-roadmap.md) | marcos e critérios de saída |
 | 13 | [Checklist de implementação](13-checklist-implementacao.md) | kickoff do código |
 
 Comece por [F1-00](00-visao-e-escopo.md) se ainda não leu a visão geral da fase.
@@ -61,13 +71,16 @@ Contratos que valem para as duas fases e vivem na raiz: [`planos/`](../../planos
 
 **Esta é a fase principal.** O `.mxd` só existe no Windows do usuário; todo o valor do produto está
 aqui. A [Fase 2](../../Fase_2_Site/planos/README.md) reusa o núcleo Python e o `MapSpec`, mas não
-substitui nem antecede o desktop.
+substitui nem antecede o desktop — **exceto** o serviço de identidade
+([F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md)), que é dependência bloqueante do M5 (D10).
 
 ## Estado
 
 | Marco | Status |
 |---|---|
-| Planos F1-00…F1-13 | escritos |
-| Código de produção | **M1 bloco A fechado** · **bloco B parcial** (núcleo v0.3.6) — ver [checklist](13-checklist-implementacao.md) |
-| UI Electron (`app/`) | não iniciado — pasta inexistente |
-| Agente IA | não iniciado |
+| Planos F1-00…F1-17 | escritos; reescritos para agentes em 2026-07-25 |
+| M1 — núcleo | **bloco A fechado** · **bloco B parcial** (v0.3.6) — ver [checklist](13-checklist-implementacao.md) |
+| M2 — motor `.mxd` | parcial (T2 copia template; T1 esqueleto; B1 não testado) |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `app/` está vazia |
+| M9–M11 — Harmonia, instalador, piloto | não iniciados |
+| Eventos NDJSON (`job.progresso` etc.) | **nenhum é emitido** — `envelope_evt` não tem chamador |

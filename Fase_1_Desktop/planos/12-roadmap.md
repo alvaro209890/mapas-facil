@@ -1,94 +1,109 @@
 # F1-12 — Roadmap
 
-Milestones da Fase 1 em ordem **desktop-first**: documentação → núcleo → motor `.mxd` → UI →
-agente → conformidade Harmonia → instalador → piloto com usuário real. Cada marco tem critério de
-saída objetivo — não se avança com "quase pronto".
+## Objetivo
 
-A Fase 2 (site/backend) **não entra neste roadmap**. Ela começa só depois do M7 validado.
+Ordenar os marcos da Fase 1 por **dependência técnica**, com critério de saída objetivo em cada
+um. Não se avança com "quase pronto", e não há estimativa em dias ou semanas — a ordem é o
+grafo de dependências, não um calendário.
 
-## Visão geral
+A Fase 2 (site/backend geo) **não entra neste roadmap**, com **uma exceção**: o serviço de
+identidade de [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md), que é dependência
+bloqueante do M5 (D10).
+
+## Grafo
 
 ```
-M0 docs ──▶ M1 núcleo ──▶ M2 MXD ──▶ M3 UI ──▶ M4 agente ──▶ M5 Harmonia ──▶ M6 instalador ──▶ M7 piloto
-  │            │            │          │           │              │                │              │
-  └────────────┴────────────┴──────────┴───────────┴──────────────┴────────────────┴──────────────┘
-                              MapSpec + fsguard são a fundação de tudo
+M0 docs ──▶ M1 núcleo ──┬──▶ M2 motor .mxd ─────────────────────────────┐
+                        │                                               │
+                        └──▶ M3 shell + design system ──┬──▶ M4 galeria │
+                                                        │               │
+                                                        ├──▶ M5 auth ───┤
+                                                        │               │
+                                                        └──▶ M6 chats ──┴──▶ M7 agente
+                                                                              │
+                                                                              ▼
+                                                                        M8 motion/preview
+                                                                              │
+                                            M2 + M8 ──────────────────────▶ M9 Harmonia
+                                                                              │
+                                                                              ▼
+                                                                        M10 instalador
+                                                                              │
+                                                                              ▼
+                                                                          M11 piloto
 ```
 
-| Marco | Nome curto | Depende de |
-|---|---|---|
-| M0 | Documentação e contratos | — |
-| M1 | Núcleo + MapSpec + fsguard | M0 |
-| M2 | Motor `.mxd` | M1 |
-| M3 | UI e workspace | M1 |
-| M4 | Agente | M1, M3 |
-| M5 | Conformidade Harmonia | M2, M4 |
-| M6 | Instalador | M1–M5 |
-| M7 | Piloto | M6 |
+| Marco | Nome curto | Depende de | Exige ArcMap? | Exige rede? |
+|---|---|---|---|---|
+| M0 | Documentação e contratos | — | não | não |
+| M1 | Núcleo + `MapSpec` + `fsguard` | M0 | não | não |
+| M2 | Motor `.mxd` | M1 | **sim** (T1); T2 não | não |
+| M3 | Shell Electron + design system dark | M1 | não | não |
+| M4 | Galeria + geração determinística | M3 | não | não |
+| M5 | Conta e autenticação | M3, F2-05 no ar | não | **sim** |
+| M6 | Persistência de conversas | M3 | não | não |
+| M7 | Agente DeepSeek + compressão | M4, M6 | não | sim (fake no CI) |
+| M8 | Motion e preview de construção | M7 | não | não |
+| M9 | Conformidade Harmonia | M2, M8 | **sim** para paridade T1 | sim |
+| M10 | Instalador | M1–M9 | não | não |
+| M11 | Piloto | M10 | depende do piloto | sim |
 
-M3 e M2 podem avançar em paralelo depois do M1. M4 precisa da UI (chat). M5 é integração
-completa. M6 só começa quando M5 passa.
+**Um agente sem Windows e sem ArcMap fecha M3, M4, M5, M6, M7 e M8 inteiros.** Só M2, M9 (para a
+paridade T1) e partes de M10/M11 exigem a máquina do usuário.
+
+### Mapeamento com a numeração antiga
+
+Planos e commits anteriores a esta rodada usavam outra numeração. Equivalência:
+
+| Antigo | Novo |
+|---|---|
+| M3 — UI e workspace | **M3** (agora inclui design system) |
+| M4 — Agente | **M7** |
+| M5 — Conformidade Harmonia | **M9** |
+| M6 — Instalador | **M10** |
+| M7 — Piloto | **M11** |
+
+M4, M5, M6 e M8 são novos.
 
 ---
 
-## Kickoff
-
-Checklist dia a dia da implementação: [`13-checklist-implementacao.md`](13-checklist-implementacao.md).
-Atualize as caixas no mesmo PR da tarefa.
-
 ## M0 — Documentação e contratos
 
-**Objetivo:** congelar o que será construído antes de escrever código de produção. Evitar o erro
-do NexoGeo — `.mxd` prometido e nunca especificado.
-
-**Entregáveis:**
-
-- Planos F1-00 a F1-13 revisados e consistentes entre si
-- [`02-mapspec-contrato.md`](../../planos/02-mapspec-contrato.md) com schema JSON e exemplo canônico
-- [`01-padrao-imap-harmonia.md`](../../planos/01-padrao-imap-harmonia.md) com os 14 HARD + 11 SOFT
-- Acervo em `Referencias_IMAP/Mapas/01` (verdade) + `02` (Trevisol) + DOC MXD Harmonia
-- `shared/`: catálogo de camadas, perfil visual, manifesto de templates com `sha256`
-- Fixtures mínimos: `harmonia/` (ou equivalente anonimizado), `mapspecs/` válidos e inválidos
-- `secrets.example.json`; chaves fora dos `.mxd` versionados
+**Objetivo:** congelar o que será construído antes de escrever código de produção, em formato
+executável por agente.
 
 **Critério de saída:**
 
 - [x] Planos F1 e comuns reestruturados; acervo 01/02 documentado
-- [x] Nenhum plano menciona backend/site como pré-requisito da Fase 1
+- [x] Nenhum plano menciona backend/site como pré-requisito da Fase 1, **exceto** o serviço de
+      identidade (D10), que está declarado como tal
+- [x] `AGENT_BRIEF.md` com estado real, ordem de marcos, gap analysis e anti-padrões
+- [x] Planos de auth, galeria, design system e persistência de conversas escritos com DoD
 - [ ] Schema do `MapSpec` valida o exemplo canônico e rejeita 10 invariantes documentadas
 - [ ] Manifesto de templates lista cada `.mxd` da v1 com `sha256`
-- [ ] Dois revisores (ou dois agentes) leem F1-01 e F1-04 sem achar contradição
-
-**Dependências:** nenhuma.
+- [ ] Dois agentes leem F1-01 e F1-04 sem achar contradição
 
 ---
 
-## M1 — Núcleo + MapSpec + fsguard
+## M1 — Núcleo + `MapSpec` + `fsguard`
 
 **Objetivo:** sidecar Python funcional, sem Electron, que valida `MapSpec`, indexa pasta, resolve
-camadas locais e respeita a allowlist de disco. É a fundação de tudo.
+camadas locais e respeita a allowlist de disco.
 
-**Entregáveis:**
-
-- `nucleo/` com JSON-RPC NDJSON (stdio)
-- `fsguard` com 100% de cobertura de linha e ramo
-- Validador de `MapSpec` (schema + catálogo + invariantes)
-- `workspace.abrir`, `workspace.inspecionar`, `mapspec.validar`
-- Parser do recibo do CAR (CPF descartado na entrada)
-- Leitura de shapefile, cálculo de área em UTM, quantitativos básicos
-- Renderizador nativo de PDF (matplotlib) — um mapa simples de ponta a ponta
-- Suíte de testes anel 1 no CI Linux
+**Estado: bloco A fechado, bloco B parcial (v0.3.6).** Detalhe em
+[13-checklist-implementacao.md](13-checklist-implementacao.md).
 
 **Critério de saída:**
 
-- [ ] `pytest` anel 1 verde no CI
-- [ ] `fsguard`: todos os casos de [`10-testes-e-qa.md`](10-testes-e-qa.md) passam
-- [ ] `mapspec.validar` rejeita camada fora do catálogo (`NU-210`) e escala inválida (`NU-220`)
-- [ ] Recibo da Harmonia parseado corretamente; CPF ausente na saída
-- [ ] Um `MapSpec` mínimo gera PDF nativo + `validacao.json` sem ArcMap
-- [ ] CLI de dev: `python -m nucleo doctor` funciona
-
-**Dependências:** M0 (schema, catálogo, fixtures).
+- [x] `pytest` anel 1 verde no CI
+- [x] `fsguard`: todos os casos de [`10-testes-e-qa.md`](10-testes-e-qa.md) passam, 100% de cobertura
+- [x] `mapspec.validar` rejeita camada fora do catálogo (`NU-210`) e escala inválida (`NU-220`)
+- [x] Recibo da Harmonia parseado corretamente; CPF ausente na saída
+- [x] Um `MapSpec` mínimo gera PDF nativo + `validacao.json` sem ArcMap
+- [x] CLI de dev: `python -m mapasfacil_nucleo doctor` funciona
+- [ ] **`mapa.gerar` emite `job.progresso` nas 10 etapas** (hoje `envelope_evt` não tem chamador)
+- [ ] `mapa.cancelar` mata a árvore de processos
+- [ ] `cofre.definir` / `existe` / `testar` implementados, sem devolver valor
 
 ---
 
@@ -97,16 +112,6 @@ camadas locais e respeita a allowlist de disco. É a fundação de tudo.
 **Objetivo:** gerar `.mxd` editável no ArcMap **e** pelo patch de template quando não há ArcMap.
 É o coração do produto e a parte que o NexoGeo não entregou.
 
-**Entregáveis:**
-
-- `arcpy_job.py` (Python 2.7, payload JSON, timeout)
-- Caminho ArcMap: repor fontes, extent, escala, textos, definition query, exportar PDF
-- Caminho patch (T2): manipulação OLE do template sem `arcpy`
-- Materialização de camadas em `SHP/` com nomes que o template espera
-- Troca de município (definition query) e recentro do minimapa
-- Smoke test manual documentado (anel 4)
-- T2 no CI Windows: gerar `.mxd` sem ArcMap, reabrir como OLE
-
 **Critério de saída:**
 
 - [ ] Com ArcMap 10.8: `Dinamica_2026.mxd` da pasta Harmonia abre sem `!` vermelho
@@ -114,171 +119,224 @@ camadas locais e respeita a allowlist de disco. É a fundação de tudo.
 - [ ] PDF do ArcMap e PDF nativo existem; diferença documentada
 - [ ] `arcpy_job.py` nunca recebe acento em `argv` — payload só em arquivo JSON UTF-8
 - [ ] Timeout mata subprocesso travado (`AG-020`)
-- [ ] Nenhum texto de análise anterior no mapa gerado (prep para check `S11`)
+- [ ] `dinamica_retrato` sai de `parcial` para `pronto` no MANIFEST, com offsets calibrados
+- [ ] Nenhum texto de análise anterior no mapa gerado (prep para o check `S11`)
 
-**Dependências:** M1 (validação, camadas, quantitativos, fsguard).
+**Dependências:** M1. Pode avançar em paralelo com M3–M8.
 
 ---
 
-## M3 — UI e workspace
+## M3 — Shell Electron + design system dark
 
-**Objetivo:** app Electron com três painéis (pasta, chat, preview), conectado ao núcleo via
-JSON-RPC. Sem agente ainda — botões e comandos manuais bastam.
+**Objetivo:** app Electron com os quatro painéis, tokens de tema, tipografia embarcada e ponte
+NDJSON com o núcleo. Sem agente e sem auth ainda — a galeria e os botões vêm no M4.
 
-**Entregáveis:**
-
-- Electron main + renderer React
-- Árvore da pasta com watcher
-- Painel de preview (PNG do PDF gerado)
-- Painel de `MapSpec` (JSON legível + diff entre versões)
-- Doctor na sidebar (ArcMap? templates? chaves?)
-- IPC seguro: renderer nunca toca disco nem segredos
-- Fluxo: abrir pasta → validar spec → gerar mapa → ver checks
+**Entregáveis:** [F1-02](02-ui-chat-e-workspace.md) e [F1-16](16-design-system-dark.md).
 
 **Critério de saída:**
 
-- [ ] Abrir a pasta Harmonia mostra ATP, AVN, AC, AUAS e o recibo
-- [ ] Gerar mapa por botão (sem IA) produz arquivos em `Mapas/` e preview na UI
-- [ ] `job.progresso` aparece com as 10 etapas
-- [ ] Doctor mostra status de ArcMap, templates e chaves (sem exibir valores)
-- [ ] Renderer não consegue ler arquivo fora do workspace (teste manual)
-- [ ] Histórico de versões do MapSpec navegável (◀ v1 v2 ▶)
+- [ ] `Fase_1_Desktop/app/` existe, versionada, com build reproduzível (`pnpm build`)
+- [ ] Abrir a pasta Harmonia mostra ATP, AVN, AC, AUAS e o recibo, com áreas em pt-BR 4 casas
+- [ ] Tema escuro por padrão: `dataset.tema === "escuro"` numa instalação limpa
+- [ ] Fontes embarcadas; `grep -rn "fonts.googleapis\|cdn\." app/src/` vazio
+- [ ] `job.progresso` (do M1) aparece na `barra-progresso-job` com as 10 etapas em português
+- [ ] Doctor mostra ArcMap, templates e chaves (booleanos, sem valores)
+- [ ] Renderer não lê arquivo fora do workspace — teste espera `NU-010`
+- [ ] `axe-core` sem violação de contraste nas telas vazia e com job
+- [ ] Reduced-motion respeitado (nada acima de 80 ms)
 
-**Dependências:** M1 (núcleo rodando). Pode avançar em paralelo com M2.
+**Dependências:** M1. Paralelo com M2.
 
 ---
 
-## M4 — Agente
+## M4 — Galeria + geração determinística
 
-**Objetivo:** chat com streaming e tools tipadas que produzem `MapSpec` — não código. DeepSeek V4
-Pro com chave do usuário (BYOK).
+**Objetivo:** o usuário gera a série inteira **sem IA e sem login de outro serviço**, escolhendo
+um modelo na galeria. É o caminho de teste em CI e o fallback de todo o produto.
 
-**Entregáveis:**
-
-- `chat.enviar` com stream de `chat.delta` e `chat.tool`
-- Tools: `estado_do_projeto`, `ler_recibo_car`, `listar_camadas`, `consultar_sema`,
-  `criar_mapa`, `adicionar_camada`, `definir_tabela`, `validar_mapspec`, `gerar_mapa`
-- Integração Credential Manager (via main process)
-- Modo determinístico sem IA (template fixo)
-- Fake do provedor (VCR) para CI
-- Guard rails: teto de 12 rodadas, tool inexistente → `IA-020`
+**Entregáveis:** [F1-15](15-galeria-de-modelos.md).
 
 **Critério de saída:**
 
-- [ ] "Faz a Dinâmica 2026 dessa pasta" na Harmonia gera os três arquivos sem intervenção
-- [ ] Tools visíveis no chat (estilo Cursor)
-- [ ] Sem chave DeepSeek: modo determinístico gera a série com aviso
-- [ ] Com chave: streaming funciona; cancelamento de turno limpa estado
-- [ ] Nenhuma tool executa código arbitrário — só `MapSpec` declarativo
-- [ ] Testes VCR do anel 2 verdes no CI
+- [ ] `shared/galeria/modelos.json` + schema + previews reais extraídos de `Referencias_IMAP/Mapas/01/`
+- [ ] `galeria.listar` devolve status coerente com o MANIFEST e com o índice da pasta
+- [ ] `galeria.montar_mapspec` do `dinamica_2026_retrato` passa em `mapspec.validar` sem erros
+- [ ] Determinismo: 3 execuções produzem JSON idêntico (exceto ULID)
+- [ ] Pasta sem `ATP` → `NU-233` com `requisitos_faltando`
+- [ ] `sobrescritas` fora da allowlist → `NU-232`
+- [ ] Clicar num cartão `indisponivel` não dispara requisição
+- [ ] Fluxo completo pela UI: galeria → montar → validar → gerar → preview
 
-**Dependências:** M1 (núcleo, validação), M3 (UI de chat). Motor `.mxd` (M2) necessário para
-geração real, mas o agente pode ser testado com PDF nativo antes do M2 fechar.
+**Dependências:** M3.
 
 ---
 
-## M5 — Conformidade Harmonia
+## M5 — Conta e autenticação
+
+**Objetivo:** login obrigatório com Google via site, tokens no Credential Manager, gate de sessão
+no núcleo. **Acesso ilimitado depois de autenticado** (D18).
+
+**Entregáveis:** [F1-14](14-auth-e-conta.md) + [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md).
+
+**Critério de saída:**
+
+- [ ] Backend de identidade no ar em `mapasfacil-api.cursar.space`, com `/health` público e
+      todas as demais rotas autenticadas
+- [ ] Tunnel dedicado; `saldopro-config.yml` e `/etc/cloudflared/config.yml` **intocados**
+- [ ] Fluxo completo: app → navegador → Google → callback loopback → tokens no cofre
+- [ ] `state` divergente → `AUTH-040`, sem troca de código
+- [ ] Refresh com `401` apaga o par; refresh com `ECONNREFUSED` **não** apaga
+- [ ] `grep -rn "access_token\|refresh_token" app/src/` vazio
+- [ ] `mapa.gerar` sem sessão → `AUTH-030`; `workspace.abrir` funciona sem sessão
+- [ ] Backend desligado + token válido: o app gera mapa normalmente, com chip "offline"
+- [ ] `grep -rn "quota\|rate_limit\|paywall\|trial" app/ nucleo/` não retorna restrição de produto
+
+**Dependências:** M3, e o serviço de identidade no ar.
+
+---
+
+## M6 — Persistência de conversas
+
+**Objetivo:** histórico local reabrível, com busca, renomear, arquivar, apagar e ramificar.
+
+**Entregáveis:** [F1-17](17-persistencia-de-conversas.md).
+
+**Critério de saída:**
+
+- [ ] `chats.sqlite` criado e migrado no boot; `schema_versao = 1`
+- [ ] Criar conversa → fechar o app → reabrir → histórico íntegro com tool traces
+- [ ] Conversa de 200 mensagens abre em < 300 ms, com 30 mensagens + `total: 200`
+- [ ] Busca acentuada ↔ sem acento funciona (FTS5 `remove_diacritics 2`)
+- [ ] CPF escrito no chat não aparece no arquivo (`grep -a` vazio)
+- [ ] `chat.ramificar` cria conversa com `parent_conversation_id`
+- [ ] Logout sem "esquecer este PC" preserva o banco
+- [ ] `grep -rn "https://" nucleo/mapasfacil_nucleo/conversas/` vazio
+
+**Dependências:** M3. Independente de M5 (chats criados antes do login têm `conta_id` nulo).
+
+---
+
+## M7 — Agente DeepSeek + compressão de contexto
+
+**Objetivo:** chat com streaming e tools tipadas que produzem `MapSpec` — não código — com
+orçamento de contexto respeitado.
+
+**Entregáveis:** [F1-06](06-agente-eng-florestal.md).
+
+**Critério de saída:**
+
+- [ ] `pytest nucleo/tests/agente/ -q` verde **sem rede e sem chave**
+- [ ] "Faz a Dinâmica 2026" na Harmonia gera os três arquivos sem intervenção
+- [ ] O agente usa `usar_modelo_da_galeria` e **não** `criar_mapa` quando há modelo
+- [ ] Paridade galeria↔chat no `template`, `camadas[].id` e `elementos_layout`
+- [ ] 13ª rodada de tool → `IA-030` com mensagem clara
+- [ ] Fixture de 120 turnos: payload ≤ 60.000 tokens, 8 turnos verbatim, `compact_summary` presente
+- [ ] Teste de vazamento: sem WKT, sem CPF, sem `C:\Users\`, sem `PLAK`, sem `authkey`
+- [ ] Cancelar turno encerra o request e grava a mensagem parcial
+- [ ] Sem chave: `IA-001` e a UI aponta a galeria; nenhum request sai
+
+**Dependências:** M4 (a galeria é a fonte de template) e M6 (onde o transcript vive).
+
+---
+
+## M8 — Motion e preview de construção do mapa
+
+**Objetivo:** as animações que fazem o produto parecer um instrumento, todas amarradas a evento
+real. Inclui o contrato novo `job.artefato_parcial` no núcleo.
+
+**Entregáveis:** [F1-16](16-design-system-dark.md) §A1–A6.
+
+**Critério de saída:**
+
+- [ ] `job.artefato_parcial` emitido pelo núcleo nos quatro tipos (`camada`, `tabela_png`,
+      `preview_png`, `pdf`), com caminho **relativo**
+- [ ] ≥ 3 animações provadas por teste com evento injetado (streaming, tool, progresso)
+- [ ] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` vazio
+- [ ] `painel-preview` troca do esqueleto para a rasterização real com crossfade
+- [ ] Reduced-motion continua verde depois de todas as animações entrarem
+- [ ] Nenhum spinner sem evento correspondente — revisão manual registrada na release
+
+**Dependências:** M7 (para `chat.delta`/`chat.tool`) e M1 (para `job.progresso`).
+
+---
+
+## M9 — Conformidade Harmonia
 
 **Objetivo:** série IMAP completa da Harmonia com 14 checks HARD verdes e paridade visual com os
 PDFs-modelo. É o marco que prova que o produto funciona de verdade.
-
-**Entregáveis:**
-
-- Validador de saída (`validacao.json` com HARD/SOFT)
-- Série completa: Dinâmica (retrato) + temáticos (paisagem) + quantitativos
-- Tabela PNG ≥ 600 dpi + `Quantitativos.xlsx`
-- Comparação raster com os 21 PDFs-modelo (tolerância < 0,3%)
-- Edição conversacional com versionamento (`_v2`, anteriores intactos)
-- Modo "olha esse print/zip e faz igual" (visão)
-- Bloqueio em falha HARD; aviso em SOFT
 
 **Critério de saída:**
 
 - [ ] 19 mapas da Harmonia em < 10 minutos (com ArcMap) ou tempo documentado sem ArcMap
 - [ ] 100% dos checks HARD passam em todos os mapas
-- [ ] Diferença raster < 0,3% contra PDFs-modelo
-- [ ] `.mxd` abre no ArcMap de **outro PC** (camadas resolvem ou um passo óbvio)
+- [ ] Diferença raster < 0,3% contra os PDFs-modelo
+- [ ] `.mxd` abre no ArcMap de **outro PC**
 - [ ] "Muda a cor da AVN" gera `_v2` sem apagar v1
 - [ ] Check `S11` (texto herdado) passa em todos os mapas
 - [ ] `validacao.json` declara `confianca: "arcpy"` ou `"estrutural"` honestamente
 
-**Dependências:** M2 (motor), M4 (agente para fluxo conversacional). M3 para preview.
+**Dependências:** M2 (motor) e M8 (fluxo completo pela UI).
 
 ---
 
-## M6 — Instalador
+## M10 — Instalador
 
-**Objetivo:** transformar o app de "clone o repo e rode" em `.exe` instalável, assinado, com
-auto-update. Um técnico instala em 15 minutos e produz o primeiro mapa.
-
-**Entregáveis:**
-
-- PyInstaller onedir do núcleo (decisão P1)
-- `electron-builder` + NSIS
-- Credential Manager integrado na build de produção
-- Auto-update (`electron-updater` + `latest.yml`)
-- Assinatura Authenticode (ou exceção documentada para piloto)
-- `sha256.txt` na release
-- Testes anel 3 no CI Windows
+**Objetivo:** transformar o app em `.exe` instalável, assinado, com auto-update.
 
 **Critério de saída:**
 
 - [ ] Instalação limpa em Windows 11 sem Python pré-instalado
 - [ ] T2 completo passa após instalação (máquina sem ArcMap)
+- [ ] Login funciona a partir da build instalada (loopback + `mapasfacil://` de fallback registrado)
 - [ ] Instalador < 250 MB (P5) ou desvio justificado
 - [ ] Auto-update de N para N+1 funciona
-- [ ] Desinstalação limpa
+- [ ] Desinstalação limpa; `%APPDATA%\MapasFacil\` preservado ou removido conforme a escolha do usuário
 - [ ] Critérios de [`11-empacotamento-instalador.md`](11-empacotamento-instalador.md) atendidos
 
-**Dependências:** M1–M5 (produto funcional antes de empacotar). M5 é bloqueante — não se
-empacota um gerador que não passa na Harmonia.
+**Dependências:** M1–M9. M9 é bloqueante — não se empacota um gerador que não passa na Harmonia.
 
 ---
 
-## M7 — Piloto
+## M11 — Piloto
 
 **Objetivo:** um técnico de GIS real (não o desenvolvedor) produz uma análise completa com o
-instalador, sem suporte presencial. Valida o critério de sucesso da v1.
-
-**Entregáveis:**
-
-- Build `stable` assinada distribuída a 1–3 usuários piloto
-- Roteiro de onboarding (15 min do download ao primeiro mapa)
-- Canal de feedback (issue, formulário ou chat direto)
-- Registro do smoke test ArcMap (anel 4) anexado à release
-- Lista de bugs encontrados, classificados por severidade (S1–S4)
+instalador, sem suporte presencial.
 
 **Critério de saída:**
 
-- [ ] Piloto instala sozinho em < 15 minutos
+- [ ] Piloto instala **e faz login** sozinho em < 15 minutos
 - [ ] Primeiro mapa válido sem ajuda do desenvolvedor
-- [ ] Análise completa (não só Harmonia) em imóvel novo do piloto
+- [ ] Análise completa em imóvel novo do piloto (não a Harmonia)
 - [ ] Zero bugs S1 ou S2 abertos
-- [ ] Feedback do piloto incorporado ou registrado como pendência pós-v1
-- [ ] Critérios de aceite de [`00-visao-e-escopo.md`](00-visao-e-escopo.md) verificados
+- [ ] Feedback incorporado ou registrado como pendência pós-v1
+- [ ] Critérios de aceite de [`00-visao-e-escopo.md`](00-visao-e-escopo.md) verificados um a um
 
-**Dependências:** M6 (instalador). Acesso a máquina piloto com ou sem ArcMap (testar os dois
-cenários se possível).
+**Dependências:** M10.
 
 ---
 
-## O que fica depois do M7
+## O que fica depois do M11
 
 | Item | Quando |
 |---|---|
-| Fase 2 (site, backend, tunnel) | após M7 validado |
-| Certificado EV (se piloto usou OV) | se SmartScreen ainda assusta |
+| Fase 2 completa (site, mapa por CAR, memória de projeto) | após M11 validado |
+| Sync opcional de conversas para a conta | Fase 2, opt-in (D20) |
+| Certificado EV (se o piloto usou OV) | se o SmartScreen ainda assusta |
 | ArcGIS Pro como gerador de PDF alternativo | demanda do piloto |
 | Linux/macOS | fora da v1 por design |
-| Cobrança | após validação com usuários reais |
+| Cobrança e limites de uso | **depois** da validação; hoje é AP-05 |
 | Rotação das chaves vazadas nos `.mxd` | pendência de segurança, independente do roadmap |
 
 ## Riscos do roadmap
 
 | Risco | Marco afetado | Mitigação |
 |---|---|---|
-| `arcpy` trava em subprocesso | M2, M5 | timeout, API mínima comprovada, caminho T2 |
-| M2 demora e bloqueia tudo | M5, M6 | T2 (patch) avança em paralelo; PDF nativo desbloqueia M3/M4 |
-| Instalador > 250 MB | M6 | auditoria de deps na decisão P1 (onedir) |
-| Piloto não tem ArcMap | M7 | caminho sem ArcMap já testado no M6; expectativa alinhada |
-| Escopo vira "NexoGeo 2" | qualquer | tabela "Fora da v1" em [`00-visao-e-escopo.md`](00-visao-e-escopo.md) é vinculante |
+| `arcpy` trava em subprocesso | M2, M9 | timeout, API mínima comprovada, caminho T2 |
+| M2 demora e bloqueia tudo | M9, M10 | T2 avança em paralelo; PDF nativo desbloqueia M3–M8 |
+| Serviço de identidade fora do ar bloqueia o M5 | M5, M11 | `/health` monitorado; app tolera backend fora com token válido |
+| Auth vira porta de entrada para cobrança "só um limitezinho" | escopo | D18 e AP-05 são vinculantes; mudar exige alterar F1-00 e planos comuns |
+| Animação implementada antes do evento existir | M3, M8 | AP-07; o critério de saída do M3 exige o evento do M1 |
+| Galeria virar enfeite e o chat montar tudo do zero | M4, M7 | teste de paridade é critério de saída do M7 |
+| Contexto do agente estourar em pasta real | M7 | orçamento e compressão são critério de saída, com fixture de 120 turnos |
+| Instalador > 250 MB | M10 | auditoria de deps na decisão P1 (onedir) |
+| Escopo vira "NexoGeo 2" | qualquer | a tabela "Fora da v1" em [`00-visao-e-escopo.md`](00-visao-e-escopo.md) é vinculante |
