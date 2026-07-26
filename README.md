@@ -70,7 +70,7 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
 | M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver checklist |
 | M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M5+M6+M8** fechados/parciais; **M7** parcial |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M5+M6+M7+M8** fechados/parciais (M7: 24/27 tools; 3× `IA-022`) |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |
 | Fase 2 — conta nuvem / memória ([F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)) | **adiada** (pós-M11); **não** bloqueia o M5 |
 | Fase 2 — restante | não iniciado; começa depois do M11 |

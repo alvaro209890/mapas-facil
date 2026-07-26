@@ -27,6 +27,7 @@ from mapasfacil_nucleo.agente.provedor import MensagemLLM, ProvedorIA
 from mapasfacil_nucleo.agente.resumo import gerar_compact_summary
 from mapasfacil_nucleo.agente.tools import executar as executar_tool
 from mapasfacil_nucleo.agente.tools import schemas_openai
+from mapasfacil_nucleo.agente import mapspec_store
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.conversas.repositorio import ContextoTurno
 from mapasfacil_nucleo.erros import ErroNucleo
@@ -37,9 +38,9 @@ _cancelados: set[str] = set()
 _lock = threading.Lock()
 _provedor_override: ProvedorIA | None = None
 
-# MapSpec vivo por conversa e a versão que o modelo já viu por inteiro — base do
-# envio por diff (F1-06 §3). Em memória de propósito: o que persiste no banco é a
-# conversa, não o rascunho do turno.
+# MapSpec vivo por conversa e a versão que o modelo já viu — envio por diff (F1-06 §3).
+# Memória é cache; o JSON completo também fica em disco (`mapspec_store`) para
+# sobreviver ao reinício do sidecar.
 _mapspec_por_conversa: dict[str, dict[str, Any]] = {}
 _mapspec_enviado: dict[str, dict[str, Any]] = {}
 
@@ -66,8 +67,14 @@ def _limpar_cancelamento(conversation_id: str) -> None:
 
 
 def mapspec_da_conversa(conversation_id: str) -> dict[str, Any] | None:
-    """MapSpec vivo da conversa (o que as tools de edição vêm versionando)."""
-    return _mapspec_por_conversa.get(conversation_id)
+    """MapSpec vivo da conversa (tools de edição + disco)."""
+    vivo = _mapspec_por_conversa.get(conversation_id)
+    if vivo is not None:
+        return vivo
+    disco = mapspec_store.carregar_mapspec(conversation_id)
+    if disco is not None:
+        _mapspec_por_conversa[conversation_id] = disco
+    return disco
 
 
 def esquecer_conversa(conversation_id: str) -> None:
@@ -202,6 +209,7 @@ def executar_turno(
     mapspec = ctx.get("mapspec") if isinstance(ctx.get("mapspec"), dict) else None
     if mapspec is not None:
         _mapspec_por_conversa[conversation_id] = mapspec
+        mapspec_store.gravar_mapspec(conversation_id, mapspec)
 
     resultado = _fechar_turno(
         repo=repo,
@@ -227,13 +235,15 @@ def _diff_do_mapspec(
 
     Regra F1-06 §3: no primeiro turno com MapSpec vai o JSON completo; depois só
     o diff — e se o diff passar de `MAPSPEC_DIFF_MAX`, volta a mandar completo e
-    reinicia a base.
+    reinicia a base. Se o MapSpec não mudou (mesmo `id`), manda diff vazio.
     """
     if mapspec is None:
         return None
     base = _mapspec_enviado.get(conversation_id)
-    if base is None or base.get("id") == mapspec.get("id"):
+    if base is None:
         return None
+    if base.get("id") == mapspec.get("id"):
+        return {"operacoes": []}
     delta = mapspec_diff(base, mapspec)
     if not limites.mapspec_diff_cabe(limites.estimar_tokens_json(delta)):
         return None

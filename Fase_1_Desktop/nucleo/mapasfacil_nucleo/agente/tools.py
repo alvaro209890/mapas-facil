@@ -317,12 +317,14 @@ def tool_listar_modelos_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
 
 
 def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    from mapasfacil_nucleo.galeria.montar import montar_mapspec
+
     modelo_id = args.get("modelo_id")
     if not isinstance(modelo_id, str) or not modelo_id:
         return _erro("NU-001", "Parâmetro 'modelo_id' é obrigatório.")
     sobrescritas = args.get("sobrescritas") if isinstance(args.get("sobrescritas"), dict) else None
     try:
-        pacote = galeria_servico.montar({"modelo_id": modelo_id, "sobrescritas": sobrescritas or {}})
+        pacote = montar_mapspec(modelo_id, sobrescritas=sobrescritas or {})
     except ErroNucleo as exc:
         return _erro(exc.codigo, exc.mensagem, detalhes=exc.detalhes)
     ctx["mapspec"] = pacote.get("mapspec")

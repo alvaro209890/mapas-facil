@@ -12,15 +12,16 @@ custo em pastas reais), os guard rails e os testes.
 | Item | Atual | Alvo |
 |---|---|---|
 | Cliente DeepSeek | **feito** (stream SSE + fake CI) | streaming + tool calling + cancelamento |
-| Tools | **parcial** — 27 registradas, **24 reais e tipadas**; 3 travadas em dependência | 27 tools tipadas |
+| Tools | **24/27 reais**; 3 com `IA-022` até R21/F1-07 | 27 tools tipadas |
+| Orquestrador / cancelamento | **feito** | parcial gravada + HTTP fechado |
+| `chat.enviar` / `chat.cancelar` | **feitos** (G7) — cancelamento grava parcial e fecha o stream | métodos NDJSON |
+| Edição versionada do MapSpec | **feito** — `agente/edicao.py` + `mapspec_store.py` (disco) | §Versionamento |
+| Fake do provedor (VCR) | **feito** — FakeProvedor + cassetes SSE/passos (G8) | anel 1 no CI |
 | Orçamento (`limites.py`) | **feito** (G2) | tetos F1-06 testados |
 | Montador de contexto / compressão | **feito** (G3) | pipeline obrigatório abaixo |
-| `chat.enviar` / `chat.cancelar` | **feitos** (G7) — cancelamento grava parcial e fecha o stream | métodos NDJSON |
-| Edição versionada do MapSpec | **feito** — `agente/edicao.py` (nova versão + diff em português) | §Versionamento |
 | Modo determinístico | galeria (M4) | [F1-15](15-galeria-de-modelos.md) |
-| Fake do provedor (VCR) | **FakeProvedor** no anel 1; VCR HTTP pendente | anel 2 no CI |
 
-A pasta `agente/` cobre G1–G7/G9/G10 com testes sem rede.
+A pasta `agente/` cobre G1–G11 com testes sem rede (FakeProvedor + VCR).
 
 As três tools que ainda respondem `IA-022` (com o motivo, para o modelo seguir sem elas):
 `consultar_sema` e `distancia_ate` esperam `camada.resolver` (R21, cliente WFS em runtime);
@@ -36,7 +37,7 @@ crescer sem que alguém atualize este plano.
 | `galeria.montar_mapspec` | **existe** (M4) |
 | `chats.sqlite` (transcript e `compact_summary`) | **existe** (M6) |
 | Cofre (chave BYOK) | parcial — `secrets.local.json` / env; Credential Manager é M5/A11 |
-| Sessão válida (gate de `chat.enviar`) | ausente — [F1-14](14-auth-e-conta.md); gate AUTH-030 adiado a M5 |
+| Sessão válida (gate de `chat.enviar`) | **existe** (M5) — `AUTH-030` em `sessao.py` |
 
 ## Princípio de segurança
 
@@ -419,16 +420,17 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` (heurística CI + LLM opcional)
 - [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; 24 reais, 3 travadas em R21/F1-07
 - [x] `nucleo/mapasfacil_nucleo/agente/edicao.py` — nova versão do MapSpec + diff em português
+- [x] `nucleo/mapasfacil_nucleo/agente/mapspec_store.py` — persistência em `{chats}/mapspecs/{id}.json`
 - [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
 - [x] redator reusa `conversas/redator.py` (WKT/CPF/chaves/caminhos)
 - [ ] `nucleo/mapasfacil_nucleo/agente/visao.py` — print/zip → `MapSpec` ([F1-07](07-visao-print-e-zip.md))
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — `chat.enviar`, `chat.cancelar` + eventos
-- [~] FakeProvedor (anel 1); VCR HTTP em `tests/agente/cassetes/` ainda não
+- [x] FakeProvedor + VCR (`agente/vcr.py`, `tests/agente/cassetes/`, `tests/test_agente_vcr.py`)
 - [x] `nucleo/tests/test_contexto_vazamento.py`
 
 ## Critérios de aceite
 
-- [x] `pytest` do agente verde **sem rede e sem chave** (FakeProvedor)
+- [x] `pytest` do agente verde **sem rede e sem chave** (FakeProvedor + VCR)
 - [x] **Teto de rodadas:** 13 tool calls → `IA-030`
 - [x] **Compressão:** 120 turnos → payload ≤ 60k com summary e verbatim limitado
 - [x] **Sem vazamento** (`test_contexto_vazamento.py`)

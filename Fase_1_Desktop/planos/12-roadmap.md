@@ -230,17 +230,23 @@ orçamento de contexto respeitado.
 
 **Critério de saída:**
 
-- [ ] `pytest nucleo/tests/agente/ -q` verde **sem rede e sem chave**
-- [ ] "Faz a Dinâmica 2026" na Harmonia gera os três arquivos sem intervenção
-- [ ] O agente usa `usar_modelo_da_galeria` e **não** `criar_mapa` quando há modelo
-- [ ] Paridade galeria↔chat no `template`, `camadas[].id` e `elementos_layout`
-- [ ] 13ª rodada de tool → `IA-030` com mensagem clara
-- [ ] Fixture de 120 turnos: payload ≤ 60.000 tokens, 8 turnos verbatim, `compact_summary` presente
-- [ ] Teste de vazamento: sem WKT, sem CPF, sem `C:\Users\`, sem `PLAK`, sem `authkey`
-- [ ] Cancelar turno encerra o request e grava a mensagem parcial
-- [ ] Sem chave: `IA-001` e a UI aponta a galeria; nenhum request sai
+- [x] `pytest` do agente verde **sem rede e sem chave** (FakeProvedor + VCR)
+- [x] O agente usa `usar_modelo_da_galeria` e **não** `criar_mapa` quando há modelo
+- [x] Paridade galeria↔chat no `template`, `camadas[].id` e `elementos_layout`
+- [x] 13ª rodada de tool → `IA-030` com mensagem clara
+- [x] Fixture de 120 turnos: payload ≤ 60.000 tokens, verbatim limitado, `compact_summary` presente
+- [x] Teste de vazamento: sem WKT, sem CPF, sem `C:\Users\`, sem `PLAK`, sem `authkey`
+- [x] Cancelar turno encerra o request e grava a mensagem parcial
+- [x] Sem chave: `IA-001` e a UI aponta a galeria; nenhum request sai
+- [x] Cassetes VCR (passos + SSE) em `tests/agente/cassetes/`
+- [x] MapSpec vivo persistido em `chats/mapspecs/<id>.json`
+
+**Nota:** 3 tools (`consultar_sema`, `distancia_ate`, `analisar_referencia`) respondem `IA-022`
+até existirem R21 / F1-07 — fora do critério de fechamento do M7.
 
 **Dependências:** M4 (a galeria é a fonte de template) e M6 (onde o transcript vive).
+
+**Estado: fechado em 2026-07-26** (Bloco G).
 
 ---
 

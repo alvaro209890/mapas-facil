@@ -1,0 +1,10 @@
+{
+  "versao": 1,
+  "descricao": "SSE mínimo no formato DeepSeek — rebobina o cliente HTTP sem rede (G8).",
+  "sse_linhas": [
+    "data: {\"id\":\"chatcmpl-vcr\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"Olá do cassete VCR.\"}}]}\n",
+    "data: {\"id\":\"chatcmpl-vcr\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Pronto.\"},\"finish_reason\":null}]}\n",
+    "data: {\"id\":\"chatcmpl-vcr\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n",
+    "data: [DONE]\n"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "versao": 1,
+  "descricao": "Roteiro FakeProvedor: usar_modelo_da_galeria e encerrar (G8).",
+  "passos": [
+    {
+      "texto": "Vou montar pela galeria.",
+      "tool_calls": [
+        {
+          "id": "call_galeria",
+          "type": "function",
+          "function": {
+            "name": "usar_modelo_da_galeria",
+            "arguments": "{\"modelo_id\": \"dinamica_2026_retrato\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Mapa montado a partir do modelo da galeria.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

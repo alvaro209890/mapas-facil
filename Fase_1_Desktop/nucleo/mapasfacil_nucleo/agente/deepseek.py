@@ -25,11 +25,13 @@ class DeepSeekProvedor:
         endpoint: str = ENDPOINT_PADRAO,
         modelo: str = MODELO_PRO,
         timeout: float = 120.0,
+        urlopen: Any | None = None,
     ) -> None:
         self.chave = chave
         self.endpoint = endpoint
         self.modelo = modelo
         self.timeout = timeout
+        self._urlopen = urlopen or urllib.request.urlopen
         self._cancelado = False
         self._resposta: Any = None
 
@@ -72,7 +74,7 @@ class DeepSeekProvedor:
             method="POST",
         )
         try:
-            self._resposta = urllib.request.urlopen(req, timeout=self.timeout)
+            self._resposta = self._urlopen(req, timeout=self.timeout)
         except urllib.error.HTTPError as exc:
             detalhe = exc.read().decode(errors="replace")[:400]
             raise ErroNucleo(

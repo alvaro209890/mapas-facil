@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **parcial** — G1–G7/G9–G11 fechados (24/27 tools reais, cancelamento com parcial gravada, traces reais); falta G8 (VCR) e as 3 tools travadas em R21/F1-07 |
+| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 24/27 tools; 3× `IA-022` até R21/F1-07) |
 | H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6 só o que tem evento (galeria/abas), o resto espera `workspace.mudou`/`mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: restos do M7 (VCR/G8), A10–A13 do núcleo, ou M2 quando houver ArcMap.
+Próximos marcos sem ArcMap: A10–A13 do núcleo, restos do M8 (H6), ou M2 quando houver ArcMap.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -164,13 +164,13 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06; `tests/test_limites.py` |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [x] | `agente/contexto.py` |
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
-| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [~] | `agente/tools.py` + `agente/edicao.py` — 24 reais e versionadas; `consultar_sema`/`distancia_ate`/`analisar_referencia` respondem `IA-022` até R21/F1-07 |
+| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 24 reais; `consultar_sema`/`distancia_ate`/`analisar_referencia` → `IA-022` até R21/F1-07 (aceito no fechamento M7) |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
 | G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
-| G8 | Cassetes VCR + fixture de 120 turnos | [~] | FakeProvedor no anel 1; VCR HTTP real ainda não |
+| G8 | Cassetes VCR + fixture de 120 turnos | [x] | `agente/vcr.py` + `tests/agente/cassetes/`; compressão 120 turnos em `test_agente.py` |
 | G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
 | G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
-| G11 | Testes do loop: 12/13 rodadas, cancelamento com parcial, traces reais, passo do resumo | [x] | `tests/test_agente_orquestrador.py`, `tests/test_agente_tools.py`, `app/tests/painel-chat.test.tsx` |
+| G11 | Testes do loop: 12/13 rodadas, cancelamento com parcial, traces reais, passo do resumo | [x] | `tests/test_agente_orquestrador.py`, `tests/test_agente_tools.py`, `test_agente_vcr.py`, `app/tests/painel-chat.test.tsx` |
 
 ## Bloco H — Motion e preview de construção (M8)
 

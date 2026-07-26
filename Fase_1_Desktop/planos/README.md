@@ -81,6 +81,6 @@ substitui nem antecede o desktop. Conta do app = **local** ([F1-14](14-auth-e-co
 | Planos F1-00…F1-17 | escritos; reescritos para agentes em 2026-07-25 |
 | M1 — núcleo | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver [checklist](13-checklist-implementacao.md) |
 | M2 — motor `.mxd` | parcial (T2 copia template; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M6+M8** fechados/parciais; **M7** parcial; **M5 conta local** ainda não |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M5+M6+M7+M8** fechados/parciais (M7: VCR + MapSpec em disco; 3 tools `IA-022`) |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |
 | Eventos NDJSON (`job.progresso` etc.) | **nenhum é emitido** — `envelope_evt` não tem chamador |
