@@ -56,7 +56,6 @@ recente é `abrirProjetoRecente(indice)`, e quem traduz índice → caminho é o
 
 A12: o watcher do núcleo emite `workspace.mudou` (debounce 500 ms) e a árvore atualiza sozinha,
 com realce de 2 s em arquivo novo. O botão de reindexar permanece como fallback.
-explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 ### O que as rodadas de C1–C9 mudaram no que já existia
 
