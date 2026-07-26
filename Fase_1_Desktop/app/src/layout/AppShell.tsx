@@ -5,13 +5,13 @@
 // é real (C7); doctor no rodapé (C8). `barra-chats` (M6) e `painel-chat` (M7) são reais;
 // preview em construção ainda espera M8.
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Map as MapaIcone, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { AvisoAtalho } from "../componentes/AvisoAtalho.js";
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
-import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
+import { EstadoVazio, SemArcMap, SemChaveDeepSeek, SemInternet } from "../componentes/EstadoVazio.js";
 import { LinhaVersoes } from "../componentes/LinhaVersoes.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useAuth, sairConta } from "../estado/auth.js";
@@ -24,6 +24,7 @@ import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
 import { api } from "../estado/ponte.js";
 import { useProgressoJob } from "../estado/progressoJob.js";
+import { useOnline } from "../estado/rede.js";
 import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
 import { BarraChats } from "../paineis/BarraChats.js";
 import { Galeria } from "../paineis/Galeria.js";
@@ -32,6 +33,7 @@ import { PainelChat } from "../paineis/PainelChat.js";
 import { Preview } from "../paineis/Preview.js";
 import { Workspace } from "../paineis/Workspace.js";
 import type { IdComando } from "../paleta/comandos.js";
+import { listarComandos } from "../paleta/comandos.js";
 import { PaletaComandos } from "../paleta/PaletaComandos.js";
 import { useAtalhosGlobais } from "../paleta/useAtalhosGlobais.js";
 import { Divisor } from "./Divisor.js";
@@ -96,6 +98,12 @@ function focarDoctor(): void {
   }
 }
 
+const IDS_COMANDO = new Set<string>(listarComandos({ temPasta: true }).map((c) => c.id));
+
+function ehIdComando(id: string): id is IdComando {
+  return IDS_COMANDO.has(id);
+}
+
 export function AppShell({ nucleo, banner }: PropsAppShell) {
   const { paineis, definirLargura, alternarColapso, gravar } = usePaineis();
   const { larguras, colapsados } = paineis;
@@ -106,6 +114,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const conversas = useConversas(workspace.indice?.raiz ?? null);
   const progressoJob = useProgressoJob();
   const mapspecVersoes = useMapspecVersoes();
+  const online = useOnline();
   const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
@@ -165,6 +174,15 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
     [conversas, focarBuscaChats, verificarAmbiente, workspace],
   );
 
+  // Menu/tray nativos despacham o mesmo IdComando da paleta — um só switch.
+  useEffect(() => {
+    return (
+      api()?.aoComandoMenu?.((id) => {
+        if (ehIdComando(id)) executarComando(id);
+      }) ?? (() => undefined)
+    );
+  }, [executarComando]);
+
   useAtalhosGlobais({
     abrirPaleta,
     fecharPaleta,
@@ -205,6 +223,11 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
         aoAbrirDoctor={verificarAmbiente}
       />
       {banner}
+      {!online ? (
+        <div className={estilos.bannerOffline} role="status" data-testid="banner-offline">
+          <SemInternet />
+        </div>
+      ) : null}
       <div className={estilos.corpo}>
         {colapsados.barraChats ? (
           <Trilho titulo="conversas" aoAbrir={() => alternarColapso("barraChats")} />

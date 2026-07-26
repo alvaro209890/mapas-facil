@@ -4,6 +4,7 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import {
   CANAL_CHAMAR,
+  CANAL_COMANDO_MENU,
   CANAL_ESTADO,
   CANAL_EVENTO,
   CANAL_PREFERENCIAS_GRAVAR,
@@ -60,6 +61,14 @@ const api = {
   },
   gravarPreferencias(parcial: Record<string, unknown>): Promise<Record<string, unknown>> {
     return ipcRenderer.invoke(CANAL_PREFERENCIAS_GRAVAR, parcial) as Promise<Record<string, unknown>>;
+  },
+  /** Menu/tray nativos → mesmo `IdComando` da paleta (sem caminho de disco). */
+  aoComandoMenu(ouvinte: (id: string) => void): () => void {
+    const alca = (_e: unknown, id: unknown) => {
+      if (typeof id === "string") ouvinte(id);
+    };
+    ipcRenderer.on(CANAL_COMANDO_MENU, alca);
+    return () => ipcRenderer.removeListener(CANAL_COMANDO_MENU, alca);
   },
 };
 

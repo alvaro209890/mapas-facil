@@ -1,7 +1,6 @@
-// Processo main do Electron: janela, ponte com o núcleo, IPC tipado e o diálogo
-// nativo de pasta (C7). Menus, tray, conta local (M5) e auto-update são de marcos
-// posteriores (F1-02, F1-14, F1-11).
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme } from "electron";
+// Processo main do Electron: janela, ponte com o núcleo, IPC tipado, diálogo
+// nativo de pasta (C7), menus e tray (F1-02). Auto-update fica para M10.
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, type Tray } from "electron";
 import { join } from "node:path";
 
 import {
@@ -15,6 +14,7 @@ import {
   CANAL_WORKSPACE_CONECTAR,
   CANAL_WORKSPACE_RECENTES,
 } from "./ipc/canais.js";
+import { aplicarMenu, atualizarTray, criarTray, type OpcoesMenu } from "./menu.js";
 import { localizarNucleo } from "./nucleo/localizar.js";
 import { ErroPonte, PonteNucleo } from "./nucleo/ponte.js";
 import type { EstadoPonte } from "./nucleo/ponte.js";
@@ -27,6 +27,7 @@ const URL_DEV = process.env.VITE_DEV_SERVER_URL;
 let janela: BrowserWindow | null = null;
 let ponte: PonteNucleo | null = null;
 let preferencias: ArquivoPreferencias | null = null;
+let tray: Tray | null = null;
 
 function criarJanela(): BrowserWindow {
   // D15/AP-08: escuro é o default do produto, não o do sistema.
@@ -39,7 +40,8 @@ function criarJanela(): BrowserWindow {
     minHeight: 800,
     backgroundColor: "#0B0E11",
     show: false,
-    autoHideMenuBar: true,
+    // Menu nativo fica visível — é o mesmo catálogo da paleta Ctrl+K.
+    autoHideMenuBar: false,
     webPreferences: {
       preload: join(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -114,11 +116,40 @@ async function chamarNucleo(metodo: string, params: Record<string, unknown>): Pr
   }
 }
 
-/** Abre a pasta no núcleo e, dando certo, registra o projeto recente. */
+/** Abre a pasta no núcleo e, dando certo, registra o projeto recente + atualiza o menu. */
 async function abrirWorkspace(caminho: string): Promise<RespostaIpc> {
   const resposta = await chamarNucleo("workspace.abrir", { caminho });
-  if (resposta.ok && preferencias !== null) registrar(preferencias, caminho);
+  if (resposta.ok && preferencias !== null) {
+    registrar(preferencias, caminho);
+    atualizarChrome();
+  }
   return resposta;
+}
+
+/** Opções frescas a cada aplicação — recentes e `janela` não podem ficar stale. */
+function montarOpcoesMenu(): OpcoesMenu {
+  return {
+    janela,
+    recentes:
+      preferencias === null
+        ? []
+        : visiveis(lerRecentes(preferencias)).map((p) => ({ indice: p.indice, nome: p.nome })),
+    aoAbrirRecente: (indice) => {
+      const recentes = preferencias === null ? [] : lerRecentes(preferencias);
+      const projeto = recentes[indice];
+      if (projeto === undefined) return;
+      void abrirWorkspace(projeto.caminho);
+    },
+    aoReiniciarNucleo: () => {
+      ponte?.reiniciar();
+    },
+  };
+}
+
+function atualizarChrome(): void {
+  const opcoes = montarOpcoesMenu();
+  aplicarMenu(opcoes);
+  if (tray !== null) atualizarTray(tray, opcoes);
 }
 
 function registrarIpc(): void {
@@ -175,11 +206,14 @@ void app.whenReady().then(() => {
   registrarIpc();
   janela = criarJanela();
   ponte = ligarPonte(janela);
+  atualizarChrome();
+  tray = criarTray(montarOpcoesMenu());
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       janela = criarJanela();
       ponte = ligarPonte(janela);
+      atualizarChrome();
     }
   });
 });
@@ -193,4 +227,8 @@ app.on("window-all-closed", () => {
 app.on("before-quit", () => {
   ponte?.encerrar();
   ponte = null;
+  if (tray !== null) {
+    tray.destroy();
+    tray = null;
+  }
 });

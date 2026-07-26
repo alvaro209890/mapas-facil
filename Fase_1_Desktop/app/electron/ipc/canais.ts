@@ -15,3 +15,8 @@ export const CANAL_PREFERENCIAS_GRAVAR = "preferencias:gravar";
 export const CANAL_WORKSPACE_CONECTAR = "workspace:conectar";
 export const CANAL_WORKSPACE_RECENTES = "workspace:recentes";
 export const CANAL_WORKSPACE_ABRIR_RECENTE = "workspace:abrir-recente";
+
+// Menu nativo e tray (main) → renderer. Carrega só o **id do comando** já
+// existente na paleta `Ctrl+K`, para menu e paleta nunca divergirem de
+// comportamento. Nenhum dado do disco trafega por aqui.
+export const CANAL_COMANDO_MENU = "menu:comando";

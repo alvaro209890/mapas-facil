@@ -38,6 +38,8 @@ export interface PonteFake {
   emitir: (evento: Omit<EnvelopeEvento, "v" | "id" | "tipo">) => void;
   /** Empurra um estado de núcleo (é o que o main manda em `did-finish-load`). */
   emitirEstado: (estado: EstadoNucleo) => void;
+  /** Simula o menu/tray nativo mandando um `IdComando` pelo IPC. */
+  emitirComandoMenu: (id: string) => void;
   /** Troca a resposta de um método depois da montagem. */
   responder: (metodo: string, resposta: Responder) => void;
 }
@@ -48,6 +50,7 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
   const respostas = new Map<string, Responder>(Object.entries(opcoes.respostas ?? {}));
   const ouvintesEvento = new Set<(evento: EnvelopeEvento) => void>();
   const ouvintesEstado = new Set<(estado: EstadoNucleo) => void>();
+  const ouvintesMenu = new Set<(id: string) => void>();
   const fake: PonteFake = {
     api: undefined as unknown as ApiMapasFacil,
     chamadas: [],
@@ -56,6 +59,7 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
     gravacoes: [],
     emitir: () => undefined,
     emitirEstado: () => undefined,
+    emitirComandoMenu: () => undefined,
     responder: (metodo, resposta) => respostas.set(metodo, resposta),
   };
 
@@ -140,6 +144,12 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
         ouvintesEstado.delete(ouvinte);
       };
     },
+    aoComandoMenu(ouvinte) {
+      ouvintesMenu.add(ouvinte);
+      return () => {
+        ouvintesMenu.delete(ouvinte);
+      };
+    },
     conectarPasta() {
       fake.conexoes += 1;
       return Promise.resolve(opcoes.conectar ?? CANCELADO);
@@ -172,6 +182,11 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
   fake.emitirEstado = (estado) => {
     act(() => {
       for (const ouvinte of ouvintesEstado) ouvinte(estado);
+    });
+  };
+  fake.emitirComandoMenu = (id) => {
+    act(() => {
+      for (const ouvinte of ouvintesMenu) ouvinte(id);
     });
   };
 

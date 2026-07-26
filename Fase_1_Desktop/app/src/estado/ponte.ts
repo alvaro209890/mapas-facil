@@ -31,6 +31,8 @@ export interface ApiMapasFacil {
   reiniciarNucleo(): Promise<{ estado: string }>;
   aoEvento(ouvinte: (evento: EnvelopeEvento) => void): () => void;
   aoEstadoNucleo(ouvinte: (estado: EstadoNucleo) => void): () => void;
+  /** Menu/tray do main → id de comando da paleta (`conectar-pasta`, …). */
+  aoComandoMenu?(ouvinte: (id: string) => void): () => void;
   conectarPasta(): Promise<RespostaConectar>;
   projetosRecentes(): Promise<ProjetoRecente[]>;
   abrirProjetoRecente(indice: number): Promise<RespostaConectar>;
