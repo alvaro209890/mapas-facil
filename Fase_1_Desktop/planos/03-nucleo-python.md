@@ -10,7 +10,7 @@ nucleo/
 ├─ __main__.py               loop NDJSON, roteamento de métodos
 ├─ protocolo.py              envelope, ULID, serialização de erro
 ├─ config.py                 caminhos, TTLs, limites
-├─ cofre.py                  keyring do Windows; NUNCA devolve valor
+├─ cofre.py                  keyring (CM/Secret Service); NUNCA devolve valor
 ├─ fsguard.py                autorização de caminho  ← suíte de testes mais densa
 ├─ workspace/
 │  ├─ indice.py              varredura, metadados, papel de cada arquivo
@@ -195,7 +195,7 @@ mapa.
 - [ ] `geo/`: zona UTM, área, overlay, distância
 - [ ] Ponte ArcPy com as 7 armadilhas tratadas
 - [ ] Doctor completo, com detecção de `arcpy_instavel`
-- [ ] Cofre que nunca devolve valor
+- [x] Cofre que nunca devolve valor (`cofre.py`, A11)
 - [ ] Redator de URL
 - [ ] Empacotamento PyInstaller com GDAL embarcado
 
