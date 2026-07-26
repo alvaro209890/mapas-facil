@@ -71,3 +71,9 @@ coverage/
 # ZIPs truncados / downloads OneDrive incompletos (conteúdo útil já extraído)
 Referencias_IMAP/Mapas/03/OneDrive*.zip
 **/OneDrive_*.zip
+
+# Recibos do CAR do acervo — contêm CPF/CNPJ de proprietários reais e o repo é
+# público. Ficam só no disco local. Fixture para testes: use os anonimizados do
+# núcleo, nunca estes. Ver Referencias_IMAP/README.md.
+Referencias_IMAP/**/CAR - Recibo*.pdf
+Referencias_IMAP/**/CAR - Emissao*.pdf

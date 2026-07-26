@@ -28,6 +28,7 @@ cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
 | `MapSpec` schema `contract_version: 2` | existe e valida | `shared/schemas/mapspec.schema.json` |
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
+| Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **17 métodos** implementados | `Fase_1_Desktop/nucleo/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
@@ -161,7 +162,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | AP-06 | Enviar shapefile, PDF, `.mxd` ou geometria WKT bruta ao LLM | custo, privacidade e estouro de contexto; tools devolvem resumo tipado |
 | AP-07 | Spinner/loader falso, desconectado de evento real do núcleo | animação só existe amarrada a `job.progresso`, `chat.delta`, `chat.tool` ou `job.artefato_parcial` |
 | AP-08 | Hardcodar tema claro como default | **D15**: dark é o default; claro é opção |
-| AP-09 | Gravar CPF em chat, transcript, log ou prompt | LGPD; o parser descarta CPF **na entrada** |
+| AP-09 | Gravar CPF em chat, transcript, log ou prompt — **ou versionar recibo do CAR** | LGPD; o parser descarta CPF na entrada, e os recibos do acervo estão no `.gitignore` porque o repo é público |
 | AP-10 | Chamar o provedor de IA sem passar pelo pipeline de compressão | estoura contexto e custo; `IA-040` |
 | AP-11 | Ler/escrever disco fora do `fsguard` | ameaça A2 |
 | AP-12 | Sincronizar chats para nuvem na v1 | **D20**: local-only |
@@ -192,3 +193,19 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | "faz o chat salvar" | F1-17 → F1-01 (§estado local) |
 | "faz o `.mxd`" | F1-04 → `Referencias_IMAP/MXD/DOCUMENTACAO_MXD_HARMONIA.md` → F1-13 |
 | "melhora o PDF" | F1-05 → `planos/01-padrao-imap-harmonia.md` → F1-09 |
+| "mexe no acervo de referência" | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) → **rode `chaves_mxd.py limpar` antes de commitar** |
+
+## Ao acrescentar material ao acervo de referência
+
+Receita fechada. Todo `.mxd` que chega do escritório traz chave de API real embutida, e o
+repositório é público.
+
+1. Coloque em `Referencias_IMAP/Mapas/NN/` (número novo), com `MXD/` e `PDF/` dentro. **Não**
+   crie pasta com nome de download (`OneDrive_*`) — elas foram dissolvidas em 2026-07-26.
+2. Escreva o `README.md` do acervo: imóveis, município, inventário, e **o que ele resolve que os
+   outros não resolvem**.
+3. `python3 ferramentas/chaves_mxd.py limpar && python3 ferramentas/chaves_mxd.py verificar` —
+   tem de dizer **"Seguro para commit"**. A varredura é recursiva; a pasta nova entra sozinha.
+4. Recibo do CAR, documento de proprietário, qualquer PDF com CPF/CNPJ: **não versione**. O
+   `.gitignore` já cobre `CAR - Recibo*.pdf`, mas confira.
+5. Atualize a tabela de acervos em [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md).

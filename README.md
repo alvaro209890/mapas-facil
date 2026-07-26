@@ -44,7 +44,7 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** |
 | [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend neste PC via Cloudflare Tunnel |
 | [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
-| [`Referencias_IMAP/`](Referencias_IMAP/README.md) | 21 PDFs-modelo + 24 `.mxd` reais — gabarito visual |
+| [`Referencias_IMAP/`](Referencias_IMAP/README.md) | 6 acervos reais em `Mapas/01–06`: 84 PDFs-modelo + 61 `.mxd` — gabarito visual |
 | [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2 de templates, ZIP truncado |
 
 ## Por que desktop primeiro

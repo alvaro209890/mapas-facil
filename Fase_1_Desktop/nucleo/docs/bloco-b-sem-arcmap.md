@@ -3,8 +3,8 @@
 Documentação do progresso do **motor `.mxd`** quando o desenvolvimento roda em Linux/CI
 (sem ArcMap nem Python 2.7 do ArcGIS).
 
-Plano de referência: [`../planos/04-motor-mxd.md`](../planos/04-motor-mxd.md)  
-Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-implementacao.md)
+Plano de referência: [`../../planos/04-motor-mxd.md`](../../planos/04-motor-mxd.md)  
+Checklist: [`../../planos/13-checklist-implementacao.md`](../../planos/13-checklist-implementacao.md)
 
 ## Resumo (v0.3.6)
 
@@ -63,9 +63,9 @@ estrutura binária do `.mxd` muda ao inserir elementos novos, invalidando offset
 
 ## Rodada 2026-07-25 (2): os "4 pendentes" viraram reaproveitamento, não criação
 
-Novo material de referência chegou no acervo (`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/
-Divisão de talhões e mapa retrato/` + `Referencias_IMAP/Logos IMAP/`). Comparar o
-`Divisão de talhões.mxd` (que já tem título e rótulos como caixas balão) com o
+Novo material de referência chegou no acervo (`Referencias_IMAP/Mapas/06/` +
+`Referencias_IMAP/Logos IMAP/`). Comparar o
+`Divisao_de_talhoes.mxd` (que já tem título e rótulos como caixas balão) com o
 `Dinamica_2026.mxd` mostrou que **o template de produção já tem os elementos certos, só sem
 o nome canônico**:
 

@@ -41,6 +41,8 @@ inequívocos, e `chaves_mxd.py verificar` **falha** se um for substring de outro
 - [x] Chaves fora dos arquivos versionados
 - [x] Ferramenta de restauração local, com round-trip testado
 - [x] `secrets.local.json` no `.gitignore`
+- [x] Varredura de `.mxd` recursiva sobre todo o acervo (2026-07-26)
+- [x] Recibos do CAR com CPF/CNPJ fora do git (2026-07-26)
 - [ ] **Rotacionar a `authkey` da SEMA** — decisão adiada pelo dono
 - [ ] **Rotacionar as `api_key` do Planet** — idem
 - [ ] Hook de pre-commit rodando `chaves_mxd.py verificar`
@@ -52,17 +54,33 @@ pessoa que clone o repositório consegue consumir a cota Planet e o WMS da SEMA 
 
 ### Quase-repetição 2026-07-25
 
-Pasta nova de referência (`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e
-mapa retrato/`) chegou ao acervo com o **mesmo padrão de chave real embutida**
-(`planet_api_key_antiga`, 4 ocorrências no `.mxd`) — `chaves_mxd.py` só olhava
-`Referencias_IMAP/MXD/`, então não pegou automaticamente. Detectado antes do commit (grep
-manual por ocorrência da chave real, não pelo hook — porque o hook nunca foi implementado,
-ver dívida acima), limpo e `MXD_DIRS` estendido pra cobrir a pasta nova. As outras ~30
-`.mxd` que vieram na mesma pasta (`Analise de Area/`, `AEP/`) **também têm chave real** e
-ficaram de fora deste commit — se algum dia forem versionadas, rodar `chaves_mxd.py limpar`
-com `MXD_DIRS` apontando pra elas primeiro. Reforça a prioridade do item pendente "Hook de
-pre-commit rodando `chaves_mxd.py verificar`" — desta vez pegamos manualmente, na próxima
-pode não pegar.
+Pasta nova de referência (o material que hoje é `Referencias_IMAP/Mapas/06/`) chegou ao acervo
+com o **mesmo padrão de chave real embutida** (`planet_api_key_antiga`, 4 ocorrências no
+`.mxd`) — `chaves_mxd.py` só olhava `Referencias_IMAP/MXD/`, então não pegou automaticamente.
+Detectado antes do commit por grep manual da chave real, **não pelo hook — porque o hook nunca
+foi implementado** (ver dívida acima). Os outros ~30 `.mxd` que vieram na mesma leva também
+tinham chave real e ficaram fora daquele commit.
+
+### Fechamento 2026-07-26 — acervo organizado e limpo
+
+Ao dissolver o material do OneDrive no esquema `Referencias_IMAP/Mapas/NN/`, os 30 `.mxd`
+restantes foram limpos: **177 ocorrências** de `planet_api_key_antiga` e `sema_authkey`
+substituídas por placeholder, verificadas por dois caminhos independentes (`chaves_mxd.py
+verificar` e varredura direta das chaves de `secrets.local.json` sobre todo `.mxd` do acervo).
+
+Duas mudanças estruturais para a falha não se repetir:
+
+1. **`MXD_DIRS` virou recursivo** (`rglob`) sobre `Referencias_IMAP/MXD/` e
+   `Referencias_IMAP/Mapas/`. Pasta `Mapas/NN/` nova entra sozinha — o modo antigo exigia
+   lembrar de editar uma lista, e foi exatamente isso que falhou em 2026-07-25.
+2. **Recibos do CAR não são versionados.** Os 4 PDFs `CAR - Recibo_*.pdf` que vieram com o
+   acervo novo contêm **CPF e CNPJ de proprietários reais**; o repositório é público. Entraram
+   no `.gitignore` (`Referencias_IMAP/**/CAR - Recibo*.pdf`) e ficam só no disco local.
+   Nenhum recibo jamais foi commitado neste repositório — a regra agora é explícita, não
+   acidental.
+
+O item "hook de pre-commit rodando `chaves_mxd.py verificar`" **continua pendente** e continua
+sendo a única defesa automática. A varredura recursiva reduz a chance de erro; não elimina.
 
 ## Cofre de segredos
 

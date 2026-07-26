@@ -305,7 +305,43 @@ atualização. Motor mais novo que o spec **aceita** e aplica defaults.
 | # | Questão |
 |---|---|
 | P1 | `extent` explícito vs sempre derivado — hoje é opcional; decidir se algum mapa realmente precisa de extent manual |
-| P2 | Multi-imóvel (vários lotes num mapa): `imovel` viraria `imoveis[]`? O acervo Trevisol tinha 2 lotes; o Harmonia tem 1 |
+| P2 | **Multi-imóvel** (vários lotes num mapa): `imovel` viraria `imoveis[]`? Ver o detalhamento abaixo — o acervo `Mapas/04` tornou a pendência concreta |
 | P3 | `saidas: ["geojson"]` — útil para o site da Fase 2, inútil no desktop. Manter no contrato ou mover para a Fase 2? |
 | P4 | Onde vive o schema: `shared/schemas/` versionado em git, ou embutido no pacote do núcleo Python? |
 | P5 | Mapas com dois data frames de conteúdo (inset de tipologia) não têm representação no contrato ainda |
+
+### P2 em detalhe — multi-imóvel deixou de ser hipotético
+
+O acervo [`Referencias_IMAP/Mapas/04/`](../Referencias_IMAP/Mapas/04/README.md) (Ribeirão
+Cascalheira/MT, 2025) é uma análise real com **5 polígonos de 4 matrículas num único layout**,
+cada um com sua entrada de legenda:
+
+```
+Fazenda São Sebastião (Mat. 7.128)          CAR MT173163/2019
+Fazenda Planalto I (Mat. 402)               CAR MT165855/2019
+Fazenda Conquista - Desmembrada (Mat. 8.995)
+Fazenda Conquista (Mat. 5.065)              CAR MT239101/2023
+Fazenda Planalto (Mat. 403)                 CAR MT215/2017
+```
+
+O que isso quebra no contrato atual, se alguém tentar representar esse mapa hoje:
+
+| Campo | Problema |
+|---|---|
+| `imovel` (objeto único) | há quatro, com CAR e matrícula diferentes |
+| `imovel.geometria` | são cinco fontes de perímetro, não uma |
+| `imovel.area_total_ha` | a conferência de 0,5% teria de ser por imóvel |
+| `tabela.linhas` | a coluna `Propriedade` já é multi-linha — isto **já funciona** |
+| minimapa e extent | derivam do conjunto, não de um imóvel |
+| legenda | uma entrada por imóvel, com a matrícula no rótulo |
+
+Duas opções, para decidir antes de qualquer implementação:
+
+| | Forma | Custo |
+|---|---|---|
+| **A (recomendada)** | `imoveis: [...]` como lista, e `imovel` vira açúcar de leitura para `imoveis[0]` quando há um só | incrementa `contract_version` para 3; toca validador, motor, tabela e agente |
+| B | manter `imovel` único e representar os outros como camadas comuns com `estilo: perimetro_imovel` | zero mudança de contrato, mas perde a conferência de área por imóvel e a semântica de "qual é o imóvel do mapa" |
+
+Enquanto P2 não for decidido, o produto **não gera** mapa multi-imóvel — e a galeria não deve
+oferecer modelo que precise disso. Registrar como limitação explícita é melhor que gerar um mapa
+com um imóvel só e o técnico descobrir depois.

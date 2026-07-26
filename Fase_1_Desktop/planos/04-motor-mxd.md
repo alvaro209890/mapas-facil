@@ -136,6 +136,35 @@ precisar do mapa da tabela acima ao trabalhar sobre `.mxd` crus do acervo.
 
 Overlay PRODES = só “Desmatamento - Corte Raso”. Manter os dois mapas PRODES da série.
 
+#### Evidência do acervo: o rótulo do sensor é texto livre
+
+[`Referencias_IMAP/Mapas/04/`](../../Referencias_IMAP/Mapas/04/README.md) traz uma série
+Dinâmica **de 2000 a 2025** com o bloco `METADADOS IMAGEM` preenchido em todos os 18 PDFs. O que
+ela mostra, e que o motor precisa respeitar:
+
+| Ano | Rótulo `Satélite` exatamente como está no PDF |
+|---|---|
+| 2000, 2002 | `LANDSAT 7/ETM` |
+| 2004 | `LANDSAT 5/TM` |
+| 2005 | `LANDSAT-5/TM` |
+| 2008 | `SPOT` **e** `LANDSAT 5/TM` (duas variantes do mesmo ano) |
+| 2010 | `LANDSAT 5/TM` |
+| 2012 | `RESOURCE-SAT` |
+| 2014–2023 | `LANDSAT-8/OLI` |
+| 2025 | `PLANET` / `Planet` |
+| períodos (2005-2025, 2008-2025) | `SPOT/Planet` |
+
+Três consequências para o motor, todas verificáveis no acervo:
+
+1. **`metadados[].valor` é string, e continua string.** O mesmo sensor aparece como
+   `LANDSAT 5/TM` e `LANDSAT-5/TM`, `PLANET` e `Planet`. Normalizar para um enum quebraria a
+   fidelidade ao gabarito — o campo é preenchido pelo analista, não pelo sistema.
+2. **Um ano pode ter mais de um basemap.** 2008 existe em SPOT e em Landsat, como mapas
+   separados. A escolha é do usuário, não derivável do ano.
+3. **Mapa de período não tem basemap único.** `SPOT/Planet` num campo só; o `basemap` do
+   `MapSpec` descreve o que foi desenhado, e o rótulo de metadados descreve o que o analista
+   quer comunicar. São coisas diferentes e o motor não deve derivar um do outro.
+
 ### Elementos de layout
 
 | Tipo `arcpy.mapping` | Nome | Obrigatório | Função |

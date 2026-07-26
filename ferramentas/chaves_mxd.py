@@ -35,10 +35,12 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 # Todo diretorio do acervo versionado que guarda .mxd precisa entrar aqui —
-# cada pasta nova de referencia (ex.: OneDrive_*) traz chave real embutida.
+# cada pasta nova de referencia traz chave real embutida. O acervo segue o
+# esquema Referencias_IMAP/Mapas/NN/, entao a varredura e recursiva a partir
+# de Mapas/ e nao precisa de uma linha por pasta nova.
 MXD_DIRS = [
     RAIZ / "Referencias_IMAP" / "MXD",
-    RAIZ / "Referencias_IMAP" / "OneDrive_1_25-07-2026 (1)" / "Divisão de talhões e mapa retrato",
+    RAIZ / "Referencias_IMAP" / "Mapas",
 ]
 SECRETS = RAIZ / "secrets.local.json"
 
@@ -83,9 +85,20 @@ def carregar_chaves() -> dict[str, str]:
 
 
 def _arquivos_mxd():
+    """Todo .mxd sob MXD_DIRS, recursivamente.
+
+    Recursivo de proposito: o acervo cresce por pastas novas
+    (Referencias_IMAP/Mapas/NN/MXD/), e uma varredura rasa deixaria .mxd novo
+    com chave real passar batido — foi o que quase aconteceu em 2026-07-25.
+    """
+    vistos = set()
     for pasta in MXD_DIRS:
-        for arquivo in sorted(pasta.glob("*.mxd")):
-            yield arquivo
+        if not pasta.exists():
+            continue
+        for arquivo in sorted(pasta.rglob("*.mxd")):
+            if arquivo not in vistos:
+                vistos.add(arquivo)
+                yield arquivo
 
 
 def aplicar(pares: list[tuple[str, str]], rotulo: str) -> None:

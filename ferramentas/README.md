@@ -17,22 +17,28 @@ Scripts presentes:
 
 ## `chaves_mxd.py`
 
-Remove ou reinjeta as chaves de API embutidas nos `.mxd` do acervo — hoje cobre
+Remove ou reinjeta as chaves de API embutidas nos `.mxd` do acervo. Cobre
 [`Referencias_IMAP/MXD/`](../Referencias_IMAP/MXD/) e
-[`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/`](<../Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/>)
-(lista em `MXD_DIRS`, `ferramentas/chaves_mxd.py`). **Toda pasta nova de referência com
-`.mxd` que for versionada precisa entrar em `MXD_DIRS` antes do primeiro commit** — 2026-07-25
-achamos chave real (`planet_api_key_antiga`) embutida em todos os 31 `.mxd` da pasta nova
-`OneDrive_1_25-07-2026 (1)/`; só a de `Divisão de talhões` foi limpa e versionada (as outras
-30, em `Analise de Area/` e `AEP/`, ficaram de fora deste commit — ver nota abaixo).
+[`Referencias_IMAP/Mapas/`](../Referencias_IMAP/Mapas/) — **recursivamente** desde 2026-07-26,
+então uma pasta `Mapas/NN/` nova já entra sozinha e ninguém precisa lembrar de editar
+`MXD_DIRS`. O que **ninguém pode esquecer** é de *rodar* o comando: todo `.mxd` que chega do
+escritório traz chave real embutida.
+
+Histórico que motivou o modo recursivo: em 2026-07-25 a varredura era rasa e por pasta
+listada; chave real (`planet_api_key_antiga`) estava embutida nos 31 `.mxd` do material novo e
+só a de `Divisão de talhões` foi limpa a tempo. Em 2026-07-26, ao organizar o acervo em
+`Mapas/04–06`, os outros 30 `.mxd` foram limpos de uma vez — **177 ocorrências** de
+`planet_api_key_antiga` e `sema_authkey`.
 
 
 
 ### Contexto
 
 Os `.mxd` do acervo IMAP guardam, dentro das camadas WMTS (Planet) e WMS (GeoServer da SEMA), a
-chave de API em texto claro — **566 ocorrências** no total. O repositório é público, então a
-versão versionada dos `.mxd` tem as chaves zeradas por **placeholders do mesmo comprimento**.
+chave de API em texto claro — 566 ocorrências no achado original (24 `.mxd` de
+`Referencias_IMAP/MXD/`), mais 177 no material organizado em 2026-07-26, **747 no total**. O
+repositório é público, então a versão versionada dos `.mxd` tem as chaves zeradas por
+**placeholders do mesmo comprimento**.
 
 Substituição de mesmo comprimento é a única segura: `.mxd` é um documento composto OLE (Compound
 File Binary). Trocar N bytes por N bytes não move nada; trocar por tamanho diferente corromperia o
