@@ -1,0 +1,120 @@
+"""G2 — orçamento de contexto em `agente/limites.py` (F1-06)."""
+
+from __future__ import annotations
+
+import pytest
+
+from mapasfacil_nucleo.agente import limites
+
+
+# --------------------------------------------------------------------------- constantes
+
+
+def test_tetos_f106() -> None:
+    assert limites.ENTRADA_MAX_POR_TURNO == 60_000
+    assert limites.SAIDA_MAX_TOKENS == 8_000
+    assert limites.RODADAS_TOOL_MAX_POR_TURNO == 12
+    assert limites.TOKENS_CONVERSA_MAX == 400_000
+    assert limites.RESULTADO_TOOL_MAX == 2_000
+    assert limites.MEMORIA_TRABALHO_MAX == 1_200
+    assert limites.COMPACT_SUMMARY_MAX == 800
+    assert limites.TURNOS_VERBATIM == 8
+    assert limites.SYSTEM_PROMPT_MAX == 2_500
+    assert limites.COMPACT_SUMMARY_REGENERAR_CADA == 6
+    assert limites.MAPSPEC_DIFF_MAX == 2_000
+    assert limites.INDICE_WORKSPACE_MAX_ARQUIVOS == 80
+
+
+def test_codigos_ia() -> None:
+    assert limites.CODIGO_SEM_CHAVE == "IA-001"
+    assert limites.CODIGO_PROVEDOR_INDISPONIVEL == "IA-010"
+    assert limites.CODIGO_TOOL_INEXISTENTE == "IA-020"
+    assert limites.CODIGO_LIMITE_RODADAS == "IA-030"
+    assert limites.CODIGO_CONTEXTO_EXCEDIDO == "IA-040"
+    assert limites.CODIGO_TETO_CONVERSA == "IA-041"
+    assert limites.CODIGO_RESPOSTA_TRUNCADA == "IA-050"
+
+
+# --------------------------------------------------------------------------- estimativa
+
+
+def test_estimar_tokens_vazios_e_basicos() -> None:
+    assert limites.estimar_tokens("") == 0
+    assert limites.estimar_tokens("abcd") == 1
+    assert limites.estimar_tokens("abcde") == 2  # ceil(5/4)
+
+
+def test_estimar_tokens_json_estavel() -> None:
+    obj = {"b": 2, "a": [1, {"z": True}]}
+    a = limites.estimar_tokens_json(obj)
+    b = limites.estimar_tokens_json({"a": [1, {"z": True}], "b": 2})
+    assert a == b
+    assert a > 0
+
+
+# --------------------------------------------------------------------------- gates
+
+
+def test_cabe_em_e_excede_entrada() -> None:
+    assert limites.cabe_em(60_000, limites.ENTRADA_MAX_POR_TURNO) is True
+    assert limites.excede_entrada_turno(60_000) is False
+    assert limites.excede_entrada_turno(60_001) is True
+
+
+def test_excede_conversa() -> None:
+    assert limites.excede_conversa(400_000) is False
+    assert limites.excede_conversa(400_001) is True
+
+
+def test_rodada_tool_1_a_12_ok_13_nao() -> None:
+    assert limites.rodada_tool_permitida(1) is True
+    assert limites.rodada_tool_permitida(12) is True
+    assert limites.rodada_tool_permitida(13) is False
+    assert limites.rodada_tool_permitida(0) is False
+
+
+def test_deve_regenerar_compact_summary() -> None:
+    assert limites.deve_regenerar_compact_summary(5) is False
+    assert limites.deve_regenerar_compact_summary(6) is True
+    assert limites.deve_regenerar_compact_summary(7) is True
+
+
+def test_mapspec_diff_e_indice() -> None:
+    assert limites.mapspec_diff_cabe(2_000) is True
+    assert limites.mapspec_diff_cabe(2_001) is False
+    assert limites.indice_precisa_resumo(80) is False
+    assert limites.indice_precisa_resumo(81) is True
+
+
+def test_fatia_turnos_verbatim_ultimos_8() -> None:
+    assert list(limites.fatia_turnos_verbatim(0)) == []
+    assert list(limites.fatia_turnos_verbatim(5)) == [0, 1, 2, 3, 4]
+    assert list(limites.fatia_turnos_verbatim(120)) == list(range(112, 120))
+    assert len(list(limites.fatia_turnos_verbatim(120))) == limites.TURNOS_VERBATIM
+
+
+# --------------------------------------------------------------------------- truncar
+
+
+def test_truncar_ate_tokens_abaixo_do_teto() -> None:
+    texto = "ok"
+    saida, truncado = limites.truncar_ate_tokens(texto, limites.RESULTADO_TOOL_MAX)
+    assert saida == texto
+    assert truncado is False
+
+
+def test_truncar_ate_tokens_acima_do_teto() -> None:
+    # 2001 tokens estimados ≈ 8004 chars
+    texto = "x" * (limites.RESULTADO_TOOL_MAX * 4 + 4)
+    assert limites.estimar_tokens(texto) > limites.RESULTADO_TOOL_MAX
+    saida, truncado = limites.truncar_ate_tokens(texto, limites.RESULTADO_TOOL_MAX)
+    assert truncado is True
+    assert limites.estimar_tokens(saida) <= limites.RESULTADO_TOOL_MAX
+    assert len(saida) < len(texto)
+
+
+@pytest.mark.parametrize("teto", [0, -1])
+def test_truncar_teto_nao_positivo(teto: int) -> None:
+    saida, truncado = limites.truncar_ate_tokens("abc", teto)
+    assert saida == ""
+    assert truncado is True

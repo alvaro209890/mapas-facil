@@ -163,7 +163,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
 | G1 | Interface de provedor + cliente DeepSeek (stream, tools, cancelar) | [ ] | `nucleo/.../agente/` |
-| G2 | `limites.py` com o orçamento de contexto | [ ] | idem |
+| G2 | `limites.py` com o orçamento de contexto | [x] | constantes F1-06 + helpers puros; `tests/test_limites.py` (14) |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [ ] | `nucleo/.../agente/contexto.py` |
 | G4 | `compact_summary` com `deepseek-v4-flash` | [ ] | `nucleo/.../agente/resumo.py` |
 | G5 | As 26 tools tipadas, incluindo `usar_modelo_da_galeria` | [ ] | `nucleo/.../agente/tools.py` |

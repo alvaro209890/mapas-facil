@@ -13,12 +13,13 @@ custo em pastas reais), os guard rails e os testes.
 |---|---|---|
 | Cliente DeepSeek | **ausente** | streaming + tool calling + cancelamento |
 | Tools | **ausentes** | 26 tools tipadas |
+| Orçamento (`limites.py`) | **feito** (G2) — constantes + helpers puros | tetos F1-06 testados |
 | Montador de contexto / compressão | **ausente** | pipeline obrigatório abaixo |
 | `chat.enviar` / `chat.cancelar` | **ausentes** | métodos NDJSON |
 | Modo determinístico | **ausente** como código; o caminho equivalente é a galeria | [F1-15](15-galeria-de-modelos.md) |
 | Fake do provedor (VCR) | **ausente** | anel 2 no CI |
 
-O núcleo v0.4.0 **não tem pasta `agente/`**. Ela é criada por quem implementar o M7.
+A pasta `agente/` existe com `limites.py` (G2). Demais módulos do M7 ainda ausentes.
 
 ## Dependências
 
@@ -403,7 +404,7 @@ da série tem de ser gerável sem IA nenhuma.
 
 - [ ] `nucleo/mapasfacil_nucleo/agente/provedor.py` — interface `enviar_stream`/`cancelar`
 - [ ] `nucleo/mapasfacil_nucleo/agente/deepseek.py` — implementação com streaming e tool calling
-- [ ] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
+- [x] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
 - [ ] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
 - [ ] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` com `deepseek-v4-flash`
 - [ ] `nucleo/mapasfacil_nucleo/agente/tools.py` — as 26 tools, tipadas e validadas
