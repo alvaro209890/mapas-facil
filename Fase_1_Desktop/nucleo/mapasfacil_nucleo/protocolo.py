@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from typing import Any, Callable
 
 import ulid
@@ -110,6 +111,40 @@ class Emissor:
         if self._sink is not None:
             self._sink(envelope)
         return envelope
+
+
+# Sink do loop NDJSON para eventos **fora** de uma req (A12: `workspace.mudou`).
+# O `id` do envelope é um ULID próprio — não há req pai.
+_sink_assincrono: Callable[[dict[str, Any]], None] | None = None
+_sink_assincrono_lock = threading.Lock()
+
+
+def configurar_sink_assincrono(
+    sink: Callable[[dict[str, Any]], None] | None,
+) -> None:
+    """Liga/desliga o canal de eventos não solicitados (watcher, avisos futuros)."""
+    global _sink_assincrono
+    with _sink_assincrono_lock:
+        _sink_assincrono = sink
+
+
+def emitir_assincrono(
+    evento: str,
+    dados: dict[str, Any],
+    *,
+    id_evt: str | None = None,
+) -> dict[str, Any]:
+    """Emite `tipo:"evt"` pelo sink do loop stdio, thread-safe.
+
+    Sem sink configurado (biblioteca / testes unitários) é no-op além de devolver
+    o envelope — espelha o contrato do `Emissor` sem req.
+    """
+    envelope = envelope_evt(id_evt or novo_id(), evento, dados)
+    with _sink_assincrono_lock:
+        sink = _sink_assincrono
+    if sink is not None:
+        sink(envelope)
+    return envelope
 
 
 Handler = Callable[[dict[str, Any]], Any]

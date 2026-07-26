@@ -57,7 +57,7 @@ export function listarComandos(contexto: ContextoComandos): Comando[] {
       id: "reindexar-pasta",
       grupo: "pasta",
       rotulo: "Reindexar pasta",
-      descricao: "Varre de novo a pasta já conectada (sem watcher ainda)",
+      descricao: "Varre de novo a pasta já conectada (fallback do watcher)",
       disponivel: contexto.temPasta,
       motivo: contexto.temPasta ? undefined : "Conecte uma pasta antes",
     },

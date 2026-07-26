@@ -1,11 +1,11 @@
-// C7 — `painel-workspace`: a árvore da pasta conectada com metadados inline.
+// C7 + A12 — `painel-workspace`: a árvore da pasta conectada com metadados inline.
 //
 // O que o técnico precisa ver sem abrir nada: quantas feições, qual CRS e quantos
-// hectares. Tudo vem de `workspace.abrir`/`workspace.reindexar` — o renderer não
-// toca em disco (fronteira 1 / fsguard).
+// hectares. Tudo vem de `workspace.abrir` / `workspace.reindexar` / `workspace.mudou`
+// — o renderer não toca em disco (fronteira 1 / fsguard).
 //
-// Sem watcher nesta fatia: `workspace.mudou` é de outro marco, então reindexar é
-// um botão explícito, não um debounce que finge tempo real.
+// A12: arquivo novo chega por `workspace.mudou` e ganha realce de 2 s (F1-16 A6).
+// O botão de reindexar permanece como fallback.
 
 import type { ReactNode } from "react";
 import { FileText, FolderOpen, Layers, RefreshCw, TriangleAlert } from "lucide-react";
@@ -49,12 +49,23 @@ function Grupo({ titulo, icone, children }: { titulo: string; icone: ReactNode; 
   );
 }
 
-function ItemShapefile({ shapefile }: { shapefile: Shapefile }) {
+function ItemShapefile({
+  shapefile,
+  destaque,
+}: {
+  shapefile: Shapefile;
+  destaque: boolean;
+}) {
   const problemas = problemasDoShapefile(shapefile);
   const temProblema = problemas.length > 0 || !shapefile.valido;
 
   return (
-    <li className={estilos.item} data-alerta={temProblema} data-arquivo={shapefile.caminho}>
+    <li
+      className={estilos.item}
+      data-alerta={temProblema}
+      data-arquivo={shapefile.caminho}
+      data-destaque={destaque ? "true" : undefined}
+    >
       <span className={estilos.linhaArquivo}>
         <span className={estilos.arquivo}>{nomeArquivo(shapefile.caminho)}</span>
         {shapefile.papel !== null && <span className={estilos.papel}>{shapefile.papel}</span>}
@@ -110,9 +121,10 @@ export function Workspace({
   aoReindexar,
   rodape,
 }: PropsWorkspace) {
-  const { situacao, indice, recibo, erro, recentes } = estado;
+  const { situacao, indice, recibo, erro, recentes, destaques } = estado;
   const rodapeDoctor =
     rodape === undefined ? null : <div className={estilos.rodape}>{rodape}</div>;
+  const setDestaques = new Set(destaques ?? []);
 
   if (situacao === "erro" && erro !== null) {
     return (
@@ -191,7 +203,11 @@ export function Workspace({
         <Grupo titulo="camadas" icone={<Layers size={12} aria-hidden="true" />}>
           <ul>
             {indice.shapefiles.map((shapefile) => (
-              <ItemShapefile key={shapefile.caminho} shapefile={shapefile} />
+              <ItemShapefile
+                key={shapefile.caminho}
+                shapefile={shapefile}
+                destaque={setDestaques.has(shapefile.caminho)}
+              />
             ))}
           </ul>
         </Grupo>
@@ -201,7 +217,12 @@ export function Workspace({
         <Grupo titulo="documentos" icone={<FileText size={12} aria-hidden="true" />}>
           <ul>
             {indice.pdfs.map((pdf) => (
-              <li key={pdf.caminho} className={estilos.item} data-arquivo={pdf.caminho}>
+              <li
+                key={pdf.caminho}
+                className={estilos.item}
+                data-arquivo={pdf.caminho}
+                data-destaque={setDestaques.has(pdf.caminho) ? "true" : undefined}
+              >
                 <span className={estilos.linhaArquivo}>
                   <span className={estilos.arquivo}>{nomeArquivo(pdf.caminho)}</span>
                   {pdf.recibo_car && <span className={estilos.papel}>recibo do CAR</span>}
@@ -216,7 +237,12 @@ export function Workspace({
         <Grupo titulo="outros arquivos" icone={<FileText size={12} aria-hidden="true" />}>
           <ul>
             {[...indice.zips, ...indice.outros].map((arquivo) => (
-              <li key={arquivo.caminho} className={estilos.item} data-arquivo={arquivo.caminho}>
+              <li
+                key={arquivo.caminho}
+                className={estilos.item}
+                data-arquivo={arquivo.caminho}
+                data-destaque={setDestaques.has(arquivo.caminho) ? "true" : undefined}
+              >
                 <span className={estilos.arquivo}>{nomeArquivo(arquivo.caminho)}</span>
               </li>
             ))}

@@ -1,8 +1,8 @@
 // Assinatura dos eventos NDJSON que o núcleo emite (F1-01 §Eventos).
 //
-// Estado real do núcleo nesta versão: **só `job.progresso` é emitido** (A9). Os
-// demais estão aqui como contrato, sem consumidor — a UI não simula nenhum deles
-// (AP-07: animação só existe amarrada a evento real).
+// Emitidos hoje: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`,
+// `workspace.mudou` (A12). Os demais estão no contrato sem emissor — a UI não
+// simula nenhum deles (AP-07).
 
 export interface EnvelopeEvento<D = Record<string, unknown>> {
   v: number;
@@ -72,7 +72,21 @@ export interface DadosJobArtefatoParcial {
   pct?: number;
 }
 export interface DadosWorkspaceMudou {
-  mudancas: unknown[];
+  mudancas: MudancaWorkspace[];
+  /** Índice completo após o reindex — a UI troca o estado sem segunda chamada. */
+  workspace: Record<string, unknown>;
+}
+
+export type AcaoMudancaWorkspace = "adicionado" | "removido" | "modificado";
+
+export type TipoMudancaWorkspace = "shapefile" | "pdf" | "zip" | "outro";
+
+export interface MudancaWorkspace {
+  acao: AcaoMudancaWorkspace;
+  caminho: string;
+  tipo: TipoMudancaWorkspace;
+  papel?: string;
+  resumo?: string;
 }
 export interface DadosChatDelta {
   texto: string;
@@ -136,4 +150,30 @@ export function ehJobProgresso(
   if (evento.evento !== "job.progresso") return false;
   const { etapa, pct } = evento.dados;
   return typeof etapa === "string" && indiceDaEtapa(etapa) >= 0 && typeof pct === "number";
+}
+
+/** `workspace.mudou` estreitado (A12). */
+export type EventoWorkspaceMudou = EnvelopeEvento<Record<string, unknown> & DadosWorkspaceMudou> & {
+  evento: "workspace.mudou";
+};
+
+const ACOES_MUDANCA = ["adicionado", "removido", "modificado"] as const;
+const TIPOS_MUDANCA = ["shapefile", "pdf", "zip", "outro"] as const;
+
+export function ehWorkspaceMudou(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoWorkspaceMudou {
+  if (evento.evento !== "workspace.mudou") return false;
+  const { mudancas, workspace } = evento.dados;
+  if (!Array.isArray(mudancas) || typeof workspace !== "object" || workspace === null) {
+    return false;
+  }
+  return mudancas.every((item) => {
+    if (typeof item !== "object" || item === null) return false;
+    const m = item as Partial<MudancaWorkspace>;
+    if (typeof m.caminho !== "string" || m.caminho === "") return false;
+    if (typeof m.acao !== "string" || !ACOES_MUDANCA.includes(m.acao as never)) return false;
+    if (typeof m.tipo !== "string" || !TIPOS_MUDANCA.includes(m.tipo as never)) return false;
+    return true;
+  });
 }

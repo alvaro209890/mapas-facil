@@ -10,7 +10,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
 | Bloco | Marco | Estado |
 |---|---|---|
-| A — fundação do núcleo | M1 | **fechado** exceto A10–A13 (A9 fechou em 2026-07-26) |
+| A — fundação do núcleo | M1 | **fechado** exceto A10–A11 e A13 (A9+A12 fechados em 2026-07-26) |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
@@ -18,7 +18,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 24/27 tools; 3× `IA-022` até R21/F1-07) |
-| H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6 só o que tem evento (galeria/abas), o resto espera `workspace.mudou`/`mapspec.atualizado` |
+| H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6: galeria/abas + realce de arquivo novo (A12); versões esperam `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
 ## Pré-voo
@@ -47,7 +47,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | **A9** | **Emissão de `job.progresso` nas 10 etapas** | [x] | v0.4.0 — `progresso.py` (etapas, pesos, `pct` monotônico), `protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)`, `motores/gerar.py` nas 10 etapas com `item` nas camadas locais. `tests/test_job_progresso.py` (16 testes). Desbloqueia C6 e H1 |
 | **A10** | `mapa.cancelar` com `taskkill /T /F` | [ ] | |
 | **A11** | `cofre.definir` / `existe` / `testar` | [ ] | Credential Manager; nunca devolve valor |
-| **A12** | `workspace.mudou` (watcher, debounce 500 ms) | [ ] | |
+| **A12** | `workspace.mudou` (watcher, debounce 500 ms) | [x] | `workspace/watcher.py` + sink assíncrono; UI atualiza árvore + realce 2 s; `tests/test_workspace_watcher.py` |
 | **A13** | `catalogo.listar` e `camada.resolver` | [ ] | WFS/WMS em runtime |
 
 ## Bloco A+ — Quantitativos e validação (anel 1, sem ArcMap)
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: A10–A13 do núcleo, restos do M8 (H6), ou M2 quando houver ArcMap.
+Próximos marcos sem ArcMap: A10 (`mapa.cancelar`), A11 (cofre), A13 (WFS), ou restos do H6 (`mapspec.atualizado`).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -184,7 +184,7 @@ Plano: [F1-16](16-design-system-dark.md).
 | H3 | A4 progresso segmentado (10 etapas) | [x] | `app/src/componentes/BarraProgressoJob.tsx` (C6 + varredura do segmento ativo) |
 | H4 | A5 fase 1 — esqueleto de camadas por `item` | [x] | `app/src/paineis/Preview.tsx` |
 | H5 | A5 fase 2 — rasterização real com crossfade | [x] | `paineis/Preview.tsx` + `estado/artefatos.ts` |
-| H6 | A6 microinterações | [~] | seleção na galeria (`CartaoModelo`) e abas do painel direito; pasta/versões/watcher esperam `workspace.mudou` e `mapspec.atualizado` — não foram fingidos |
+| H6 | A6 microinterações | [~] | seleção na galeria (`CartaoModelo`), abas do painel direito e realce de arquivo novo (`workspace.mudou`); versões esperam `mapspec.atualizado` — não foram fingidas |
 | H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)

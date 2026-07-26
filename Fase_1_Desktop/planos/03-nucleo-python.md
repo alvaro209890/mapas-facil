@@ -186,7 +186,7 @@ mapa.
 
 - [ ] Loop NDJSON com roteamento e tratamento de erro por método
 - [ ] `fsguard` completo (ver [testes](10-testes-e-qa.md))
-- [ ] Indexador + watcher com debounce
+- [x] Indexador + watcher com debounce (`workspace/watcher.py`, A12)
 - [ ] Leitor de shapefile: `.prj`, encoding em cascata, bbox por cabeçalho
 - [ ] Parser de recibo do CAR com descarte de CPF
 - [ ] Leitor de `.zip` com anti zip slip

@@ -94,6 +94,28 @@
   border-left-color: var(--mf-aviso);
 }
 
+/* A12 / F1-16 A6 — arquivo novo via `workspace.mudou`: realce que decai em 2 s. */
+.item[data-destaque="true"] {
+  animation: mf-destaque-arquivo 2s var(--mf-ease-saida);
+  background: var(--mf-acento-fraco);
+  border-left-color: var(--mf-acento);
+}
+
+@keyframes mf-destaque-arquivo {
+  from {
+    background: var(--mf-acento-fraco);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item[data-destaque="true"] {
+    animation: none;
+  }
+}
+
 .linhaArquivo {
   display: flex;
   align-items: center;

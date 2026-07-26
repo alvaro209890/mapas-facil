@@ -14,7 +14,7 @@ verdade visual da **interface**; o visual do **mapa** continua sendo
 | Item | Atual | Alvo |
 |---|---|---|
 | Tokens, tema, fontes | **existem e são consumidos** (C3/C4) pelo renderer (C1/C5) | `app/src/estilos/tokens.css` + fontes embarcadas |
-| Eventos NDJSON que alimentam animação | **`job.progresso`, `chat.delta`, `chat.tool` e `job.artefato_parcial` emitidos** | todos existem; falta só `workspace.mudou` e `mapspec.atualizado` |
+| Eventos NDJSON que alimentam animação | **`job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou` emitidos** | falta só `mapspec.atualizado` |
 | `job.artefato_parcial` (preview em construção) | **implementado** (M8) — 4 tipos, caminho relativo | `nucleo/.../artefatos.py` + emissão no pipeline |
 | `prefers-reduced-motion` | **respeitado** em `tokens.css` (≤ 80 ms, só opacidade/cor) | respeitado |
 

@@ -76,7 +76,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **39 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler`) | `Fase_1_Desktop/nucleo/` |
-| Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), **`job.artefato_parcial`** (M8) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py` |
+| Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), **`workspace.mudou`** (A12) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `workspace/watcher.py` |
 | App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
@@ -91,13 +91,11 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 
 ## O que NÃO existe (não invente que existe)
 
-- Watcher de pasta e diff de versões animado: dependem de `workspace.mudou` e
-  `mapspec.atualizado`, que **ainda não têm emissor** — as microinterações A6 correspondentes não
-  existem (não foram simuladas).
-- Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
+- Diff de versões animado: depende de `mapspec.atualizado`, que **ainda não tem emissor** —
+  a microinteração A6 correspondente não existe (não foi simulada).
 - Menus e tray do Electron (só diálogo de pasta + IPC).
-- Eventos NDJSON ainda sem emissor: `job.log`, `workspace.mudou`, `mapspec.atualizado`, `aviso`.
-  Emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`.
+- Eventos NDJSON ainda sem emissor: `job.log`, `mapspec.atualizado`, `aviso`.
+  Emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou`.
 - Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
   com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
   `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
@@ -182,7 +180,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R02 | Ponte NDJSON Electron ↔ sidecar | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** | `app/electron/nucleo/ponte.ts` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
-| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (M8) — A1, A2, A3, A4 e A5 (fases 1 e 2) ligadas a evento; A6 só onde há evento ou clique | `app/src/componentes/IndicadorPensando.tsx`, `CartaoTool.tsx`, `BarraProgressoJob.tsx`, `app/src/paineis/Preview.tsx` |
+| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (M8+A12) — A1–A5 + realce de arquivo novo (`workspace.mudou`); A6 de versões espera `mapspec.atualizado` | `app/src/componentes/IndicadorPensando.tsx`, `CartaoTool.tsx`, `BarraProgressoJob.tsx`, `app/src/paineis/Preview.tsx`, `Workspace.tsx` |
 | R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato | **feito** (M8) — 4 tipos, caminho relativo, `artefato.ler` para o renderer | `nucleo/.../artefatos.py`, `leitor_artefato.py`, `motores/gerar.py`, `motores/nativo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |

@@ -1,4 +1,4 @@
-// C7 — estado do workspace no renderer.
+// C7 + A12 — estado do workspace no renderer.
 //
 // Os tipos abaixo **espelham a resposta real** de `workspace.abrir` do núcleo
 // (`nucleo/mapasfacil_nucleo/workspace/`), e a fixture do teste é gerada por
@@ -7,11 +7,15 @@
 //
 // Quem abre a pasta é o processo main (diálogo nativo + `workspace.abrir`); daqui
 // só saem chamadas NDJSON e o índice que voltou. Nenhum acesso a disco (fsguard).
+//
+// A12: `workspace.mudou` atualiza o índice e marca caminhos novos por 2 s (F1-16 A6).
 
 import { useCallback, useEffect, useState } from "react";
 
+import type { EnvelopeEvento } from "./eventos.js";
+import { ehWorkspaceMudou } from "./eventos.js";
 import type { ProjetoRecente } from "./ponte.js";
-import { api } from "./ponte.js";
+import { api, assinarEventos } from "./ponte.js";
 
 export interface AvisoShapefile {
   codigo: string;
@@ -94,6 +98,8 @@ export interface EstadoWorkspace {
   doctor: DoctorNoWorkspace | null;
   erro: ErroUi | null;
   recentes: ProjetoRecente[];
+  /** Caminhos que acabaram de entrar via `workspace.mudou` — realce A6 por 2 s. */
+  destaques: string[];
 }
 
 const INICIAL: EstadoWorkspace = {
@@ -103,7 +109,11 @@ const INICIAL: EstadoWorkspace = {
   doctor: null,
   erro: null,
   recentes: [],
+  destaques: [],
 };
+
+/** Duração do realce de arquivo novo (F1-16 A6). */
+export const DESTAQUE_MS = 2000;
 
 const SEM_PONTE: ErroUi = {
   codigo: "UI-001",
@@ -122,6 +132,12 @@ export function problemasDoShapefile(shapefile: Shapefile): string[] {
   const problemas = shapefile.avisos.map((aviso) => `${aviso.codigo} · ${aviso.mensagem}`);
   if (shapefile.vazia) problemas.push("Shapefile sem nenhuma feição.");
   return problemas;
+}
+
+function ehIndice(valor: unknown): valor is IndiceWorkspace {
+  if (typeof valor !== "object" || valor === null) return false;
+  const bruto = valor as Partial<IndiceWorkspace>;
+  return typeof bruto.raiz === "string" && Array.isArray(bruto.shapefiles);
 }
 
 function ehResposta(valor: unknown): valor is RespostaWorkspaceAbrir {
@@ -148,6 +164,38 @@ export function useWorkspace(): EstadoWorkspace & AcoesWorkspace {
     void carregarRecentes();
   }, [carregarRecentes]);
 
+  // A12 — índice vivo: só reage a `workspace.mudou` real do núcleo (AP-07).
+  useEffect(() => {
+    const timers: number[] = [];
+    const cancelar = assinarEventos((evento: EnvelopeEvento) => {
+      if (!ehWorkspaceMudou(evento)) return;
+      if (!ehIndice(evento.dados.workspace)) return;
+      const novos = evento.dados.mudancas
+        .filter((m) => m.acao === "adicionado")
+        .map((m) => m.caminho);
+      setEstado((anterior) => ({
+        ...anterior,
+        situacao: "aberto",
+        indice: evento.dados.workspace as unknown as IndiceWorkspace,
+        erro: null,
+        destaques: novos.length > 0 ? novos : anterior.destaques,
+      }));
+      if (novos.length > 0) {
+        const id = window.setTimeout(() => {
+          setEstado((anterior) => ({
+            ...anterior,
+            destaques: anterior.destaques.filter((c) => !novos.includes(c)),
+          }));
+        }, DESTAQUE_MS);
+        timers.push(id);
+      }
+    });
+    return () => {
+      cancelar();
+      for (const id of timers) window.clearTimeout(id);
+    };
+  }, []);
+
   const aplicar = useCallback(
     (resposta: { ok?: boolean; resultado?: unknown; erro?: ErroUi } | undefined) => {
       if (resposta?.ok === true && ehResposta(resposta.resultado)) {
@@ -159,6 +207,7 @@ export function useWorkspace(): EstadoWorkspace & AcoesWorkspace {
           recibo: dados.recibo ?? null,
           doctor: dados.doctor ?? null,
           erro: null,
+          destaques: [],
         }));
         return true;
       }
@@ -208,7 +257,7 @@ export function useWorkspace(): EstadoWorkspace & AcoesWorkspace {
     [aplicar, carregarRecentes],
   );
 
-  /** Reindexa sob demanda — o watcher (`workspace.mudou`) é de outro marco. */
+  /** Reindex manual — o watcher cobre o caso comum; o botão fica como fallback. */
   const reindexar = useCallback(async () => {
     const ponte = api();
     if (ponte === undefined) return;

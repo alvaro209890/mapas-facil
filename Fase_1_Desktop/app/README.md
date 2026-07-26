@@ -8,16 +8,15 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados.** A janela abre, conecta pasta, indexa,
+**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados/parciais + A12.** A janela abre, conecta pasta, indexa,
 mostra doctor, responde a `Ctrl+K`/atalhos, lista a galeria, monta MapSpec, mantém histórico local
 de conversas (`barra-chats`, `Ctrl+N` / `Ctrl+F`), conversa com o agente (streaming, cartões de
 tool, "Parar") e mostra o `painel-preview` acompanhando a geração — esqueleto de camadas por
-`job.progresso` e imagem real por `job.artefato_parcial`. `pnpm typecheck`, `test` (**92** testes)
-e `build` verdes.
+`job.progresso` e imagem real por `job.artefato_parcial`. O workspace atualiza sozinho via
+`workspace.mudou` (debounce 500 ms) com realce de arquivo novo. `pnpm typecheck`, `test` e `build` verdes.
 
-O que ainda **não** existe: menus/tray do processo main; e as microinterações A6 de watcher de
-pasta e de troca de versão, que dependem de `workspace.mudou` e `mapspec.atualizado` — eventos sem
-emissor no núcleo, e por isso não simulados (AP-07).
+O que ainda **não** existe: menus/tray do processo main; microinteração A6 de troca de versão
+(`mapspec.atualizado` ainda sem emissor — não simulada, AP-07).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -55,7 +54,8 @@ renderer  recebe o índice pronto e desenha a árvore
 O renderer não abre arquivo, não recebe `fs` e não manda caminho de disco: reabrir um projeto
 recente é `abrirProjetoRecente(indice)`, e quem traduz índice → caminho é o main.
 
-Sem watcher nesta fatia: `workspace.mudou` não é emitido pelo núcleo, então reindexar é um botão
+A12: o watcher do núcleo emite `workspace.mudou` (debounce 500 ms) e a árvore atualiza sozinha,
+com realce de 2 s em arquivo novo. O botão de reindexar permanece como fallback.
 explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 ### O que as rodadas de C1–C9 mudaram no que já existia
@@ -79,10 +79,9 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 ## O que falta, na ordem
 
-1. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
-2. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
-3. Auth (M5) — depende do backend de identidade.
-4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (conta local M5 + motor).
+1. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
+2. Aviso de arquivo novo no chat (sistema) — o evento já traz `resumo`; falta gravar no transcript.
+3. Microinteração A6 de troca de versão (`mapspec.atualizado`).
 
 ## Arquitetura
 

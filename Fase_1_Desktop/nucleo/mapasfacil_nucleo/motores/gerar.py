@@ -14,6 +14,7 @@ from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
 from mapasfacil_nucleo.progresso import RastreadorProgresso
+from mapasfacil_nucleo.workspace import watcher as workspace_watcher
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
 from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
 from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
@@ -113,6 +114,9 @@ def gerar_mapa(
 
     A ordem de execução segue a ordem das etapas do contrato (F1-01): sem
     `progresso`, nada é emitido — o trabalho é o mesmo.
+
+    Durante o job o watcher (A12) ignora pastas de saída para não emitir
+    `workspace.mudou` a cada PNG/PDF intermediário.
     """
     prog = progresso or RastreadorProgresso()
 
@@ -122,6 +126,29 @@ def gerar_mapa(
         raise ErroNucleo(primeiro["codigo"], primeiro["mensagem"], {"erros": resultado_val["erros"]})
     prog.concluir("validando_spec")
 
+    workspace_watcher.pausar_pastas_saida(True)
+    try:
+        return _gerar_mapa_corpo(
+            mapspec,
+            guard,
+            fontes_idx,
+            comparar_baseline=comparar_baseline,
+            recibo=recibo,
+            prog=prog,
+        )
+    finally:
+        workspace_watcher.pausar_pastas_saida(False)
+
+
+def _gerar_mapa_corpo(
+    mapspec: dict[str, Any],
+    guard: WorkspaceGuard,
+    fontes_idx: dict[str, str],
+    *,
+    comparar_baseline: bool,
+    recibo: dict[str, Any] | None,
+    prog: RastreadorProgresso,
+) -> dict[str, Any]:
     saidas = mapspec.get("saidas") or ["pdf"]
     saida_cfg = mapspec.get("saida") or {}
     pasta_shp = saida_cfg.get("materializar_camadas_em", "SHP")

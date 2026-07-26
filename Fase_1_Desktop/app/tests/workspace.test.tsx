@@ -23,6 +23,7 @@ const VAZIO: EstadoWorkspace = {
   doctor: null,
   erro: null,
   recentes: [],
+  destaques: [],
 };
 
 const ABERTO: EstadoWorkspace = {
@@ -32,6 +33,7 @@ const ABERTO: EstadoWorkspace = {
   doctor: RESPOSTA.doctor,
   erro: null,
   recentes: [],
+  destaques: [],
 };
 
 function renderizar(estado: EstadoWorkspace, acoes: Partial<Record<string, () => void>> = {}) {
@@ -227,5 +229,45 @@ describe("useWorkspace", () => {
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("NU-001"));
     expect(screen.getByText("Essa pasta não existe mais.")).toBeInTheDocument();
+  });
+
+  it("workspace.mudou atualiza a árvore e marca o arquivo novo (A12)", async () => {
+    const ponte = ligarPonteFake({
+      conectar: { cancelado: false, ok: true, resultado: RESPOSTA },
+    });
+    render(<Sonda />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Conectar pasta" }));
+    await waitFor(() => expect(itemDoArquivo("SHP/ATP.shp")).toBeInTheDocument());
+
+    const novo = {
+      ...RESPOSTA.workspace.shapefiles[0],
+      caminho: "SHP/NOVO.shp",
+      id_local: "NOVO",
+      papel: "NOVO",
+    };
+    const indiceNovo = {
+      ...RESPOSTA.workspace,
+      shapefiles: [...RESPOSTA.workspace.shapefiles, novo],
+    };
+
+    ponte.emitir({
+      evento: "workspace.mudou",
+      dados: {
+        mudancas: [
+          {
+            acao: "adicionado",
+            caminho: "SHP/NOVO.shp",
+            tipo: "shapefile",
+            papel: "NOVO",
+            resumo: "apareceu NOVO.shp",
+          },
+        ],
+        workspace: indiceNovo,
+      },
+    });
+
+    await waitFor(() => expect(itemDoArquivo("SHP/NOVO.shp")).toBeInTheDocument());
+    expect(itemDoArquivo("SHP/NOVO.shp")).toHaveAttribute("data-destaque", "true");
   });
 });

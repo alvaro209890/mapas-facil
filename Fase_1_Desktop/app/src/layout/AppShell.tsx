@@ -315,7 +315,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               situacao={galeria.situacao}
               erro={galeria.erro}
               aoAbrir={(id) => void galeria.detalhar(id)}
-              selecionado={galeria.detalhe?.id ?? null}
+              selecionado={null}
             />
           )}
           {abaDireita === "galeria" &&

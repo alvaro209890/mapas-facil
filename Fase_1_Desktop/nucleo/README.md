@@ -141,8 +141,9 @@ são geradas quando há canal de eventos. Para os bytes, o renderer chama `artef
 o disco direto (F1-01, fronteira 1).
 
 O vocabulário de eventos é fechado em `protocolo.EVENTOS`: emitir nome fora da lista levanta erro.
-Os 4 restantes (`job.log`, `workspace.mudou`, `mapspec.atualizado`, `aviso`) continuam **sem
-emissor**.
+Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`, **`workspace.mudou`**
+(A12 — watcher com debounce 500 ms; eventos fora de req saem pelo `configurar_sink_assincrono`).
+Ainda sem emissor: `job.log`, `mapspec.atualizado`, `aviso`.
 
 ### Limites conhecidos (honestos)
 
@@ -162,7 +163,8 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.md) (M0–M11).
 
 - ~~A9 — emitir `job.progresso`~~ **fechado na v0.4.0** (`progresso.py`, `motores/gerar.py`)
-- A10 — `mapa.cancelar`; A11 — `cofre.*`; A12 — watcher/`workspace.mudou`; A13 — `catalogo.listar`
+- ~~A12 — watcher/`workspace.mudou`~~ **fechado** (`workspace/watcher.py`, debounce 500 ms)
+- A10 — `mapa.cancelar`; A11 — `cofre.*`; A13 — `catalogo.listar`
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo

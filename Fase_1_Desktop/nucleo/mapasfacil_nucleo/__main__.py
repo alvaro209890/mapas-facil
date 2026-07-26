@@ -18,6 +18,7 @@ from mapasfacil_nucleo.progresso import RastreadorProgresso
 from mapasfacil_nucleo.protocolo import (
     Emissor,
     Roteador,
+    configurar_sink_assincrono,
     envelope_erro,
     novo_id,
     parsear_linha,
@@ -376,12 +377,18 @@ def loop_ndjson(
         saida.write(serializar_linha(envelope) + "\n")
         saida.flush()
 
-    for linha in entrada:
-        linha = linha.strip()
-        if not linha:
-            continue
-        saida.write(processar_linha(linha, roteador, emitir=_emitir))
-        saida.flush()
+    # Eventos fora de req (A12 `workspace.mudou`) usam o mesmo canal stdout.
+    configurar_sink_assincrono(_emitir)
+    try:
+        for linha in entrada:
+            linha = linha.strip()
+            if not linha:
+                continue
+            saida.write(processar_linha(linha, roteador, emitir=_emitir))
+            saida.flush()
+    finally:
+        configurar_sink_assincrono(None)
+        workspace_servico.fechar()
 
 
 def main_cli() -> None:

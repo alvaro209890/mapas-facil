@@ -140,7 +140,7 @@ Quem implementar os outros eventos reaproveita esse canal.
 | `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` | **existe** (A9) — emitido ao concluir cada etapa; `pct` acumulado e monotônico |
 | `job.log` | `{linha}` | log técnico do job | falta |
 | `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | artefato intermediário pronto | **existe** (M8) — 4 tipos, caminho relativo; ver [F1-16](16-design-system-dark.md) |
-| `workspace.mudou` | `{mudancas:[]}` | watcher detectou alteração | falta |
+| `workspace.mudou` | `{mudancas:[], workspace}` | watcher detectou alteração (debounce 500 ms) | **existe** (A12) — `workspace/watcher.py`; `mudancas[].acao` = adicionado/removido/modificado |
 | `chat.delta` | `{texto}` | pedaço da resposta | **existe** (M7) |
 | `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | **existe** (M7) |
 | `mapspec.atualizado` | `{id, versao, diff}` | nova versão | falta |
@@ -335,7 +335,7 @@ só a checagem de sanidade no boot (`UI-010`).
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — canal de eventos no roteador
 - [ ] `nucleo/mapasfacil_nucleo/sessao.py` — `sessao.definir` / `sessao.estado` + gate
 - [ ] `nucleo/mapasfacil_nucleo/cofre.py` — Credential Manager; `existe`/`testar` nunca devolvem valor
-- [ ] `nucleo/mapasfacil_nucleo/workspace/watcher.py` — debounce 500 ms + `workspace.mudou`
+- [x] `nucleo/mapasfacil_nucleo/workspace/watcher.py` — debounce 500 ms + `workspace.mudou`
 - [ ] `nucleo/mapasfacil_nucleo/jobs.py` — `mapa.cancelar` com `taskkill /T /F`
 - [x] `app/electron/main.ts`, `app/electron/nucleo/ponte.ts` — spawn, NDJSON, reinício *(sem teste executado)*
 - [x] `app/electron/ipc/` — canais tipados; nenhum expõe caminho absoluto sem passar pelo núcleo
