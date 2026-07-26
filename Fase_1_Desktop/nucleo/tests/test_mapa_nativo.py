@@ -10,7 +10,7 @@ import pytest
 from mapasfacil_nucleo.__main__ import processar_linha
 from mapasfacil_nucleo.protocolo import envelope_req
 from mapasfacil_nucleo.workspace import servico as workspace_servico
-from tests.helpers_fixtures import montar_workspace_minimo
+from tests.helpers_fixtures import eventos_e_resposta, montar_workspace_minimo
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_mapa_gerar_pdf_e_validacao(projeto: Path, mapspec_minimo: dict) -> None
     processar_linha(linha_abrir)
 
     linha = json.dumps(envelope_req("mapa.gerar", {"mapspec": mapspec_minimo}))
-    resposta = json.loads(processar_linha(linha))
+    _eventos, resposta = eventos_e_resposta(processar_linha(linha))
     assert resposta["ok"] is True, resposta
     pdf_rel = resposta["resultado"]["pdf"]
     pdf_path = projeto / pdf_rel

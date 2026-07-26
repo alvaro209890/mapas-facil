@@ -3,14 +3,16 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any, TextIO
+from typing import Any, Callable, TextIO
 
 from mapasfacil_nucleo import doctor
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
 from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
+from mapasfacil_nucleo.progresso import RastreadorProgresso
 from mapasfacil_nucleo.protocolo import (
+    Emissor,
     Roteador,
     envelope_erro,
     novo_id,
@@ -37,7 +39,7 @@ def criar_roteador() -> Roteador:
     roteador.registrar("workspace.reindexar", _handler_workspace_reindexar)
     roteador.registrar("workspace.inspecionar", _handler_workspace_inspecionar)
     roteador.registrar("car.ler_recibo", _handler_car_ler_recibo)
-    roteador.registrar("mapa.gerar", _handler_mapa_gerar)
+    roteador.registrar("mapa.gerar", _handler_mapa_gerar, com_eventos=True)
     roteador.registrar("zip.listar", _handler_zip_listar)
     roteador.registrar("zip.extrair", _handler_zip_extrair)
     roteador.registrar("template.listar", _handler_template_listar)
@@ -126,7 +128,7 @@ def _recibo_do_estado(estado) -> dict[str, Any] | None:
         return None
 
 
-def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
+def _handler_mapa_gerar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
     mapspec = params.get("mapspec")
     if not isinstance(mapspec, dict):
         raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
@@ -140,6 +142,7 @@ def _handler_mapa_gerar(params: dict[str, Any]) -> dict[str, Any]:
         _fontes_idx_do_estado(estado),
         comparar_baseline=comparar_baseline,
         recibo=_recibo_do_estado(estado),
+        progresso=RastreadorProgresso(emissor.emitir),
     )
 
 
@@ -299,13 +302,32 @@ def _handler_quantitativos_renderizar_png(params: dict[str, Any]) -> dict[str, A
     }
 
 
-def processar_linha(linha: str, roteador: Roteador | None = None) -> str:
+def processar_linha(
+    linha: str,
+    roteador: Roteador | None = None,
+    *,
+    emitir: Callable[[dict[str, Any]], None] | None = None,
+) -> str:
+    """Processa uma linha NDJSON e devolve a(s) linha(s) de saída.
+
+    Com `emitir`, os eventos (`tipo:"evt"`) saem na hora pelo callback — é o que o
+    Electron consome durante um job. Sem ele, os eventos entram no prefixo da string
+    devolvida, na ordem em que aconteceram, antes da linha de `res`.
+    """
     roteador = roteador or criar_roteador()
+    buffer: list[str] = []
+
+    def _sink(envelope: dict[str, Any]) -> None:
+        if emitir is not None:
+            emitir(envelope)
+        else:
+            buffer.append(serializar_linha(envelope) + "\n")
+
     id_req = novo_id()
     try:
         mensagem = parsear_linha(linha)
         id_req = mensagem.get("id", id_req)
-        resposta = roteador.despachar(mensagem)
+        resposta = roteador.despachar(mensagem, _sink)
     except ErroNucleo as exc:
         resposta = envelope_erro(id_req, exc)
     except Exception as exc:  # noqa: BLE001 — loop NDJSON não pode morrer
@@ -313,7 +335,7 @@ def processar_linha(linha: str, roteador: Roteador | None = None) -> str:
             id_req,
             ErroNucleo("NU-000", f"Erro interno: {exc.__class__.__name__}: {exc}"),
         )
-    return serializar_linha(resposta) + "\n"
+    return "".join(buffer) + serializar_linha(resposta) + "\n"
 
 
 def loop_ndjson(
@@ -324,11 +346,16 @@ def loop_ndjson(
     entrada = entrada or sys.stdin
     saida = saida or sys.stdout
     roteador = roteador or criar_roteador()
+
+    def _emitir(envelope: dict[str, Any]) -> None:
+        saida.write(serializar_linha(envelope) + "\n")
+        saida.flush()
+
     for linha in entrada:
         linha = linha.strip()
         if not linha:
             continue
-        saida.write(processar_linha(linha, roteador))
+        saida.write(processar_linha(linha, roteador, emitir=_emitir))
         saida.flush()
 
 

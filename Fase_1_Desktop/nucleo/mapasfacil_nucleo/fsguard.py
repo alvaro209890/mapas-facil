@@ -30,8 +30,8 @@ def _eh_unc(caminho: str) -> bool:
 
 def _tem_caractere_invalido(caminho: str) -> bool:
     texto = caminho
-    if os.name == "nt" and len(caminho) >= 2 and caminho[1] == ":":
-        texto = caminho[2:]
+    if os.name == "nt" and len(caminho) >= 2 and caminho[1] == ":":  # pragma: no cover - só Windows
+        texto = caminho[2:]  # a letra de unidade tem ':' e não é caractere inválido
     return any(ch in CARACTERES_INVALIDOS_WINDOWS for ch in texto)
 
 

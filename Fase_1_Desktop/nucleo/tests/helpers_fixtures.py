@@ -8,6 +8,20 @@ import shapefile
 from pyproj import CRS
 
 
+def linhas_ndjson(saida: str) -> list[dict]:
+    """Todas as mensagens de uma saída NDJSON (eventos + resposta)."""
+    return [json.loads(linha) for linha in saida.splitlines() if linha.strip()]
+
+
+def eventos_e_resposta(saida: str) -> tuple[list[dict], dict]:
+    """Separa os `tipo:"evt"` da linha final de `tipo:"res"`."""
+    mensagens = linhas_ndjson(saida)
+    eventos = [m for m in mensagens if m.get("tipo") == "evt"]
+    resposta = mensagens[-1]
+    assert resposta["tipo"] == "res", "a última linha tem de ser a resposta"
+    return eventos, resposta
+
+
 def escrever_shapefile_quadrado_utm(
     destino: Path,
     *,

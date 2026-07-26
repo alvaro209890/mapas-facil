@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
@@ -50,7 +50,13 @@ def materializar_camadas_locais(
     fontes_idx: dict[str, str],
     pasta_shp: str = "SHP",
     reprojetar: bool | None = None,
+    ao_materializar: Callable[[str, int, int], None] | None = None,
 ) -> dict[str, Any]:
+    """Copia/reprojeta as camadas locais do MapSpec para `SHP/`.
+
+    `ao_materializar(id_camada, indice, total)` é chamado a cada camada pronta —
+    é o que alimenta o `item` de `job.progresso` (F1-01).
+    """
     pasta = guard.resolver(pasta_shp, escrita=True)
     pasta.mkdir(parents=True, exist_ok=True)
 
@@ -68,12 +74,15 @@ def materializar_camadas_locais(
     materializados: list[dict[str, str]] = []
     avisos: list[str] = []
 
+    alvos: list[tuple[dict[str, Any], str, str]] = []
     for camada in mapspec.get("camadas", []):
         fonte = camada.get("fonte", "")
         rel = _resolver_fonte_local(fonte, fontes_idx)
-        if not rel:
-            continue
+        if rel:
+            alvos.append((camada, fonte, rel))
+    total = len(alvos)
 
+    for indice, (camada, fonte, rel) in enumerate(alvos, start=1):
         origem = guard.resolver(rel)
         id_local = fonte.split(".", 1)[1]
         papel = camada.get("id") or id_local
@@ -101,6 +110,8 @@ def materializar_camadas_locais(
                 "papel": papel,
             }
         )
+        if ao_materializar is not None:
+            ao_materializar(papel, indice, total)
 
     return {
         "pasta": str(pasta.relative_to(guard.raiz)),

@@ -32,10 +32,17 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: pytest anel 1
+        # COVERAGE_RCFILE: dois testes rodam subprocessos com cwd na raiz do repo,
+        # que não tem config de coverage — sem isto eles gravam dados sem branch e
+        # o combine falha com "Can't combine statement coverage data with branch data".
+        env:
+          COVERAGE_RCFILE: ${{ github.workspace }}/Fase_1_Desktop/nucleo/pyproject.toml
         run: pytest --cov=mapasfacil_nucleo --cov-report=term-missing
 
       - name: Cobertura fsguard (100%)
-        run: pytest tests/test_fsguard.py --cov=mapasfacil_nucleo.fsguard --cov-report=term-missing --cov-fail-under=100
+        env:
+          COVERAGE_RCFILE: ${{ github.workspace }}/Fase_1_Desktop/nucleo/pyproject.toml
+        run: pytest tests/test_fsguard.py tests/test_fsguard_branches.py --cov=mapasfacil_nucleo.fsguard --cov-report=term-missing --cov-fail-under=100
 
       - name: Validar MapSpec canônico
         run: |

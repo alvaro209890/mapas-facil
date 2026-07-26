@@ -13,6 +13,7 @@ from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
+from mapasfacil_nucleo.progresso import RastreadorProgresso
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
 from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
 from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
@@ -106,11 +107,20 @@ def gerar_mapa(
     *,
     comparar_baseline: bool = False,
     recibo: dict[str, Any] | None = None,
+    progresso: RastreadorProgresso | None = None,
 ) -> dict[str, Any]:
+    """Gera os artefatos do MapSpec, reportando as 10 etapas de `job.progresso`.
+
+    A ordem de execução segue a ordem das etapas do contrato (F1-01): sem
+    `progresso`, nada é emitido — o trabalho é o mesmo.
+    """
+    prog = progresso or RastreadorProgresso()
+
     resultado_val = validar(mapspec, fontes_locais=frozenset(fontes_idx))
     if not resultado_val["valido"]:
         primeiro = resultado_val["erros"][0]
         raise ErroNucleo(primeiro["codigo"], primeiro["mensagem"], {"erros": resultado_val["erros"]})
+    prog.concluir("validando_spec")
 
     saidas = mapspec.get("saidas") or ["pdf"]
     saida_cfg = mapspec.get("saida") or {}
@@ -127,24 +137,17 @@ def gerar_mapa(
             guard=guard,
             fontes_idx=fontes_idx,
             pasta_shp=pasta_shp,
+            ao_materializar=lambda camada_id, i, total: prog.item(
+                "resolvendo_camadas_locais", camada_id, indice=i, total=total
+            ),
         )
         artefatos["materializacao"] = materializacao
         avisos.extend(materializacao.get("avisos", []))
+    prog.concluir_se_pendente("resolvendo_camadas_locais")
 
-    if "mxd" in saidas:
-        if not mapspec.get("template"):
-            raise ErroNucleo("NU-205", "MapSpec pede .mxd mas não informa template.")
-        bbox = _resolver_bbox_utm(mapspec, guard=guard, fontes_idx=fontes_idx)
-        escala = mapspec.get("escala")
-        mxd_info = gerar_mxd_t2(
-            mapspec,
-            guard=guard,
-            bbox=bbox,
-            escala=float(escala) if escala is not None else None,
-        )
-        artefatos["mxd"] = mxd_info
-        resultado["mxd"] = mxd_info["mxd"]
-        avisos.extend(mxd_info.get("patch", {}).get("avisos", []))
+    # Camadas externas (WFS/WMS) ainda não são resolvidas em runtime — `camada.resolver`
+    # é R21/A13. A etapa existe no contrato e fecha sem `item` enquanto não há download.
+    prog.concluir_se_pendente("baixando_externas")
 
     # Quantitativos cedo: alimentam .xlsx, PNG e overlay no PDF nativo (F1-08).
     precisa_quant = (
@@ -158,6 +161,7 @@ def gerar_mapa(
         artefatos["quantitativos"] = quant
         resultado["quantitativos"] = quant
         avisos.extend(quant.get("avisos", []))
+    prog.concluir("calculando_quantitativos")
 
     # PNG antes do PDF para permitir overlay (F1-05 / F1-08).
     precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
@@ -179,6 +183,28 @@ def gerar_mapa(
                 f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
                 "(alvo ≥ 600)."
             )
+    prog.concluir("gerando_tabela")
+
+    # O `.mxd` vem depois da tabela para a execução seguir a ordem das etapas do
+    # contrato (preparando_template → aplicando_layout → salvando_mxd).
+    if "mxd" in saidas:
+        if not mapspec.get("template"):
+            raise ErroNucleo("NU-205", "MapSpec pede .mxd mas não informa template.")
+        bbox = _resolver_bbox_utm(mapspec, guard=guard, fontes_idx=fontes_idx)
+        escala = mapspec.get("escala")
+        mxd_info = gerar_mxd_t2(
+            mapspec,
+            guard=guard,
+            bbox=bbox,
+            escala=float(escala) if escala is not None else None,
+            ao_etapa=prog.concluir,
+        )
+        artefatos["mxd"] = mxd_info
+        resultado["mxd"] = mxd_info["mxd"]
+        avisos.extend(mxd_info.get("patch", {}).get("avisos", []))
+    prog.concluir_se_pendente("preparando_template")
+    prog.concluir_se_pendente("aplicando_layout")
+    prog.concluir_se_pendente("salvando_mxd")
 
     if "pdf" in saidas:
         pdf_path, pdf_artefatos = gerar_pdf_minimo(
@@ -205,6 +231,7 @@ def gerar_mapa(
                             f"Diff raster {comp['diferenca_pct']:.2f}% "
                             f"(tolerância {comp['tolerancia_pct']}%)."
                         )
+    prog.concluir("exportando_pdf")
 
     if "xlsx" in saidas:
         quant = artefatos.get("quantitativos") or calcular_quantitativos(
@@ -230,6 +257,7 @@ def gerar_mapa(
     json_path = salvar_validacao(pasta_saida / f"{nome_base}_validacao.json", relatorio)
     resultado["validacao"] = str(json_path.relative_to(guard.raiz))
     resultado["validacao_dados"] = relatorio
+    prog.concluir("validando_saida")
 
     return resultado
 

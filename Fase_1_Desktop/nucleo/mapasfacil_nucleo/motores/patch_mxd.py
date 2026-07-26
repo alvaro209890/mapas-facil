@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 import struct
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
@@ -176,7 +176,13 @@ def gerar_mxd_t2(
     guard: WorkspaceGuard,
     bbox: tuple[float, float, float, float] | None = None,
     escala: float | None = None,
+    ao_etapa: Callable[[str], Any] | None = None,
 ) -> dict[str, Any]:
+    """T2 — copia o template preparado e aplica o patch binário.
+
+    `ao_etapa(nome)` marca as etapas do contrato de `job.progresso` conforme elas
+    terminam: `preparando_template`, `aplicando_layout`, `salvando_mxd`.
+    """
     template_id = mapspec.get("template")
     if not isinstance(template_id, str):
         raise ErroNucleo("NU-205", "MapSpec sem template.")
@@ -188,6 +194,9 @@ def gerar_mxd_t2(
 
     copia = copiar_template(template_id, destino_mxd)
     tpl = obter_template(template_id)
+    if ao_etapa is not None:
+        ao_etapa("preparando_template")
+
     textos = _textos_do_mapspec(mapspec)
     patch = aplicar_patch_manifesto(
         destino_mxd,
@@ -196,6 +205,9 @@ def gerar_mxd_t2(
         escala=escala,
         textos=textos,
     )
+    if ao_etapa is not None:
+        ao_etapa("aplicando_layout")
+        ao_etapa("salvando_mxd")
 
     confianca = "patch" if patch["aplicados"] else "estrutural"
     if patch["avisos"]:
