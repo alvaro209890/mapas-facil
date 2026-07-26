@@ -3,6 +3,9 @@
 Utilitários de manutenção do acervo versionado. **Não** fazem parte do produto instalado —
 servem ao desenvolvedor.
 
+**No Windows com ArcMap:** o roteiro completo (quando rodar cada script) está em
+[`../Fase_1_Desktop/GUIA_WINDOWS.md`](../Fase_1_Desktop/GUIA_WINDOWS.md).
+
 Scripts presentes:
 
 | Script | Função |
