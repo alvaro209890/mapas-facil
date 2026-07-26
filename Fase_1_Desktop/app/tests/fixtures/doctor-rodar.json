@@ -1,0 +1,66 @@
+{
+  "so": "Linux 7.0.0-28-generic",
+  "arquitetura": "x86_64",
+  "app": null,
+  "nucleo": "0.4.0",
+  "python": "3.12.3",
+  "repositorio": "/projetos/mapas-facil",
+  "arcmap": {
+    "encontrado": false,
+    "instavel": false,
+    "nota": "Detecção completa disponível apenas no Windows."
+  },
+  "arcgis_pro": {
+    "encontrado": false
+  },
+  "gdal": {
+    "ogr2ogr": "/usr/bin/ogr2ogr",
+    "versao": null
+  },
+  "fonte_esri_north": false,
+  "templates": [
+    {
+      "id": "dinamica_retrato",
+      "sha256_ok": true,
+      "patch_ok": false,
+      "status": "parcial"
+    },
+    {
+      "id": "dinamica_quantitativos_retrato",
+      "sha256_ok": false,
+      "patch_ok": false,
+      "status": "a_preparar"
+    },
+    {
+      "id": "tipologia_paisagem",
+      "sha256_ok": false,
+      "patch_ok": false,
+      "status": "a_preparar"
+    },
+    {
+      "id": "terras_indigenas_paisagem",
+      "sha256_ok": false,
+      "patch_ok": false,
+      "status": "a_preparar"
+    },
+    {
+      "id": "uc_paisagem",
+      "sha256_ok": false,
+      "patch_ok": false,
+      "status": "a_preparar"
+    }
+  ],
+  "chaves": {
+    "deepseek": false,
+    "sema": true,
+    "planet": false
+  },
+  "rede": {
+    "sema": "nao_testado",
+    "planet": "nao_testado",
+    "ibge": "nao_testado"
+  },
+  "espaco_livre_gb": 128.4,
+  "pronto_para_mxd": false,
+  "motor_preferido": "nativo"
+}

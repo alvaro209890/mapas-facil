@@ -1,0 +1,150 @@
+{
+  "workspace": {
+    "raiz": "/projetos/Analise_de_area-Harmonia",
+    "shapefiles": [
+      {
+        "caminho": "SHP/AREA_CONSOLIDADA.shp",
+        "papel": "AC",
+        "id_local": "AREA_CONSOLIDADA",
+        "tipo_geometria": "POLYGON",
+        "feicoes": 1,
+        "campos": [
+          "NOME"
+        ],
+        "bbox": {
+          "xmin": 500000.0,
+          "ymin": 8000000.0,
+          "xmax": 500500.0,
+          "ymax": 8000500.0
+        },
+        "crs": {
+          "epsg": 31982,
+          "resumo": null,
+          "zona_utm_sugerida": null,
+          "adivinhado": true
+        },
+        "area_ha": 25.0,
+        "geometrias_corrigidas": 0,
+        "encoding_dbf": "latin-1",
+        "vazia": false,
+        "avisos": [
+          {
+            "codigo": "NU-022",
+            "mensagem": "Arquivo complementar ausente: .prj"
+          },
+          {
+            "codigo": "NU-020",
+            "mensagem": "Shapefile sem arquivo .prj; CRS será estimado pelas coordenadas."
+          }
+        ],
+        "valido": false
+      },
+      {
+        "caminho": "SHP/ATP.shp",
+        "papel": "ATP",
+        "id_local": "ATP",
+        "tipo_geometria": "POLYGON",
+        "feicoes": 1,
+        "campos": [
+          "NOME"
+        ],
+        "bbox": {
+          "xmin": 500000.0,
+          "ymin": 8000000.0,
+          "xmax": 506000.0,
+          "ymax": 8006000.0
+        },
+        "crs": {
+          "epsg": 31982,
+          "resumo": "PROJCRS[\"SIRGAS 2000 / UTM zone 22S\",BASEGEOGCRS[\"SIRGAS 2000\",DATUM[\"Sistema de Referencia Geocentrico para las America",
+          "zona_utm_sugerida": null,
+          "adivinhado": false
+        },
+        "area_ha": 3600.0,
+        "geometrias_corrigidas": 0,
+        "encoding_dbf": "latin-1",
+        "vazia": false,
+        "avisos": [],
+        "valido": true
+      },
+      {
+        "caminho": "SHP/AUAS.shp",
+        "papel": "AUAS",
+        "id_local": "AUAS",
+        "tipo_geometria": "POLYGON",
+        "feicoes": 1,
+        "campos": [
+          "NOME"
+        ],
+        "bbox": {
+          "xmin": 500000.0,
+          "ymin": 8000000.0,
+          "xmax": 500700.0,
+          "ymax": 8000700.0
+        },
+        "crs": {
+          "epsg": 31982,
+          "resumo": "PROJCRS[\"SIRGAS 2000 / UTM zone 22S\",BASEGEOGCRS[\"SIRGAS 2000\",DATUM[\"Sistema de Referencia Geocentrico para las America",
+          "zona_utm_sugerida": null,
+          "adivinhado": false
+        },
+        "area_ha": 49.0,
+        "geometrias_corrigidas": 0,
+        "encoding_dbf": "latin-1",
+        "vazia": false,
+        "avisos": [],
+        "valido": true
+      },
+      {
+        "caminho": "SHP/AVN.shp",
+        "papel": "AVN",
+        "id_local": "AVN",
+        "tipo_geometria": "POLYGON",
+        "feicoes": 1,
+        "campos": [
+          "NOME"
+        ],
+        "bbox": {
+          "xmin": 500000.0,
+          "ymin": 8000000.0,
+          "xmax": 501200.0,
+          "ymax": 8001200.0
+        },
+        "crs": {
+          "epsg": 31982,
+          "resumo": "PROJCRS[\"SIRGAS 2000 / UTM zone 22S\",BASEGEOGCRS[\"SIRGAS 2000\",DATUM[\"Sistema de Referencia Geocentrico para las America",
+          "zona_utm_sugerida": null,
+          "adivinhado": false
+        },
+        "area_ha": 144.0,
+        "geometrias_corrigidas": 0,
+        "encoding_dbf": "latin-1",
+        "vazia": false,
+        "avisos": [],
+        "valido": true
+      }
+    ],
+    "pdfs": [
+      {
+        "caminho": "Mapas/Dinamica_referencia.pdf",
+        "recibo_car": false
+      }
+    ],
+    "zips": [],
+    "outros": [],
+    "fontes_locais": [
+      "AC",
+      "AREA_CONSOLIDADA",
+      "ATP",
+      "AUAS",
+      "AVN"
+    ],
+    "recibo_car": null
+  },
+  "recibo": null,
+  "doctor": {
+    "nucleo": "0.4.0",
+    "pronto_para_mxd": false,
+    "motor_preferido": "nativo"
+  }
+}

@@ -3,47 +3,25 @@
 // Os eventos entram pelo mesmo caminho do app (`window.mapasfacil.aoEvento`), não
 // por prop: o que está sob teste é a UI reagindo a evento real do núcleo (AP-07).
 
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { BarraProgressoJob } from "../src/componentes/BarraProgressoJob.js";
-import type { DadosJobProgresso, EnvelopeEvento } from "../src/estado/eventos.js";
+import type { DadosJobProgresso } from "../src/estado/eventos.js";
 import { ETAPAS_JOB } from "../src/estado/eventos.js";
 import { aplicarProgresso, jobConcluido } from "../src/estado/progressoJob.js";
+import { desligarPonteFake, ligarPonteFake } from "./ponte-fake.js";
 
 type Emitir = (dados: DadosJobProgresso) => void;
 
-/** Ponte de mentira: só o suficiente para entregar evento ao renderer. */
-function ligarPonteFake(): Emitir {
-  const ouvintes = new Set<(evento: EnvelopeEvento) => void>();
-  window.mapasfacil = {
-    chamar: () => Promise.resolve({ ok: true }),
-    reiniciarNucleo: () => Promise.resolve({ estado: "pronto" }),
-    aoEvento(ouvinte) {
-      ouvintes.add(ouvinte);
-      return () => {
-        ouvintes.delete(ouvinte);
-      };
-    },
-    aoEstadoNucleo: () => () => undefined,
-    lerPreferencias: () => Promise.resolve({}),
-    gravarPreferencias: (parcial) => Promise.resolve(parcial),
-  };
-
-  let sequencia = 0;
-  return (dados) => {
-    sequencia += 1;
-    const evento: EnvelopeEvento = {
-      v: 1,
-      id: `01JTESTE${String(sequencia).padStart(4, "0")}`,
-      tipo: "evt",
+/** Assina a ponte de mentira e devolve o disparador de `job.progresso`. */
+function ligarProgresso(): Emitir {
+  const ponte = ligarPonteFake();
+  return (dados) =>
+    ponte.emitir({
       evento: "job.progresso",
       dados: dados as unknown as Record<string, unknown>,
-    };
-    act(() => {
-      for (const ouvinte of ouvintes) ouvinte(evento);
     });
-  };
 }
 
 function barra(): HTMLElement {
@@ -58,18 +36,18 @@ function segmento(etapa: string): HTMLElement {
 
 afterEach(() => {
   cleanup();
-  delete window.mapasfacil;
+  desligarPonteFake();
 });
 
 describe("BarraProgressoJob", () => {
   it("sem job e sem evento não renderiza nada", () => {
-    ligarPonteFake();
+    ligarProgresso();
     const { container } = render(<BarraProgressoJob />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("job despachado sem evento mostra 'gerando…' sem barra e sem porcentagem (AP-07)", () => {
-    ligarPonteFake();
+    ligarProgresso();
     render(<BarraProgressoJob ativo />);
 
     expect(screen.getByText("gerando…")).toBeInTheDocument();
@@ -78,7 +56,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("primeiro job.progresso liga a barra com aria-valuenow e a etapa em português", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     render(<BarraProgressoJob ativo />);
 
     emitir({ etapa: "validando_spec", pct: 3 });
@@ -92,7 +70,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("mostra as 10 etapas do contrato, na ordem, com os rótulos pt-BR", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     render(<BarraProgressoJob ativo />);
     emitir({ etapa: "validando_spec", pct: 3 });
 
@@ -103,7 +81,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("evento com item mostra a camada e deixa a etapa em andamento", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     render(<BarraProgressoJob ativo />);
 
     emitir({ etapa: "resolvendo_camadas_locais", pct: 10 });
@@ -117,7 +95,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("pct é monotônico: evento atrasado não faz a barra andar para trás", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     render(<BarraProgressoJob ativo />);
 
     emitir({ etapa: "baixando_externas", pct: 30 });
@@ -129,7 +107,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("no fim das 10 etapas chega a 100% com todos os segmentos concluídos", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     render(<BarraProgressoJob ativo />);
 
     let acumulado = 0;
@@ -145,7 +123,7 @@ describe("BarraProgressoJob", () => {
   });
 
   it("cancelar o job é botão próprio, e só existe quando há handler", () => {
-    const emitir = ligarPonteFake();
+    const emitir = ligarProgresso();
     const { rerender } = render(<BarraProgressoJob ativo />);
     emitir({ etapa: "validando_spec", pct: 3 });
     expect(screen.queryByRole("button", { name: "Cancelar geração" })).toBeNull();
