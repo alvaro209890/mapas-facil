@@ -1,5 +1,5 @@
 // Processo main do Electron: janela, ponte com o núcleo, IPC tipado e o diálogo
-// nativo de pasta (C7). Menus, tray, OAuth e auto-update são de marcos
+// nativo de pasta (C7). Menus, tray, conta local (M5) e auto-update são de marcos
 // posteriores (F1-02, F1-14, F1-11).
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme } from "electron";
 import { join } from "node:path";

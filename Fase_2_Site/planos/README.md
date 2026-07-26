@@ -9,15 +9,12 @@ fica neste PC porque `sema.mt.gov.br` bloqueia IP fora do Brasil. **Render e Ver
 caminho primário** — o tunnel `mapasfacil-api.cursar.space` expõe a API; o site fica em
 `mapasfacil.cursar.space`.
 
-> ## ⚠ Exceção: identidade vem antes
+> ## Conta do desktop = local (não espere esta pasta)
 >
-> A decisão **D10** tornou o **login obrigatório no app desktop**. O serviço de identidade
-> descrito em [`05-auth-e-memoria.md`](05-auth-e-memoria.md) — backend FastAPI neste PC + site
-> `/login` — é **dependência bloqueante do marco M5 da Fase 1**, não "depois da Fase 1".
->
-> Um agente que for implementar auth trabalha em `Fase_2_Site/backend/` e `Fase_2_Site/web/`
-> **agora**, seguindo F2-05 e [F1-14](../../Fase_1_Desktop/planos/14-auth-e-conta.md). Todo o
-> resto desta pasta (mapa por CAR, memória de projeto, vitrine) continua depois do M11.
+> D10 revisada (2026-07-26): login do app é **e-mail + senha em SQLite** —
+> [F1-14](../../Fase_1_Desktop/planos/14-auth-e-conta.md). [`05-auth-e-memoria.md`](05-auth-e-memoria.md)
+> descreve conta **nuvem / memória** para **depois do M11** e **não** bloqueia o M5.
+> Quem implementar auth do app **não** trabalha em `Fase_2_Site/backend/` agora.
 
 ## Índice desejado
 
@@ -28,7 +25,7 @@ caminho primário** — o tunnel `mapasfacil-api.cursar.space` expõe a API; o s
 | F2-02 | [Backend e API](02-backend-api.md) | FastAPI, Postgres, jobs, consultas geo locais | **LEGADO — reescrever** |
 | F2-03 | [Integração com a Fase 1](03-integracao-fase1.md) | reuso do núcleo/`MapSpec`; ponte desktop para `.mxd` | rascunho |
 | F2-04 | [Frontend e site](04-frontend-site.md) | Next.js, chat, projetos, mapa por número do CAR | **LEGADO — reescrever** |
-| F2-05 | [Identidade, auth e memória](05-auth-e-memoria.md) | **serviço de identidade (bloqueia o M5 da Fase 1)**; memória de projeto fica para depois | **agentável — implementar agora** |
+| F2-05 | [Identidade na nuvem e memória](05-auth-e-memoria.md) | conta nuvem / memória **pós-M11**; **não** bloqueia M5 (login desktop = F1-14 local) | **adiado** |
 | F2-06 | [Deploy e tunnel neste PC](06-deploy-tunnel-neste-pc.md) | Cloudflare Tunnel, systemd, domínios, sem tocar nos tunnels existentes | **LEGADO — reescrever** |
 
 ### Sobre os arquivos LEGADO
@@ -80,7 +77,7 @@ A Fase 2 **não gera `.mxd`**. Sem ArcMap no servidor Linux, o site entrega PDF/
 
 | Marco | Status |
 |---|---|
-| **F2-05 — identidade** | **reescrito e agentável; bloqueia o M5 da Fase 1** (D10) |
+| **F2-05 — conta nuvem / memória** | **reescrito; adiado pós-M11; não bloqueia M5** (D10 revisada) |
 | F2-00, F2-03 | rascunhos alinhados a D7 |
 | F2-01, F2-02, F2-04, F2-06 | legado — corpo descreve modelo antigo (nuvem + agente WS) |
 | Código de produção | não iniciado; `backend/` e `web/` só têm `README.md` |

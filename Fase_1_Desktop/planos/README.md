@@ -22,7 +22,7 @@ ganha — e a divergência tem de ser corrigida no mesmo PR.
 | F1-11 | [Empacotamento e instalador](11-empacotamento-instalador.md) | virar `.exe` assinado |
 | F1-12 | [Roadmap](12-roadmap.md) | marcos M0–M11 com critério de saída |
 | F1-13 | [Checklist de implementação](13-checklist-implementacao.md) | blocos A–I — o que fazer agora |
-| F1-14 | [Conta e autenticação](14-auth-e-conta.md) | login Google via site, PKCE, tokens, gate `AUTH-030` |
+| F1-14 | [Conta local](14-auth-e-conta.md) | e-mail + senha em SQLite, gate `AUTH-030` (sem Google) |
 | F1-15 | [Galeria de modelos](15-galeria-de-modelos.md) | catálogo, `galeria.*`, montagem determinística de `MapSpec` |
 | F1-16 | [Design system dark e animações](16-design-system-dark.md) | tokens, tipografia, motion amarrado a evento real |
 | F1-17 | [Persistência de conversas](17-persistencia-de-conversas.md) | `chats.sqlite`, sidebar, busca, ramificação |
@@ -71,8 +71,8 @@ Contratos que valem para as duas fases e vivem na raiz: [`planos/`](../../planos
 
 **Esta é a fase principal.** O `.mxd` só existe no Windows do usuário; todo o valor do produto está
 aqui. A [Fase 2](../../Fase_2_Site/planos/README.md) reusa o núcleo Python e o `MapSpec`, mas não
-substitui nem antecede o desktop — **exceto** o serviço de identidade
-([F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md)), que é dependência bloqueante do M5 (D10).
+substitui nem antecede o desktop. Conta do app = **local** ([F1-14](14-auth-e-conta.md));
+[F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) é pós-M11 e **não** bloqueia o M5.
 
 ## Estado
 
@@ -81,6 +81,6 @@ substitui nem antecede o desktop — **exceto** o serviço de identidade
 | Planos F1-00…F1-17 | escritos; reescritos para agentes em 2026-07-25 |
 | M1 — núcleo | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver [checklist](13-checklist-implementacao.md) |
 | M2 — motor `.mxd` | parcial (T2 copia template; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `app/` está vazia |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M6+M8** fechados/parciais; **M7** parcial; **M5 conta local** ainda não |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |
 | Eventos NDJSON (`job.progresso` etc.) | **nenhum é emitido** — `envelope_evt` não tem chamador |

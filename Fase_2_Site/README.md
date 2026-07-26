@@ -8,10 +8,10 @@ vitrine pública.
 Esta fase começa **depois** da [Fase 1](../Fase_1_Desktop/README.md) validada. Reusa o núcleo
 Python e o `MapSpec` do desktop, mas roda de forma independente.
 
-> **Uma peça vem antes: a identidade.** A decisão **D10** tornou o login obrigatório no app
-> desktop, e o serviço de identidade descrito em
-> [`planos/05-auth-e-memoria.md`](planos/05-auth-e-memoria.md) é **dependência bloqueante do
-> marco M5 da Fase 1**. Backend `/auth/*` + site `/login` sobem antes do resto desta fase.
+> **Login do desktop não depende desta fase.** D10 revisada (2026-07-26): o app usa **conta
+> local** (e-mail + senha em SQLite) — [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md).
+> [F2-05](planos/05-auth-e-memoria.md) (conta nuvem / memória) é **pós-M11** e **não** bloqueia
+> o M5.
 
 ## Stack
 
@@ -52,6 +52,6 @@ aqui, com tunnel dedicado que **não toca nos tunnels existentes** dos outros si
 
 | Marco | Status |
 |---|---|
-| **F2-05 — identidade** | reescrito e agentável; **bloqueia o M5 da Fase 1** |
+| **F2-05 — conta nuvem / memória** | reescrito: **adiado pós-M11**; **não** bloqueia M5 (login = F1-14 local) |
 | Planos | F2-00…F2-06 presentes; 01/02/04/06 ainda legado (a reescrever) |
 | Código | não iniciado — `backend/` e `web/` só têm `README.md` |

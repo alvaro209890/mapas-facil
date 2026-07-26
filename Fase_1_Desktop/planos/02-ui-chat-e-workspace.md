@@ -33,7 +33,7 @@ a paleta e os asserts visuais já fecharam — ver [`../app/README.md`](../app/R
 
 | Camada | Escolha | Por quê |
 |---|---|---|
-| Shell | Electron | janela nativa, tray, diálogo de pasta, auto-update, Credential Manager, `shell.openExternal` para o OAuth |
+| Shell | Electron | janela nativa, tray, diálogo de pasta, auto-update, Credential Manager (BYOK), IPC de conta local |
 | UI | React 19 + TypeScript | ecossistema de chat/streaming maduro |
 | Estilo | CSS Modules + tokens próprios ([F1-16](16-design-system-dark.md)) | o design system é próprio; framework de utilitário genérico empurra para o visual de dashboard que o produto evita |
 | Estado | Zustand | simples; o estado pesado vive no núcleo |
@@ -176,9 +176,9 @@ Escolha na galeria ao lado, ou me diga o que você quer.
 
 | Situação | O que a UI mostra |
 |---|---|
-| Nunca logou | `tela-login` em tela cheia: marca em `--mf-fs-hero`, "Entrar com Google", nota "acesso completo, sem limites" |
-| Sessão expirada | faixa no topo; leitura liberada; gerar recusa com `AUTH-030` e o botão vira "Entrar" |
-| Backend de conta fora do ar, token válido | chip "offline" no rodapé; **app funciona inteiro** |
+| Nunca logou / sem conta | `tela-login` em tela cheia: marca em `--mf-fs-hero`, criar conta ou entrar (e-mail + senha), nota "acesso completo, sem limites · dados só neste PC" |
+| Desconectado após “Sair” | mesma `tela-login`; chats locais preservados (D14) |
+| Conta local OK | app normal; geração liberada |
 | Nenhuma pasta conectada | boas-vindas com "conectar pasta" + projetos recentes + galeria em modo vitrine (cartões `faltam_dados`) |
 | Pasta sem shapefile | explica o que o app espera encontrar e oferece arrastar o `.zip` do SIMCAR |
 | Sem chave DeepSeek | banner "configurar chave" + "usar a galeria" — o app **continua funcionando** |

@@ -70,13 +70,12 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
 | M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver checklist |
 | M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M6 fechados**; **M7 parcial**; M5/M8 não iniciados |
+| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M6+M8 fechados/parciais**; **M7 parcial**; **M5 conta local** (e-mail+senha SQLite) ainda não iniciado |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |
-| Fase 2 — identidade (bloqueia o M5) | não iniciada |
+| Fase 2 — conta nuvem / memória ([F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)) | **adiada** (pós-M11); **não** bloqueia o M5 |
 | Fase 2 — restante | não iniciado; começa depois do M11 |
 
-`job.progresso`, `chat.delta` e `chat.tool` são emitidos. Restam `job.artefato_parcial` (M8) e
-outros eventos do contrato.
+Eventos emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`.
 
 ## Licença
 

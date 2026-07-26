@@ -66,9 +66,9 @@ calcula quantitativos e conversa com o usuário.
 |---|---|
 | Stack | Electron + React (UI) + sidecar Python (geo, `.mxd`, planilha) |
 | IA | **DeepSeek V4 Pro**, chave do próprio usuário (BYOK), guardada no Windows Credential Manager |
-| Conta | **login obrigatório** com Google; depois de autenticado, **sem limite de uso** (D10, D18) |
-| Funciona offline? | Sim, **enquanto a sessão em cache vale** (12 h): gera mapa com os shapes locais e o cache. Sessão expirada → modo leitura (D11). Sem chave DeepSeek: galeria/modo determinístico |
-| Depende da Fase 2? | **Só do serviço de identidade** ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)). Todo o resto da Fase 2 vem depois |
+| Conta | **login obrigatório** com **e-mail + senha local** (SQLite neste PC); depois de autenticado, **sem limite de uso** (D10 revisada, D18). Sem Google |
+| Funciona offline? | **Sim, por completo** com sessão local: gera mapa com shapes locais e cache. Sem login → modo leitura (D11). Sem chave DeepSeek: galeria/modo determinístico |
+| Depende da Fase 2? | **Não** na v1. [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) é memória/conta nuvem **depois do M11**, não bloqueia o desktop |
 | Motor de `.mxd` | ArcPy quando há ArcMap; **patch de template** quando não há |
 
 ### Fase 2 — Site de engenharia florestal e mapas
@@ -125,8 +125,9 @@ Nada aqui nasce do zero. Três sistemas do mesmo dono já resolveram partes do p
 
 ### Dentro (Fase 1)
 
-- **Conta obrigatória**: login com Google via site → app, sem limites de uso depois de
-  autenticado ([F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md)).
+- **Conta obrigatória local**: criar/entrar com e-mail e senha salvos neste PC (SQLite), sem
+  Google e sem backend; sem limites de uso depois de autenticado
+  ([F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md)).
 - **Galeria de modelos** com preview real e montagem determinística de `MapSpec` — a porta que
   funciona sem chave de IA ([F1-15](../Fase_1_Desktop/planos/15-galeria-de-modelos.md)).
 - **Interface escura** com tipografia embarcada e animações amarradas a eventos reais do núcleo
@@ -229,9 +230,9 @@ alternativa descartada registrada, para que nenhum agente reabra a discussão so
 
 | # | Decisão | Alternativa descartada | Plano dono |
 |---|---|---|---|
-| D10 | **Login obrigatório**, com serviço de identidade **próprio neste PC** + tunnel dedicado. Consequência aceita: [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) vira **dependência bloqueante da Fase 1** | Firebase Auth (menos código, outra conta/plano de dados); Clerk/Auth0 (custo e dependência SaaS) | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
-| D11 | Sem sessão válida, `mapa.gerar` é **bloqueado** (`AUTH-030`); o app fica em modo leitura. `access_token` com TTL de 12 h cobre o dia de campo offline | carência offline de 30 dias (mais amigável, mais estado para auditar). Revisão futura = aumentar o TTL, não remover o gate | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
-| D12 | Redirect do desktop por **loopback** `127.0.0.1` (RFC 8252); `mapasfacil://` só como fallback registrado pelo instalador | esquema customizado como primário (frágil em dev e em política de grupo) | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D10 | **Login obrigatório** com **e-mail + senha**, conta **local** em SQLite neste PC. Sem Google/OAuth/backend na v1. [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) **não** bloqueia a Fase 1 *(revisada 2026-07-26)* | Google via site + F2-05 bloqueante; Firebase/Clerk/Auth0 | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D11 | Sem sessão **local** válida, `mapa.gerar` é **bloqueado** (`AUTH-030`); o app fica em modo leitura. Sessão não depende de rede *(revisada 2026-07-26)* | JWT 12 h + refresh remoto; carência offline artificial | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
+| D12 | Auth **sem** porta HTTP/loopback OAuth no PC. Senha só no main/núcleo (hash Argon2id); renderer nunca vê senha/hash *(revisada 2026-07-26)* | PKCE + loopback `127.0.0.1` como fluxo primário; Google OAuth | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
 | D13 | Conversas num **banco SQLite único** em `%APPDATA%\MapasFacil\chats\chats.sqlite`, agrupadas por `workspace_fingerprint` | um banco por projeto (sidebar só via chats do workspace aberto); JSON por conversa (busca e paginação manuais) | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
 | D14 | **Logout não apaga** o histórico local; existe ação separada "Sair e esquecer este PC" | apagar no logout (usuário perde trabalho ao trocar de conta) | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
 | D15 | **Tema escuro por padrão**; tipografia Space Grotesk (display) + IBM Plex Sans (UI) + IBM Plex Mono (números), **embarcadas** | Inter/Roboto/system (genérico); serifada editorial; tema claro default | [F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md) |

@@ -17,8 +17,8 @@ redefinidos aqui.
 | Emissão de eventos | **parcial** — `job.progresso` emitido (A9); os outros 7 sem chamador | 8 eventos emitidos |
 | Electron main + renderer | **parcial** — main, preload e ponte NDJSON existem; renderer ainda não | shell completo |
 | Ponte ArcPy (py 2.7) | esqueleto | T1 funcional |
-| Cofre / Credential Manager | **ausente** | tokens de sessão + chaves BYOK |
-| Backend de identidade | **ausente** | [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md), dependência bloqueante |
+| Cofre / Credential Manager (BYOK) | **ausente** | chaves DeepSeek/SEMA/Planet — **não** senha de conta |
+| Conta local (e-mail + senha) | **ausente** | [F1-14](14-auth-e-conta.md) — SQLite; **sem** Google/F2-05 |
 | Persistência de conversas | **ausente** | `chats.sqlite` ([F1-17](17-persistencia-de-conversas.md)) |
 
 ## Os quatro processos
@@ -31,7 +31,8 @@ redefinidos aqui.
 │  │  • janela, menus, tray   │◀──IPC─▶│  • árvore da pasta   • chat + streaming     │   │
 │  │  • diálogo de pasta      │        │  • galeria           • preview do mapa      │   │
 │  │  • Credential Manager    │        │  • sidebar de chats  • painel do MapSpec    │   │
-│  │  • OAuth loopback  ◀─────┼──┐     │  • histórico de versões  • doctor           │   │
+│  │    (só chaves BYOK)      │        │  • histórico de versões  • doctor           │   │
+│  │  • IPC auth (conta local)│        │  • tela-login (e-mail + senha)              │   │
 │  │  • auto-update           │  │     └─────────────────────────────────────────────┘   │
 │  └───────────┬──────────────┘  │                                                       │
 │              │ stdio NDJSON    │ HTTPS (só main; token nunca cruza para o renderer)     │
@@ -66,7 +67,7 @@ redefinidos aqui.
 | Tudo em Node | o ecossistema geo maduro é Python: `shapely`, `pyproj`, `fiona`, `rasterio`, `PyMuPDF`, `openpyxl`, `matplotlib`. Reescrever em JS custa meses e perde precisão |
 | Tudo em Python (PySide6) | chat com streaming, diff, preview e árvore de arquivos no nível do Cursor custa muito mais em Qt |
 | Núcleo como servidor HTTP local | abre porta na máquina do usuário — superfície de ataque e conflito de porta. stdio não tem nenhum dos dois (AP-14) |
-| Auth no núcleo em vez do main | o main já é o dono do Credential Manager e do `shell.openExternal`; espalhar segredo por dois processos dobra a superfície |
+| Auth só no renderer | senha/hash vazariam; auth passa pelo main → núcleo (NDJSON), renderer só vê `{estado, conta}` |
 
 ### Regras de fronteira (invioláveis)
 
@@ -160,25 +161,19 @@ Quem implementar os outros eventos reaproveita esse canal.
 | 9 | `exportando_pdf` | 15% | não |
 | 10 | `validando_saida` | 10% | não |
 
-## Sequência — login (resumo; detalhe em F1-14)
+## Sequência — login local (resumo; detalhe em F1-14)
 
 ```
-renderer          main                 navegador         backend identidade      Google
-   │ auth:entrar    │                      │                     │                 │
-   ├───────────────▶│ PKCE + state         │                     │                 │
-   │                │ loopback 127.0.0.1:0 │                     │                 │
-   │                ├── openExternal ─────▶│ /login?…            │                 │
-   │                │                      ├────────────────────▶│ OIDC ──────────▶│
-   │                │                      │◀─── 302 ?code&state ┤◀── id_token ────┤
-   │                │◀── GET /callback ────┤                     │                 │
-   │                ├── POST /auth/desktop/token ───────────────▶│                 │
-   │                │◀── {access, refresh, conta} ───────────────┤                 │
-   │                │ grava no Credential Manager                │                 │
-   │◀ auth:mudou ───┤                                            │                 │
-   │  {conectado}   ├── NDJSON sessao.definir {estado, expira_em} ──▶ núcleo        │
+renderer              main                         núcleo (contas.sqlite)
+   │ auth:criar/entrar │                              │
+   ├──────────────────▶│ NDJSON conta.criar|entrar ──▶│ Argon2id + sessão local
+   │                   │◀── {conta, sessao} ──────────┤
+   │◀ auth:mudou ──────┤                              │
+   │  {conectado}      ├── sessao.definir {estado, conta_id} (sem senha)
 ```
 
-O núcleo **nunca** vê o token. O gate de `mapa.gerar` é `sessao.estado` (D11, `AUTH-030`).
+O renderer **nunca** vê senha nem `senha_hash`. O gate de `mapa.gerar` é `sessao.estado`
+(D11, `AUTH-030`). Sem rede.
 
 ## Sequência — gerar um mapa pela galeria (sem IA)
 
@@ -238,7 +233,9 @@ renderer                 núcleo/agente                    DeepSeek
 
 ```
 %APPDATA%\MapasFacil\
-├─ config.json              preferências, projetos recentes, allowlist, conta (sem token)
+├─ config.json              preferências, projetos recentes, allowlist, conta (sem senha)
+├─ contas\
+│  └─ contas.sqlite         contas locais (e-mail + senha_hash Argon2id) + sessoes_locais  ← F1-14
 ├─ chats\
 │  ├─ chats.sqlite          TODAS as conversas, mensagens, tool_traces, FTS   ← D13
 │  └─ anexos\<conversation_id>\
@@ -251,10 +248,9 @@ renderer                 núcleo/agente                    DeepSeek
 ├─ cache\                   WFS, WMS, tiles, malha IBGE  (TTL por tema)
 └─ tmp\<job_id>\            trabalho do ArcPy; limpo ao final
 
-Windows Credential Manager
-   MapasFacil/access_token · MapasFacil/refresh_token
+Windows Credential Manager / keyring do SO
    MapasFacil/deepseek_api_key · MapasFacil/sema_authkey · MapasFacil/planet_api_key
-```
+   (BYOK apenas — **não** guarda senha de conta; senha vai hasheada em contas.sqlite)```
 
 **D13 revoga o desenho anterior** de `projetos\<hash>\conversas.sqlite`: as conversas vivem num
 banco único global, para a sidebar listar chats de todos os workspaces (comportamento Cursor).
@@ -300,7 +296,7 @@ suporte.
 | `AG-0xx` | ambiente ArcGIS | `AG-001` ArcMap não encontrado · `AG-010` licença indisponível · `AG-020` timeout do ArcPy · `AG-030` template com `sha256` diferente |
 | `AG-1xx` | geração | `AG-101` fonte quebrada no `.mxd` · `AG-110` PDF em branco · `AG-120` elemento obrigatório ausente |
 | `IA-0xx` | agente | `IA-001` chave ausente · `IA-010` provedor indisponível · `IA-020` tool inexistente · `IA-030` limite de rodadas · `IA-040` contexto excedido após compressão · `IA-041` teto de tokens da conversa · `IA-050` resposta truncada por `max_tokens` |
-| `AUTH-0xx` | conta e sessão | `AUTH-001` sem login · `AUTH-011` refresh expirado · `AUTH-020` backend inalcançável · `AUTH-030` operação exige sessão · `AUTH-040` `state` divergente · `AUTH-050` cofre indisponível · `AUTH-060` relógio fora de sincronia — tabela completa em [F1-14](14-auth-e-conta.md) |
+| `AUTH-0xx` | conta e sessão local | `AUTH-001` sem login · `AUTH-002` e-mail/senha incorretos · `AUTH-003` senha fraca · `AUTH-030` operação exige sessão · `AUTH-050` falha no SQLite · `AUTH-070` e-mail já cadastrado — tabela completa em [F1-14](14-auth-e-conta.md) |
 | `UI-0xx` | app | `UI-001` núcleo não subiu · `UI-010` versão do núcleo incompatível · `UI-020` projeto recente não está mais na lista |
 
 ## Matriz de ambiente

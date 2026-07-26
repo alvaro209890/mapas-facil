@@ -15,7 +15,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
-| E — conta e auth | M5 | **não iniciado** |
+| E — conta local (e-mail + senha) | M5 | **não iniciado** — plano F1-14 revisado (sem Google; F2-05 não bloqueia) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **parcial** — G1–G7/G9–G11 fechados (24/27 tools reais, cancelamento com parcial gravada, traces reais); falta G8 (VCR) e as 3 tools travadas em R21/F1-07 |
 | H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6 só o que tem evento (galeria/abas), o resto espera `workspace.mudou`/`mapspec.atualizado` |
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: completar tools G5, M8 motion/preview, ou M5 auth (rede).
+Próximos marcos sem ArcMap: **M5 conta local** (e-mail+senha SQLite), restos do M7 (VCR/G8), ou M2 quando houver ArcMap.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -124,23 +124,21 @@ Plano: [F1-15](15-galeria-de-modelos.md).
 | D8 | `painel-galeria` + `painel-galeria-detalhe` + `CartaoModelo` | [x] | `app/src/paineis/Galeria*.tsx`, `CartaoModelo.tsx`; `app/tests/galeria.test.tsx` |
 | D9 | Testes de determinismo e de requisito ausente | [x] | `nucleo/tests/test_galeria.py` (9 testes) |
 
-## Bloco E — Conta e autenticação (M5)
+## Bloco E — Conta local (M5)
 
-Planos: [F1-14](14-auth-e-conta.md), [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md).
+Plano: [F1-14](14-auth-e-conta.md). ([F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) = Fase 2, **não** bloqueia.)
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| E1 | Backend de identidade (FastAPI, `/auth/*`, `/health`) | [ ] | `Fase_2_Site/backend/` |
-| E2 | Tabelas `contas`, `sessoes`, `codigos_desktop` | [ ] | idem |
-| E3 | Site de login com botão Google | [ ] | `Fase_2_Site/web/` |
-| E4 | Tunnel dedicado + systemd (sem tocar nos existentes) | [ ] | ver F2-06 |
-| E5 | PKCE + servidor loopback efêmero | [ ] | `app/electron/auth/` |
-| E6 | Tokens no Credential Manager; renovação a cada 30 min | [ ] | `app/electron/auth/tokens.ts` |
-| E7 | IPC `auth:*` + guarda de rota | [ ] | `app/electron/ipc/auth.ts` |
-| E8 | `tela-login` com marca hero | [ ] | `app/src/telas/Login.tsx` |
-| E9 | `sessao.definir` / `sessao.estado` + gate `AUTH-030` | [ ] | `nucleo/.../sessao.py` |
-| E10 | Família de erros `AUTH-` | [ ] | `nucleo/.../erros.py` |
-| E11 | Testes: `state` divergente, refresh 401 vs rede caída, offline com token válido | [ ] | |
+| E1 | Esquema `contas.sqlite` + migração (contas + sessoes_locais) | [ ] | `nucleo/.../contas/` |
+| E2 | Hash Argon2id + `conta.criar` / `conta.entrar` / `conta.sair` / `conta.estado` | [ ] | idem |
+| E3 | Restaurar sessão “lembrar neste PC” no boot | [ ] | idem |
+| E4 | IPC `auth:*` + redator (nunca loga senha) | [ ] | `app/electron/ipc/auth.ts` |
+| E5 | `tela-login` (criar + entrar) com marca hero | [ ] | `app/src/telas/Login.tsx` |
+| E6 | Store `auth` + guarda de rota | [ ] | `app/src/estado/auth.ts` |
+| E7 | `sessao.definir` / `sessao.estado` + gate `AUTH-030` | [ ] | `nucleo/.../sessao.py` |
+| E8 | Família de erros `AUTH-` (001, 002, 003, 030, 050, 070, 071) | [ ] | `nucleo/.../erros.py` |
+| E9 | Testes: criar/entrar, senha errada, e-mail duplicado, gate, senha ausente do arquivo | [ ] | `nucleo/tests/test_conta_local.py`, `test_sessao.py` |
 
 ## Bloco F — Persistência de conversas (M6)
 

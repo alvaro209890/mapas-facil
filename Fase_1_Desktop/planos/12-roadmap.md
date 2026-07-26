@@ -6,9 +6,8 @@ Ordenar os marcos da Fase 1 por **dependência técnica**, com critério de saí
 um. Não se avança com "quase pronto", e não há estimativa em dias ou semanas — a ordem é o
 grafo de dependências, não um calendário.
 
-A Fase 2 (site/backend geo) **não entra neste roadmap**, com **uma exceção**: o serviço de
-identidade de [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md), que é dependência
-bloqueante do M5 (D10).
+A Fase 2 (site/backend geo) **não entra neste roadmap**. Conta do app = **local** ([F1-14](14-auth-e-conta.md));
+[F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) é pós-M11 e **não** bloqueia o M5.
 
 ## Grafo
 
@@ -17,7 +16,7 @@ M0 docs ──▶ M1 núcleo ──┬──▶ M2 motor .mxd ──────
                         │                                               │
                         └──▶ M3 shell + design system ──┬──▶ M4 galeria │
                                                         │               │
-                                                        ├──▶ M5 auth ───┤
+                                                        ├──▶ M5 conta local ─┤
                                                         │               │
                                                         └──▶ M6 chats ──┴──▶ M7 agente
                                                                               │
@@ -40,7 +39,7 @@ M0 docs ──▶ M1 núcleo ──┬──▶ M2 motor .mxd ──────
 | M2 | Motor `.mxd` | M1 | **sim** (T1); T2 não | não |
 | M3 | Shell Electron + design system dark | M1 | não | não |
 | M4 | Galeria + geração determinística | M3 | não | não |
-| M5 | Conta e autenticação | M3, F2-05 no ar | não | **sim** |
+| M5 | Conta local (e-mail + senha) | M3 | não | **não** |
 | M6 | Persistência de conversas | M3 | não | não |
 | M7 | Agente DeepSeek + compressão | M4, M6 | não | sim (fake no CI) |
 | M8 | Motion e preview de construção | M7 | não | não |
@@ -172,27 +171,28 @@ um modelo na galeria. É o caminho de teste em CI e o fallback de todo o produto
 
 ---
 
-## M5 — Conta e autenticação
+## M5 — Conta local (e-mail + senha)
 
-**Objetivo:** login obrigatório com Google via site, tokens no Credential Manager, gate de sessão
-no núcleo. **Acesso ilimitado depois de autenticado** (D18).
+**Objetivo:** login obrigatório com **e-mail e senha** salvos em SQLite **neste PC**, gate de
+sessão no núcleo. Sem Google, sem site, sem backend. **Acesso ilimitado depois de autenticado**
+(D18). Funciona **offline**.
 
-**Entregáveis:** [F1-14](14-auth-e-conta.md) + [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md).
+**Entregáveis:** [F1-14](14-auth-e-conta.md). ([F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md)
+não faz parte deste marco.)
 
 **Critério de saída:**
 
-- [ ] Backend de identidade no ar em `mapasfacil-api.cursar.space`, com `/health` público e
-      todas as demais rotas autenticadas
-- [ ] Tunnel dedicado; `saldopro-config.yml` e `/etc/cloudflared/config.yml` **intocados**
-- [ ] Fluxo completo: app → navegador → Google → callback loopback → tokens no cofre
-- [ ] `state` divergente → `AUTH-040`, sem troca de código
-- [ ] Refresh com `401` apaga o par; refresh com `ECONNREFUSED` **não** apaga
-- [ ] `grep -rn "access_token\|refresh_token" app/src/` vazio
+- [ ] `contas.sqlite` com hash Argon2id; senha **nunca** em claro nem no renderer
+- [ ] Criar conta → sair → entrar de novo com o mesmo e-mail/senha
+- [ ] “Lembrar neste PC”: reabrir o app já `conectado` sem redigitar
+- [ ] Senha errada → `AUTH-002` (mensagem genérica)
+- [ ] E-mail duplicado → `AUTH-070`
 - [ ] `mapa.gerar` sem sessão → `AUTH-030`; `workspace.abrir` funciona sem sessão
-- [ ] Backend desligado + token válido: o app gera mapa normalmente, com chip "offline"
-- [ ] `grep -rn "quota\|rate_limit\|paywall\|trial" app/ nucleo/` não retorna restrição de produto
+- [ ] Sem rede (airplane mode): criar/entrar/gerar funcionam
+- [ ] Nenhum fluxo Google / OAuth / `openExternal` de login
+- [ ] `grep -rn "quota\|rate_limit\|paywall\|trial" app/ nucleo/` sem restrição de produto
 
-**Dependências:** M3, e o serviço de identidade no ar.
+**Dependências:** só M3.
 
 ---
 
@@ -341,7 +341,7 @@ instalador, sem suporte presencial.
 |---|---|---|
 | `arcpy` trava em subprocesso | M2, M9 | timeout, API mínima comprovada, caminho T2 |
 | M2 demora e bloqueia tudo | M9, M10 | T2 avança em paralelo; PDF nativo desbloqueia M3–M8 |
-| Serviço de identidade fora do ar bloqueia o M5 | M5, M11 | `/health` monitorado; app tolera backend fora com token válido |
+| Conta local corrompida / SQLite ilegível | M5 | `AUTH-050` com instrução; não cair para senha em `config.json` |
 | Auth vira porta de entrada para cobrança "só um limitezinho" | escopo | D18 e AP-05 são vinculantes; mudar exige alterar F1-00 e planos comuns |
 | Animação implementada antes do evento existir | M3, M8 | AP-07; o critério de saída do M3 exige o evento do M1 |
 | Galeria virar enfeite e o chat montar tudo do zero | M4, M7 | teste de paridade é critério de saída do M7 |

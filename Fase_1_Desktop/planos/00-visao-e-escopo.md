@@ -17,7 +17,7 @@ capacidade tem um plano dedicado.
 | App Electron / qualquer UI | **ausente** (`app/` vazia) | [F1-02](02-ui-chat-e-workspace.md) |
 | Design system dark + animações | **ausente** | [F1-16](16-design-system-dark.md) |
 | Galeria de modelos | **ausente** | [F1-15](15-galeria-de-modelos.md) |
-| Conta e login Google | **ausente** | [F1-14](14-auth-e-conta.md) |
+| Conta local (e-mail + senha SQLite) | **ausente** | [F1-14](14-auth-e-conta.md) |
 | Persistência de conversas | **ausente** | [F1-17](17-persistencia-de-conversas.md) |
 | Agente DeepSeek + compressão de contexto | **ausente** | [F1-06](06-agente-eng-florestal.md) |
 | Instalador | **ausente** | [F1-11](11-empacotamento-instalador.md) |
@@ -235,7 +235,7 @@ Os três que mais ameaçam o escopo:
 | 02 | [UI e workspace](02-ui-chat-e-workspace.md) | os painéis e os estados |
 | 16 | [Design system dark](16-design-system-dark.md) | tokens, tipografia, animações |
 | 15 | [Galeria de modelos](15-galeria-de-modelos.md) | a porta determinística |
-| 14 | [Conta e autenticação](14-auth-e-conta.md) | login Google, tokens, gate |
+| 14 | [Conta local](14-auth-e-conta.md) | e-mail + senha SQLite, gate `AUTH-030` |
 | 17 | [Persistência de conversas](17-persistencia-de-conversas.md) | histórico local |
 | 06 | [Agente](06-agente-eng-florestal.md) | tools, prompt, orçamento de contexto |
 | 04 | [Motor `.mxd`](04-motor-mxd.md) | o coração do produto e a parte mais difícil |

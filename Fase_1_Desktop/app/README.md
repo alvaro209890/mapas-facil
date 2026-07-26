@@ -82,7 +82,7 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 1. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
 2. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
 3. Auth (M5) — depende do backend de identidade.
-4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (auth M5 + motor).
+4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (conta local M5 + motor).
 
 ## Arquitetura
 

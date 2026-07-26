@@ -100,10 +100,12 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
   com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
   `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
-- Autenticação, conta, site de login, backend de identidade (gate AUTH-030 em `chat.enviar` adiado).
-- Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
+- Autenticação local (M5): criar/entrar com e-mail+senha em `contas.sqlite` — **ainda ausente**
+  (plano [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md); **sem Google**). Gate `AUTH-030` adiado.
+- Cliente WFS/WMS em runtime, cofre de chaves BYOK, instalador.
+- Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
 - Visão / `analisar_referencia` (F1-07).
-- Qualquer código da Fase 2 além do que M5 exigir.
+- Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
 ## Ordem de implementação (dependências, nunca calendário)
 
@@ -118,7 +120,7 @@ M1 núcleo ✅parcial
    └─▶ M3  Shell + Design System dark
           │
           ├─▶ M4  Galeria de modelos + geração determinística
-          ├─▶ M5  Conta e autenticação        (exige F2-05 no ar)
+          ├─▶ M5  Conta local (e-mail + senha em SQLite)
           │
           └─▶ M6  Persistência de conversas
                  │
@@ -136,7 +138,7 @@ M1 núcleo ✅parcial
 | M2 — Motor `.mxd` | **sim** (T1); T2 não | não | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) |
 | M3 — Shell + Design System | não | não | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md), [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) |
 | M4 — Galeria | não | não | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) |
-| M5 — Auth | não | **sim** | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md), [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) |
+| M5 — Auth local | não | **não** | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) (e-mail+senha SQLite; F2-05 **não** bloqueia) |
 | M6 — Conversas | não | não | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
 | M7 — Agente | não | **sim** (fake no CI) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) |
 | M8 — Motion | não | não | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) |
@@ -186,9 +188,9 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato | **feito** (M8) — 4 tipos, caminho relativo, `artefato.ler` para o renderer | `nucleo/.../artefatos.py`, `leitor_artefato.py`, `motores/gerar.py`, `motores/nativo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
-| R09 | Login obrigatório Google via site → app | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/auth/`, `Fase_2_Site/backend/` |
-| R10 | Backend de identidade + site de login | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **ausente** | `Fase_2_Site/backend/`, `Fase_2_Site/web/` |
-| R11 | Tokens no Windows Credential Manager | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/cofre.ts` |
+| R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** — Google/OAuth descartados | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
+| R10 | Conta na nuvem / site (Fase 2) | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **adiado** — **não** bloqueia M5 | `Fase_2_Site/` (pós-M11) |
+| R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** — não guarda senha de conta (senha vai hasheada no SQLite) | `nucleo/.../cofre.py`, `app/electron/cofre.ts` |
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `nucleo/.../sessao.py`, `motores/gerar.py` |
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
@@ -225,7 +227,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | AP-11 | Ler/escrever disco fora do `fsguard` | ameaça A2 |
 | AP-12 | Sincronizar chats para nuvem na v1 | **D20**: local-only |
 | AP-13 | Escrever estimativa em dias/semanas em plano | ordem é por dependência técnica |
-| AP-14 | Abrir porta HTTP no PC do usuário para o sidecar | o transporte é stdio NDJSON; a única porta é o loopback efêmero do OAuth |
+| AP-14 | Abrir porta HTTP no PC do usuário para o sidecar **ou para login** | transporte é stdio NDJSON; auth local é IPC+SQLite (D12) — **sem** loopback OAuth |
 | AP-15 | Marcar tarefa como feita sem atualizar a linha do gap analysis e o checklist F1-13 | o repositório mente e o próximo agente se perde |
 
 ## Convenções de código que os planos assumem
@@ -245,7 +247,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | Se te pediram… | Leia, nesta ordem |
 |---|---|
 | "faz a UI" | F1-02 → F1-16 → F1-01 (§IPC) → F1-15 |
-| "faz o login" | F1-14 → F2-05 → `planos/05-seguranca-e-segredos.md` |
+| "faz o login" | F1-14 → `planos/05-seguranca-e-segredos.md` (F2-05 só se for conta **nuvem** pós-M11) |
 | "faz a galeria" | F1-15 → `planos/02-mapspec-contrato.md` → F1-04 (§MANIFEST) |
 | "faz o agente" | F1-06 → F1-17 → `planos/05-seguranca-e-segredos.md` (§o que vai para a DeepSeek) |
 | "faz o chat salvar" | F1-17 → F1-01 (§estado local) |

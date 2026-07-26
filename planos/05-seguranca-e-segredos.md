@@ -92,13 +92,12 @@ sendo a única defesa automática. A varredura recursiva reduz a chance de erro;
 | `sema_authkey` | Windows Credential Manager | env do backend | em `.mxd` versionado, em URL de log |
 | `planet_api_key` | Windows Credential Manager | env do backend | idem |
 | `sccon_bearer` | fora da v1 | fora da v1 | — |
-| `access_token` / `refresh_token` da conta | Windows Credential Manager, escrito **só pelo processo main** do Electron | não se aplica | no renderer, no NDJSON do sidecar, em `config.json`, em log |
-| `GOOGLE_CLIENT_SECRET`, `JWT_PRIVATE_KEY` | **não existe no desktop** (PKCE, cliente público) | env do serviço systemd, permissão `600` | no repositório, no instalador |
-| `refresh_token` no servidor | — | **só o `sha256`** em `sessoes.refresh_hash` | em claro no banco |
+| `senha_hash` da conta local (Argon2id) | só em `%APPDATA%\MapasFacil\contas\contas.sqlite` | — | em claro, no renderer, em log, em `config.json` |
+| `access_token` / `refresh_token` de conta **nuvem** | **não na v1 do desktop** (F1-14 local) | se Fase 2 existir: só no servidor | no renderer / instalador |
+| Segredos OAuth Google / JWT de identidade nuvem | **não no desktop v1** | só se F2-05 for reaberto pós-M11 | no repositório, no instalador |
 
-Detalhe do fluxo e do armazenamento de sessão:
-[F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) e
-[F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md).
+Detalhe da conta **local** do desktop: [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md).
+Conta nuvem / memória (adiada): [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md).
 
 Neste PC de desenvolvimento, todos vivem em `secrets.local.json` na raiz do repositório —
 gitignored, jamais commitado. Template público: `secrets.example.json`.
@@ -222,9 +221,9 @@ job, com TTL máximo de 24 h.
 | A7 | Backend da Fase 2 comprometido vira RCE no desktop | backend manda job malicioso | o desktop não aceita comando remoto na v1. Se a ponte existir, ela transporta `MapSpec` validado localmente de novo |
 | A8 | Instalador adulterado | download de terceiro | binário assinado + `sha256` publicado; atualização só por canal assinado |
 | A9 | Exposição do backend pelo tunnel | Cloudflare Tunnel publica o serviço | tunnel dedicado, só as duas hostnames do Mapas Fácil; backend com auth em todas as rotas exceto healthcheck e o fluxo OAuth |
-| A10 | **Open redirect no login** | `redirect_uri` arbitrária em `/auth/desktop/start` rouba o código de autorização | `redirect_uri` tem de casar `^http://127\.0\.0\.1:\d{1,5}/callback$`; `state` conferido no app; `code_app` de 60 s e uso único |
-| A11 | **Roubo de `refresh_token`** | arquivo lido do PC, ou vazamento do dump do banco | token no Credential Manager (nunca em arquivo); no servidor só o `sha256`; rotação a cada uso + revogação da família inteira ao detectar replay |
-| A12 | **Token vazando para o renderer** | `contextBridge` mal desenhado expõe o token à camada React | o main nunca envia token pelo IPC; teste `grep -rn "access_token" app/src/` tem de ficar vazio |
+| A10 | **Senha de conta vazando** | senha/`senha_hash` no renderer, log ou `config.json` | auth só via IPC→núcleo; teste: senha de fixture ausente de `contas.sqlite` em claro e de `app/src/` |
+| A11 | **Dump de `contas.sqlite`** | cópia do perfil do usuário | hash Argon2id (não reversível); sem senha em claro; backup do perfil é risco aceito do SO |
+| A12 | **Sessão/conta no renderer além do necessário** | store React guarda hash ou senha | renderer só `{estado, conta:{id,email,nome}}` |
 
 ### A1 em detalhe
 
@@ -272,24 +271,19 @@ argumentos fixos e o payload num arquivo JSON no disco.
 - [ ] Aviso de chave embutida antes de gravar `.mxd` com basemap autenticado
 - [ ] Instalador assinado; `sha256` publicado
 - [ ] Modo determinístico sem IA funciona de ponta a ponta
-- [ ] Tokens de sessão só no Credential Manager; `grep -rn "access_token\|refresh_token" app/src/` vazio
-- [ ] Redator cobre `Authorization`, `Bearer`, `code=`, `refresh_token`
+- [ ] Senha de conta nunca em claro no SQLite nem no renderer; `grep` da senha de teste = 0 em `contas.sqlite` e em `app/src/`
+- [ ] Redator cobre `Authorization`, `Bearer` e nunca loga campo `senha`
 - [ ] Teste de vazamento de contexto verde (regexes da tabela acima)
 - [ ] Redator de CPF aplicado **antes do INSERT** em `chats.sqlite`; `grep -a` do CPF no arquivo vazio
 - [ ] Nenhum caminho de rede em `nucleo/mapasfacil_nucleo/conversas/`
 
-### Fase 2
+### Fase 2 (pós-M11 — se/quando conta nuvem existir)
 
-- [ ] Todas as rotas autenticadas exceto `/health` e o fluxo OAuth (protegido por PKCE + `state`)
-- [ ] `redirect_uri` validada contra a regex de loopback; `code_challenge_method` só `S256`
-- [ ] `refresh_token` guardado como `sha256`; rotação e detecção de replay testadas
-- [ ] `ip_hash` em vez de IP em claro
+- [ ] Rotas autenticadas conforme o desenho **então** vigente (não copiar OAuth antigo às cegas)
 - [ ] Nenhuma tabela de quota/plano/cobrança (D18 / AP-05)
-- [ ] Tunnel dedicado; `saldopro-config.yml` e `/etc/cloudflared/config.yml` **intocados**
-- [ ] Segredos só em env do serviço systemd, com `EnvironmentFile` de permissão `600`
-- [ ] Rate limit ativo
+- [ ] Tunnel dedicado; configs de outros sistemas **intocados**
+- [ ] Segredos só em env do serviço, permissão restrita
 - [ ] Upload de `.zip` com verificação anti *zip slip*
-- [ ] `.zip` do usuário apagado ao fim do job (TTL ≤ 24 h)
 - [ ] Backup do Postgres com segredo fora do dump
 
 ### Repositório
