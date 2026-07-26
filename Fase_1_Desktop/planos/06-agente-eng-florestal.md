@@ -12,14 +12,21 @@ custo em pastas reais), os guard rails e os testes.
 | Item | Atual | Alvo |
 |---|---|---|
 | Cliente DeepSeek | **feito** (stream SSE + fake CI) | streaming + tool calling + cancelamento |
-| Tools | **parcial** — 27 registradas; núcleo operacional + stubs | 26 tools tipadas |
+| Tools | **parcial** — 27 registradas, **24 reais e tipadas**; 3 travadas em dependência | 27 tools tipadas |
 | Orçamento (`limites.py`) | **feito** (G2) | tetos F1-06 testados |
 | Montador de contexto / compressão | **feito** (G3) | pipeline obrigatório abaixo |
-| `chat.enviar` / `chat.cancelar` | **feitos** (G7) + UI `PainelChat` | métodos NDJSON |
+| `chat.enviar` / `chat.cancelar` | **feitos** (G7) — cancelamento grava parcial e fecha o stream | métodos NDJSON |
+| Edição versionada do MapSpec | **feito** — `agente/edicao.py` (nova versão + diff em português) | §Versionamento |
 | Modo determinístico | galeria (M4) | [F1-15](15-galeria-de-modelos.md) |
 | Fake do provedor (VCR) | **FakeProvedor** no anel 1; VCR HTTP pendente | anel 2 no CI |
 
 A pasta `agente/` cobre G1–G7/G9/G10 com testes sem rede.
+
+As três tools que ainda respondem `IA-022` (com o motivo, para o modelo seguir sem elas):
+`consultar_sema` e `distancia_ate` esperam `camada.resolver` (R21, cliente WFS em runtime);
+`analisar_referencia` espera o fluxo de visão ([F1-07](07-visao-print-e-zip.md)). Nenhuma outra
+tool é stub — o registro está em `TOOLS_COM_DEPENDENCIA_PENDENTE` e um teste falha se essa lista
+crescer sem que alguém atualize este plano.
 
 ## Dependências
 
@@ -152,9 +159,12 @@ na entrada.
 | Últimos 8 turnos | verbatim (usuário + assistente + resultados de tool resumidos) |
 | Tudo antes disso | `compact_summary` de até 800 tokens, gerado por `deepseek-v4-flash` |
 
-O resumo é regenerado a cada 6 turnos novos, não a cada turno (custo). Fica gravado em
-`conversas.compact_summary` com `compact_ate_seq` ([F1-17](17-persistencia-de-conversas.md)) — ao
-reabrir a conversa, o contexto se reconstrói sem recomputar nada.
+O resumo cobre **apenas** o que está fora da janela verbatim, e `compact_ate_seq` marca até onde
+ele cobre. A primeira mensagem que sai da janela é resumida na hora (senão sumiria do contexto sem
+ninguém perceber); daí em diante regenera a cada 6 mensagens cobertas, medidas por `seq` — nunca
+por resto de divisão do total, que erra em conversa ramificada. Fica gravado em
+`conversas.compact_summary` ([F1-17](17-persistencia-de-conversas.md)) — ao reabrir a conversa, o
+contexto se reconstrói sem recomputar nada.
 
 ### 3. `MapSpec` por diff
 
@@ -407,7 +417,8 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
 - [x] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
 - [x] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` (heurística CI + LLM opcional)
-- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; subset operacional + stubs
+- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; 24 reais, 3 travadas em R21/F1-07
+- [x] `nucleo/mapasfacil_nucleo/agente/edicao.py` — nova versão do MapSpec + diff em português
 - [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
 - [x] redator reusa `conversas/redator.py` (WKT/CPF/chaves/caminhos)
 - [ ] `nucleo/mapasfacil_nucleo/agente/visao.py` — print/zip → `MapSpec` ([F1-07](07-visao-print-e-zip.md))
@@ -422,7 +433,10 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] **Compressão:** 120 turnos → payload ≤ 60k com summary e verbatim limitado
 - [x] **Sem vazamento** (`test_contexto_vazamento.py`)
 - [x] **Galeria antes de montar do zero** + **paridade** template/camadas/layout
-- [~] **Cancelamento:** `chat.cancelar` marca flag e encerra stream (teste de integração fino pendente)
+- [x] **Cancelamento:** `chat.cancelar` encerra o stream, fecha o HTTP e grava a mensagem parcial
+  com `cancelada = 1` (`tests/test_agente_orquestrador.py`)
+- [x] **Rodadas:** 12 passam, a 13ª é `IA-030` — e o turno estourado ainda grava texto e traces
+- [x] **Traces reais:** `tool_traces` guardam args, resultado, `ms` e `erro_codigo` de cada tool
 - [x] **Sem chave:** `chat.enviar` → `IA-001`
 - [x] `temperature` não é enviado no request DeepSeek
 - [x] System prompt ≤ 2.500 tokens estimados

@@ -126,14 +126,7 @@ def _handler_car_ler_recibo(params: dict[str, Any]) -> dict[str, Any]:
 
 def _fontes_idx_do_estado(estado) -> dict[str, str]:
     """Stem + alias de papel curto; stem vence se houver colisão de papel."""
-    fontes_idx: dict[str, str] = {}
-    for item in estado.indice.get("shapefiles", []):
-        fontes_idx[item["id_local"]] = item["caminho"]
-    for item in estado.indice.get("shapefiles", []):
-        papel = item.get("papel")
-        if papel and papel not in fontes_idx:
-            fontes_idx[papel] = item["caminho"]
-    return fontes_idx
+    return workspace_servico.fontes_idx(estado)
 
 
 def _recibo_do_estado(estado) -> dict[str, Any] | None:

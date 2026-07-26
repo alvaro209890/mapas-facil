@@ -188,6 +188,10 @@ com sessão expirada é permitido. `chat.enviar` (que grava mensagem nova de IA)
 - [x] `nucleo/mapasfacil_nucleo/conversas/esquema.sql` — DDL acima + triggers do FTS
 - [x] `nucleo/mapasfacil_nucleo/conversas/migracoes/001_inicial.sql`
 - [x] `nucleo/mapasfacil_nucleo/conversas/repositorio.py` — CRUD, transações, WAL
+- [x] `repositorio.contexto_para_turno()` → `ContextoTurno` — recorte tipado que o agente consome
+  (mensagens, `compact_summary`, `compact_ate_seq`, `tokens_entrada`, `ultima_seq`). O agente
+  **não** lê o dicionário de `abrir_conversa` por dentro: o que ele consome é contrato, não a
+  forma da linha do banco ([F1-06](06-agente-eng-florestal.md))
 - [x] `nucleo/mapasfacil_nucleo/conversas/redator.py` — CPF, chaves, tokens (compartilhado com o log)
 - [x] `nucleo/mapasfacil_nucleo/conversas/titulo.py` — geração e regra de `title_manual`
 - [x] `nucleo/mapasfacil_nucleo/conversas/fingerprint.py` — `sha256(realpath normalizado)`

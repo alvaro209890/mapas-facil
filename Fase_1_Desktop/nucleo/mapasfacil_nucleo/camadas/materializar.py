@@ -89,6 +89,23 @@ def materializar_camadas_locais(
         nome_dataset = NOME_CANONICO_POR_PAPEL.get(id_local.upper(), id_local.upper())
         destino = pasta / nome_dataset
 
+        # Pasta do usuário que já guarda os shapefiles em SHP/ com o nome
+        # canônico: origem e destino são o mesmo arquivo, e copiar levantaria
+        # SameFileError. Nada a materializar — o dado já está no lugar.
+        if origem.resolve() == destino.with_suffix(".shp").resolve():
+            materializados.append(
+                {
+                    "fonte": fonte,
+                    "origem": rel,
+                    "destino": rel,
+                    "papel": papel,
+                    "ja_no_lugar": True,
+                }
+            )
+            if ao_materializar is not None:
+                ao_materializar(papel, indice, total)
+            continue
+
         try:
             if usar_ogr and epsg_dest is not None:
                 ogr2ogr_util.reprojetar_shapefile(origem, destino, epsg_destino=epsg_dest)

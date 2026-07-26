@@ -63,6 +63,26 @@ def estado_atual() -> EstadoWorkspace | None:
     return _estado
 
 
+def fontes_idx(estado: EstadoWorkspace | None = None) -> dict[str, str]:
+    """Mapa `fonte local` → caminho: `id_local` e alias de papel curto.
+
+    O `id_local` vence quando há colisão com um papel de mesmo nome. Vive aqui
+    porque tanto o roteador NDJSON quanto as tools do agente precisam do mesmo
+    mapeamento — duplicá-lo faz as duas portas divergirem.
+    """
+    alvo = estado if estado is not None else _estado
+    if alvo is None:
+        raise ErroNucleo("NU-040", "Nenhum workspace aberto. Use workspace.abrir primeiro.")
+    idx: dict[str, str] = {}
+    for item in alvo.indice.get("shapefiles", []):
+        idx[item["id_local"]] = item["caminho"]
+    for item in alvo.indice.get("shapefiles", []):
+        papel = item.get("papel")
+        if papel and papel not in idx:
+            idx[papel] = item["caminho"]
+    return idx
+
+
 def resolver_workspace_path(caminho_relativo: str) -> Path:
     if _estado is None:
         raise ErroNucleo("NU-040", "Nenhum workspace aberto.")

@@ -14,10 +14,12 @@ def gerar_compact_summary(
     *,
     provedor: ProvedorIA | None = None,
     ate_seq: int | None = None,
+    excluir_ultimas: int | None = None,
 ) -> str:
     """Gera resumo ≤ COMPACT_SUMMARY_MAX tokens.
 
     Com ``provedor``: um turno flash. Sem provedor: heurística local (CI).
+    ``excluir_ultimas=0`` diz que a lista já vem recortada pelo chamador.
     """
     subset = mensagens_db
     if ate_seq is not None:
@@ -25,7 +27,9 @@ def gerar_compact_summary(
     if not subset:
         return ""
     if provedor is None:
-        return _resumo_heuristico(subset)
+        if excluir_ultimas is None:
+            return _resumo_heuristico(subset)
+        return _resumo_heuristico(subset, excluir_ultimas=excluir_ultimas)
 
     prompt = (
         "Resuma em português, no máximo 800 tokens, o histórico abaixo para continuidade "

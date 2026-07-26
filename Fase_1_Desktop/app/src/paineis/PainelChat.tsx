@@ -12,6 +12,22 @@ export interface MensagemChat {
   papel: string;
   conteudo: string;
   seq?: number;
+  cancelada?: boolean;
+}
+
+/** Erro do núcleo → frase acionável. Código estável na frente, sempre (F1-06). */
+export function mensagemDeErro(erro?: { codigo?: string; mensagem?: string }): string {
+  const codigo = erro?.codigo ?? "erro";
+  const base = erro?.mensagem ?? "falha ao falar com o agente";
+  const acao: Record<string, string> = {
+    "IA-001": "Configure a chave DeepSeek ou use a galeria de modelos.",
+    "IA-010": "O provedor está fora do ar. A galeria continua funcionando.",
+    "IA-030": "Peça para continuar — o turno recomeça a contagem de rodadas.",
+    "IA-040": "Ramifique a conversa para continuar a partir do resumo.",
+    "IA-041": "Abra um chat novo; esta conversa atingiu o teto de tokens.",
+    "IA-050": "Peça para continuar de onde parou.",
+  };
+  return acao[codigo] ? `${codigo}: ${base} ${acao[codigo]}` : `${codigo}: ${base}`;
 }
 
 export interface PropsPainelChat {
@@ -28,6 +44,7 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
   const [streaming, setStreaming] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [tools, setTools] = useState<string[]>([]);
+  const [cancelando, setCancelando] = useState(false);
   const fimRef = useRef<HTMLDivElement | null>(null);
 
   const carregar = useCallback(async (cid: string) => {
@@ -72,6 +89,14 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
     fimRef.current?.scrollIntoView?.({ block: "end" });
   }, [mensagens, streaming]);
 
+  async function cancelar() {
+    if (!conversationId || !enviando) return;
+    const ponte = api();
+    if (ponte === undefined) return;
+    setCancelando(true);
+    await ponte.chamar("chat.cancelar", { conversation_id: conversationId });
+  }
+
   async function enviar(texto: string) {
     if (!conversationId || !texto.trim() || enviando) return;
     const ponte = api();
@@ -80,6 +105,7 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
       return;
     }
     setEnviando(true);
+    setCancelando(false);
     setStreaming("");
     setTools([]);
     setErro(null);
@@ -90,12 +116,14 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
       mensagem: texto.trim(),
     });
     setEnviando(false);
+    setCancelando(false);
     setStreaming("");
     if (!resp.ok) {
-      setErro(`${resp.erro?.codigo ?? "erro"}: ${resp.erro?.mensagem ?? "falha"}`);
-      if (resp.erro?.codigo === "IA-001") {
-        /* banner de chave já cobre */
-      }
+      // IA-030/IA-040/IA-050 já gravaram o parcial no transcript: recarregar
+      // mostra o que o agente chegou a produzir, em vez de perder o turno.
+      // O erro é setado DEPOIS: `carregar` limpa o erro quando dá certo.
+      await carregar(conversationId);
+      setErro(mensagemDeErro(resp.erro));
       return;
     }
     await carregar(conversationId);
@@ -145,6 +173,9 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
           <div key={m.message_id ?? `${m.papel}-${i}`} className={estilos.bolha} data-papel={m.papel}>
             <span className={estilos.papel}>{m.papel}</span>
             <p className={estilos.texto}>{m.conteudo}</p>
+            {m.cancelada === true && (
+              <p className={estilos.tools}>resposta interrompida por você</p>
+            )}
           </div>
         ))}
         {streaming && (
@@ -178,9 +209,24 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
           rows={2}
           disabled={enviando || semChaveIa}
         />
-        <button type="submit" className={estilos.enviar} disabled={enviando || semChaveIa || !rascunho.trim()}>
-          {enviando ? "…" : "Enviar"}
-        </button>
+        {enviando ? (
+          <button
+            type="button"
+            className={estilos.enviar}
+            onClick={() => void cancelar()}
+            disabled={cancelando}
+          >
+            {cancelando ? "Parando…" : "Parar"}
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className={estilos.enviar}
+            disabled={semChaveIa || !rascunho.trim()}
+          >
+            Enviar
+          </button>
+        )}
       </form>
     </div>
   );

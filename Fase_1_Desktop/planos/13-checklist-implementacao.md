@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **parcial** — G1–G7 + testes fake fechados; G8 cassetes/VCR e tools stub restantes; G10 paridade coberta no teste de galeria |
+| G — agente | M7 | **parcial** — G1–G7/G9–G11 fechados (24/27 tools reais, cancelamento com parcial gravada, traces reais); falta G8 (VCR) e as 3 tools travadas em R21/F1-07 |
 | H — motion e preview | M8 | **não iniciado** |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -166,12 +166,13 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06; `tests/test_limites.py` |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [x] | `agente/contexto.py` |
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
-| G5 | Tools tipadas (26+ registradas; núcleo operacional + stubs) | [~] | `agente/tools.py` — galeria/estado/listar/validar reais; demais stub `IA-022` |
+| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [~] | `agente/tools.py` + `agente/edicao.py` — 24 reais e versionadas; `consultar_sema`/`distancia_ate`/`analisar_referencia` respondem `IA-022` até R21/F1-07 |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
-| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` |
+| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
 | G8 | Cassetes VCR + fixture de 120 turnos | [~] | FakeProvedor no anel 1; VCR HTTP real ainda não |
 | G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
 | G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
+| G11 | Testes do loop: 12/13 rodadas, cancelamento com parcial, traces reais, passo do resumo | [x] | `tests/test_agente_orquestrador.py`, `tests/test_agente_tools.py`, `app/tests/painel-chat.test.tsx` |
 
 ## Bloco H — Motion e preview de construção (M8)
 

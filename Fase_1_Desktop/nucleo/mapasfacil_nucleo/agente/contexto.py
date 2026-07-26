@@ -124,9 +124,19 @@ def compactar_se_preciso(
     )
 
 
-def _resumo_heuristico(mensagens_db: list[dict[str, Any]]) -> str:
+def _resumo_heuristico(
+    mensagens_db: list[dict[str, Any]],
+    *,
+    excluir_ultimas: int = limites.TURNOS_VERBATIM,
+) -> str:
+    """Resumo local (CI, sem rede) do histórico fora da janela verbatim.
+
+    `excluir_ultimas=0` quando o chamador já recortou o que quer resumir — é o
+    caso do orquestrador, que sabe exatamente até qual `seq` o resumo cobre.
+    """
+    fatia = mensagens_db[:-excluir_ultimas] if excluir_ultimas else list(mensagens_db)
     trechos = []
-    for m in mensagens_db[:-8]:
+    for m in fatia:
         papel = m.get("papel")
         if papel in ("usuario", "assistente"):
             trechos.append(f"{papel}: {(m.get('conteudo') or '')[:120]}")

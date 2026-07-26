@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -30,6 +31,21 @@ def agora_iso() -> str:
 def _trecho(texto: str, limite: int = 120) -> str:
     limpo = " ".join((texto or "").split())
     return truncar(limpo, limite)
+
+
+@dataclass(frozen=True)
+class ContextoTurno:
+    """Recorte tipado da conversa para o agente montar um turno (F1-06 §Orçamento)."""
+
+    conversation_id: str
+    mensagens: list[dict[str, Any]]
+    compact_summary: str | None
+    compact_ate_seq: int
+    tokens_entrada: int
+    tokens_saida: int
+    total_mensagens: int
+    ultima_seq: int
+    workspace: str | None = None
 
 
 class RepositorioConversas:
@@ -197,6 +213,37 @@ class RepositorioConversas:
             "total": int(total),
             "mapspecs": mapspecs,
         }
+
+    def contexto_para_turno(
+        self,
+        conversation_id: str,
+        *,
+        limite: int = 500,
+    ) -> ContextoTurno:
+        """Tudo que o orquestrador precisa para montar um turno, tipado (F1-06).
+
+        Existe para o agente **não** cavar dentro do dicionário de `abrir_conversa`:
+        o que ele consome é contrato (`mensagens`, `compact_summary`,
+        `compact_ate_seq`, `tokens_entrada`, `ultima_seq`), não a forma da linha
+        do banco.
+        """
+        aberto = self.abrir_conversa(conversation_id, limite=limite)
+        mensagens = [
+            {"seq": int(m["seq"]), "papel": m["papel"], "conteudo": m["conteudo"] or ""}
+            for m in aberto["mensagens"]
+        ]
+        conversa = aberto["conversa"]
+        return ContextoTurno(
+            conversation_id=conversation_id,
+            mensagens=mensagens,
+            compact_summary=aberto.get("compact_summary"),
+            compact_ate_seq=int(aberto.get("compact_ate_seq") or 0),
+            tokens_entrada=int(conversa.get("tokens_entrada") or 0),
+            tokens_saida=int(conversa.get("tokens_saida") or 0),
+            total_mensagens=int(aberto["total"]),
+            ultima_seq=int(mensagens[-1]["seq"]) if mensagens else 0,
+            workspace=conversa.get("workspace_path"),
+        )
 
     def carregar_anteriores(
         self,

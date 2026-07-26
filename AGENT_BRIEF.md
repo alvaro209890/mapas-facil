@@ -23,9 +23,9 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~209 pass | verde |
-| `Fase_1_Desktop/app` Vitest | **não** | ~77 pass |
-| `test_agente.py` / vazamento / paridade galeria | **não** — fake | verde |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~238 pass | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~81 pass |
+| `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 
 **Conclusão:** o CI não usa a chave real. A chave serve para smoke local e turnos reais no app.
@@ -62,8 +62,8 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~198)
-cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/axe (~77)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~238)
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + visual/axe (~81)
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
@@ -80,7 +80,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/ax
 | App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **barra de chats M6** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
-| Agente DeepSeek | **parcial** (M7) — orquestrador + fake CI + `PainelChat`; tools stub restantes | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
+| Agente DeepSeek | **parcial** (M7) — orquestrador, cancelamento, 24/27 tools reais, `PainelChat` com “Parar”; faltam as 3 tools que dependem de R21/F1-07 e o VCR | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -95,7 +95,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + visual/ax
 - Menus e tray do Electron (só diálogo de pasta + IPC).
 - Eventos NDJSON ainda sem emissor: `job.log`, `job.artefato_parcial`, `workspace.mudou`,
   `mapspec.atualizado`, `aviso`. Emitidos: `job.progresso`, `chat.delta`, `chat.tool`.
-- Tools do agente ainda stub (`IA-022`) exceto estado/listar/inspecionar/recibo/galeria/validar.
+- Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
+  com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
+  `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
 - Autenticação, conta, site de login, backend de identidade (gate AUTH-030 em `chat.enviar` adiado).
 - Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
 - Visão / `analisar_referencia` (F1-07).
@@ -189,11 +191,12 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |
+| R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **parcial** — 24/27 reais e versionadas; 3 travadas em R21/F1-07 | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
 | R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) | `nucleo/.../agente/limites.py` |
 | R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G3) | `nucleo/.../agente/contexto.py` |
 | R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **parcial** — FakeProvedor; VCR HTTP pendente | `nucleo/.../agente/fake.py` |
 | R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **feito** (G9) | `nucleo/tests/test_contexto_vazamento.py` |
-| R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **ausente** | `nucleo/.../__main__.py` |
+| R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **parcial** — `chat.cancelar` feito (grava parcial com `cancelada`, fecha o stream, botão “Parar” na UI); `mapa.cancelar` ausente | `nucleo/.../agente/orquestrador.py`, `app/src/paineis/PainelChat.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../camadas/` |
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
