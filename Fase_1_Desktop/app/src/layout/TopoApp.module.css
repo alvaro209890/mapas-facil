@@ -44,9 +44,13 @@
     border-color var(--mf-dur-2) var(--mf-ease-saida);
 }
 
-.chip[data-estado="pronto"] {
+.chip[data-estado="conectado"] {
   color: var(--mf-ok);
   border-color: var(--mf-borda-forte);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chip[data-estado="iniciando"] {

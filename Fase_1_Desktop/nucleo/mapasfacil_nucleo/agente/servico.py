@@ -10,20 +10,11 @@ from mapasfacil_nucleo.protocolo import Emissor
 
 
 def gate_sessao(params: dict[str, Any]) -> None:
-    """Gancho do gate `AUTH-030` — **não** implementa autenticação (é M5).
+    """Gate `AUTH-030` antes de gastar token (F1-14 / M5)."""
+    del params  # conta_id no request é informativo; a sessão viva está em memória
+    from mapasfacil_nucleo import sessao
 
-    Quando `nucleo/sessao.py` existir ([F1-14](../../planos/14-auth-e-conta.md)),
-    a validação entra aqui e recusa antes de gastar token do usuário:
-
-    ```python
-    if not sessao.valida(params.get("conta_id")):
-        raise ErroNucleo("AUTH-030", "Sessão inválida. Entre na sua conta.")
-    ```
-
-    Até lá é um no-op deliberado: M7 não depende de rede de identidade, e
-    inventar um gate meia-boca agora só criaria caminho morto para o M5 remover.
-    """
-    del params
+    sessao.exigir_conectado("enviar mensagem ao chat")
 
 
 def enviar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
@@ -36,7 +27,7 @@ def enviar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
     anexos = params.get("anexos")
     if anexos is not None and not isinstance(anexos, list):
         raise ErroNucleo("NU-001", "Parâmetro 'anexos' inválido.")
-    gate_sessao(params)  # AUTH-030 — no-op até M5 (ver docstring)
+    gate_sessao(params)
     return executar_turno(
         conversation_id=cid,
         mensagem=mensagem.strip(),

@@ -182,17 +182,19 @@ não faz parte deste marco.)
 
 **Critério de saída:**
 
-- [ ] `contas.sqlite` com hash Argon2id; senha **nunca** em claro nem no renderer
-- [ ] Criar conta → sair → entrar de novo com o mesmo e-mail/senha
-- [ ] “Lembrar neste PC”: reabrir o app já `conectado` sem redigitar
-- [ ] Senha errada → `AUTH-002` (mensagem genérica)
-- [ ] E-mail duplicado → `AUTH-070`
-- [ ] `mapa.gerar` sem sessão → `AUTH-030`; `workspace.abrir` funciona sem sessão
-- [ ] Sem rede (airplane mode): criar/entrar/gerar funcionam
-- [ ] Nenhum fluxo Google / OAuth / `openExternal` de login
-- [ ] `grep -rn "quota\|rate_limit\|paywall\|trial" app/ nucleo/` sem restrição de produto
+- [x] `contas.sqlite` com hash Argon2id; senha **nunca** em claro nem no renderer
+- [x] Criar conta → sair → entrar de novo com o mesmo e-mail/senha
+- [x] “Lembrar neste PC”: reabrir o app já `conectado` sem redigitar
+- [x] Senha errada → `AUTH-002` (mensagem genérica)
+- [x] E-mail duplicado → `AUTH-070`
+- [x] `mapa.gerar` sem sessão → `AUTH-030`; `workspace.abrir` funciona sem sessão
+- [x] Sem rede (airplane mode): criar/entrar/gerar funcionam (tudo local)
+- [x] Nenhum fluxo Google / OAuth / `openExternal` de login
+- [x] `grep -rn "quota\|rate_limit\|paywall\|trial" app/ nucleo/` sem restrição de produto
 
 **Dependências:** só M3.
+
+**Estado: fechado em 2026-07-26** (Bloco E).
 
 ---
 

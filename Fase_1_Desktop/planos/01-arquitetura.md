@@ -18,7 +18,7 @@ redefinidos aqui.
 | Electron main + renderer | **parcial** — main, preload e ponte NDJSON existem; renderer ainda não | shell completo |
 | Ponte ArcPy (py 2.7) | esqueleto | T1 funcional |
 | Cofre / Credential Manager (BYOK) | **ausente** | chaves DeepSeek/SEMA/Planet — **não** senha de conta |
-| Conta local (e-mail + senha) | **ausente** | [F1-14](14-auth-e-conta.md) — SQLite; **sem** Google/F2-05 |
+| Conta local (e-mail + senha) | **feito** (M5) | [F1-14](14-auth-e-conta.md) — SQLite Argon2id; **sem** Google/F2-05 |
 | Persistência de conversas | **ausente** | `chats.sqlite` ([F1-17](17-persistencia-de-conversas.md)) |
 
 ## Os quatro processos

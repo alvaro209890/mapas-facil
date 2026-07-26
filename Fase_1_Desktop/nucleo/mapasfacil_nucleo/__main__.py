@@ -5,8 +5,9 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, TextIO
 
-from mapasfacil_nucleo import doctor, leitor_artefato
+from mapasfacil_nucleo import doctor, leitor_artefato, sessao
 from mapasfacil_nucleo.agente import servico as agente_servico
+from mapasfacil_nucleo.contas import servico as contas_servico
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
@@ -55,6 +56,12 @@ def criar_roteador() -> Roteador:
     roteador.registrar("galeria.listar", galeria_servico.listar)
     roteador.registrar("galeria.detalhar", galeria_servico.detalhar)
     roteador.registrar("galeria.montar_mapspec", galeria_servico.montar)
+    roteador.registrar("conta.criar", contas_servico.criar)
+    roteador.registrar("conta.entrar", contas_servico.entrar)
+    roteador.registrar("conta.sair", contas_servico.sair)
+    roteador.registrar("conta.estado", contas_servico.estado)
+    roteador.registrar("sessao.definir", sessao.handler_definir)
+    roteador.registrar("sessao.estado", sessao.handler_estado)
     roteador.registrar("chat.criar_conversa", conversas_servico.criar_conversa)
     roteador.registrar("chat.listar_conversas", conversas_servico.listar_conversas)
     roteador.registrar("chat.abrir_conversa", conversas_servico.abrir_conversa)
@@ -141,6 +148,7 @@ def _recibo_do_estado(estado) -> dict[str, Any] | None:
 
 
 def _handler_mapa_gerar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
+    sessao.exigir_conectado("gerar mapa")
     mapspec = params.get("mapspec")
     if not isinstance(mapspec, dict):
         raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
@@ -247,6 +255,7 @@ def _handler_quantitativos_calcular(params: dict[str, Any]) -> dict[str, Any]:
 
 
 def _handler_quantitativos_exportar_xlsx(params: dict[str, Any]) -> dict[str, Any]:
+    sessao.exigir_conectado("exportar a planilha")
     mapspec = params.get("mapspec")
     if not isinstance(mapspec, dict):
         raise ErroNucleo("NU-201", "Parâmetro 'mapspec' precisa ser um objeto.")
@@ -358,6 +367,10 @@ def loop_ndjson(
     entrada = entrada or sys.stdin
     saida = saida or sys.stdout
     roteador = roteador or criar_roteador()
+    try:
+        contas_servico.restaurar_se_lembrada()
+    except ErroNucleo:
+        sessao.resetar()
 
     def _emitir(envelope: dict[str, Any]) -> None:
         saida.write(serializar_linha(envelope) + "\n")

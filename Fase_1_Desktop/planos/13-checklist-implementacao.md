@@ -15,7 +15,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
-| E — conta local (e-mail + senha) | M5 | **não iniciado** — plano F1-14 revisado (sem Google; F2-05 não bloqueia) |
+| E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **parcial** — G1–G7/G9–G11 fechados (24/27 tools reais, cancelamento com parcial gravada, traces reais); falta G8 (VCR) e as 3 tools travadas em R21/F1-07 |
 | H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6 só o que tem evento (galeria/abas), o resto espera `workspace.mudou`/`mapspec.atualizado` |
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: **M5 conta local** (e-mail+senha SQLite), restos do M7 (VCR/G8), ou M2 quando houver ArcMap.
+Próximos marcos sem ArcMap: restos do M7 (VCR/G8), A10–A13 do núcleo, ou M2 quando houver ArcMap.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -130,15 +130,15 @@ Plano: [F1-14](14-auth-e-conta.md). ([F2-05](../../Fase_2_Site/planos/05-auth-e-
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| E1 | Esquema `contas.sqlite` + migração (contas + sessoes_locais) | [ ] | `nucleo/.../contas/` |
-| E2 | Hash Argon2id + `conta.criar` / `conta.entrar` / `conta.sair` / `conta.estado` | [ ] | idem |
-| E3 | Restaurar sessão “lembrar neste PC” no boot | [ ] | idem |
-| E4 | IPC `auth:*` + redator (nunca loga senha) | [ ] | `app/electron/ipc/auth.ts` |
-| E5 | `tela-login` (criar + entrar) com marca hero | [ ] | `app/src/telas/Login.tsx` |
-| E6 | Store `auth` + guarda de rota | [ ] | `app/src/estado/auth.ts` |
-| E7 | `sessao.definir` / `sessao.estado` + gate `AUTH-030` | [ ] | `nucleo/.../sessao.py` |
-| E8 | Família de erros `AUTH-` (001, 002, 003, 030, 050, 070, 071) | [ ] | `nucleo/.../erros.py` |
-| E9 | Testes: criar/entrar, senha errada, e-mail duplicado, gate, senha ausente do arquivo | [ ] | `nucleo/tests/test_conta_local.py`, `test_sessao.py` |
+| E1 | Esquema `contas.sqlite` + migração (contas + sessoes_locais) | [x] | `nucleo/.../contas/` |
+| E2 | Hash Argon2id + `conta.criar` / `conta.entrar` / `conta.sair` / `conta.estado` | [x] | idem |
+| E3 | Restaurar sessão “lembrar neste PC” no boot | [x] | `contas/servico.restaurar_se_lembrada` no `loop_ndjson` |
+| E4 | IPC via `nucleo:chamar` (`conta.*`) — senha não logada no renderer | [x] | `estado/auth.ts` + preload `chamar` |
+| E5 | `tela-login` (criar + entrar) com marca hero | [x] | `app/src/telas/Login.tsx` |
+| E6 | Store `auth` + guarda de rota | [x] | `app/src/estado/auth.ts`, `App.tsx` |
+| E7 | `sessao.definir` / `sessao.estado` + gate `AUTH-030` | [x] | `nucleo/.../sessao.py` |
+| E8 | Família de erros `AUTH-` (001, 002, 003, 030, 050, 070, 071) | [x] | via `ErroNucleo` nos handlers |
+| E9 | Testes: criar/entrar, senha errada, e-mail duplicado, gate, senha ausente do arquivo | [x] | `test_conta_local.py`, `test_sessao.py`, `app/tests/login.test.tsx` |
 
 ## Bloco F — Persistência de conversas (M6)
 

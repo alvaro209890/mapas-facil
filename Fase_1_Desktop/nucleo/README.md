@@ -112,7 +112,8 @@ Registrados em `criar_roteador()` — **33 métodos**:
 | `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM) |
 | `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool` |
 
-**Não implementado neste sidecar:** tools stub do agente (`IA-022`), visão, cliente WFS/SEMA em runtime, conta local / gate AUTH (M5 — e-mail+senha em `contas.sqlite`).
+**Não implementado neste sidecar:** tools stub do agente (`IA-022`), visão, cliente WFS/SEMA em runtime.
+Conta local / gate AUTH (M5) **implementados**.
 
 ### Eventos emitidos (v0.4.0)
 
@@ -166,7 +167,7 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
 - Galeria (M4) — métodos `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
-- Conta local (M5) — `conta.criar`/`entrar`/`sair` + `sessao.*` + gate `AUTH-030` (e-mail+senha SQLite; sem Google)
+- Conta local (M5) — `conta.criar`/`entrar`/`sair`/`estado` + `sessao.*` + gate `AUTH-030`
 - Conversas (M6) — `chats.sqlite` e os 9 métodos `chat.*` de histórico
 - Agente (M7) — pasta `agente/` não existe; ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
 - UI Electron (M3) — `Fase_1_Desktop/app/` existe e está **parcial**: scaffold, ponte NDJSON,

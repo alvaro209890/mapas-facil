@@ -23,8 +23,8 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~258 pass | verde |
-| `Fase_1_Desktop/app` Vitest | **não** | ~92 pass |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~265 pass | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~94 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 
@@ -62,8 +62,8 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~258)
-cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion/preview (~92)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~265)
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~94)
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
@@ -75,10 +75,11 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **33 métodos** (galeria + chat + `chat.enviar`/`cancelar` + `artefato.ler`) | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **39 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler`) | `Fase_1_Desktop/nucleo/` |
 | Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), **`job.artefato_parcial`** (M8) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py` |
-| App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
+| Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
 | Agente DeepSeek | **parcial** (M7) — orquestrador, cancelamento, 24/27 tools reais, `PainelChat` com “Parar”; faltam as 3 tools que dependem de R21/F1-07 e o VCR | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
@@ -100,10 +101,8 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
   com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
   `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
-- Autenticação local (M5): criar/entrar com e-mail+senha em `contas.sqlite` — **ainda ausente**
-  (plano [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md); **sem Google**). Gate `AUTH-030` adiado.
-- Cliente WFS/WMS em runtime, cofre de chaves BYOK, instalador.
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
+- Cliente WFS/WMS em runtime, cofre de chaves BYOK, instalador.
 - Visão / `analisar_referencia` (F1-07).
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
@@ -188,10 +187,10 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato | **feito** (M8) — 4 tipos, caminho relativo, `artefato.ler` para o renderer | `nucleo/.../artefatos.py`, `leitor_artefato.py`, `motores/gerar.py`, `motores/nativo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
-| R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** — Google/OAuth descartados | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
+| R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — Argon2id, `tela-login`, sem Google | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
 | R10 | Conta na nuvem / site (Fase 2) | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **adiado** — **não** bloqueia M5 | `Fase_2_Site/` (pós-M11) |
 | R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** — não guarda senha de conta (senha vai hasheada no SQLite) | `nucleo/.../cofre.py`, `app/electron/cofre.ts` |
-| R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `nucleo/.../sessao.py`, `motores/gerar.py` |
+| R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — também `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx` | `nucleo/.../sessao.py` |
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |

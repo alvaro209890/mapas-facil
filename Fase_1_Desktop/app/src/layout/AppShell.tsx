@@ -14,6 +14,7 @@ import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
 import { useDoctor } from "../estado/doctor.js";
+import { useAuth, sairConta } from "../estado/auth.js";
 import { useConversas } from "../estado/conversas.js";
 import { useGaleria } from "../estado/galeria.js";
 import type { PainelLateral } from "../estado/preferencias.js";
@@ -96,6 +97,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const { larguras, colapsados } = paineis;
   const workspace = useWorkspace();
   const doctor = useDoctor();
+  const auth = useAuth();
   const galeria = useGaleria();
   const conversas = useConversas(workspace.indice?.raiz ?? null);
   const [montando, setMontando] = useState(false);
@@ -191,6 +193,8 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
       <TopoApp
         nucleo={nucleo.estado}
         projeto={nomeDoProjeto(workspace.indice)}
+        contaEmail={auth.conta?.email}
+        aoSair={() => void sairConta(false)}
         aoAbrirPaleta={abrirPaleta}
         aoAbrirDoctor={verificarAmbiente}
       />

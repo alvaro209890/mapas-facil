@@ -6,6 +6,7 @@
 import { act } from "@testing-library/react";
 
 import type { EnvelopeEvento } from "../src/estado/eventos.js";
+import { resetarAuth } from "../src/estado/auth.js";
 import type {
   ApiMapasFacil,
   EstadoNucleo,
@@ -98,6 +99,27 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
             erro: { codigo: "IA-001", mensagem: "chave ausente no teste" },
           });
         }
+        if (metodo === "conta.estado") {
+          return Promise.resolve({
+            ok: true,
+            resultado: {
+              estado: "conectado",
+              conta: { id: "01TESTCONTA", email: "teste@local.dev", nome: "Teste" },
+            },
+          });
+        }
+        if (metodo === "conta.criar" || metodo === "conta.entrar") {
+          return Promise.resolve({
+            ok: true,
+            resultado: {
+              conta: { id: "01TESTCONTA", email: "teste@local.dev", nome: "Teste" },
+              sessao: { estado: "conectado" },
+            },
+          });
+        }
+        if (metodo === "conta.sair" || metodo === "sessao.definir" || metodo === "sessao.estado") {
+          return Promise.resolve({ ok: true, resultado: { ok: true, estado: "desconectado" } });
+        }
         return Promise.resolve({
           ok: false,
           erro: { codigo: "UI-001", mensagem: `teste sem resposta para ${metodo}` },
@@ -159,4 +181,5 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
 
 export function desligarPonteFake(): void {
   delete window.mapasfacil;
+  resetarAuth();
 }

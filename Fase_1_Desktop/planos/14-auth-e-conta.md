@@ -12,13 +12,13 @@ identificar quem usa o PC e amarrar histórico/`conta_id`, não para cobrar nem 
 
 | Item | Atual | Alvo |
 |---|---|---|
-| Fluxo de login no app | **ausente** | criar conta / entrar com e-mail + senha na `tela-login` |
-| Provedor Google / OAuth / PKCE | **especificado no passado; descartado** | **fora da v1** (D10 revisada 2026-07-26) |
+| Fluxo de login no app | **feito** — `tela-login` criar/entrar | criar conta / entrar com e-mail + senha na `tela-login` |
+| Provedor Google / OAuth / PKCE | **descartado** | **fora da v1** (D10 revisada 2026-07-26) |
 | Backend de identidade / site | **ausente** e **não bloqueia** M5 | Fase 2 opcional (espelho/nuvem) — [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) |
-| Armazenamento da conta | **ausente** | SQLite local `%APPDATA%\MapasFacil\contas\contas.sqlite` |
-| Hash de senha | **ausente** | Argon2id (ou equivalente forte); **nunca** senha em claro |
-| Gate de sessão no núcleo | **ausente** | `sessao.definir` + `AUTH-030` em `mapa.gerar` (e irmãos) |
-| Códigos `AUTH-xxx` | **ausentes** da tabela de erros | definidos aqui e em [F1-01](01-arquitetura.md#códigos-de-erro) |
+| Armazenamento da conta | **feito** | SQLite local `%APPDATA%\MapasFacil\contas\contas.sqlite` |
+| Hash de senha | **feito** (Argon2id) | Argon2id (ou equivalente forte); **nunca** senha em claro |
+| Gate de sessão no núcleo | **feito** | `sessao.definir` + `AUTH-030` em `mapa.gerar` (e irmãos) |
+| Códigos `AUTH-xxx` | **feitos** nos handlers | definidos aqui e em [F1-01](01-arquitetura.md#códigos-de-erro) |
 
 ## Dependências
 

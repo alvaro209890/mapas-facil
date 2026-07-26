@@ -1,9 +1,9 @@
 // `topo-app` — marca, projeto conectado, doctor e conta (F1-16 §Layout e IDs).
 //
-// C10: botão da paleta (`Ctrl+K`) e atalho visual do doctor (`F1`). Conta continua
-// indicador até M5. Ícone é `lucide-react`; emoji em componente é proibido.
+// C10: botão da paleta (`Ctrl+K`) e atalho visual do doctor (`F1`). Conta local
+// (M5): chip com e-mail + sair. Ícone é `lucide-react`; emoji é proibido.
 
-import { Activity, CircleUser, Command } from "lucide-react";
+import { Activity, CircleUser, Command, LogOut } from "lucide-react";
 
 import estilos from "./TopoApp.module.css";
 
@@ -12,6 +12,9 @@ export interface PropsTopoApp {
   projeto?: string;
   /** Estado da ponte com o núcleo, para o chip de ambiente. */
   nucleo: "parado" | "iniciando" | "pronto" | "caido";
+  /** E-mail da conta local conectada (M5). */
+  contaEmail?: string | null;
+  aoSair?: () => void;
   aoAbrirPaleta?: () => void;
   aoAbrirDoctor?: () => void;
 }
@@ -23,7 +26,14 @@ const ROTULO_NUCLEO: Record<PropsTopoApp["nucleo"], string> = {
   caido: "núcleo fora do ar",
 };
 
-export function TopoApp({ projeto, nucleo, aoAbrirPaleta, aoAbrirDoctor }: PropsTopoApp) {
+export function TopoApp({
+  projeto,
+  nucleo,
+  contaEmail,
+  aoSair,
+  aoAbrirPaleta,
+  aoAbrirDoctor,
+}: PropsTopoApp) {
   return (
     <header id="topo-app" className={estilos.topo}>
       <span className={estilos.marca}>Mapas Fácil</span>
@@ -52,10 +62,27 @@ export function TopoApp({ projeto, nucleo, aoAbrirPaleta, aoAbrirDoctor }: Props
           <Activity size={14} aria-hidden="true" />
           {ROTULO_NUCLEO[nucleo]}
         </button>
-        <span id="conta-menu" className={estilos.chip} data-estado="ausente">
+        <span
+          id="conta-menu"
+          className={estilos.chip}
+          data-estado={contaEmail ? "conectado" : "ausente"}
+          title={contaEmail ?? "sem conta"}
+        >
           <CircleUser size={14} aria-hidden="true" />
-          sem conta
+          {contaEmail ?? "sem conta"}
         </span>
+        {contaEmail && aoSair ? (
+          <button
+            type="button"
+            className={estilos.chipBotao}
+            onClick={aoSair}
+            aria-label="sair da conta"
+            title="Sair (mantém o histórico local)"
+          >
+            <LogOut size={14} aria-hidden="true" />
+            Sair
+          </button>
+        ) : null}
       </span>
     </header>
   );

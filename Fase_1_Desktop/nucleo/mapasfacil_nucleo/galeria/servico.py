@@ -83,6 +83,9 @@ def detalhar(params: dict[str, Any]) -> dict[str, Any]:
 
 
 def montar(params: dict[str, Any]) -> dict[str, Any]:
+    from mapasfacil_nucleo import sessao
+
+    sessao.exigir_conectado("montar MapSpec pela galeria")
     modelo_id = params.get("modelo_id")
     if not isinstance(modelo_id, str) or not modelo_id:
         raise ErroNucleo("NU-001", "Parâmetro 'modelo_id' é obrigatório.")
