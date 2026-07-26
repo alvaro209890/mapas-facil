@@ -80,7 +80,10 @@ A Fase 2 **não gera `.mxd`**. Sem ArcMap no servidor Linux, o site entrega PDF/
 | **F2-05 — conta nuvem / memória** | **reescrito; adiado pós-M11; não bloqueia M5** (D10 revisada) |
 | F2-00, F2-03 | rascunhos alinhados a D7 |
 | F2-01, F2-02, F2-04, F2-06 | legado — corpo descreve modelo antigo (nuvem + agente WS) |
-| Código de produção | não iniciado; `backend/` e `web/` só têm `README.md` |
+| Código de produção | **não iniciado**; `backend/` e `web/` só têm `README.md` |
+
+Começa **depois do M11** da Fase 1. O que falta na Fase 1 (M2→M11):
+[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
 
 **Ao reescrever qualquer plano legado**, o modelo é o dos planos da Fase 1 reescritos em
 2026-07-25: Objetivo → Estado atual vs alvo → Dependências → Contratos → Tarefas agentáveis com
