@@ -23,7 +23,7 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~265 pass | verde |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~358 pass | verde |
 | `Fase_1_Desktop/app` Vitest | **não** | ~94 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
@@ -62,7 +62,7 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~265)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~358)
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~94)
 ```
 
@@ -75,13 +75,14 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **39 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler`) | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
+| Cliente WFS em runtime (A13) | **fechado** para `wms_wfs` (33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES); cache TTL por tema; `NU-101/102/110/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,clip,cache,resolver}.py` |
 | Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), **`workspace.mudou`** (A12) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `workspace/watcher.py` |
 | App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
-| Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, 24/27 tools reais; 3 tools `IA-022` até R21/F1-07 | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
+| Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, 26/27 tools reais desde A13; 1 tool `IA-022` até F1-07 | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -97,10 +98,12 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Eventos NDJSON ainda sem emissor: `job.log`, `mapspec.atualizado`, `aviso`.
   Emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`, `workspace.mudou`.
 - Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
-  com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
-  `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
+  com o motivo): só `analisar_referencia` (espera o fluxo de visão, F1-07). `consultar_sema` e
+  `distancia_ate` saíram de `IA-022` em A13 — as outras 26 são reais.
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
-- Cliente WFS/WMS em runtime, instalador.
+- Cliente WFS/WMS em runtime para os tipos `arcgis_rest` (IBAMA PAMGIA), `wfs_gml` (INCRA
+  SIGEF/SNCI) e `wms_raster` (mosaicos, SISCOM, PRODES) — só `wms_wfs` (33/41 camadas) tem
+  cliente; `camada.resolver` devolve `NU-140` tipado para os outros, não finge. Instalador.
 - Visão / `analisar_referencia` (F1-07).
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
@@ -192,14 +195,14 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |
-| R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **feito p/ M7** — 24/27 reais; 3 com `IA-022` até R21/F1-07 (contrato aceito) | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
+| R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **feito** — 26/27 reais desde A13; só `analisar_referencia` com `IA-022` até F1-07 | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
 | R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) | `nucleo/.../agente/limites.py` |
 | R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G3) | `nucleo/.../agente/contexto.py` |
 | R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **feito** (G8) — FakeProvedor + cassetes SSE/passos em `tests/agente/cassetes/` | `nucleo/.../agente/vcr.py`, `fake.py` |
 | R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **feito** (G9) | `nucleo/tests/test_contexto_vazamento.py` |
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
-| R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../camadas/` |
+| R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A13) — `wms_wfs` (33/41); `arcgis_rest`/`wfs_gml`/`wms_raster` fora do escopo (`NU-140`) | `nucleo/.../camadas/` |
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |

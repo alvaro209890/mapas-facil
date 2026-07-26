@@ -8,6 +8,8 @@ from typing import Any, Callable, TextIO
 from mapasfacil_nucleo import doctor, leitor_artefato, sessao
 from mapasfacil_nucleo import cofre, jobs
 from mapasfacil_nucleo.agente import servico as agente_servico
+from mapasfacil_nucleo.camadas import catalogo as catalogo_camadas
+from mapasfacil_nucleo.camadas.resolver import resolver_camada
 from mapasfacil_nucleo.contas import servico as contas_servico
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.erros import ErroNucleo
@@ -55,6 +57,8 @@ def criar_roteador() -> Roteador:
     roteador.registrar("zip.extrair", _handler_zip_extrair)
     roteador.registrar("template.listar", _handler_template_listar)
     roteador.registrar("template.verificar", _handler_template_verificar)
+    roteador.registrar("catalogo.listar", _handler_catalogo_listar)
+    roteador.registrar("camada.resolver", _handler_camada_resolver)
     roteador.registrar("validacao.comparar_pdf", _handler_validacao_comparar_pdf)
     roteador.registrar("quantitativos.calcular", _handler_quantitativos_calcular)
     roteador.registrar("quantitativos.exportar_xlsx", _handler_quantitativos_exportar_xlsx)
@@ -216,6 +220,26 @@ def _handler_template_verificar(params: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(template_id, str) or not template_id:
         raise ErroNucleo("NU-001", "Parâmetro 'id' é obrigatório.")
     return verificar_template(template_id)
+
+
+def _handler_catalogo_listar(params: dict[str, Any]) -> dict[str, Any]:
+    tema = params.get("tema")
+    return catalogo_camadas.listar(tema)
+
+
+def _handler_camada_resolver(params: dict[str, Any]) -> dict[str, Any]:
+    fonte = params.get("fonte")
+    if not isinstance(fonte, str) or not fonte:
+        raise ErroNucleo("NU-001", "Parâmetro 'fonte' é obrigatório.")
+    bbox = params.get("bbox")
+    crs = params.get("crs")
+    if not isinstance(crs, str) or not crs:
+        raise ErroNucleo("NU-001", "Parâmetro 'crs' é obrigatório (ex.: 'EPSG:4674').")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de resolver uma camada.")
+    resultado = resolver_camada(fonte, bbox, crs, guard=estado.guard)
+    return resultado.para_ndjson()
 
 
 def _handler_validacao_comparar_pdf(params: dict[str, Any]) -> dict[str, Any]:

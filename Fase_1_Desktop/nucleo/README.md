@@ -4,8 +4,9 @@ Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, quantitativo
 Comunica com o Electron por NDJSON (stdio), quando a UI existir. Empacotamento previsto:
 PyInstaller onedir junto do app.
 
-**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). **v0.4.0** — A9 fechado: o
-núcleo emite `job.progresso`, `job.artefato_parcial`, `chat.delta` e `chat.tool`.
+**Status:** M1 **bloco A fechado** (A1–A13); **bloco B parcial** (sem ArcMap). **v0.4.0** — o
+núcleo emite `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool` e `workspace.mudou`;
+A13 acrescentou o cliente WFS em runtime (`camadas/`).
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -31,8 +32,15 @@ nucleo/
     erros.py
     fsguard.py
     doctor.py
-    geo/                    # area, crs, bbox_shp, ogr2ogr
-    camadas/materializar.py
+    geo/                    # area, crs, bbox_shp, ogr2ogr, distancia (A13)
+    camadas/
+      materializar.py       # fontes locais (local.<id>) → SHP/
+      catalogo.py           # A13 — shared/catalog/camadas.json (41 camadas)
+      http.py                # A13 — cliente com retry/timeout/redator de URL
+      wfs.py                 # A13 — GetFeature 2.0.0 com fallback 1.0.0
+      clip.py                # A13 — expandir bbox, clip fino (bbox/polígono)
+      cache.py               # A13 — TTL por tema, fora do workspace
+      resolver.py            # A13 — orquestra tudo: camada.resolver
     workspace/              # indice, shapefile, zip_simcar, recibo_car, servico, papeis
     motores/
       manifesto.py
@@ -84,9 +92,9 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.4.0 + M6 + M7)
+### Métodos implementados (v0.4.0 + M5–M8 + A13)
 
-Registrados em `criar_roteador()` — **33 métodos**:
+Registrados em `criar_roteador()` — **45 métodos** (`grep -c "roteador.registrar" __main__.py`):
 
 | Método | Descrição |
 |---|---|
@@ -106,14 +114,18 @@ Registrados em `criar_roteador()` — **33 métodos**:
 | `artefato.ler` | M8 — bytes de PNG/JPG do workspace em base64 (o renderer nunca lê disco) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` se hash registrado |
+| `catalogo.listar` | **A13** — 41 camadas do `shared/catalog/camadas.json`, filtro por `tema` |
+| `camada.resolver` | **A13** — `{fonte, bbox, crs}` → WFS (`wms_wfs`) → shapefile em `SHP/_camadas/` no workspace; cache TTL por tema, `NU-1xx` tipados |
 | `galeria.listar` / `detalhar` / `montar_mapspec` | M4 — catálogo e MapSpec determinístico |
 | `chat.criar_conversa` / `listar_conversas` / `abrir_conversa` / `carregar_anteriores` | M6 — histórico local |
 | `chat.renomear` / `arquivar` / `apagar` / `ramificar` / `buscar` | M6 — gestão e FTS |
 | `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM) |
 | `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool` |
 
-**Não implementado neste sidecar:** tools stub do agente (`IA-022`), visão, cliente WFS/SEMA em runtime.
-Conta local / gate AUTH (M5) **implementados**.
+**Não implementado neste sidecar:** `analisar_referencia` (visão, `IA-022`, espera F1-07); tipos de
+catálogo fora de `wms_wfs` (`arcgis_rest`, `wfs_gml`, `wms_raster` — `camada.resolver` devolve
+`NU-140`, tipado, sem fingir). Cliente WFS em runtime (SEMA/FUNAI/MapBiomas/PRODES, 33/41 camadas)
+**existe desde A13**; `consultar_sema` e `distancia_ate` saíram de `IA-022`.
 
 ### Eventos emitidos (v0.4.0)
 
@@ -166,7 +178,7 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~A12 — watcher/`workspace.mudou`~~ **fechado** (`workspace/watcher.py`, debounce 500 ms)
 - ~~A10 — `mapa.cancelar`~~ **fechado** (`jobs.py`, `NU-050`)
 - ~~A11 — `cofre.*`~~ **fechado** (`cofre.py` + `keyring`)
-- A13 — `catalogo.listar`
+- ~~A13 — `catalogo.listar` / `camada.resolver`~~ **fechado** (`camadas/`; `consultar_sema`/`distancia_ate` reais)
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo

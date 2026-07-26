@@ -47,3 +47,13 @@ def _sessao_conectada_padrao(tmp_path_factory, monkeypatch):
     yield
     sessao.resetar()
     contas_servico.configurar_diretorio(None)
+
+
+@pytest.fixture(autouse=True)
+def _cache_camadas_isolado(tmp_path_factory, monkeypatch):
+    """A13: `camada.resolver` sem `cache_base` explícito cai no cache real do SO
+    (`~/.cache/MapasFacil`). Sem isolar, um teste "vê" o cache gravado por outro —
+    ou por uma rodada anterior do pytest neste PC.
+    """
+    pasta = tmp_path_factory.mktemp("cache-camadas")
+    monkeypatch.setenv("MAPASFACIL_CACHE_DIR", str(pasta))

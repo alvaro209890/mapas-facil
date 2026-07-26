@@ -10,14 +10,14 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
 | Bloco | Marco | Estado |
 |---|---|---|
-| A — fundação do núcleo | M1 | **fechado** exceto A13 (A9–A12 fechados em 2026-07-26) |
+| A — fundação do núcleo | M1 | **fechado** — A1–A13 (A9–A13 fechados em 2026-07-26) |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
 | C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 24/27 tools; 3× `IA-022` até R21/F1-07) |
+| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 26/27 tools desde A13; 1× `IA-022` até F1-07) |
 | H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6: galeria/abas + realce de arquivo novo (A12); versões esperam `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -48,7 +48,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | **A10** | `mapa.cancelar` com `taskkill /T /F` | [x] | `jobs.py`; cancel cooperativo + `taskkill` no Windows; loop NDJSON em thread para cancel chegar no meio |
 | **A11** | `cofre.definir` / `existe` / `testar` | [x] | `cofre.py` via `keyring`; valor nunca no stdio; Preferências grava DeepSeek |
 | **A12** | `workspace.mudou` (watcher, debounce 500 ms) | [x] | `workspace/watcher.py` + sink assíncrono; UI atualiza árvore + realce 2 s; `tests/test_workspace_watcher.py` |
-| **A13** | `catalogo.listar` e `camada.resolver` | [ ] | WFS/WMS em runtime |
+| **A13** | `catalogo.listar` e `camada.resolver` | [x] | WFS em runtime (`wms_wfs`, 33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES); `camadas/{catalogo,http,wfs,clip,cache,resolver}.py`; cache TTL por tema fora do workspace; `NU-101/102/110/120/130/140`; `consultar_sema`/`distancia_ate` saíram de `IA-022`. Fora do escopo: `arcgis_rest`/`wfs_gml`/`wms_raster` (8/41 camadas) — `NU-140` tipado, não fingido |
 
 ## Bloco A+ — Quantitativos e validação (anel 1, sem ArcMap)
 
@@ -88,7 +88,7 @@ Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
 [`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
 com `pnpm typecheck` → `test` → `build` verdes. Bloco D (M4) fechou em seguida (galeria).
-Próximos marcos sem ArcMap: A13 (WFS/`camada.resolver`), `mapspec.atualizado` (resto do H6), ou M2 quando houver ArcMap.
+Próximos marcos sem ArcMap: `mapspec.atualizado` (resto do H6), ou M2 quando houver ArcMap.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -164,7 +164,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06; `tests/test_limites.py` |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [x] | `agente/contexto.py` |
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
-| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 24 reais; `consultar_sema`/`distancia_ate`/`analisar_referencia` → `IA-022` até R21/F1-07 (aceito no fechamento M7) |
+| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 26 reais desde A13 (`consultar_sema`/`distancia_ate` ligadas a `camada.resolver`); só `analisar_referencia` → `IA-022` até F1-07 |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
 | G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
 | G8 | Cassetes VCR + fixture de 120 turnos | [x] | `agente/vcr.py` + `tests/agente/cassetes/`; compressão 120 turnos em `test_agente.py` |

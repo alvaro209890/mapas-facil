@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "totalFeatures": 1,
+  "features": [
+    {
+      "type": "Feature",
+      "id": "AREA_EMBARGADA_SIGA_POLIGONO.1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-58.02, -11.02],
+            [-57.98, -11.02],
+            [-57.98, -10.98],
+            [-58.02, -10.98],
+            [-58.02, -11.02]
+          ]
+        ]
+      },
+      "properties": {
+        "NUM_AUTO": "SIGA-2024-0001",
+        "DT_EMBARGO": "2024-03-10"
+      }
+    }
+  ],
+  "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::4674"}}
+}

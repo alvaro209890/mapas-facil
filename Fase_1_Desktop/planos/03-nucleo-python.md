@@ -19,22 +19,23 @@ nucleo/
 │  ├─ recibo_car.py          parser do PDF (PyMuPDF) — descarta CPF
 │  └─ zip_simcar.py          listagem, anti zip slip, extração
 ├─ camadas/
-│  ├─ catalogo.py            lê shared/catalog/*.json
-│  ├─ http.py                cliente com retry, timeout, User-Agent, redator de URL
-│  ├─ wfs.py                 GetFeature, DescribeFeatureType, hits, fallback 1.0
-│  ├─ wms.py                 GetMap + validação de magic bytes
-│  ├─ rest_arcgis.py         PAMGIA (IBAMA)
-│  ├─ gml_incra.py           parser GML 1.0
-│  ├─ ibge.py                malhas municipais (gzip!)
-│  ├─ clip.py                bbox → clip fino local
-│  ├─ materializar.py        escreve shapefile na pasta de saída
-│  └─ cache.py               TTL por tema, modo offline com idade
+│  ├─ catalogo.py            lê shared/catalog/camadas.json (A13 ✅)
+│  ├─ http.py                cliente com retry, timeout, User-Agent, redator de URL (A13 ✅)
+│  ├─ wfs.py                 GetFeature, fallback 2.0.0→1.0.0 (A13 ✅) — sem DescribeFeatureType/hits
+│  ├─ wms.py                 GetMap + validação de magic bytes — ainda não existe
+│  ├─ rest_arcgis.py         PAMGIA (IBAMA) — ainda não existe
+│  ├─ gml_incra.py           parser GML 1.0 — ainda não existe
+│  ├─ ibge.py                malhas municipais (gzip!) — ainda não existe
+│  ├─ clip.py                bbox → clip fino local (A13 ✅) — bbox e polígono do imóvel
+│  ├─ materializar.py        escreve shapefile local (`local.<id>`) na pasta de saída
+│  ├─ resolver.py            A13 ✅ — orquestra catálogo→cache→wfs→clip→shapefile (`camada.resolver`)
+│  └─ cache.py               TTL por tema, modo offline com idade (A13 ✅)
 ├─ geo/
 │  ├─ crs.py                 zona UTM pelo centroide, conversão de bbox
-│  ├─ area.py                cálculo em ha, union, correção de geometria
-│  ├─ overlay.py             matriz classe × área
-│  ├─ distancia.py           menor distância até TI/UC/embargo + pontos da linha
-│  └─ ogr.py                 wrapper de ogr2ogr
+│  ├─ area.py                cálculo em ha, union, correção de geometria, `reprojetar()`
+│  ├─ overlay.py             matriz classe × área — ainda não existe
+│  ├─ distancia.py           menor distância até TI/UC/embargo (A13 ✅) — sem pontos da linha
+│  └─ ogr2ogr.py             wrapper de ogr2ogr (reprojeção de shapefile local)
 ├─ mapspec/
 │  ├─ modelo.py              dataclasses do MapSpec
 │  ├─ schema.py              validação por JSON Schema
@@ -190,13 +191,16 @@ mapa.
 - [ ] Leitor de shapefile: `.prj`, encoding em cascata, bbox por cabeçalho
 - [ ] Parser de recibo do CAR com descarte de CPF
 - [ ] Leitor de `.zip` com anti zip slip
-- [ ] Clientes WFS/WMS/REST/GML/IBGE com todos os gotchas cobertos
-- [ ] Cache com TTL por tema
-- [ ] `geo/`: zona UTM, área, overlay, distância
+- [~] Clientes WFS/WMS/REST/GML/IBGE com todos os gotchas cobertos — **A13**: WFS `wms_wfs`
+      (33/41 camadas — SEMA/FUNAI/MapBiomas/PRODES; fallback 2.0.0→1.0.0, bbox+clip fino, retry).
+      Faltam WMS GetMap, ArcGIS REST (IBAMA PAMGIA), GML (INCRA), IBGE malhas — `camada.resolver`
+      devolve `NU-140` tipado para esses tipos, não finge
+- [x] Cache com TTL por tema (`camadas/cache.py`, A13) — fora do workspace, `%LOCALAPPDATA%`/XDG
+- [~] `geo/`: zona UTM (`crs.py`), área (`area.py`), distância (`distancia.py`, A13) — falta `overlay.py`
 - [ ] Ponte ArcPy com as 7 armadilhas tratadas
 - [ ] Doctor completo, com detecção de `arcpy_instavel`
 - [x] Cofre que nunca devolve valor (`cofre.py`, A11)
-- [ ] Redator de URL
+- [x] Redator de URL (`camadas/http.py::redigir_url`, A13) — `authkey`/`api_key`/`token` → `***`
 - [ ] Empacotamento PyInstaller com GDAL embarcado
 
 ## Pendências

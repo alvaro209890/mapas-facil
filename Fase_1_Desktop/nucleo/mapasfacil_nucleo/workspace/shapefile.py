@@ -92,6 +92,18 @@ def _bbox_do_header(caminho_shp: Path) -> dict[str, float]:
     return {"xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax}
 
 
+def ler_geometrias_e_epsg(caminho: str | Path) -> tuple[list[BaseGeometry], int | None]:
+    """Geometrias + EPSG de um shapefile — usado por A13 (imóvel local para bbox/clip/distância)."""
+    caminho_shp = Path(caminho)
+    epsg, _, _ = _ler_prj(caminho_shp)
+    reader, _ = _abrir_reader(caminho_shp)
+    geometrias = _shapes_para_geometrias(reader)
+    if epsg is None and geometrias:
+        centro = geometrias[0].centroid
+        epsg = _adivinhar_epsg_por_coordenadas(centro.x, centro.y)
+    return geometrias, epsg
+
+
 def inspecionar(caminho: str | Path) -> MetadadosShapefile:
     caminho_shp = Path(caminho)
     avisos: list[AvisoShapefile] = []

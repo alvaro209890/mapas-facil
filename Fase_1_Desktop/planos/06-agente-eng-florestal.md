@@ -12,7 +12,7 @@ custo em pastas reais), os guard rails e os testes.
 | Item | Atual | Alvo |
 |---|---|---|
 | Cliente DeepSeek | **feito** (stream SSE + fake CI) | streaming + tool calling + cancelamento |
-| Tools | **24/27 reais**; 3 com `IA-022` até R21/F1-07 | 27 tools tipadas |
+| Tools | **26/27 reais** (A13 ligou `consultar_sema`/`distancia_ate`); 1 com `IA-022` até F1-07 | 27 tools tipadas |
 | Orquestrador / cancelamento | **feito** | parcial gravada + HTTP fechado |
 | `chat.enviar` / `chat.cancelar` | **feitos** (G7) — cancelamento grava parcial e fecha o stream | métodos NDJSON |
 | Edição versionada do MapSpec | **feito** — `agente/edicao.py` + `mapspec_store.py` (disco) | §Versionamento |
@@ -23,11 +23,12 @@ custo em pastas reais), os guard rails e os testes.
 
 A pasta `agente/` cobre G1–G11 com testes sem rede (FakeProvedor + VCR).
 
-As três tools que ainda respondem `IA-022` (com o motivo, para o modelo seguir sem elas):
-`consultar_sema` e `distancia_ate` esperam `camada.resolver` (R21, cliente WFS em runtime);
-`analisar_referencia` espera o fluxo de visão ([F1-07](07-visao-print-e-zip.md)). Nenhuma outra
-tool é stub — o registro está em `TOOLS_COM_DEPENDENCIA_PENDENTE` e um teste falha se essa lista
-crescer sem que alguém atualize este plano.
+`consultar_sema` e `distancia_ate` saíram de `IA-022` em A13 — chamam `camadas/resolver.py`
+(`camada.resolver`) de verdade, com fixtures HTTP nos testes (sem rede no CI). Só
+`analisar_referencia` ainda responde `IA-022`, esperando o fluxo de visão
+([F1-07](07-visao-print-e-zip.md)). Nenhuma outra tool é stub — o registro está em
+`TOOLS_COM_DEPENDENCIA_PENDENTE` e um teste falha se essa lista crescer sem que alguém atualize
+este plano.
 
 ## Dependências
 
@@ -180,7 +181,7 @@ contexto se reconstrói sem recomputar nada.
 | Tool | Devolve | **Nunca** devolve |
 |---|---|---|
 | `inspecionar_shapefile` | `{feicoes, campos:[nome,tipo], crs, bbox_arredondado, area_ha, valido}` | geometria, WKT, lista de vértices |
-| `consultar_sema` | `{feicoes, area_ha, parcial, idade_cache}` | geometria |
+| `consultar_sema` | `{camada, nome, contagem, area_ha, recortado_no_imovel, parcial, avisos}` (A13) | geometria |
 | `listar_arquivos` | nome relativo, tipo, papel, contagem, área | caminho absoluto |
 | `ler_recibo_car` | nome, município, CAR, áreas | CPF, texto integral do PDF |
 | `calcular_quantitativos` | matriz classe × ha | overlay bruto |
@@ -299,7 +300,9 @@ def consultar_sema(
     recortar_no_imovel: bool = True,
     ano: int | None = None,
 ) -> ResultadoTool:
-    """Devolve {feicoes, area_ha, parcial, idade_cache} — NUNCA a geometria."""
+    """Devolve {camada, nome, contagem, area_ha, recortado_no_imovel, parcial, avisos} —
+    NUNCA a geometria. `ano` é aceito mas ainda não filtra nada (sem camada anual no
+    catálogo além dos mosaicos WMS, fora do escopo A13)."""
 
 def usar_modelo_da_galeria(
     modelo_id: str,
@@ -418,7 +421,7 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
 - [x] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
 - [x] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` (heurística CI + LLM opcional)
-- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; 24 reais, 3 travadas em R21/F1-07
+- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; 26 reais (A13), 1 travada em F1-07
 - [x] `nucleo/mapasfacil_nucleo/agente/edicao.py` — nova versão do MapSpec + diff em português
 - [x] `nucleo/mapasfacil_nucleo/agente/mapspec_store.py` — persistência em `{chats}/mapspecs/{id}.json`
 - [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado

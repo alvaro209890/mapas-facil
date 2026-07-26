@@ -8,7 +8,9 @@ from mapasfacil_nucleo.geo.crs import epsg_utm_sirgas
 _GEOGRAFICOS = frozenset({4326, 4674})
 
 
-def _reprojetar(geometria: BaseGeometry, epsg_origem: int, epsg_destino: int) -> BaseGeometry:
+def reprojetar(geometria: BaseGeometry, epsg_origem: int, epsg_destino: int) -> BaseGeometry:
+    if epsg_origem == epsg_destino:
+        return geometria
     from pyproj import Transformer
 
     transformer = Transformer.from_crs(
@@ -45,7 +47,7 @@ def area_hectares(
             geom = geom.buffer(0)
             corrigidas += 1
         if epsg_origem != epsg_calculo:
-            geom = _reprojetar(geom, epsg_origem, epsg_calculo)
+            geom = reprojetar(geom, epsg_origem, epsg_calculo)
         partes.append(geom)
 
     if not partes:

@@ -8,22 +8,31 @@ from __future__ import annotations
 
 import difflib
 import json
+import math
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
 
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import unary_union
+
 from mapasfacil_nucleo.agente import limites
 from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, nova_versao, resumo_versao
+from mapasfacil_nucleo.camadas import clip as clip_camadas
+from mapasfacil_nucleo.camadas.resolver import resolver_camada
 from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared
 from mapasfacil_nucleo.conversas.redator import redigir
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
+from mapasfacil_nucleo.geo import area as geo_area
+from mapasfacil_nucleo.geo.distancia import distancia_minima_km
 from mapasfacil_nucleo.mapspec.validar import ESTILOS_PERMITIDOS, OPERADORES_FILTRO
 from mapasfacil_nucleo.mapspec.validar import validar as validar_mapspec_fn
 from mapasfacil_nucleo.motores.manifesto import listar_templates, obter_template
 from mapasfacil_nucleo.protocolo import novo_id
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos_fn
 from mapasfacil_nucleo.workspace import servico as workspace_servico
+from mapasfacil_nucleo.workspace.shapefile import ler_geometrias_e_epsg
 from mapasfacil_nucleo.workspace.zip_simcar import listar as zip_listar
 
 HandlerTool = Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]]
@@ -873,27 +882,152 @@ def tool_comparar_com_modelo(args: dict[str, Any], ctx: dict[str, Any]) -> dict[
     )
 
 
-def tool_consultar_sema(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    """Recorte de camada do catálogo no imóvel — devolveria número, nunca geometria.
+_ALVO_DISTANCIA: dict[str, str] = {
+    "ti": "terras_indigenas_funai",
+    "uc": "unidades_conservacao",
+    "embargo": "embargos_siga",
+}
+RAIOS_BUSCA_KM: tuple[float, ...] = (10.0, 30.0, 60.0, 120.0)
 
-    Depende do cliente WFS/WMS em runtime (`camada.resolver`, R21), que ainda não
-    existe; até lá responde erro tipado com o motivo, e o modelo segue sem ela.
-    """
+
+def _geometria_imovel(estado) -> tuple[BaseGeometry, int] | None:
+    """União do(s) polígono(s) ATP local — base para bbox/clip/distância (A13)."""
+    fontes = workspace_servico.fontes_idx(estado)
+    rel = fontes.get("ATP")
+    if not rel:
+        return None
+    try:
+        caminho = estado.guard.resolver(rel)
+        geometrias, epsg = ler_geometrias_e_epsg(caminho)
+    except ErroNucleo:
+        return None
+    if not geometrias or epsg is None:
+        return None
+    return unary_union(geometrias), epsg
+
+
+def _geometria_imovel_4674(geom: BaseGeometry, epsg: int) -> BaseGeometry:
+    return geom if epsg == 4674 else geo_area.reprojetar(geom, epsg, 4674)
+
+
+def _bbox_raio_km(geom_4674: BaseGeometry, raio_km: float) -> tuple[float, float, float, float]:
+    centro = geom_4674.centroid
+    delta_lat = raio_km / 111.0
+    delta_lon = raio_km / (111.320 * max(math.cos(math.radians(centro.y)), 0.15))
+    minx, miny, maxx, maxy = geom_4674.bounds
+    return (minx - delta_lon, miny - delta_lat, maxx + delta_lon, maxy + delta_lat)
+
+
+def tool_consultar_sema(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Recorte de camada do catálogo no imóvel: contagem e área, nunca geometria (A13/R21)."""
     del ctx
-    camada = args.get("camada")
-    if isinstance(camada, str) and camada and camada not in _ids_catalogo():
+    camada_id = args.get("camada")
+    if not isinstance(camada_id, str) or not camada_id:
+        return _erro("NU-001", "Parâmetro 'camada' é obrigatório.")
+    if camada_id not in _ids_catalogo():
         return _erro(
             CODIGO_CATALOGO,
-            f"Camada fora do catálogo: {camada}",
-            sugestao=_sugerir(camada, _ids_catalogo()),
+            f"Camada fora do catálogo: {camada_id}",
+            sugestao=_sugerir(camada_id, _ids_catalogo()),
         )
-    return _erro_dependencia("consultar_sema", "camada.resolver / cliente WFS em runtime (R21)")
+    estado = _estado()
+    if estado is None:
+        return _erro("NU-040", "Nenhuma pasta conectada — abra o workspace antes de consultar.")
+    imovel = _geometria_imovel(estado)
+    if imovel is None:
+        return _erro(
+            "NU-041",
+            "Não encontrei o shapefile ATP (perímetro do imóvel) no workspace.",
+        )
+    geom_imovel, epsg_imovel = imovel
+    geom_4674 = _geometria_imovel_4674(geom_imovel, epsg_imovel)
+    bbox = tuple(geom_4674.bounds)
+
+    try:
+        resultado = resolver_camada(camada_id, bbox, "EPSG:4674", guard=estado.guard)
+    except ErroNucleo as exc:
+        return _erro(exc.codigo, exc.mensagem)
+
+    recortar = args.get("recortar_no_imovel")
+    recortar = True if recortar is None else bool(recortar)
+    geometrias = resultado.geometrias
+    if recortar and geometrias:
+        geometrias = clip_camadas.clip_poligono(geometrias, geom_4674)
+
+    area_ha = 0.0
+    if geometrias:
+        area_ha, _ = geo_area.area_hectares(
+            geometrias, epsg_origem=4674, longitude_centroide=geom_4674.centroid.x
+        )
+
+    nome = next((c.get("nome") for c in _catalogo_camadas() if c["id"] == camada_id), camada_id)
+    return _ok(
+        {
+            "camada": camada_id,
+            "nome": nome,
+            "contagem": len(geometrias),
+            "area_ha": area_ha,
+            "recortado_no_imovel": recortar,
+            "parcial": resultado.parcial,
+            "avisos": resultado.avisos,
+        }
+    )
 
 
 def tool_distancia_ate(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    """Menor distância do imóvel até TI/UC/embargo — depende das camadas externas (R21)."""
-    del args, ctx
-    return _erro_dependencia("distancia_ate", "camada.resolver / cliente WFS em runtime (R21)")
+    """Menor distância do imóvel até TI, UC ou embargo mais próximo (A13/R21).
+
+    Busca por raio crescente (10/30/60/120 km) até achar a primeira feição — não é
+    garantidamente a mais próxima do Brasil inteiro, mas cobre a vizinhança
+    relevante para um mapa IMAP sem varrer o país inteiro a cada turno.
+    """
+    del ctx
+    alvo = args.get("alvo")
+    if alvo not in _ALVO_DISTANCIA:
+        return _erro("NU-001", "Parâmetro 'alvo' precisa ser 'ti', 'uc' ou 'embargo'.")
+    camada_id = _ALVO_DISTANCIA[alvo]
+    estado = _estado()
+    if estado is None:
+        return _erro("NU-040", "Nenhuma pasta conectada — abra o workspace antes de consultar.")
+    imovel = _geometria_imovel(estado)
+    if imovel is None:
+        return _erro(
+            "NU-041",
+            "Não encontrei o shapefile ATP (perímetro do imóvel) no workspace.",
+        )
+    geom_imovel, epsg_imovel = imovel
+    geom_4674 = _geometria_imovel_4674(geom_imovel, epsg_imovel)
+
+    resultado = None
+    for raio in RAIOS_BUSCA_KM:
+        bbox = _bbox_raio_km(geom_4674, raio)
+        try:
+            resultado = resolver_camada(camada_id, bbox, "EPSG:4674", guard=estado.guard)
+        except ErroNucleo as exc:
+            return _erro(exc.codigo, exc.mensagem)
+        if not resultado.vazia:
+            break
+
+    if resultado is None or resultado.vazia:
+        return _ok(
+            {
+                "alvo": alvo,
+                "camada": camada_id,
+                "distancia_km": None,
+                "mensagem": f"Nada encontrado em até {RAIOS_BUSCA_KM[-1]:.0f} km do imóvel.",
+            }
+        )
+
+    distancia_km = distancia_minima_km(geom_4674, 4674, resultado.geometrias, 4674)
+    return _ok(
+        {
+            "alvo": alvo,
+            "camada": camada_id,
+            "distancia_km": distancia_km,
+            "parcial": resultado.parcial,
+            "avisos": resultado.avisos,
+        }
+    )
 
 
 def tool_analisar_referencia(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
@@ -984,9 +1118,8 @@ _HANDLERS: dict[str, HandlerTool] = {
 }
 
 # Tools registradas cuja dependência ainda não existe — respondem IA-022 por contrato.
-TOOLS_COM_DEPENDENCIA_PENDENTE: frozenset[str] = frozenset(
-    {"consultar_sema", "distancia_ate", "analisar_referencia"}
-)
+# `consultar_sema`/`distancia_ate` saíram daqui em A13 (camada.resolver / cliente WFS).
+TOOLS_COM_DEPENDENCIA_PENDENTE: frozenset[str] = frozenset({"analisar_referencia"})
 
 _STR: dict[str, Any] = {"type": "string"}
 _ESQUEMAS: dict[str, dict[str, Any]] = {

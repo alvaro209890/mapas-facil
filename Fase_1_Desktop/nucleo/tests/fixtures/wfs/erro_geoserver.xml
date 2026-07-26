@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ServiceExceptionReport version="1.2.0" xmlns="http://www.opengis.net/ogc">
+  <ServiceException code="InvalidParameterValue" locator="typeNames">
+    Não foi possível encontrar o typeName informado.
+  </ServiceException>
+</ServiceExceptionReport>
