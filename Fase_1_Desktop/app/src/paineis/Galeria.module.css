@@ -1,0 +1,41 @@
+/* Grade da galeria no painel direito. */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  height: 100%;
+  min-height: 0;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mf-e2);
+}
+
+.titulo {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  font-weight: 600;
+  color: var(--mf-texto);
+}
+
+.meta {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--mf-e3);
+  overflow: auto;
+  padding-bottom: var(--mf-e3);
+}
+
+.estado {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  padding: var(--mf-e4);
+}

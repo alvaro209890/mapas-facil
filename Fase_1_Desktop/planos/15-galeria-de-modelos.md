@@ -12,15 +12,15 @@ do recibo do CAR. Chat e galeria são duas entradas para **o mesmo contrato**: o
 
 | Item | Atual | Alvo |
 |---|---|---|
-| `shared/galeria/` | **não existe** | catálogo `modelos.json` + previews PNG |
-| Métodos `galeria.*` | **ausentes** | `galeria.listar`, `galeria.detalhar`, `galeria.montar_mapspec` |
-| Montagem determinística de `MapSpec` | **ausente** (`mapspec/determinista.py` é planejado, não existe) | implementada e testada no anel 1 |
-| UI da galeria | **ausente** | painel `painel-galeria` ([F1-02](02-ui-chat-e-workspace.md)) |
+| `shared/galeria/` | **existe** — `modelos.json` + schema + 5 previews | catálogo `modelos.json` + previews PNG |
+| Métodos `galeria.*` | **fechados** (M4) | `galeria.listar`, `galeria.detalhar`, `galeria.montar_mapspec` |
+| Montagem determinística de `MapSpec` | **fechada** em `galeria/montar.py` | implementada e testada no anel 1 |
+| UI da galeria | **fechada** — painel direito do shell | painel `painel-galeria` ([F1-02](02-ui-chat-e-workspace.md)) |
 | Templates disponíveis | `dinamica_retrato` **parcial**; 4 `a_preparar` | ver [MANIFEST](../../shared/templates/MANIFEST.json) |
 
 Consequência operacional que o agente **não pode esconder do usuário**: hoje só um modelo pode
-sair do estado `indisponivel`, e mesmo esse depende de B1 fechar. A galeria precisa exibir o
-estado real de cada modelo, não uma grade cheia de cartões que falham ao clicar.
+sair do estado `indisponivel` (`dinamica_2026_retrato` → `parcial` ou `faltam_dados`), e os
+outros quatro ficam `indisponivel` com motivo honesto. A galeria exibe o estado real.
 
 ## Dependências
 
@@ -30,7 +30,7 @@ estado real de cada modelo, não uma grade cheia de cartões que falham ao clica
 | `workspace.abrir` (índice + papéis dos shapefiles) | existe |
 | `car.ler_recibo` | existe |
 | `mapspec.validar` | existe |
-| M3 — shell da UI | ausente |
+| M3 — shell da UI | **fechado** (C1–C11) |
 | Sessão válida para **gerar** (não para navegar) | [F1-14](14-auth-e-conta.md) |
 
 ## Contratos
@@ -226,35 +226,35 @@ Receita fechada, para um agente seguir sem julgamento:
 
 ## Tarefas agentáveis
 
-- [ ] `shared/galeria/modelos.json` com os 5 modelos do MANIFEST (4 nascem `indisponivel`)
-- [ ] `shared/galeria/schema.json` — JSON Schema do arquivo acima
-- [ ] `shared/galeria/previews/` — PNG por modelo, extraídos de `Referencias_IMAP/Mapas/01/`
-- [ ] `shared/galeria/README.md` — como adicionar modelo (a receita acima, resumida)
-- [ ] `nucleo/mapasfacil_nucleo/galeria/catalogo.py` — carga + validação contra o schema
-- [ ] `nucleo/mapasfacil_nucleo/galeria/estado.py` — cálculo de `status` (MANIFEST × índice)
-- [ ] `nucleo/mapasfacil_nucleo/galeria/montar.py` — os 13 passos do algoritmo
-- [ ] `nucleo/mapasfacil_nucleo/__main__.py` — registrar os três métodos no roteador
-- [ ] `nucleo/mapasfacil_nucleo/erros.py` — `NU-230`…`NU-234`
-- [ ] `app/src/paineis/Galeria.tsx` — grade, id `painel-galeria`
-- [ ] `app/src/paineis/GaleriaDetalhe.tsx` — mapeamento e toggles, id `painel-galeria-detalhe`
-- [ ] `app/src/componentes/CartaoModelo.tsx` — preview, chip de status, motivo
-- [ ] `nucleo/tests/test_galeria.py`
+- [x] `shared/galeria/modelos.json` com os 5 modelos do MANIFEST (4 nascem `indisponivel`)
+- [x] `shared/galeria/schema.json` — JSON Schema do arquivo acima
+- [x] `shared/galeria/previews/` — PNG por modelo, extraídos de `Referencias_IMAP/Mapas/01/`
+- [x] `shared/galeria/README.md` — como adicionar modelo (a receita acima, resumida)
+- [x] `nucleo/mapasfacil_nucleo/galeria/catalogo.py` — carga + validação contra o schema
+- [x] `nucleo/mapasfacil_nucleo/galeria/estado.py` — cálculo de `status` (MANIFEST × índice)
+- [x] `nucleo/mapasfacil_nucleo/galeria/montar.py` — os 13 passos do algoritmo
+- [x] `nucleo/mapasfacil_nucleo/__main__.py` — registrar os três métodos no roteador
+- [x] `nucleo/mapasfacil_nucleo/erros.py` — `NU-230`…`NU-234` (via `ErroNucleo` nos módulos da galeria)
+- [x] `app/src/paineis/Galeria.tsx` — grade, id `painel-galeria`
+- [x] `app/src/paineis/GaleriaDetalhe.tsx` — mapeamento e toggles, id `painel-galeria-detalhe`
+- [x] `app/src/componentes/CartaoModelo.tsx` — preview, chip de status, motivo
+- [x] `nucleo/tests/test_galeria.py`
 
 ## Critérios de aceite
 
-- [ ] `python -m mapasfacil_nucleo stdio` responde `galeria.listar` com 5 modelos e
+- [x] `python -m mapasfacil_nucleo stdio` responde `galeria.listar` com 5 modelos e
       `status` coerente com o MANIFEST (hoje: 1 `parcial`/`faltam_dados`, 4 `indisponivel`)
-- [ ] `galeria.montar_mapspec` do `dinamica_2026_retrato` contra a fixture da Harmonia produz um
+- [x] `galeria.montar_mapspec` do `dinamica_2026_retrato` contra a fixture da Harmonia produz um
       `MapSpec` que passa em `mapspec.validar` **sem erros**
-- [ ] Determinismo: rodar `montar_mapspec` 3× produz JSON idêntico exceto `id` (ULID) — teste
+- [x] Determinismo: rodar `montar_mapspec` 3× produz JSON idêntico exceto `id` (ULID) — teste
       compara com `id` removido
-- [ ] Pasta sem `ATP` → `NU-233`, com `requisitos_faltando: ["ATP"]`
-- [ ] `sobrescritas: {"camadas": [...]}` → `NU-232`
-- [ ] Modelo apontando para template inexistente → some de `galeria.listar` e loga `NU-231`
+- [x] Pasta sem `ATP` → `NU-233`, com `requisitos_faltando: ["ATP"]`
+- [x] `sobrescritas: {"camadas": [...]}` → `NU-232`
+- [x] Modelo apontando para template inexistente → some de `galeria.listar` e loga `NU-231`
 - [ ] O `MapSpec` de `galeria.montar_mapspec` e o produzido pelo agente para o mesmo pedido têm o
       mesmo `template`, as mesmas `camadas[].id` e o mesmo `elementos_layout`
-      (`nucleo/tests/test_paridade_galeria_agente.py`, com o provedor em modo fake)
-- [ ] Clicar num cartão `indisponivel` não dispara requisição nenhuma; mostra o motivo
+      (`nucleo/tests/test_paridade_galeria_agente.py`, com o provedor em modo fake) — **adiado a M7/G10**
+- [x] Clicar num cartão `indisponivel` não dispara requisição nenhuma; mostra o motivo
 
 ## Fora de escopo
 

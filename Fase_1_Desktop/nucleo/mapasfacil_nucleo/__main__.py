@@ -7,6 +7,7 @@ from typing import Any, Callable, TextIO
 
 from mapasfacil_nucleo import doctor
 from mapasfacil_nucleo.erros import ErroNucleo
+from mapasfacil_nucleo.galeria import servico as galeria_servico
 from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
 from mapasfacil_nucleo.mapspec.validar import validar
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
@@ -48,6 +49,9 @@ def criar_roteador() -> Roteador:
     roteador.registrar("quantitativos.calcular", _handler_quantitativos_calcular)
     roteador.registrar("quantitativos.exportar_xlsx", _handler_quantitativos_exportar_xlsx)
     roteador.registrar("quantitativos.renderizar_png", _handler_quantitativos_renderizar_png)
+    roteador.registrar("galeria.listar", galeria_servico.listar)
+    roteador.registrar("galeria.detalhar", galeria_servico.detalhar)
+    roteador.registrar("galeria.montar_mapspec", galeria_servico.montar)
     roteador.registrar("ping", lambda _params: {"pong": True})
     return roteador
 

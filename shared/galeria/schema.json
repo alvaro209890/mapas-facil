@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mapasfacil.local/schemas/galeria-modelos.schema.json",
+  "title": "Galeria de modelos Mapas Fácil",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["galeria_version", "contract_version", "modelos"],
+  "properties": {
+    "galeria_version": { "type": "integer", "minimum": 1 },
+    "contract_version": { "type": "integer", "const": 2 },
+    "modelos": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/modelo" }
+    }
+  },
+  "$defs": {
+    "modelo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "nome",
+        "subtitulo",
+        "descricao",
+        "template",
+        "perfil",
+        "preview",
+        "orientacao",
+        "tags",
+        "saidas_padrao",
+        "escala_padrao",
+        "requisitos_camadas",
+        "camadas_catalogo",
+        "basemap_padrao",
+        "elementos_layout_padrao",
+        "tabela_padrao",
+        "metadados_padrao"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9_]+$" },
+        "nome": { "type": "string", "minLength": 1 },
+        "subtitulo": { "type": "string" },
+        "descricao": { "type": "string" },
+        "template": { "type": "string", "minLength": 1 },
+        "perfil": { "type": "string", "const": "harmonia" },
+        "preview": { "type": "string", "pattern": "^previews/.+\\.png$" },
+        "orientacao": { "type": "string", "enum": ["retrato", "paisagem"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "saidas_padrao": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["mxd", "pdf", "png", "xlsx"] }
+        },
+        "escala_padrao": {
+          "oneOf": [
+            { "type": "string", "const": "auto" },
+            { "type": "integer", "minimum": 1 }
+          ]
+        },
+        "requisitos_camadas": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/requisito" }
+        },
+        "camadas_catalogo": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/camada_catalogo" }
+        },
+        "basemap_padrao": {
+          "type": "object",
+          "required": ["tipo"],
+          "properties": {
+            "tipo": { "type": "string" },
+            "fallback": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "elementos_layout_padrao": { "type": "object" },
+        "tabela_padrao": {
+          "type": "object",
+          "required": ["colunas_de", "total_geral", "casas_decimais"],
+          "properties": {
+            "colunas_de": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["ATP", "AVN", "AC", "AUAS", "APP", "ARL", "SIGEF", "RESERVA_LEGAL"]
+              }
+            },
+            "total_geral": { "type": "boolean" },
+            "casas_decimais": { "type": "integer", "minimum": 0, "maximum": 6 }
+          }
+        },
+        "metadados_padrao": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rotulo", "valor"],
+            "properties": {
+              "rotulo": { "type": "string" },
+              "valor": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "requisito": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["papel", "obrigatorio", "nome_no_mxd", "estilo", "ordem"],
+      "properties": {
+        "papel": {
+          "type": "string",
+          "enum": ["ATP", "AVN", "AC", "AUAS", "APP", "ARL", "SIGEF", "RESERVA_LEGAL"]
+        },
+        "obrigatorio": { "type": "boolean" },
+        "nome_no_mxd": { "type": "string" },
+        "estilo": { "type": "string" },
+        "ordem": { "type": "integer" }
+      }
+    },
+    "camada_catalogo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fonte", "nome_no_mxd", "estilo", "ordem"],
+      "properties": {
+        "fonte": { "type": "string", "pattern": "^catalogo\\." },
+        "nome_no_mxd": { "type": "string" },
+        "estilo": { "type": "string" },
+        "ordem": { "type": "integer" },
+        "filtro_de": {
+          "type": "string",
+          "enum": ["imovel.municipio.nome", "imovel.municipio.uf"]
+        }
+      }
+    }
+  }
+}

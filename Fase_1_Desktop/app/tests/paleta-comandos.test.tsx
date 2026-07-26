@@ -65,12 +65,12 @@ describe("PaletaComandos e atalhos (C10)", () => {
     );
   });
 
-  it("comando de galeria aparece indisponível com motivo M4", async () => {
+  it("comando de nova conversa aparece indisponível com motivo M6", async () => {
     await montarApp();
     await userEvent.keyboard("{Control>}k{/Control}");
-    const opcao = screen.getByRole("option", { name: /Gerar mapa da série/i });
+    const opcao = screen.getByRole("option", { name: /Nova conversa/i });
     expect(opcao).toBeDisabled();
-    expect(opcao).toHaveTextContent("Depende da galeria (M4)");
+    expect(opcao).toHaveTextContent("Depende da persistência de chats (M6)");
   });
 
   it("Ctrl+O dispara conectar pasta sem abrir a paleta", async () => {

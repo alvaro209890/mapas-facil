@@ -1,0 +1,36 @@
+// painel-galeria — grade de modelos (F1-15 D8).
+
+import { CartaoModelo } from "../componentes/CartaoModelo.js";
+import type { ModeloResumo } from "../estado/galeria.js";
+import estilos from "./Galeria.module.css";
+
+export interface PropsGaleria {
+  modelos: ModeloResumo[];
+  situacao: "idle" | "carregando" | "pronta" | "erro";
+  erro: { codigo: string; mensagem: string } | null;
+  aoAbrir: (id: string) => void;
+}
+
+export function Galeria({ modelos, situacao, erro, aoAbrir }: PropsGaleria) {
+  return (
+    <div id="painel-galeria" className={estilos.raiz}>
+      <div className={estilos.cabecalho}>
+        <span className={estilos.titulo}>Galeria de modelos</span>
+        <span className={estilos.meta}>{modelos.length} modelos</span>
+      </div>
+      {situacao === "carregando" && <p className={estilos.estado}>carregando catálogo…</p>}
+      {erro !== null && (
+        <p className={estilos.estado} role="alert">
+          <span className="mf-num">{erro.codigo}</span> · {erro.mensagem}
+        </p>
+      )}
+      {situacao === "pronta" && (
+        <div className={estilos.grade}>
+          {modelos.map((modelo) => (
+            <CartaoModelo key={modelo.id} modelo={modelo} aoAbrir={aoAbrir} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
