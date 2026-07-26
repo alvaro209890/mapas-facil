@@ -13,12 +13,12 @@ pasta ou função. Se diz `parcial`, leia a nota — ela lista o que falta.
 Verificações rápidas de realidade (rode antes de planejar):
 
 ```bash
-ls Fase_1_Desktop/app                      # roda: renderer + AppShell + barra de progresso (C1–C6)
+ls Fase_1_Desktop/app                      # M3 fechado: C1–C11 (shell, workspace, paleta, visual)
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
 cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (149 testes, 1 skip)
-cd Fase_1_Desktop/app && pnpm test         # 50 testes: ponte, barra, workspace, doctor, shell
+cd Fase_1_Desktop/app && pnpm test         # 71 testes: ponte, UI, paleta, visual/axe
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0)
@@ -32,7 +32,7 @@ cd Fase_1_Desktop/app && pnpm test         # 50 testes: ponte, barra, workspace,
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **17 métodos** implementados | `Fase_1_Desktop/nucleo/` |
 | Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
-| App Electron | **parcial**: C1–C9 fechados (renderer, ponte, tokens, fontes, `AppShell`, barra de progresso, `painel-workspace`, doctor, estados vazios); faltam C10–C11 | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **M3 fechado** (C1–C11): shell, workspace, doctor, estados, paleta/`Ctrl+K`, testes visuais | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -47,7 +47,7 @@ cd Fase_1_Desktop/app && pnpm test         # 50 testes: ponte, barra, workspace,
   `doctor-resumo`, esses, são reais (C7/C8). Detalhe em
   [`app/README.md`](Fase_1_Desktop/app/README.md).
 - Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
-- Paleta `Ctrl+K` e atalhos (C10), e testes de contraste com `axe-core` (C11).
+- Menus e tray do Electron (só diálogo de pasta + IPC).
 - Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
   `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato especificado, zero implementação**.
   Só `job.progresso` tem emissor.
@@ -131,7 +131,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — C1/C2/C5/C7/C8/C9 fechados: shell, `painel-workspace` real com diálogo nativo de pasta, `doctor-resumo` e estados vazios; chat, galeria e preview esperam M4/M6/M7 | `app/src/paineis/Chat.tsx`, `app/src/paineis/PainelDireito.tsx`, `app/src/paleta/` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3/C1–C11 fechados (shell, workspace, doctor, paleta, visual); chat/galeria/preview esperam M4/M6/M7 | `app/src/paineis/Chat.tsx`, `app/src/paineis/PainelDireito.tsx` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
 | R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **parcial** — tokens de motion e `useReducedMotion` existem; só **A4** (progresso do job) está ligada a evento. A2 e A3 dependem de `chat.delta`/`chat.tool` (M7) | `app/src/motion/`, `app/src/componentes/BarraProgressoJob.tsx` |

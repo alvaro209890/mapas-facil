@@ -13,7 +13,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | A — fundação do núcleo | M1 | **fechado** exceto A10–A13 (A9 fechou em 2026-07-26) |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
-| C — shell + design system | M3 | **parcial** — C1–C9 fechados (renderer, ponte, tokens, fontes, `AppShell`, barra de progresso, workspace, doctor, estados vazios); faltam C10–C11 |
+| C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
 | D — galeria | M4 | **não iniciado** |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
@@ -86,11 +86,8 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 
 Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
 **A pasta `Fase_1_Desktop/app/` roda** — estado detalhado em
-[`../app/README.md`](../app/README.md). Em 2026-07-26 o app passou a ter entrada de renderer e
-`pnpm install` → `typecheck` → `test` (17) → `build` foram executados e ficaram verdes. O que
-falta do bloco é a paleta `Ctrl+K` (C10) e os testes visuais/`axe-core` (C11).
-Em 2026-07-26 entraram também o diálogo nativo de pasta e os projetos recentes no processo main;
-50 testes verdes no app.
+[`../app/README.md`](../app/README.md). Em 2026-07-26 o bloco C (M3) fechou: C1–C11
+com `pnpm typecheck` → `test` (71) → `build` verdes. Próximo marco sem ArcMap: M4 galeria.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
@@ -98,15 +95,15 @@ Em 2026-07-26 entraram também o diálogo nativo de pasta e os projetos recentes
 | C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [x] | `app/electron/nucleo/ponte.ts` + `app/tests/ponte.test.ts` (7 testes com sidecar real). O teste achou e o commit corrigiu: `exit` de processo já substituído derrubava o novo após `reiniciar()` |
 | C3 | Tokens de cor, tipografia e movimento | [x] | `app/src/estilos/tokens.css` (+ `reset.css`); escuro default, claro em `[data-tema="claro"]`, reduced-motion ≤ 80 ms |
 | C4 | Fontes embarcadas (Space Grotesk, IBM Plex Sans/Mono) | [x] | `app/src/estilos/fontes/` — woff2 latin/latin-ext + `@font-face` + licenças OFL; zero CDN |
-| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [x] | `app/src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `app/src/estado/preferencias.ts` — arrasto + teclado, larguras e colapso em `config.json`. **Conteúdo dos painéis é placeholder** (C7–C11) |
+| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [x] | `app/src/layout/AppShell.tsx`, `TopoApp.tsx`, `Divisor.tsx`, `app/src/estado/preferencias.ts` — arrasto + teclado, larguras e colapso em `config.json`. Workspace real (C7); chat/galeria/preview ainda honestos até M4/M6/M7 |
 | C6 | `barra-progresso-job` consumindo `job.progresso` | [x] | `app/src/componentes/BarraProgressoJob.tsx` + `app/src/estado/progressoJob.ts`; `app/tests/barra-progresso-job.test.tsx` (10 testes: sem evento não há barra, 10 etapas pt-BR, `pct` monotônico) |
 | C7 | `painel-workspace` com metadados inline | [x] | `app/src/paineis/Workspace.tsx`, `app/src/estado/workspace.ts`, `app/src/formato/numeros.ts` + diálogo nativo e recentes em `app/electron/main.ts`/`projetos.ts`; `app/tests/workspace.test.tsx` (11 testes, fixture gerada pelo núcleo) |
 | C8 | `doctor-resumo` + tela completa | [x] | `app/src/componentes/DoctorResumo.tsx` + `app/src/estado/doctor.ts`; resumo colapsado + diagnóstico completo em `<details>`, `app/tests/doctor-resumo.test.tsx` (8 testes). `sondar_arcpy` fica sob demanda (Windows) |
 | C9 | Estados vazios e de erro (tabela de F1-02) | [x] | `app/src/componentes/EstadoVazio.tsx` — casos com dado real (sem pasta, sem shapefile, `UI-001`, erro do núcleo, sem chave DeepSeek, sem ArcMap); login/sessão/offline esperam M5 e camadas externas |
-| C10 | Paleta de comandos `Ctrl+K` + atalhos | [ ] | `app/src/paleta/` |
-| C11 | Testes de tema, contraste e reduced-motion | [ ] | `app/tests/visual/` — `axe-core` ainda não é dependência do app |
+| C10 | Paleta de comandos `Ctrl+K` + atalhos | [x] | `app/src/paleta/` (`PaletaComandos`, `comandos`, `useAtalhosGlobais`) + `Preferencias` (tema); atalhos Ctrl+O/K/N/F/, F1, Esc; `app/tests/paleta-comandos.test.tsx` (8 testes) |
+| C11 | Testes de tema, contraste e reduced-motion | [x] | `app/tests/visual/` + `axe-core`; tokens AA, tema escuro default, reduced-motion ≤ 80 ms, layout 1280×800, hectares mono |
 
-Fora da tabela, no mesmo commit: `app/src/motion/tokens.ts` e `useReducedMotion.ts` (F1-16
+Fora da tabela, no mesmo marco: `app/src/motion/tokens.ts` e `useReducedMotion.ts` (F1-16
 §Movimento) e `app/vitest.config.ts` separado do `vite.config.ts` — o `defineConfig` do Vitest 2
 carrega os tipos do Vite 5 e conflita com o Vite 6 do build.
 

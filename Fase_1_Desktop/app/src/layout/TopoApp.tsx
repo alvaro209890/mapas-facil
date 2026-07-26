@@ -1,10 +1,9 @@
 // `topo-app` — marca, projeto conectado, doctor e conta (F1-16 §Layout e IDs).
 //
-// Nesta fatia (C5) os três chips à direita são **indicadores**, não menus: doctor
-// (C8), conta (M5) e a árvore do projeto (C7) são de marcos posteriores. Ícone é
-// `lucide-react`; emoji em componente de interface é proibido (F1-16).
+// C10: botão da paleta (`Ctrl+K`) e atalho visual do doctor (`F1`). Conta continua
+// indicador até M5. Ícone é `lucide-react`; emoji em componente é proibido.
 
-import { Activity, CircleUser } from "lucide-react";
+import { Activity, CircleUser, Command } from "lucide-react";
 
 import estilos from "./TopoApp.module.css";
 
@@ -13,6 +12,8 @@ export interface PropsTopoApp {
   projeto?: string;
   /** Estado da ponte com o núcleo, para o chip de ambiente. */
   nucleo: "parado" | "iniciando" | "pronto" | "caido";
+  aoAbrirPaleta?: () => void;
+  aoAbrirDoctor?: () => void;
 }
 
 const ROTULO_NUCLEO: Record<PropsTopoApp["nucleo"], string> = {
@@ -22,16 +23,35 @@ const ROTULO_NUCLEO: Record<PropsTopoApp["nucleo"], string> = {
   caido: "núcleo fora do ar",
 };
 
-export function TopoApp({ projeto, nucleo }: PropsTopoApp) {
+export function TopoApp({ projeto, nucleo, aoAbrirPaleta, aoAbrirDoctor }: PropsTopoApp) {
   return (
     <header id="topo-app" className={estilos.topo}>
       <span className={estilos.marca}>Mapas Fácil</span>
       <span className={estilos.breadcrumb}>{projeto ?? "nenhuma pasta conectada"}</span>
       <span className={estilos.chips}>
-        <span id="doctor-chip" className={estilos.chip} data-estado={nucleo}>
+        <button
+          type="button"
+          id="botao-paleta"
+          className={estilos.chipBotao}
+          onClick={aoAbrirPaleta}
+          aria-label="abrir paleta de comandos"
+          title="Paleta de comandos (Ctrl+K)"
+        >
+          <Command size={14} aria-hidden="true" />
+          Ctrl+K
+        </button>
+        <button
+          type="button"
+          id="doctor-chip"
+          className={estilos.chipBotao}
+          data-estado={nucleo}
+          onClick={aoAbrirDoctor}
+          aria-label="verificar ambiente"
+          title="Doctor (F1)"
+        >
           <Activity size={14} aria-hidden="true" />
           {ROTULO_NUCLEO[nucleo]}
-        </span>
+        </button>
         <span id="conta-menu" className={estilos.chip} data-estado="ausente">
           <CircleUser size={14} aria-hidden="true" />
           sem conta

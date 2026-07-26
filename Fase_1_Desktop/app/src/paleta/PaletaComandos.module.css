@@ -1,0 +1,115 @@
+/* Paleta de comandos — overlay modal, sem card decorativo além do necessário
+   para foco e contraste (é um diálogo interativo, F1-16). */
+
+.raiz {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.dialogo {
+  width: min(560px, calc(100vw - 48px));
+  max-height: min(420px, 70vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-2);
+  box-shadow: var(--mf-sombra);
+  overflow: hidden;
+}
+
+.busca {
+  width: 100%;
+  padding: var(--mf-e4);
+  border: none;
+  border-bottom: 1px solid var(--mf-borda);
+  background: transparent;
+  color: var(--mf-texto);
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+  outline: none;
+}
+
+.busca::placeholder {
+  color: var(--mf-texto-3);
+}
+
+.lista {
+  overflow: auto;
+  padding: var(--mf-e2);
+}
+
+.grupo {
+  margin-top: var(--mf-e2);
+  margin-bottom: var(--mf-e1);
+  padding: 0 var(--mf-e2);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--mf-e1) var(--mf-e3);
+  width: 100%;
+  padding: var(--mf-e2) var(--mf-e3);
+  border-radius: var(--mf-raio-1);
+  text-align: left;
+  color: var(--mf-texto);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.item[data-ativo="true"] {
+  background: var(--mf-acento-fraco);
+}
+
+.item[data-disponivel="false"] {
+  opacity: 0.72;
+}
+
+.item:hover {
+  background: var(--mf-superficie-3);
+}
+
+.rotulo {
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+}
+
+.descricao {
+  grid-column: 1 / -1;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.atalho {
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  color: var(--mf-texto-3);
+  align-self: start;
+}
+
+.motivo {
+  grid-column: 1 / -1;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-aviso);
+}
+
+.vazio {
+  padding: var(--mf-e5);
+  text-align: center;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.rodape {
+  padding: var(--mf-e2) var(--mf-e4);
+  border-top: 1px solid var(--mf-borda);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}

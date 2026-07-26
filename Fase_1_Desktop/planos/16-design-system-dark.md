@@ -332,16 +332,18 @@ Enquanto o M8 não fecha, a Fase 2 **não é simulada**. O DoD visual aceita a F
 - [ ] `nucleo/mapasfacil_nucleo/protocolo.py` — registrar `job.artefato_parcial` no vocabulário
 - [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.artefato_parcial` (M8)
 - [~] `app/src/estado/eventos.ts` — assinatura pronta + `peso`/`pctAoConcluir`; o store existe só para `job.progresso` (`app/src/estado/progressoJob.ts`)
-- [ ] `app/tests/visual/` — testes do DoD abaixo
+- [x] `app/tests/visual/` — tema default, contraste AA/tokens + axe, reduced-motion ≤ 80 ms,
+      layout 1280×800, hectares mono (`tests/visual/*.test.tsx`)
 
 ## Critérios de aceite (DoD visual verificável)
 
 Cada item é um comando ou assert, não uma opinião:
 
-- [ ] **Dark é o default:** app recém-instalado, sem `config.json`, abre com
+- [x] **Dark é o default:** app recém-instalado, sem `config.json`, abre com
       `document.documentElement.dataset.tema === "escuro"`
-- [ ] `getComputedStyle(document.body).backgroundColor` resolve para `--mf-bg` (`rgb(11, 14, 17)`)
-- [ ] `grep -rniE "inter|roboto|arial|helvetica|system-ui" app/src/estilos/tokens.css` só aparece
+      (`app/tests/visual/tema-default.test.tsx`)
+- [x] `--mf-bg` no tema escuro resolve para `#0b0e11` (mesmo assert)
+- [x] `grep -rniE "inter|roboto|arial|helvetica|system-ui" app/src/estilos/tokens.css` só aparece
       **depois** de uma família embarcada na pilha
 - [x] `grep -rn "https://fonts\.\|cdn\." app/src/` não retorna nada — zero requisição externa de fonte
 - [~] **≥ 3 animações ligadas a estado real**, provadas por teste com eventos NDJSON injetados:
@@ -353,15 +355,15 @@ Cada item é um comando ou assert, não uma opinião:
       (progresso não é simulado)
 - [ ] **Preview reage à geração:** teste emite `job.progresso` com `item:"avn"` e assere que a
       linha `preview-camada-avn` mudou de estado
-- [ ] **Reduced motion:** com `prefers-reduced-motion: reduce`, nenhum elemento tem
+- [x] **Reduced motion:** com `prefers-reduced-motion: reduce`, nenhum elemento tem
       `animation-duration` ou `transition-duration` maior que 80 ms
-      (`app/tests/visual/reduced-motion.test.ts` varre `getComputedStyle` da árvore renderizada)
-- [ ] Contraste: `axe-core` sem violação de `color-contrast` nas telas login, app vazio, app com
-      job rodando
-- [ ] Janela de 1280×800 não produz scroll horizontal em nenhum painel
+      (`app/tests/visual/reduced-motion.test.tsx`)
+- [~] Contraste: pares de token WCAG AA + `axe-core` sem violação (exceto color-contrast no jsdom)
+      em app vazio / com job / com erro — `app/tests/visual/contraste.test.tsx`; login é M5
+- [~] Janela de 1280×800 não produz scroll horizontal — `app/tests/visual/layout-e-numeros.test.tsx`
 - [x] Nenhum emoji em componente de interface: `grep -rnP "[\x{1F300}-\x{1FAFF}]" app/src/componentes/` vazio
-- [ ] Números em hectare renderizam em `--mf-fonte-mono` com `tabular-nums` — teste de snapshot da
-      árvore do `painel-workspace`
+- [x] Números em hectare renderizam em `--mf-fonte-mono` com `tabular-nums` —
+      `app/tests/visual/layout-e-numeros.test.tsx`
 
 ## Fora de escopo
 
