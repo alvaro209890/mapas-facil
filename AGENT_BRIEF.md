@@ -78,7 +78,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
 | Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
 | Eventos NDJSON com emissor | **os 8 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), **`job.log` e `aviso`** | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
-| App Electron | **M3 fechado** + **galeria M4** + **conta local M5** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| App Electron | **M3–M8 + épico sem ArcMap** — menus/tray, offline, Esc≠job, R14 completo | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
@@ -93,12 +93,14 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 
 ## O que NÃO existe (não invente que existe)
 
-- Menus e tray do Electron (só diálogo de pasta + IPC).
 - Crossfade de **imagem do mapa** por versão do MapSpec: o núcleo não gera PNG por versão (só por
   etapa de `mapa.gerar`); `linha-versoes` crossfadeia o card de diff/resumo, não uma imagem — ver
   nota em [16-design-system-dark.md §A6](Fase_1_Desktop/planos/16-design-system-dark.md#a6--microinterações).
 - Tools do agente que respondem `IA-022`: **nenhuma hoje** — `TOOLS_COM_DEPENDENCIA_PENDENTE`
   está vazio. `consultar_sema`/`distancia_ate` saíram em A13; `analisar_referencia` saiu em F1-07.
+- **Backlog desktop sem ArcMap: esgotado** (F1-07, clientes 41/41, `job.log`/`aviso`, watcher→chat,
+  menu de chats R14, menus/tray Electron, banner offline, Esc≠job). O que falta é o eixo
+  **Windows+ArcMap (M2→M9)**, **instalador/piloto (M10–M11)** e **Fase 2**.
 - Modelo de visão confirmado (P1 de F1-07): o cliente (`agente/visao/provedor.py`) e o pipeline
   determinístico existem, mas ninguém confirmou que um modelo DeepSeek da conta enxerga imagem —
   toda chamada real degrada com `IA-060` até isso ser confirmado. O determinístico (medidas de

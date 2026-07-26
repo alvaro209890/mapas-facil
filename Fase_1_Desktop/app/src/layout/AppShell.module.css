@@ -155,3 +155,10 @@
   border-color: var(--mf-acento);
   background: var(--mf-acento-fraco);
 }
+
+/* F1-02 — banner de offline: camadas externas vêm do cache; app local segue. */
+.bannerOffline {
+  padding: var(--mf-e2) var(--mf-e4);
+  border-bottom: 1px solid var(--mf-borda);
+  background: var(--mf-superficie-2);
+}

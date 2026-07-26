@@ -1,6 +1,7 @@
-// Atalhos globais de F1-02 / F1-16. A paleta (`Ctrl+K`) e o Esc (fecha a paleta
-// antes de qualquer outra coisa) vivem aqui; ações cujo marco ainda não existe
-// disparam o callback `aoIndisponivel` com uma mensagem honesta — sem no-op mudo.
+// Atalhos globais de F1-02 / F1-16. A paleta (`Ctrl+K`) e o Esc (fecha preferências
+// / paleta antes de qualquer outra coisa) vivem aqui. Cancelar o **turno** do chat
+// com Esc é responsabilidade do `PainelChat` (só ele sabe se há turno ativo) —
+// este hook **não** chama `mapa.cancelar` (F1-02: Esc ≠ botão do job).
 
 import { useEffect, useRef } from "react";
 
@@ -15,7 +16,7 @@ export interface AcoesAtalho {
   abrirPreferencias: () => void;
   novaConversa: () => void;
   focarBuscaChats: () => void;
-  /** Ctrl+Enter enquanto M7 não existe. */
+  /** Ações cujo marco ainda não existe — mensagem honesta, sem no-op mudo. */
   aoIndisponivel: (mensagem: string) => void;
 }
 
@@ -40,8 +41,10 @@ export function useAtalhosGlobais(acoes: AcoesAtalho): void {
         if (atual.paletaAberta) {
           evento.preventDefault();
           atual.fecharPaleta();
+          return;
         }
-        // Cancelar turno (Esc com chat ativo) é M7 — sem turno aberto, nada a fazer.
+        // Sem overlay: deixa o PainelChat (turno) ou outros ouvintes reagirem.
+        // De propósito **não** cancela o job aqui.
         return;
       }
 
@@ -80,16 +83,6 @@ export function useAtalhosGlobais(acoes: AcoesAtalho): void {
         evento.preventDefault();
         atual.focarBuscaChats();
         return;
-      }
-      if (tecla === "enter") {
-        const alvo = evento.target as HTMLElement | null;
-        const digitando =
-          alvo !== null &&
-          (alvo.tagName === "TEXTAREA" || alvo.isContentEditable);
-        if (!digitando) {
-          evento.preventDefault();
-          atual.aoIndisponivel("Enviar mensagem depende do agente (M7).");
-        }
       }
     };
 

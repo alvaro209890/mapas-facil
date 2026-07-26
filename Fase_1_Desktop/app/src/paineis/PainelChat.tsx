@@ -107,14 +107,26 @@ export function PainelChat({
   // turno, não timer — some no primeiro `chat.delta` (AP-07 / F1-16 §A1).
   const pensando = enviando && streaming === "" && tools.length === 0;
 
-  async function cancelar() {
+  const cancelar = useCallback(async () => {
     if (!conversationId || !enviando) return;
     const ponte = api();
     if (ponte === undefined) return;
     setCancelando(true);
     setTools(cancelarPendentes);
     await ponte.chamar("chat.cancelar", { conversation_id: conversationId });
-  }
+  }, [conversationId, enviando]);
+
+  // F1-02: Esc cancela o **turno** do chat, nunca o job de mapa (esse tem botão próprio).
+  useEffect(() => {
+    if (!enviando) return;
+    const ouvinte = (evento: globalThis.KeyboardEvent) => {
+      if (evento.key !== "Escape") return;
+      evento.preventDefault();
+      void cancelar();
+    };
+    window.addEventListener("keydown", ouvinte);
+    return () => window.removeEventListener("keydown", ouvinte);
+  }, [cancelar, enviando]);
 
   async function enviar(texto: string) {
     if (!conversationId || !texto.trim() || enviando) return;

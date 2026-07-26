@@ -211,3 +211,23 @@ export function SemArcMap({ motor }: { motor: string }) {
     />
   );
 }
+
+export function SemInternet() {
+  return (
+    <EstadoVazio
+      tom="aviso"
+      titulo="Sem internet"
+      descricao={
+        <>
+          O app continua local: pasta, chats, galeria e geração nativa não dependem de rede.
+          Camadas externas (SEMA, INCRA, mosaicos) usam o cache quando houver — com a idade que o
+          núcleo gravou na última consulta.
+        </>
+      }
+      saidas={[
+        "Reconecte para atualizar camadas externas além do TTL do cache",
+        "Geração pela galeria e o chat com chave local seguem disponíveis",
+      ]}
+    />
+  );
+}

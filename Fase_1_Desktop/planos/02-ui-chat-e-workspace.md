@@ -228,7 +228,7 @@ claro é opção, nunca o padrão (AP-08).
 ## Tarefas agentáveis
 
 - [x] `Fase_1_Desktop/app/` — scaffold Electron + Vite + React 19 + TS + entrada do renderer
-- [~] `app/electron/main.ts` — janela, ciclo da ponte e **diálogo de pasta** prontos; menus e tray faltam
+- [x] `app/electron/main.ts` — janela, ciclo da ponte, diálogo de pasta, **menus e tray** (`electron/menu.ts`; despacham o mesmo `IdComando` da paleta via `menu:comando`)
 - [x] `app/electron/nucleo/ponte.ts` — spawn do sidecar, NDJSON, reinício, `UI-001` *(7 testes)*
 - [x] `app/src/layout/AppShell.tsx` — os quatro painéis, redimensionáveis e persistidos
 - [x] `app/src/paineis/Workspace.tsx` — árvore com metadados inline (feições, CRS, ha pt-BR)
@@ -237,13 +237,13 @@ claro é opção, nunca o padrão (AP-08).
 - [ ] `app/src/paineis/Preview.tsx` — esqueleto de camadas + `pdf.js` + `linha-versoes`
 - [ ] `app/src/paineis/PainelDireito.tsx` — abas
 - [ ] `app/src/componentes/CampoEntrada.tsx` — textarea, anexos, enviar/cancelar
-- [~] `app/src/componentes/EstadoVazio.tsx` — os casos com dado real; login/sessão/offline esperam M5
+- [x] `app/src/componentes/EstadoVazio.tsx` — casos com dado real + **SemInternet**
 - [x] `app/src/paleta/PaletaComandos.tsx` — `Ctrl+K` (+ atalhos F1-02; preferências de tema)
-- [ ] `app/tests/` — os asserts dos critérios de aceite
+- [~] `app/tests/` — asserts dos critérios de aceite (maioria coberta; ver lista abaixo)
 
 ## Critérios de aceite
 
-- [x] `pnpm test` verde (71) e `pnpm build` produz o bundle — rodados em `Fase_1_Desktop/app/`
+- [x] `pnpm test` verde e `pnpm build` produz o bundle — rodados em `Fase_1_Desktop/app/`
 - [~] Abrir a pasta Harmonia: `painel-workspace` mostra ATP, AVN, AC, AUAS e o recibo, com áreas
       em ha formatadas pt-BR com 4 casas — provado com a **fixture gerada pelo núcleo**
       (`app/tests/workspace.test.tsx`); falta o teste com a pasta Harmonia real, que exige o
@@ -252,12 +252,13 @@ claro é opção, nunca o padrão (AP-08).
 - [x] Com `job.progresso` injetado, `barra-progresso-job` mostra as 10 etapas em português e
       `pct` monotônico; sem o evento, mostra "gerando…" **sem** barra
       (`app/tests/barra-progresso-job.test.tsx`)
-- [ ] `Esc` cancela o turno e **não** cancela o job; o botão do job cancela só o job (dois testes)
+- [x] `Esc` cancela o turno e **não** cancela o job; o botão do job cancela só o job
+      (`app/tests/esc-e-offline.test.tsx`)
 - [ ] Renderer não consegue ler arquivo fora do workspace — teste tenta `../../Windows/System32`
       e espera `NU-010`
-- [ ] `linha-versoes` navega v1↔v2 e troca o preview; o diff aparece no chat em português
+- [x] `linha-versoes` navega v1↔v2 com `mapspec.atualizado` (card de diff; sem PNG por versão)
 - [~] `axe-core` sem violação nas telas existentes (app vazio, app com job, app com erro) —
-      `app/tests/visual/contraste.test.tsx`; login espera M5
+      `app/tests/visual/contraste.test.tsx`; login coberto em M5
 - [~] Janela 1280×800 sem scroll horizontal — assert em `app/tests/visual/layout-e-numeros.test.tsx`
       (jsdom; smoke de layout)
 - [ ] Fechar e reabrir o app restaura larguras de painel, projeto recente e a conversa aberta

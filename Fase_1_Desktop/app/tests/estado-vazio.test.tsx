@@ -14,6 +14,7 @@ import {
   PastaSemShapefile,
   SemArcMap,
   SemChaveDeepSeek,
+  SemInternet,
   SemPastaConectada,
 } from "../src/componentes/EstadoVazio.js";
 
@@ -110,5 +111,13 @@ describe("casos da tabela de F1-02", () => {
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByText("Sem ArcMap neste computador")).toBeInTheDocument();
     expect(screen.getByText("nativo")).toBeInTheDocument();
+  });
+
+  it("sem internet é aviso: app local segue, cache para camadas externas", () => {
+    render(<SemInternet />);
+
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText("Sem internet")).toBeInTheDocument();
+    expect(screen.getByText(/usam o cache/)).toBeInTheDocument();
   });
 });

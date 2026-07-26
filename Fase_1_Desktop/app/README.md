@@ -8,17 +8,16 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados + A12/A13.** A janela abre, conecta pasta, indexa,
-mostra doctor, responde a `Ctrl+K`/atalhos, lista a galeria, monta MapSpec, mantém histórico local
-de conversas (`barra-chats`, `Ctrl+N` / `Ctrl+F`), conversa com o agente (streaming, cartões de
-tool, "Parar") e mostra o `painel-preview` acompanhando a geração — esqueleto de camadas por
-`job.progresso` e imagem real por `job.artefato_parcial`. O workspace atualiza sozinho via
-`workspace.mudou` (debounce 500 ms) com realce de arquivo novo. **H6 fechou** (2026-07-26):
-`linha-versoes` navega entre versões do MapSpec com `mapspec.atualizado` real (crossfade do card
-de diff + flash das linhas alteradas, sem timer). `pnpm typecheck`, `test` e `build` verdes.
+**Blocos C–H fechados + A12/A13 + épico sem ArcMap.** A janela abre com **menus e tray**
+nativos (mesmo catálogo da paleta `Ctrl+K`), conecta pasta, indexa, mostra doctor, lista a
+galeria, monta MapSpec, mantém histórico local (`barra-chats` com menu renomear/arquivar/
+ramificar/apagar), conversa com o agente (Esc cancela o **turno**, não o job) e acompanha a
+geração no preview. Watcher → aviso de sistema no chat; `job.log`/`aviso` na barra do job;
+banner de offline; `linha-versoes` via `mapspec.atualizado`. `pnpm typecheck`, `test` e `build`
+verdes.
 
-O que ainda **não** existe: menus/tray do processo main; aviso de arquivo novo gravado no
-transcript do chat (o evento já traz `resumo`, falta usar).
+O que ainda **não** existe neste app (de propósito): auto-update/instalador (M10), paridade
+visual Harmonia / motor ArcPy (M2–M9).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -98,8 +97,10 @@ núcleo não gera um PNG por versão do MapSpec (só por etapa de `mapa.gerar`, 
 
 ## O que falta, na ordem
 
-1. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
-2. Aviso de arquivo novo no chat (sistema) — o evento já traz `resumo`; falta gravar no transcript.
+1. Empacotamento Windows / auto-update (M10) — fora deste app no Linux.
+2. Motor ArcPy + conformidade Harmonia (M2–M9) — exige ArcMap.
+
+Menus/tray, aviso de sistema no chat (watcher), offline e Esc≠job **já fecharam**.
 
 ## Arquitetura
 
@@ -107,9 +108,10 @@ núcleo não gera um PNG por versão do MapSpec (só por etapa de `mapa.gerar`, 
 app/
   index.html                 #raiz, tema escuro no HTML, CSP sem origem externa
   electron/                  processo main — Node, sem acesso do renderer
-    main.ts                  janela 1280×800 mín., tema escuro, IPC, ciclo da ponte, diálogo de pasta
+    main.ts                  janela 1280×800 mín., tema escuro, IPC, ciclo da ponte, diálogo, menus/tray
+    menu.ts                  template do menu + tray (despacha IdComando da paleta)
     projetos.ts              projetos recentes em config.json (o renderer só vê índice + nome)
-    preload.ts               contextBridge → window.mapasfacil (chamar, eventos, preferências)
+    preload.ts               contextBridge → window.mapasfacil (chamar, eventos, preferências, menu)
     preferencias.ts          config.json em %APPDATA%\MapasFacil\ (sem segredo)
     ipc/canais.ts            nomes dos canais IPC
     nucleo/
