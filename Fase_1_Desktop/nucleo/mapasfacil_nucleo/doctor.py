@@ -121,7 +121,18 @@ def _templates_resumo(manifesto: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _chaves_configuradas() -> dict[str, bool]:
+    """Só booleans — nunca os valores (A11 / AP-03)."""
     chaves = {"deepseek": False, "sema": False, "planet": False}
+    try:
+        from mapasfacil_nucleo import cofre
+
+        do_cofre = cofre.chaves_configuradas()
+        for k, v in do_cofre.items():
+            if v:
+                chaves[k] = True
+    except Exception:
+        pass
+
     for nome in ("secrets.local.json", "secrets.json"):
         caminho = raiz_repositorio() / nome
         if not caminho.is_file():
@@ -131,9 +142,12 @@ def _chaves_configuradas() -> dict[str, bool]:
                 dados = json.load(fh)
         except (OSError, json.JSONDecodeError):
             continue
-        chaves["planet"] = bool(dados.get("planet_api_key"))
-        chaves["sema"] = bool(dados.get("sema_authkey"))
-        chaves["deepseek"] = bool(dados.get("deepseek_api_key"))
+        if dados.get("planet_api_key"):
+            chaves["planet"] = True
+        if dados.get("sema_authkey"):
+            chaves["sema"] = True
+        if dados.get("deepseek_api_key"):
+            chaves["deepseek"] = True
         break
     return chaves
 

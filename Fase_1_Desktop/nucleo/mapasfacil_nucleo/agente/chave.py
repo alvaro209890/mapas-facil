@@ -10,13 +10,28 @@ from mapasfacil_nucleo.config import raiz_repositorio
 
 
 def ler_chave_deepseek(*, override: str | None = None) -> str | None:
-    """Ordem: argumento → ``DEEPSEEK_API_KEY`` → ``secrets.local.json``."""
+    """Ordem: argumento → ``DEEPSEEK_API_KEY`` → cofre (A11) → ``secrets.local.json``.
+
+    Em produção a chave vive no cofre do SO. Em dev, ``secrets.local.json``
+    (gitignored) continua válido.
+    """
     if override is not None:
         chave = override.strip()
         return chave or None
     env = (os.environ.get("DEEPSEEK_API_KEY") or "").strip()
     if env:
         return env
+
+    try:
+        from mapasfacil_nucleo import cofre
+
+        do_cofre = cofre.usar("deepseek_api_key")
+        if do_cofre:
+            return do_cofre
+    except Exception:
+        # Cofre indisponível (sem keyring) — cai no arquivo local.
+        pass
+
     for nome in ("secrets.local.json", "secrets.json"):
         caminho = raiz_repositorio() / nome
         if not caminho.is_file():

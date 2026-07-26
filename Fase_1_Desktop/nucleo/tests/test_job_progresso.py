@@ -185,7 +185,7 @@ def test_mapa_gerar_emite_as_dez_etapas_em_ordem(projeto: Path, mapspec_local: d
         assert evento["v"] == 1
         assert evento["tipo"] == "evt"
         assert evento["id"] == "01JOBTESTE"  # mesmo id da requisição
-        assert set(evento["dados"]) <= {"etapa", "pct", "item"}
+        assert set(evento["dados"]) <= {"etapa", "pct", "item", "job_id"}
         assert evento["dados"]["etapa"] in IDS_ETAPAS
         assert isinstance(evento["dados"]["pct"], int)
 

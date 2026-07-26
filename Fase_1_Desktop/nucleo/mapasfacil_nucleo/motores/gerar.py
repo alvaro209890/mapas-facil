@@ -14,6 +14,7 @@ from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
 from mapasfacil_nucleo.progresso import RastreadorProgresso
+from mapasfacil_nucleo import jobs
 from mapasfacil_nucleo.workspace import watcher as workspace_watcher
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
 from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
@@ -124,11 +125,12 @@ def gerar_mapa(
     if not resultado_val["valido"]:
         primeiro = resultado_val["erros"][0]
         raise ErroNucleo(primeiro["codigo"], primeiro["mensagem"], {"erros": resultado_val["erros"]})
+    jobs.verificar_nao_cancelado(prog.job_id)
     prog.concluir("validando_spec")
 
     workspace_watcher.pausar_pastas_saida(True)
     try:
-        return _gerar_mapa_corpo(
+        resultado = _gerar_mapa_corpo(
             mapspec,
             guard,
             fontes_idx,
@@ -136,6 +138,9 @@ def gerar_mapa(
             recibo=recibo,
             prog=prog,
         )
+        if prog.job_id:
+            resultado["job_id"] = prog.job_id
+        return resultado
     finally:
         workspace_watcher.pausar_pastas_saida(False)
 
@@ -175,6 +180,7 @@ def _gerar_mapa_corpo(
 
     precisa_shp = bool(saida_cfg.get("materializar_camadas_em")) or "mxd" in saidas
     if precisa_shp:
+        jobs.verificar_nao_cancelado(prog.job_id)
         materializacao = materializar_camadas_locais(
             mapspec,
             guard=guard,
@@ -188,6 +194,7 @@ def _gerar_mapa_corpo(
 
     # Camadas externas (WFS/WMS) ainda não são resolvidas em runtime — `camada.resolver`
     # é R21/A13. A etapa existe no contrato e fecha sem `item` enquanto não há download.
+    jobs.verificar_nao_cancelado(prog.job_id)
     prog.concluir_se_pendente("baixando_externas")
 
     # Quantitativos cedo: alimentam .xlsx, PNG e overlay no PDF nativo (F1-08).
@@ -198,6 +205,7 @@ def _gerar_mapa_corpo(
         or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
     )
     if precisa_quant:
+        jobs.verificar_nao_cancelado(prog.job_id)
         quant = calcular_quantitativos(mapspec, guard=guard, fontes_idx=fontes_idx)
         artefatos["quantitativos"] = quant
         resultado["quantitativos"] = quant
@@ -208,6 +216,7 @@ def _gerar_mapa_corpo(
     precisa_png = "png" in saidas or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
     png_path: Path | None = None
     if precisa_png:
+        jobs.verificar_nao_cancelado(prog.job_id)
         quant = artefatos.get("quantitativos") or calcular_quantitativos(
             mapspec, guard=guard, fontes_idx=fontes_idx
         )
@@ -230,6 +239,7 @@ def _gerar_mapa_corpo(
     # O `.mxd` vem depois da tabela para a execução seguir a ordem das etapas do
     # contrato (preparando_template → aplicando_layout → salvando_mxd).
     if "mxd" in saidas:
+        jobs.verificar_nao_cancelado(prog.job_id)
         if not mapspec.get("template"):
             raise ErroNucleo("NU-205", "MapSpec pede .mxd mas não informa template.")
         bbox = _resolver_bbox_utm(mapspec, guard=guard, fontes_idx=fontes_idx)
@@ -249,6 +259,7 @@ def _gerar_mapa_corpo(
     prog.concluir_se_pendente("salvando_mxd")
 
     if "pdf" in saidas:
+        jobs.verificar_nao_cancelado(prog.job_id)
         pdf_path, pdf_artefatos = gerar_pdf_minimo(
             mapspec,
             guard=guard,

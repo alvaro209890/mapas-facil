@@ -1,6 +1,6 @@
 // C6 — `barra-progresso-job` (F1-02 §painel-chat, F1-16 §A4).
 //
-// Consome **só** `job.progresso`, o único evento que o núcleo emite hoje (A9).
+// Consome **só** `job.progresso` (A9). Cancelar geração usa `mapa.cancelar` (A10).
 // Regras que este componente obedece, e que o teste cobre:
 //   * sem evento → "gerando…", sem barra e sem porcentagem (AP-07);
 //   * `pct` vem do evento, nunca de timer ou interpolação;

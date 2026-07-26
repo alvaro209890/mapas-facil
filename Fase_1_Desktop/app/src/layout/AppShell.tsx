@@ -13,13 +13,15 @@ import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek } from "../componentes/EstadoVazio.js";
 import { Preferencias, alternarTema } from "../componentes/Preferencias.js";
-import { useDoctor } from "../estado/doctor.js";
 import { useAuth, sairConta } from "../estado/auth.js";
 import { useConversas } from "../estado/conversas.js";
+import { useDoctor } from "../estado/doctor.js";
 import { useGaleria } from "../estado/galeria.js";
 import type { PainelLateral } from "../estado/preferencias.js";
 import { usePaineis } from "../estado/preferencias.js";
 import type { EstadoNucleo } from "../estado/ponte.js";
+import { api } from "../estado/ponte.js";
+import { useProgressoJob } from "../estado/progressoJob.js";
 import { nomeDoProjeto, useWorkspace } from "../estado/workspace.js";
 import { BarraChats } from "../paineis/BarraChats.js";
 import { Galeria } from "../paineis/Galeria.js";
@@ -100,6 +102,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const auth = useAuth();
   const galeria = useGaleria();
   const conversas = useConversas(workspace.indice?.raiz ?? null);
+  const progressoJob = useProgressoJob();
   const [montando, setMontando] = useState(false);
   const [paletaAberta, setPaletaAberta] = useState(false);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
@@ -266,7 +269,20 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
             bannerArc={semArcMap ? <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} /> : null}
           />
           <div className={estilos.rodapeChat}>
-            <BarraProgressoJob />
+            <BarraProgressoJob
+              ativo={progressoJob !== null}
+              onCancelar={
+                progressoJob !== null
+                  ? () => {
+                      void api()?.chamar("mapa.cancelar", {
+                        ...(progressoJob.jobId !== undefined
+                          ? { job_id: progressoJob.jobId }
+                          : {}),
+                      });
+                    }
+                  : undefined
+              }
+            />
           </div>
         </section>
 

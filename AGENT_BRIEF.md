@@ -100,7 +100,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
   com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
   `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
-- Cliente WFS/WMS em runtime, cofre de chaves BYOK, instalador.
+- Cliente WFS/WMS em runtime, instalador.
 - Visão / `analisar_referencia` (F1-07).
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
@@ -187,7 +187,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
 | R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — Argon2id, `tela-login`, sem Google | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
 | R10 | Conta na nuvem / site (Fase 2) | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **adiado** — **não** bloqueia M5 | `Fase_2_Site/` (pós-M11) |
-| R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** — não guarda senha de conta (senha vai hasheada no SQLite) | `nucleo/.../cofre.py`, `app/electron/cofre.ts` |
+| R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **feito** (A11) — `keyring` (CM/Secret Service); Preferências grava; `secrets.local.json` ainda vale em dev | `nucleo/.../cofre.py`, `app/src/componentes/Preferencias.tsx` |
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — também `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx` | `nucleo/.../sessao.py` |
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
@@ -197,8 +197,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G3) | `nucleo/.../agente/contexto.py` |
 | R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **feito** (G8) — FakeProvedor + cassetes SSE/passos em `tests/agente/cassetes/` | `nucleo/.../agente/vcr.py`, `fake.py` |
 | R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **feito** (G9) | `nucleo/tests/test_contexto_vazamento.py` |
-| R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **parcial** — `chat.cancelar` feito (grava parcial com `cancelada`, fecha o stream, botão “Parar” na UI); `mapa.cancelar` ausente | `nucleo/.../agente/orquestrador.py`, `app/src/paineis/PainelChat.tsx` |
-| R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../cofre.py` |
+| R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
+| R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (WFS runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **ausente** | `nucleo/.../camadas/` |
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |

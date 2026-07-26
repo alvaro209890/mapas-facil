@@ -116,10 +116,10 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 | `quantitativos.renderizar_png` | `{quantitativos, saida}` | caminho do PNG ≥ 600 dpi | **existe** |
 | `validacao.comparar_pdf` | `{a, b, tolerancia?}` | diferença raster | **existe** |
 | `template.listar` / `template.verificar` | `{id?}` | MANIFEST + `sha256_ok` | **existe** |
-| `mapa.cancelar` | `{job_id}` | mata o subprocesso ArcPy | **falta** |
+| `mapa.cancelar` | `{job_id?}` | marca cancel + mata subprocesso ArcPy | **existe** (A10) |
 | `catalogo.listar` | `{tema?}` | camadas, estilos, templates | **falta** |
 | `camada.resolver` | `{fonte, bbox, crs}` | shapefile materializado | **falta** |
-| `cofre.definir` / `cofre.existe` / `cofre.testar` | `{chave, valor?}` | ok/erro — **nunca** o valor | **falta** |
+| `cofre.definir` / `cofre.existe` / `cofre.testar` | `{chave, valor?}` | ok/erro — **nunca** o valor | **existe** (A11) |
 | `sessao.definir` / `sessao.estado` | `{estado, conta_id?, expira_em?}` | estado | **falta** — [F1-14](14-auth-e-conta.md) |
 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | ver [F1-15](15-galeria-de-modelos.md) | — | **falta** |
 | `chat.enviar` | `{conversation_id, mensagem, anexos?}` | stream de `evt` | **falta** |
@@ -334,9 +334,9 @@ só a checagem de sanidade no boot (`UI-010`).
 - [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.progresso` nas 10 etapas
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — canal de eventos no roteador
 - [ ] `nucleo/mapasfacil_nucleo/sessao.py` — `sessao.definir` / `sessao.estado` + gate
-- [ ] `nucleo/mapasfacil_nucleo/cofre.py` — Credential Manager; `existe`/`testar` nunca devolvem valor
+- [x] `nucleo/mapasfacil_nucleo/cofre.py` — keyring; `existe`/`testar` nunca devolvem valor
 - [x] `nucleo/mapasfacil_nucleo/workspace/watcher.py` — debounce 500 ms + `workspace.mudou`
-- [ ] `nucleo/mapasfacil_nucleo/jobs.py` — `mapa.cancelar` com `taskkill /T /F`
+- [x] `nucleo/mapasfacil_nucleo/jobs.py` — `mapa.cancelar` com `taskkill /T /F` (Windows) + cancel cooperativo
 - [x] `app/electron/main.ts`, `app/electron/nucleo/ponte.ts` — spawn, NDJSON, reinício *(sem teste executado)*
 - [x] `app/electron/ipc/` — canais tipados; nenhum expõe caminho absoluto sem passar pelo núcleo
 - [x] `app/src/estado/eventos.ts` — assinatura dos 8 eventos
@@ -348,7 +348,7 @@ só a checagem de sanidade no boot (`UI-010`).
       evento por camada nas etapas com `item`, então o total é ≥ 10
       (`tests/test_job_progresso.py::test_mapa_gerar_emite_as_dez_etapas_em_ordem`)
 - [x] `grep -rn "envelope_evt" nucleo/mapasfacil_nucleo/` retorna a definição **e ao menos um chamador**
-- [ ] `mapa.cancelar` durante um job mata a árvore de processos: nenhum `python.exe` órfão
+- [x] `mapa.cancelar` durante um job: flag cooperativo + mata árvore ArcPy (`taskkill /T /F` no Windows; anel 3 confirma órfãos)
       (`tasklist` antes/depois no teste do anel 3)
 - [ ] `sessao.estado` = `desconectado` faz `mapa.gerar` devolver `AUTH-030` e `workspace.abrir` funcionar
 - [ ] `grep -rn "access_token\|api_key" app/src/` vazio — segredo não chega ao renderer

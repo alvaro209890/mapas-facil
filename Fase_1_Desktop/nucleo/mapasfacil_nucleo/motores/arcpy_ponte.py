@@ -78,7 +78,12 @@ def _python_arcmap_padrao() -> str | None:
     return None
 
 
-def executar(payload: dict[str, Any], *, python_exe: str | None = None) -> dict[str, Any]:
+def executar(
+    payload: dict[str, Any],
+    *,
+    python_exe: str | None = None,
+    job_id: str | None = None,
+) -> dict[str, Any]:
     python_exe = python_exe or _python_arcmap_padrao()
     if not python_exe or not Path(python_exe).is_file():
         raise ErroNucleo(
@@ -105,26 +110,57 @@ def executar(payload: dict[str, Any], *, python_exe: str | None = None) -> dict[
     env["PYTHONIOENCODING"] = "utf-8"
 
     cwd = str(tmp)
+    # start_new_session: no Linux permite killpg; no Windows o CreateProcess
+    # ainda recebe o PID que o jobs.py mata com taskkill /T /F.
+    popen_kwargs: dict[str, Any] = {
+        "env": env,
+        "cwd": cwd,
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.PIPE,
+        "text": True,
+    }
+    if os.name != "nt":
+        popen_kwargs["start_new_session"] = True
+
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             [python_exe, "-u", str(job_script)],
-            env=env,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_EXPORTAR_S,
+            **popen_kwargs,
         )
+    except OSError as exc:
+        raise ErroNucleo("AG-001", f"Falha ao iniciar ArcPy: {exc}") from exc
+
+    if job_id:
+        from mapasfacil_nucleo import jobs as jobs_mod
+
+        jobs_mod.anexar_processo(job_id, proc)
+        jobs_mod.verificar_nao_cancelado(job_id)
+
+    try:
+        stdout, stderr = proc.communicate(timeout=TIMEOUT_EXPORTAR_S)
     except subprocess.TimeoutExpired as exc:
+        from mapasfacil_nucleo import jobs as jobs_mod
+
+        if job_id:
+            jobs_mod.pedir_cancelamento(job_id)
+        else:
+            proc.kill()
+            proc.wait(timeout=5)
         raise ErroNucleo(
             "AG-020",
             "Timeout do subprocesso ArcPy.",
             {"timeout_s": TIMEOUT_EXPORTAR_S, "detalhe": str(exc)},
         ) from exc
 
+    if job_id:
+        from mapasfacil_nucleo import jobs as jobs_mod
+
+        jobs_mod.verificar_nao_cancelado(job_id)
+
     resultado: dict[str, Any] = {
         "exit_code": proc.returncode,
-        "stdout": proc.stdout[-4000:] if proc.stdout else "",
-        "stderr": proc.stderr[-4000:] if proc.stderr else "",
+        "stdout": (stdout or "")[-4000:],
+        "stderr": (stderr or "")[-4000:],
         "timeout": proc.returncode == EXIT_TIMEOUT,
     }
 

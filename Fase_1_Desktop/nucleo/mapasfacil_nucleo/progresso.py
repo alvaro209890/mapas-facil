@@ -73,10 +73,20 @@ class RastreadorProgresso:
     não precisa de canal de eventos.
     """
 
-    def __init__(self, emitir: Callable[[str, dict[str, Any]], Any] | None = None) -> None:
+    def __init__(
+        self,
+        emitir: Callable[[str, dict[str, Any]], Any] | None = None,
+        *,
+        job_id: str | None = None,
+    ) -> None:
         self._emitir = emitir
+        self._job_id = job_id
         self._pct = 0
         self._concluidas = -1
+
+    @property
+    def job_id(self) -> str | None:
+        return self._job_id
 
     @property
     def emite_eventos(self) -> bool:
@@ -168,6 +178,8 @@ class RastreadorProgresso:
         dados: dict[str, Any] = {"etapa": etapa, "pct": pct}
         if item is not None:
             dados["item"] = item
+        if self._job_id is not None:
+            dados["job_id"] = self._job_id
         if self._emitir is not None:
             self._emitir(EVENTO, dados)
         return dados

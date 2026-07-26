@@ -164,7 +164,9 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 
 - ~~A9 — emitir `job.progresso`~~ **fechado na v0.4.0** (`progresso.py`, `motores/gerar.py`)
 - ~~A12 — watcher/`workspace.mudou`~~ **fechado** (`workspace/watcher.py`, debounce 500 ms)
-- A10 — `mapa.cancelar`; A11 — `cofre.*`; A13 — `catalogo.listar`
+- ~~A10 — `mapa.cancelar`~~ **fechado** (`jobs.py`, `NU-050`)
+- ~~A11 — `cofre.*`~~ **fechado** (`cofre.py` + `keyring`)
+- A13 — `catalogo.listar`
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo

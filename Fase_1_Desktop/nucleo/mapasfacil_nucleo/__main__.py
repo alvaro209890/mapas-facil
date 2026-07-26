@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, TextIO
 
 from mapasfacil_nucleo import doctor, leitor_artefato, sessao
+from mapasfacil_nucleo import cofre, jobs
 from mapasfacil_nucleo.agente import servico as agente_servico
 from mapasfacil_nucleo.contas import servico as contas_servico
 from mapasfacil_nucleo.conversas import servico as conversas_servico
@@ -45,7 +46,11 @@ def criar_roteador() -> Roteador:
     roteador.registrar("workspace.inspecionar", _handler_workspace_inspecionar)
     roteador.registrar("car.ler_recibo", _handler_car_ler_recibo)
     roteador.registrar("mapa.gerar", _handler_mapa_gerar, com_eventos=True)
+    roteador.registrar("mapa.cancelar", jobs.handler_cancelar)
     roteador.registrar("artefato.ler", leitor_artefato.ler)
+    roteador.registrar("cofre.definir", cofre.handler_definir)
+    roteador.registrar("cofre.existe", cofre.handler_existe)
+    roteador.registrar("cofre.testar", cofre.handler_testar)
     roteador.registrar("zip.listar", _handler_zip_listar)
     roteador.registrar("zip.extrair", _handler_zip_extrair)
     roteador.registrar("template.listar", _handler_template_listar)
@@ -157,14 +162,18 @@ def _handler_mapa_gerar(params: dict[str, Any], emissor: Emissor) -> dict[str, A
     if estado is None:
         raise ErroNucleo("NU-040", "Abra um workspace antes de gerar o mapa.")
     comparar_baseline = bool(params.get("comparar_baseline"))
-    return gerar_mapa(
-        mapspec,
-        estado.guard,
-        _fontes_idx_do_estado(estado),
-        comparar_baseline=comparar_baseline,
-        recibo=_recibo_do_estado(estado),
-        progresso=RastreadorProgresso(emissor.emitir),
-    )
+    job_id = jobs.registrar()
+    try:
+        return gerar_mapa(
+            mapspec,
+            estado.guard,
+            _fontes_idx_do_estado(estado),
+            comparar_baseline=comparar_baseline,
+            recibo=_recibo_do_estado(estado),
+            progresso=RastreadorProgresso(emissor.emitir, job_id=job_id),
+        )
+    finally:
+        jobs.liberar(job_id)
 
 
 def _handler_zip_listar(params: dict[str, Any]) -> dict[str, Any]:
@@ -365,6 +374,11 @@ def loop_ndjson(
     saida: TextIO | None = None,
     roteador: Roteador | None = None,
 ) -> None:
+    """Loop stdio. Jobs longos (`mapa.gerar`, `chat.enviar`) rodam em thread
+    para `mapa.cancelar` / `chat.cancelar` poderem chegar no meio (A10).
+    """
+    import threading
+
     entrada = entrada or sys.stdin
     saida = saida or sys.stdout
     roteador = roteador or criar_roteador()
@@ -373,20 +387,64 @@ def loop_ndjson(
     except ErroNucleo:
         sessao.resetar()
 
+    escrita_lock = threading.Lock()
+
     def _emitir(envelope: dict[str, Any]) -> None:
-        saida.write(serializar_linha(envelope) + "\n")
-        saida.flush()
+        with escrita_lock:
+            saida.write(serializar_linha(envelope) + "\n")
+            saida.flush()
+
+    def _escrever_resposta(texto: str) -> None:
+        with escrita_lock:
+            saida.write(texto)
+            saida.flush()
 
     # Eventos fora de req (A12 `workspace.mudou`) usam o mesmo canal stdout.
     configurar_sink_assincrono(_emitir)
+
+    metodos_em_background = frozenset({"mapa.gerar", "chat.enviar"})
+    threads_bg: list[threading.Thread] = []
+
+    def _em_background(linha: str) -> None:
+        try:
+            _escrever_resposta(processar_linha(linha, roteador, emitir=_emitir))
+        except Exception as exc:  # noqa: BLE001 — thread não pode morrer silenciosa
+            _escrever_resposta(
+                serializar_linha(
+                    envelope_erro(
+                        novo_id(),
+                        ErroNucleo("NU-000", f"Erro interno: {exc.__class__.__name__}: {exc}"),
+                    )
+                )
+                + "\n"
+            )
+
     try:
         for linha in entrada:
             linha = linha.strip()
             if not linha:
                 continue
-            saida.write(processar_linha(linha, roteador, emitir=_emitir))
-            saida.flush()
+            metodo = None
+            try:
+                bruto = parsear_linha(linha)
+                metodo = bruto.get("metodo") if isinstance(bruto, dict) else None
+            except ErroNucleo:
+                metodo = None
+            if isinstance(metodo, str) and metodo in metodos_em_background:
+                t = threading.Thread(
+                    target=_em_background,
+                    args=(linha,),
+                    name=f"mf-{metodo}",
+                    daemon=True,
+                )
+                threads_bg.append(t)
+                t.start()
+            else:
+                _escrever_resposta(processar_linha(linha, roteador, emitir=_emitir))
     finally:
+        # Espera jobs em voo (mapa.gerar/chat.enviar) antes de fechar o sink.
+        for t in threads_bg:
+            t.join(timeout=600)
         configurar_sink_assincrono(None)
         workspace_servico.fechar()
 

@@ -57,6 +57,8 @@ export interface DadosJobProgresso {
   etapa: EtapaJob;
   pct: number;
   item?: string;
+  /** A10 — id do job para `mapa.cancelar`. */
+  job_id?: string;
 }
 
 // ---------------------------------------------------------------- ainda não emitidos

@@ -21,6 +21,8 @@ export interface EstadoProgressoJob {
   item?: string;
   /** Quantas das 10 etapas já fecharam. */
   concluidas: number;
+  /** A10 — para `mapa.cancelar`. */
+  jobId?: string;
 }
 
 /**
@@ -52,6 +54,11 @@ export function aplicarProgresso(
     pct,
     ...(dados.item === undefined ? {} : { item: dados.item }),
     concluidas,
+    ...(dados.job_id !== undefined
+      ? { jobId: dados.job_id }
+      : anterior?.jobId !== undefined
+        ? { jobId: anterior.jobId }
+        : {}),
   };
 }
 
