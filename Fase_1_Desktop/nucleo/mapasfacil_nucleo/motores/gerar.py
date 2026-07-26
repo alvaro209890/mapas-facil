@@ -130,6 +130,22 @@ def gerar_mapa(
     avisos: list[str] = []
     resultado: dict[str, Any] = {"artefatos": artefatos, "avisos": avisos}
 
+    ordem_por_camada = {
+        c.get("id"): c.get("ordem") for c in mapspec.get("camadas") or [] if c.get("id")
+    }
+
+    def _camada_pronta(camada_id: str, i: int, total: int, destino_rel: str) -> None:
+        """Uma camada materializada: `job.progresso` (item) + artefato `camada`."""
+        prog.item("resolvendo_camadas_locais", camada_id, indice=i, total=total)
+        prog.artefato(
+            "camada",
+            caminho=destino_rel,
+            etapa="resolvendo_camadas_locais",
+            raiz=guard.raiz,
+            camada_id=camada_id,
+            ordem=ordem_por_camada.get(camada_id),
+        )
+
     precisa_shp = bool(saida_cfg.get("materializar_camadas_em")) or "mxd" in saidas
     if precisa_shp:
         materializacao = materializar_camadas_locais(
@@ -137,9 +153,7 @@ def gerar_mapa(
             guard=guard,
             fontes_idx=fontes_idx,
             pasta_shp=pasta_shp,
-            ao_materializar=lambda camada_id, i, total: prog.item(
-                "resolvendo_camadas_locais", camada_id, indice=i, total=total
-            ),
+            ao_materializar=_camada_pronta,
         )
         artefatos["materializacao"] = materializacao
         avisos.extend(materializacao.get("avisos", []))
@@ -178,6 +192,7 @@ def gerar_mapa(
         rel_png = str(png_path.relative_to(guard.raiz))
         resultado["png_tabela"] = rel_png
         artefatos["png_tabela"] = {**meta_png, "png": rel_png}
+        prog.artefato("tabela_png", caminho=rel_png, etapa="gerando_tabela", raiz=guard.raiz)
         if not meta_png.get("ok_dpi"):
             avisos.append(
                 f"PNG da tabela com dpi efetivo {meta_png.get('dpi_efetivo')} "
@@ -212,6 +227,20 @@ def gerar_mapa(
             guard=guard,
             fontes_idx=fontes_idx,
             png_tabela=png_path,
+            # Sem canal de eventos ninguém vê preview: não rasteriza (custo à toa).
+            ao_preview=(
+                (
+                    lambda caminho, etapa: prog.artefato(
+                        "preview_png",
+                        caminho=caminho,
+                        etapa=etapa,
+                        raiz=guard.raiz,
+                        com_pct=True,
+                    )
+                )
+                if prog.emite_eventos
+                else None
+            ),
         )
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
@@ -232,6 +261,16 @@ def gerar_mapa(
                             f"(tolerância {comp['tolerancia_pct']}%)."
                         )
     prog.concluir("exportando_pdf")
+    if resultado.get("pdf"):
+        # Depois de fechar a etapa: o `pct` do artefato é o do job já com o PDF
+        # pronto (90), não o de antes de exportar.
+        prog.artefato(
+            "pdf",
+            caminho=resultado["pdf"],
+            etapa="exportando_pdf",
+            raiz=guard.raiz,
+            com_pct=True,
+        )
 
     if "xlsx" in saidas:
         quant = artefatos.get("quantitativos") or calcular_quantitativos(

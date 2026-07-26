@@ -128,7 +128,9 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 
 ### Eventos
 
-**Só `job.progresso` é emitido hoje** (A9, núcleo v0.4.0). A mecânica está inaugurada:
+**Emitidos hoje:** `job.progresso` (A9), `chat.delta` e `chat.tool` (M7), `job.artefato_parcial`
+(M8). O vocabulário é fechado em `protocolo.EVENTOS` — emitir nome fora da lista levanta erro, em
+vez de virar evento órfão que nenhuma UI consome. A mecânica é a mesma:
 `protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)` + registro com `com_eventos=True`.
 Quem implementar os outros eventos reaproveita esse canal.
 
@@ -136,10 +138,10 @@ Quem implementar os outros eventos reaproveita esse canal.
 |---|---|---|---|
 | `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` | **existe** (A9) — emitido ao concluir cada etapa; `pct` acumulado e monotônico |
 | `job.log` | `{linha}` | log técnico do job | falta |
-| `job.artefato_parcial` | `{tipo, caminho, etapa, …}` | artefato intermediário pronto | **falta — contrato novo**, ver [F1-16](16-design-system-dark.md) |
+| `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | artefato intermediário pronto | **existe** (M8) — 4 tipos, caminho relativo; ver [F1-16](16-design-system-dark.md) |
 | `workspace.mudou` | `{mudancas:[]}` | watcher detectou alteração | falta |
-| `chat.delta` | `{texto}` | pedaço da resposta | falta |
-| `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | falta |
+| `chat.delta` | `{texto}` | pedaço da resposta | **existe** (M7) |
+| `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | **existe** (M7) |
 | `mapspec.atualizado` | `{id, versao, diff}` | nova versão | falta |
 | `aviso` | `{codigo, mensagem}` | avisos não fatais | falta |
 

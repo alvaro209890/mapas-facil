@@ -50,12 +50,14 @@ def materializar_camadas_locais(
     fontes_idx: dict[str, str],
     pasta_shp: str = "SHP",
     reprojetar: bool | None = None,
-    ao_materializar: Callable[[str, int, int], None] | None = None,
+    ao_materializar: Callable[..., None] | None = None,
 ) -> dict[str, Any]:
     """Copia/reprojeta as camadas locais do MapSpec para `SHP/`.
 
-    `ao_materializar(id_camada, indice, total)` é chamado a cada camada pronta —
-    é o que alimenta o `item` de `job.progresso` (F1-01).
+    `ao_materializar(id_camada, indice, total, destino_rel)` é chamado a cada
+    camada pronta — alimenta o `item` de `job.progresso` (F1-01) e o artefato
+    `camada` de `job.artefato_parcial` (F1-16 §A5). `destino_rel` é relativo à
+    pasta do projeto; nunca caminho de disco.
     """
     pasta = guard.resolver(pasta_shp, escrita=True)
     pasta.mkdir(parents=True, exist_ok=True)
@@ -103,7 +105,7 @@ def materializar_camadas_locais(
                 }
             )
             if ao_materializar is not None:
-                ao_materializar(papel, indice, total)
+                ao_materializar(papel, indice, total, rel)
             continue
 
         try:
@@ -119,16 +121,17 @@ def materializar_camadas_locais(
                 avisos.append(exc.mensagem)
                 continue
 
+        destino_rel = str(destino.with_suffix(".shp").relative_to(guard.raiz))
         materializados.append(
             {
                 "fonte": fonte,
                 "origem": rel,
-                "destino": str(destino.with_suffix(".shp").relative_to(guard.raiz)),
+                "destino": destino_rel,
                 "papel": papel,
             }
         )
         if ao_materializar is not None:
-            ao_materializar(papel, indice, total)
+            ao_materializar(papel, indice, total, destino_rel)
 
     return {
         "pasta": str(pasta.relative_to(guard.raiz)),

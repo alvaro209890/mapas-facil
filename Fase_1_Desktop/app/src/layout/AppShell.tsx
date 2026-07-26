@@ -24,6 +24,7 @@ import { BarraChats } from "../paineis/BarraChats.js";
 import { Galeria } from "../paineis/Galeria.js";
 import { GaleriaDetalhe } from "../paineis/GaleriaDetalhe.js";
 import { PainelChat } from "../paineis/PainelChat.js";
+import { Preview } from "../paineis/Preview.js";
 import { Workspace } from "../paineis/Workspace.js";
 import type { IdComando } from "../paleta/comandos.js";
 import { PaletaComandos } from "../paleta/PaletaComandos.js";
@@ -102,6 +103,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [focoGaleria, setFocoGaleria] = useState(0);
+  const [abaDireita, setAbaDireita] = useState<"preview" | "galeria">("galeria");
 
   const abrirPaleta = useCallback(() => setPaletaAberta(true), []);
   const fecharPaleta = useCallback(() => setPaletaAberta(false), []);
@@ -273,7 +275,24 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
         >
           {/* focoGaleria força relistar quando a paleta pede "gerar mapa da série" */}
           <span hidden data-foco-galeria={focoGaleria} />
-          {galeria.detalhe !== null ? (
+          <div className={estilos.abas} role="tablist" aria-label="painel direito">
+            {(["preview", "galeria"] as const).map((aba) => (
+              <button
+                key={aba}
+                type="button"
+                role="tab"
+                id={`aba-${aba}`}
+                className={estilos.aba}
+                aria-selected={abaDireita === aba}
+                onClick={() => setAbaDireita(aba)}
+              >
+                {aba}
+              </button>
+            ))}
+          </div>
+          {abaDireita === "preview" ? (
+            <Preview mapspec={galeria.mapspecMontado} />
+          ) : galeria.detalhe !== null ? (
             <GaleriaDetalhe
               detalhe={galeria.detalhe}
               mapspec={galeria.mapspecMontado}
@@ -292,15 +311,19 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               situacao={galeria.situacao}
               erro={galeria.erro}
               aoAbrir={(id) => void galeria.detalhar(id)}
+              selecionado={galeria.detalhe?.id ?? null}
             />
           )}
-          {galeria.detalhe === null && galeria.situacao === "pronta" && galeria.modelos.length === 0 && (
-            <EstadoVazio
-              titulo="Sem mapa gerado"
-              descricao="As abas preview e checks complementam a galeria; o preview em construção precisa do MapSpec do job."
-              icone={<MapaIcone size={18} aria-hidden="true" />}
-            />
-          )}
+          {abaDireita === "galeria" &&
+            galeria.detalhe === null &&
+            galeria.situacao === "pronta" &&
+            galeria.modelos.length === 0 && (
+              <EstadoVazio
+                titulo="Sem mapa gerado"
+                descricao="Monte um modelo para o preview acompanhar a geração etapa a etapa."
+                icone={<MapaIcone size={18} aria-hidden="true" />}
+              />
+            )}
         </Painel>
       </div>
 

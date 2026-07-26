@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import matplotlib
 
@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.image import imread
 from shapely.ops import transform
 
+from mapasfacil_nucleo.artefatos import PASTA_PREVIEW
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.validacao.relatorio import gerar, salvar
 from mapasfacil_nucleo.workspace.shapefile import _abrir_reader, _shapes_para_geometrias, inspecionar
@@ -102,13 +103,37 @@ def _sobrepor_png_tabela(fig, png_tabela: Path) -> bool:
     return True
 
 
+DPI_PREVIEW = 72
+"""Rasterização intermediária: leve de propósito — é preview, não entrega."""
+
+
+def _salvar_preview(fig, pasta_saida: Path, guard: WorkspaceGuard, ordem: int) -> str:
+    """Grava a rasterização parcial e devolve o caminho **relativo** ao projeto."""
+    destino = guard.resolver(
+        f"{PASTA_PREVIEW}/parcial_{ordem:02d}.png",
+        escrita=True,
+    )
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(destino, format="png", dpi=DPI_PREVIEW)
+    del pasta_saida
+    return str(destino.relative_to(guard.raiz))
+
+
 def gerar_pdf_minimo(
     mapspec: dict[str, Any],
     *,
     guard: WorkspaceGuard,
     fontes_idx: dict[str, str],
     png_tabela: Path | None = None,
+    ao_preview: Callable[[str, str], None] | None = None,
 ) -> tuple[Path, dict[str, Any]]:
+    """Desenha o mapa e exporta o PDF.
+
+    `ao_preview(caminho_rel, etapa)` é chamado a cada rasterização intermediária —
+    é o que alimenta `job.artefato_parcial` do tipo `preview_png` (F1-16 §A5
+    fase 2). Sem callback, nada é rasterizado além do PDF: quem chama como
+    biblioteca não paga por preview que ninguém vê.
+    """
     saida = mapspec.get("saida") or {}
     pasta_nome = saida.get("pasta", "Mapas")
     nome_base = saida.get("nome_base", "mapa")
@@ -121,6 +146,11 @@ def gerar_pdf_minimo(
     ax.set_aspect("equal", adjustable="box")
     ax.grid(True, linestyle=":", alpha=0.4)
 
+    # Preview 1: camadas desenhadas, antes do layout — a etapa que o usuário
+    # está vendo passar na barra quando esta imagem nasce é `aplicando_layout`.
+    if ao_preview is not None:
+        ao_preview(_salvar_preview(fig, pasta, guard, 1), "aplicando_layout")
+
     tabela_ok = False
     if png_tabela is not None and _deve_sobrepor_tabela(mapspec):
         # Reserva faixa inferior para a tabela (Harmonia).
@@ -128,6 +158,11 @@ def gerar_pdf_minimo(
         tabela_ok = _sobrepor_png_tabela(fig, png_tabela)
     else:
         fig.tight_layout()
+
+    # Preview 2: página fechada (com tabela, quando existe) — é o que mais se
+    # parece com o PDF que vai sair.
+    if ao_preview is not None:
+        ao_preview(_salvar_preview(fig, pasta, guard, 2), "aplicando_layout")
 
     fig.savefig(pdf_path, format="pdf", dpi=150)
     plt.close(fig)

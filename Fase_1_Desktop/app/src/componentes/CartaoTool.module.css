@@ -1,0 +1,91 @@
+/* A3 — cartão entra com translateY(6px) → 0 + opacidade, em --mf-dur-2. */
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+}
+
+.cartao {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  padding: var(--mf-e1) var(--mf-e2);
+  border: 1px solid var(--mf-borda);
+  border-left: 2px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-superficie-2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  animation: entrada var(--mf-dur-2) var(--mf-ease-saida) both;
+}
+
+.cartao[data-ok="false"] {
+  border-left-color: var(--mf-erro);
+}
+
+.cartao[data-fase="fim"][data-ok="true"] {
+  border-left-color: var(--mf-ok);
+}
+
+.cartao[data-fase="cancelada"] {
+  color: var(--mf-texto-3);
+}
+
+@keyframes entrada {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.icone {
+  display: inline-flex;
+  color: var(--mf-texto-2);
+}
+
+/* Enquanto pendente o ícone gira uma volta a cada 1.200 ms — o giro é sinal de
+   "em execução", não de progresso: não há porcentagem associada. */
+.icone[data-pendente="sim"] {
+  animation: giro 1200ms linear infinite;
+  color: var(--mf-acento);
+}
+
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nome {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-texto);
+}
+
+.args {
+  color: var(--mf-texto-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.status {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-texto-3);
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao {
+    animation: none;
+  }
+
+  .icone[data-pendente="sim"] {
+    animation: none;
+  }
+}

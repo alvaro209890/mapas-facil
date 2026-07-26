@@ -9,9 +9,11 @@ export interface PropsGaleria {
   situacao: "idle" | "carregando" | "pronta" | "erro";
   erro: { codigo: string; mensagem: string } | null;
   aoAbrir: (id: string) => void;
+  /** Modelo cuja montagem alimenta o `painel-preview` (A6). */
+  selecionado?: string | null;
 }
 
-export function Galeria({ modelos, situacao, erro, aoAbrir }: PropsGaleria) {
+export function Galeria({ modelos, situacao, erro, aoAbrir, selecionado = null }: PropsGaleria) {
   return (
     <div id="painel-galeria" className={estilos.raiz}>
       <div className={estilos.cabecalho}>
@@ -27,7 +29,12 @@ export function Galeria({ modelos, situacao, erro, aoAbrir }: PropsGaleria) {
       {situacao === "pronta" && (
         <div className={estilos.grade}>
           {modelos.map((modelo) => (
-            <CartaoModelo key={modelo.id} modelo={modelo} aoAbrir={aoAbrir} />
+            <CartaoModelo
+              key={modelo.id}
+              modelo={modelo}
+              aoAbrir={aoAbrir}
+              selecionado={modelo.id === selecionado}
+            />
           ))}
         </div>
       )}

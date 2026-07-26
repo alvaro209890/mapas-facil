@@ -14,8 +14,8 @@ verdade visual da **interface**; o visual do **mapa** continua sendo
 | Item | Atual | Alvo |
 |---|---|---|
 | Tokens, tema, fontes | **existem e são consumidos** (C3/C4) pelo renderer (C1/C5) | `app/src/estilos/tokens.css` + fontes embarcadas |
-| Eventos NDJSON que alimentam animação | **`job.progresso` emitido** (A9); `chat.delta`/`chat.tool` ainda não | `job.progresso` no M3/M8; `chat.delta`/`chat.tool` no M7 |
-| `job.artefato_parcial` (preview em construção) | **não existe nem como contrato** | contrato definido aqui, implementado no M8 |
+| Eventos NDJSON que alimentam animação | **`job.progresso`, `chat.delta`, `chat.tool` e `job.artefato_parcial` emitidos** | todos existem; falta só `workspace.mudou` e `mapspec.atualizado` |
+| `job.artefato_parcial` (preview em construção) | **implementado** (M8) — 4 tipos, caminho relativo | `nucleo/.../artefatos.py` + emissão no pipeline |
 | `prefers-reduced-motion` | **respeitado** em `tokens.css` (≤ 80 ms, só opacidade/cor) | respeitado |
 
 **Regra de honestidade:** enquanto o núcleo não emitir um evento, a animação correspondente
@@ -29,8 +29,8 @@ de porcentagem.
 |---|---|
 | M3 — shell Electron + React | **parcial** — `AppShell` e `barra-progresso-job` prontos (C1–C6) |
 | Emissor de `job.progresso` no núcleo | **existe** (A9, núcleo v0.4.0) |
-| `chat.delta` / `chat.tool` | ausentes — [F1-06](06-agente-eng-florestal.md), M7 |
-| `job.artefato_parcial` | ausente — contrato abaixo, M8 |
+| `chat.delta` / `chat.tool` | **existem** (M7) |
+| `job.artefato_parcial` | **existe** (M8) — contrato abaixo |
 
 ## Contratos — tokens
 
@@ -164,9 +164,10 @@ Windows ("Mostrar animações no Windows" em Facilidade de Acesso).
 `resolvendo_camadas_locais` ou `baixando_externas`, `item` traz o `camadas[].id` que acabou de
 ficar pronto.
 
-### Contrato NOVO — `job.artefato_parcial`
+### Contrato — `job.artefato_parcial`
 
-Não existe no núcleo e **não deve ser fingido**. Especificado aqui para ser implementado no M8:
+**Implementado no M8.** Vocabulário e validação em `nucleo/mapasfacil_nucleo/artefatos.py`;
+emissão pelo `RastreadorProgresso`, que já é o canal de eventos do job:
 
 ```json
 {"v":1,"id":"01J…","tipo":"evt","evento":"job.artefato_parcial",
@@ -187,11 +188,17 @@ Não existe no núcleo e **não deve ser fingido**. Especificado aqui para ser i
 | `pdf` | PDF final | `motores/gerar.py` |
 
 Regras: caminho **sempre relativo à pasta do projeto**; nunca caminho absoluto (vaza disco do
-usuário); o renderer lê o arquivo **pelo núcleo**, nunca direto (regra de fronteira 1 de
-[F1-01](01-arquitetura.md)).
+usuário) — `artefatos.montar_dados` recusa absoluto e `..`, e a UI descarta o evento se algum
+passar (`ehJobArtefatoParcial`). O renderer lê o arquivo **pelo núcleo**, nunca direto (regra de
+fronteira 1 de [F1-01](01-arquitetura.md)): o método é **`artefato.ler`**, que devolve
+`{caminho, mime, tamanho, base64}` para PNG/JPG dentro do workspace, com teto de 8 MB.
 
-**Até o M8 existir:** o `painel-preview` mostra o *esqueleto de camadas* derivado do `MapSpec`
-(uma linha por camada, em ordem de desenho) e acende cada linha quando `job.progresso` traz o
+As rasterizações intermediárias saem em `Mapas/.preview/parcial_NN.png` (`artefatos.PASTA_PREVIEW`),
+a 72 dpi — é preview, não entrega. Sem canal de eventos, nada é rasterizado: `gerar_mapa` chamado
+como biblioteca não paga por imagem que ninguém vê.
+
+**Fase 1 continua valendo:** quando ainda não chegou `preview_png`, o `painel-preview` mostra o
+*esqueleto de camadas* derivado do `MapSpec` e acende cada linha quando `job.progresso` traz o
 `item` correspondente. Isso é progresso real, com granularidade menor — não é loader falso.
 
 ## Layout principal e IDs de componente
@@ -292,9 +299,12 @@ A animação-assinatura do produto. **Duas fases, e o plano é explícito sobre 
 | Fase | Requer | Comportamento |
 |---|---|---|
 | **Fase 1 — esqueleto** (M4/M7, sem contrato novo) | `job.progresso` com `item` | o preview mostra a pilha de camadas do `MapSpec`, em ordem de desenho, cada uma cinza; quando `item` bate com o `camadas[].id`, a linha acende em `--mf-acento` (opacidade 0,3 → 1 em `--mf-dur-2`). Molduras da tabela, do minimapa e da legenda acendem nas etapas correspondentes |
-| **Fase 2 — artefato real** (M8, exige `job.artefato_parcial`) | evento novo | cada `preview_png` substitui a imagem com crossfade de `--mf-dur-3`; `tabela_png` aparece na posição da tabela; `camada` desenha o contorno real do shapefile materializado |
+| **Fase 2 — artefato real** (M8, **feita**) | `job.artefato_parcial` | cada `preview_png` entra com crossfade de `--mf-dur-3` sobre a anterior (duas camadas empilhadas); `tabela_png` anuncia a tabela pronta; `camada` acende a linha correspondente mesmo sem `item`; `pdf` marca o estado final |
 
-Enquanto o M8 não fecha, a Fase 2 **não é simulada**. O DoD visual aceita a Fase 1.
+A Fase 2 nunca é simulada: sem `preview_png` o painel fica na Fase 1, e a imagem só aparece depois
+que `artefato.ler` devolve os bytes. O contorno real por camada (desenhar o shapefile
+materializado no palco) fica para quando o preview virar render vetorial — hoje o `camada` acende
+a linha da pilha, que é o que o dado sustenta.
 
 ### A6 — Microinterações
 

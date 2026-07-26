@@ -19,6 +19,13 @@
   border-color: var(--mf-acento);
 }
 
+/* A6 — seleção: cresce 2% e ganha borda de acento. É clique, não evento do
+   núcleo: `mapspec.atualizado` ainda não existe e não vai ser fingido aqui. */
+.cartao[data-selecionado="sim"] {
+  border-color: var(--mf-acento);
+  transform: scale(1.02);
+}
+
 .cartao:disabled {
   cursor: not-allowed;
   opacity: 0.85;

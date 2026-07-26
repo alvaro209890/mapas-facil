@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, TextIO
 
-from mapasfacil_nucleo import doctor
+from mapasfacil_nucleo import doctor, leitor_artefato
 from mapasfacil_nucleo.agente import servico as agente_servico
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.erros import ErroNucleo
@@ -43,6 +43,7 @@ def criar_roteador() -> Roteador:
     roteador.registrar("workspace.inspecionar", _handler_workspace_inspecionar)
     roteador.registrar("car.ler_recibo", _handler_car_ler_recibo)
     roteador.registrar("mapa.gerar", _handler_mapa_gerar, com_eventos=True)
+    roteador.registrar("artefato.ler", leitor_artefato.ler)
     roteador.registrar("zip.listar", _handler_zip_listar)
     roteador.registrar("zip.extrair", _handler_zip_extrair)
     roteador.registrar("template.listar", _handler_template_listar)

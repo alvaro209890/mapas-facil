@@ -25,9 +25,11 @@ const ICONE: Record<StatusModelo, ReactNode> = {
 export interface PropsCartaoModelo {
   modelo: ModeloResumo;
   aoAbrir: (id: string) => void;
+  /** A6 — cartão selecionado: `scale(1.02)` + borda de acento em `--mf-dur-1`. */
+  selecionado?: boolean;
 }
 
-export function CartaoModelo({ modelo, aoAbrir }: PropsCartaoModelo) {
+export function CartaoModelo({ modelo, aoAbrir, selecionado = false }: PropsCartaoModelo) {
   const clicavel = modelo.status !== "indisponivel";
   return (
     <button
@@ -35,6 +37,8 @@ export function CartaoModelo({ modelo, aoAbrir }: PropsCartaoModelo) {
       id={`cartao-modelo-${modelo.id}`}
       className={estilos.cartao}
       data-status={modelo.status}
+      data-selecionado={selecionado ? "sim" : "nao"}
+      aria-pressed={selecionado}
       disabled={!clicavel}
       title={clicavel ? modelo.nome : (modelo.motivo ?? "Modelo indisponível")}
       onClick={() => {

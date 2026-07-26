@@ -106,6 +106,25 @@ export type EventoNucleo =
   | (EnvelopeEvento<DadosMapspecAtualizado> & { evento: "mapspec.atualizado" })
   | (EnvelopeEvento<DadosAviso> & { evento: "aviso" });
 
+/** `job.artefato_parcial` estreitado (M8 / F1-16 §A5 fase 2). */
+export type EventoJobArtefatoParcial = EnvelopeEvento<
+  Record<string, unknown> & DadosJobArtefatoParcial
+> & { evento: "job.artefato_parcial" };
+
+export const TIPOS_ARTEFATO = ["camada", "tabela_png", "preview_png", "pdf"] as const;
+
+export function ehJobArtefatoParcial(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoJobArtefatoParcial {
+  if (evento.evento !== "job.artefato_parcial") return false;
+  const { tipo, caminho, etapa } = evento.dados;
+  if (typeof tipo !== "string" || !TIPOS_ARTEFATO.includes(tipo as never)) return false;
+  if (typeof caminho !== "string" || caminho === "") return false;
+  // Caminho absoluto ou de fuga é bug do núcleo — a UI descarta em vez de exibir.
+  if (caminho.startsWith("/") || /^[A-Za-z]:/.test(caminho) || caminho.includes("..")) return false;
+  return typeof etapa === "string" && indiceDaEtapa(etapa) >= 0;
+}
+
 /** `job.progresso` já estreitado, mantendo o envelope genérico que a ponte entrega. */
 export type EventoJobProgresso = EnvelopeEvento<Record<string, unknown> & DadosJobProgresso> & {
   evento: "job.progresso";

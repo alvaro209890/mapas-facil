@@ -8,12 +8,16 @@ Planos: [F1-02](../planos/02-ui-chat-e-workspace.md) (layout e comportamento),
 
 ## Estado — 2026-07-26
 
-**Blocos C (M3), D (M4) e F (M6) fechados.** A janela abre, conecta pasta, indexa, mostra doctor,
-responde a `Ctrl+K`/atalhos, lista a galeria, monta MapSpec e mantém histórico local de conversas
-(`barra-chats`, `Ctrl+N` / `Ctrl+F`). `pnpm typecheck`, `test` (**77** testes) e `build` verdes.
+**Blocos C (M3), D (M4), F (M6), G (M7) e H (M8) fechados.** A janela abre, conecta pasta, indexa,
+mostra doctor, responde a `Ctrl+K`/atalhos, lista a galeria, monta MapSpec, mantém histórico local
+de conversas (`barra-chats`, `Ctrl+N` / `Ctrl+F`), conversa com o agente (streaming, cartões de
+tool, "Parar") e mostra o `painel-preview` acompanhando a geração — esqueleto de camadas por
+`job.progresso` e imagem real por `job.artefato_parcial`. `pnpm typecheck`, `test` (**92** testes)
+e `build` verdes.
 
-O que ainda **não** existe: chat do agente (streaming) e preview em construção — dependem de M7/M8
-e mostram estado vazio honesto. Menus/tray do processo main também faltam.
+O que ainda **não** existe: menus/tray do processo main; e as microinterações A6 de watcher de
+pasta e de troca de versão, que dependem de `workspace.mudou` e `mapspec.atualizado` — eventos sem
+emissor no núcleo, e por isso não simulados (AP-07).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|
@@ -77,7 +81,7 @@ explícito. Melhor um botão honesto do que um debounce fingindo tempo real.
 
 1. Watcher da pasta com `workspace.mudou` (A12) para substituir o botão de reindexar.
 2. Menus e tray do processo main (F1-02 ainda marca isso como parcial).
-3. Chat, preview e auth: M5–M7 — dependem de eventos/backend que ainda não existem.
+3. Auth (M5) — depende do backend de identidade.
 4. Validar/gerar o MapSpec montado pela galeria no fluxo de `mapa.gerar` (auth M5 + motor).
 
 ## Arquitetura
@@ -138,9 +142,15 @@ A raiz é reescrita para um caminho neutro e nenhum recibo do CAR entra na fixtu
 
 ### Honestidade de progresso (AP-07)
 
-`BarraProgressoJob` só desenha barra e porcentagem quando chega `job.progresso` — o único evento
-que o núcleo emite hoje (A9, v0.4.0). Sem evento, o texto é "gerando…", sem número. `pct` vem do
-evento e é monotônico; não há `setInterval` em `src/motion/` nem em `src/componentes/`.
+`BarraProgressoJob` só desenha barra e porcentagem quando chega `job.progresso`. Sem evento, o
+texto é "gerando…", sem número. `pct` vem do evento e é monotônico; não há `setInterval` em
+`src/motion/` nem em `src/componentes/`.
+
+O mesmo vale para o M8: o indicador "pensando" (A1) sai do estado real do turno, os cartões de
+tool (A3) vêm de `chat.tool`, e o `painel-preview` (A5) só troca o esqueleto pela imagem quando
+`job.artefato_parcial` traz um `preview_png` — cujos bytes são lidos pelo núcleo (`artefato.ler`),
+nunca do disco pelo renderer. `tests/visual/motion-eventos.test.tsx` prova cada uma nas duas
+metades: antes do evento não existe, depois do evento aparece.
 
 ## Comandos
 

@@ -1,0 +1,119 @@
+/* A5 — painel-preview. Crossfade em --mf-dur-3; nada aqui gira sem evento. */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  min-height: 0;
+}
+
+.palco {
+  position: relative;
+  aspect-ratio: 210 / 297; /* A4 retrato, como a página que está nascendo */
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-superficie-2);
+  overflow: hidden;
+}
+
+.palco[data-final="sim"] {
+  border-color: var(--mf-ok);
+}
+
+.imagem {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--mf-superficie-1);
+}
+
+/* A imagem nova entra por cima da anterior: crossfade real, não corte seco. */
+.entrando {
+  animation: aparecer var(--mf-dur-3) var(--mf-ease-saida) both;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pilha {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: var(--mf-e3);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  justify-content: center;
+}
+
+.linha {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  padding: var(--mf-e1) var(--mf-e2);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  opacity: 0.3;
+  transition:
+    opacity var(--mf-dur-2) var(--mf-ease-saida),
+    color var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.linha[data-estado="pronta"] {
+  opacity: 1;
+  color: var(--mf-texto);
+  background: var(--mf-acento-fraco);
+}
+
+.moldura {
+  border: 1px dashed var(--mf-borda);
+}
+
+.marca {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.linha[data-estado="pronta"] .marca {
+  background: var(--mf-acento);
+}
+
+.nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rodape {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  margin: 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.pct {
+  margin-left: auto;
+  font-family: var(--mf-fonte-mono);
+}
+
+.final {
+  color: var(--mf-ok);
+}
+
+.espera {
+  color: var(--mf-texto-3);
+}

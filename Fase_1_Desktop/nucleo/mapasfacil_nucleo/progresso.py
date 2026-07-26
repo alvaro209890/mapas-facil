@@ -79,6 +79,12 @@ class RastreadorProgresso:
         self._concluidas = -1
 
     @property
+    def emite_eventos(self) -> bool:
+        """Há canal de eventos? Quem produz artefato caro (rasterizar preview)
+        checa isto antes de trabalhar — sem UI ouvindo, o trabalho é lixo."""
+        return self._emitir is not None
+
+    @property
     def pct(self) -> int:
         return self._pct
 
@@ -116,6 +122,43 @@ class RastreadorProgresso:
             self._concluidas = i_etapa
             pct = _ACUMULADO[i_etapa]
         return self._despachar(etapa, pct, item)
+
+    def artefato(
+        self,
+        tipo: str,
+        *,
+        caminho: Any,
+        etapa: str,
+        raiz: Any = None,
+        camada_id: str | None = None,
+        ordem: int | None = None,
+        com_pct: bool = False,
+    ) -> dict[str, Any]:
+        """Emite `job.artefato_parcial` (M8 / F1-16 §A5 fase 2).
+
+        Mora aqui porque o rastreador já é o canal de eventos do job: passar um
+        segundo objeto por `gerar_mapa` → `materializar` → `nativo` só para isso
+        seria encanamento sem ganho. A validação do contrato fica em
+        `artefatos.py`; este método só despacha.
+
+        `com_pct=True` carimba o `pct` corrente do job no evento — útil no
+        `preview_png`, em que a UI quer saber de que altura do job veio a imagem.
+        """
+        from mapasfacil_nucleo.artefatos import EVENTO as EVENTO_ARTEFATO
+        from mapasfacil_nucleo.artefatos import montar_dados
+
+        dados = montar_dados(
+            tipo,
+            caminho=caminho,
+            etapa=etapa,
+            raiz=raiz,
+            camada_id=camada_id,
+            ordem=ordem,
+            pct=self._pct if com_pct else None,
+        )
+        if self._emitir is not None:
+            self._emitir(EVENTO_ARTEFATO, dados)
+        return dados
 
     def _despachar(self, etapa: str, pct: int, item: str | None) -> dict[str, Any]:
         pct = max(0, min(100, pct))

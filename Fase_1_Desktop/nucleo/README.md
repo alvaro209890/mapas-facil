@@ -5,7 +5,7 @@ Comunica com o Electron por NDJSON (stdio), quando a UI existir. Empacotamento p
 PyInstaller onedir junto do app.
 
 **Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). **v0.4.0** — A9 fechado: o
-núcleo emite `job.progresso`.
+núcleo emite `job.progresso`, `job.artefato_parcial`, `chat.delta` e `chat.tool`.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -86,7 +86,7 @@ Exemplo de requisição NDJSON:
 
 ### Métodos implementados (v0.4.0 + M6 + M7)
 
-Registrados em `criar_roteador()` — **32 métodos**:
+Registrados em `criar_roteador()` — **33 métodos**:
 
 | Método | Descrição |
 |---|---|
@@ -103,6 +103,7 @@ Registrados em `criar_roteador()` — **32 métodos**:
 | `quantitativos.exportar_xlsx` | `*_Quantitativos.xlsx` (inclui aba Conferência) |
 | `quantitativos.renderizar_png` | `recursos/tabela_quantitativos.png` (≥ 600 dpi) |
 | `validacao.comparar_pdf` | diff raster entre PDFs (tolerância 0,3%) |
+| `artefato.ler` | M8 — bytes de PNG/JPG do workspace em base64 (o renderer nunca lê disco) |
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` se hash registrado |
 | `galeria.listar` / `detalhar` / `montar_mapspec` | M4 — catálogo e MapSpec determinístico |
@@ -117,7 +118,9 @@ Registrados em `criar_roteador()` — **32 métodos**:
 
 | Evento | Dados | Quando |
 |---|---|---|
-| `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` — **único evento emitido hoje** |
+| `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar`, ao concluir cada etapa |
+| `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | M8 — artefato intermediário pronto (`camada`, `tabela_png`, `preview_png`, `pdf`) |
+| `chat.delta` / `chat.tool` | ver [F1-06](../planos/06-agente-eng-florestal.md) | M7 — durante `chat.enviar` |
 
 Semântica (fixada em `progresso.py`): o evento sai **ao concluir** uma etapa — `etapa` é a que
 terminou e `pct` é o acumulado (3, 10, 30, 40, 45, 55, 70, 75, 90, 100). Nas etapas de camada
@@ -131,8 +134,14 @@ terminou e `pct` é o acumulado (3, 10, 30, 40, 45, 55, 70, 75, 90, 100). Nas et
 No `stdio` os eventos saem na hora (com `flush`), antes da linha de `res` da requisição. Quem chama
 `processar_linha` sem sink recebe os eventos no prefixo da string devolvida.
 
-Os outros 7 eventos do contrato (`job.log`, `job.artefato_parcial`, `workspace.mudou`,
-`chat.delta`, `chat.tool`, `mapspec.atualizado`, `aviso`) continuam **sem emissor**.
+`job.artefato_parcial` sai com caminho **sempre relativo** à pasta do projeto (`artefatos.py`
+recusa absoluto e `..`); as rasterizações vão para `Mapas/.preview/parcial_NN.png` a 72 dpi e só
+são geradas quando há canal de eventos. Para os bytes, o renderer chama `artefato.ler` — nunca lê
+o disco direto (F1-01, fronteira 1).
+
+O vocabulário de eventos é fechado em `protocolo.EVENTOS`: emitir nome fora da lista levanta erro.
+Os 4 restantes (`job.log`, `workspace.mudou`, `mapspec.atualizado`, `aviso`) continuam **sem
+emissor**.
 
 ### Limites conhecidos (honestos)
 

@@ -251,13 +251,18 @@ real. Inclui o contrato novo `job.artefato_parcial` no núcleo.
 
 **Critério de saída:**
 
-- [ ] `job.artefato_parcial` emitido pelo núcleo nos quatro tipos (`camada`, `tabela_png`,
+- [x] `job.artefato_parcial` emitido pelo núcleo nos quatro tipos (`camada`, `tabela_png`,
       `preview_png`, `pdf`), com caminho **relativo**
-- [ ] ≥ 3 animações provadas por teste com evento injetado (streaming, tool, progresso)
-- [ ] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` vazio
-- [ ] `painel-preview` troca do esqueleto para a rasterização real com crossfade
-- [ ] Reduced-motion continua verde depois de todas as animações entrarem
-- [ ] Nenhum spinner sem evento correspondente — revisão manual registrada na release
+- [x] ≥ 3 animações provadas por teste com evento injetado (streaming, tool, progresso, artefato)
+- [x] `grep -rn "setInterval" app/src/motion/ app/src/componentes/Barra*` vazio
+- [x] `painel-preview` troca do esqueleto para a rasterização real com crossfade
+- [x] Reduced-motion continua verde depois de todas as animações entrarem
+- [~] Nenhum spinner sem evento correspondente — coberto por teste (cada animação tem o caso
+      "antes do evento não existe"); a revisão manual entra na release
+
+**Fora do marco, por falta de evento:** as microinterações A6 de watcher de pasta e de troca de
+versão dependem de `workspace.mudou` e `mapspec.atualizado`, que ainda não têm emissor. Não foram
+simuladas (AP-07).
 
 **Dependências:** M7 (para `chat.delta`/`chat.tool`) e M1 (para `job.progresso`).
 

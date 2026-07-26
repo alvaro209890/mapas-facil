@@ -23,8 +23,8 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~238 pass | verde |
-| `Fase_1_Desktop/app` Vitest | **não** | ~81 pass |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~258 pass | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~92 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 
@@ -62,8 +62,8 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~238)
-cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + visual/axe (~81)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~258)
+cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion/preview (~92)
 ```
 
 ## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
@@ -75,9 +75,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + vi
 | Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **32 métodos** (galeria + chat histórico + `chat.enviar`/`cancelar`) | `Fase_1_Desktop/nucleo/` |
-| Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
-| App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **barra de chats M6** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
+| Sidecar Python NDJSON | **33 métodos** (galeria + chat + `chat.enviar`/`cancelar` + `artefato.ler`) | `Fase_1_Desktop/nucleo/` |
+| Eventos NDJSON com emissor | `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), **`job.artefato_parcial`** (M8) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py` |
+| App Electron | **M3 fechado** (C1–C11) + **galeria M4** + **chats M6** + **chat M7** + **motion/preview M8** | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
 | Agente DeepSeek | **parcial** (M7) — orquestrador, cancelamento, 24/27 tools reais, `PainelChat` com “Parar”; faltam as 3 tools que dependem de R21/F1-07 e o VCR | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
@@ -90,11 +90,13 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + vi
 
 ## O que NÃO existe (não invente que existe)
 
-- Preview em construção (M8) e motion A2/A3/A5 ainda incompletos.
+- Watcher de pasta e diff de versões animado: dependem de `workspace.mudou` e
+  `mapspec.atualizado`, que **ainda não têm emissor** — as microinterações A6 correspondentes não
+  existem (não foram simuladas).
 - Watcher de pasta: `workspace.mudou` não é emitido; reindexar é botão explícito, não tempo real.
 - Menus e tray do Electron (só diálogo de pasta + IPC).
-- Eventos NDJSON ainda sem emissor: `job.log`, `job.artefato_parcial`, `workspace.mudou`,
-  `mapspec.atualizado`, `aviso`. Emitidos: `job.progresso`, `chat.delta`, `chat.tool`.
+- Eventos NDJSON ainda sem emissor: `job.log`, `workspace.mudou`, `mapspec.atualizado`, `aviso`.
+  Emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`.
 - Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
   com o motivo): `consultar_sema` e `distancia_ate` (esperam `camada.resolver`, R21) e
   `analisar_referencia` (espera o fluxo de visão, F1-07). As outras 24 são reais.
@@ -175,13 +177,13 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — M3+M4+M6+M7: shell/workspace/galeria/chats/chat; preview espera M8 | `app/src/paineis/` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **feito** — M3+M4+M6+M7+M8: shell, workspace, galeria, chats, chat e `painel-preview` com abas | `app/src/paineis/` |
 | R02 | Ponte NDJSON Electron ↔ sidecar | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** | `app/electron/nucleo/ponte.ts` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
-| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **parcial** — tokens de motion e `useReducedMotion` existem; só **A4** (progresso do job) está ligada a evento. A2 e A3 dependem de `chat.delta`/`chat.tool` (M7) | `app/src/motion/`, `app/src/componentes/BarraProgressoJob.tsx` |
+| R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (M8) — A1, A2, A3, A4 e A5 (fases 1 e 2) ligadas a evento; A6 só onde há evento ou clique | `app/src/componentes/IndicadorPensando.tsx`, `CartaoTool.tsx`, `BarraProgressoJob.tsx`, `app/src/paineis/Preview.tsx` |
 | R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
-| R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato novo | **ausente — contrato só especificado** | `nucleo/.../motores/gerar.py`, `protocolo.py` |
+| R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato | **feito** (M8) — 4 tipos, caminho relativo, `artefato.ler` para o renderer | `nucleo/.../artefatos.py`, `leitor_artefato.py`, `motores/gerar.py`, `motores/nativo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
 | R09 | Login obrigatório Google via site → app | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **ausente** | `app/electron/auth/`, `Fase_2_Site/backend/` |

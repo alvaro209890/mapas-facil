@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { App } from "../../src/App.js";
 import { BarraProgressoJob } from "../../src/componentes/BarraProgressoJob.js";
+import { Preview } from "../../src/paineis/Preview.js";
 import { ErroDoNucleo } from "../../src/componentes/EstadoVazio.js";
 import type { RelatorioDoctor } from "../../src/estado/doctor.js";
 import { TEMA_PADRAO, aplicarTema } from "../../src/estado/tema.js";
@@ -96,6 +97,44 @@ describe("contraste e axe (C11)", () => {
     await waitFor(() => {
       expect(document.querySelector("#zona-job [role='progressbar']")).not.toBeNull();
     });
+    await axeSemViolacao(container);
+  });
+
+  it("axe sem violação no painel-preview em construção (M8)", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "artefato.ler": {
+          ok: true,
+          resultado: {
+            caminho: "Mapas/.preview/parcial_01.png",
+            mime: "image/png",
+            tamanho: 68,
+            base64:
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          },
+        },
+      },
+    });
+    const { container } = render(
+      <div style={{ background: "var(--mf-bg)", color: "var(--mf-texto)", padding: 16 }}>
+        <Preview
+          mapspec={{
+            titulo: "Dinâmica 2026",
+            camadas: [{ id: "avn", legenda: "Vegetação nativa", ordem: 30 }],
+            elementos_layout: { tabela: true },
+          }}
+        />
+      </div>,
+    );
+    ponte.emitir({
+      evento: "job.artefato_parcial",
+      dados: {
+        tipo: "preview_png",
+        caminho: "Mapas/.preview/parcial_01.png",
+        etapa: "aplicando_layout",
+      } as unknown as Record<string, unknown>,
+    });
+    await waitFor(() => expect(container.querySelector("img")).not.toBeNull());
     await axeSemViolacao(container);
   });
 

@@ -44,7 +44,33 @@ def envelope_erro(id_req: str, erro: ErroNucleo | dict[str, Any]) -> dict[str, A
     }
 
 
+# Vocabulário fechado de eventos (F1-01 §Eventos). Emitir nome fora desta lista é
+# erro de programação: a UI só sabe consumir o que está no contrato, e evento
+# inventado vira animação órfã (AP-07). Nome novo entra aqui **e** no plano.
+EVENTOS: frozenset[str] = frozenset(
+    {
+        "job.progresso",
+        "job.log",
+        "job.artefato_parcial",
+        "workspace.mudou",
+        "chat.delta",
+        "chat.tool",
+        "mapspec.atualizado",
+        "aviso",
+    }
+)
+
+
+def evento_valido(evento: str) -> bool:
+    return evento in EVENTOS
+
+
 def envelope_evt(id_req: str, evento: str, dados: dict[str, Any]) -> dict[str, Any]:
+    if not evento_valido(evento):
+        raise ValueError(
+            f"Evento fora do contrato F1-01: {evento}. "
+            f"Válidos: {', '.join(sorted(EVENTOS))}"
+        )
     return {
         "v": PROTOCOLO_VERSAO,
         "id": id_req,

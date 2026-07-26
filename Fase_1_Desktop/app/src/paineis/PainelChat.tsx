@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 
 import { EstadoVazio } from "../componentes/EstadoVazio.js";
+import { IndicadorPensando } from "../componentes/IndicadorPensando.js";
+import type { EstadoTool } from "../componentes/CartaoTool.js";
+import { ListaCartoesTool, aplicarEventoTool, cancelarPendentes } from "../componentes/CartaoTool.js";
 import { api } from "../estado/ponte.js";
-import type { EnvelopeEvento } from "../estado/eventos.js";
+import type { DadosChatTool, EnvelopeEvento } from "../estado/eventos.js";
 import estilos from "./PainelChat.module.css";
 
 export interface MensagemChat {
@@ -43,7 +46,7 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
   const [enviando, setEnviando] = useState(false);
   const [streaming, setStreaming] = useState("");
   const [erro, setErro] = useState<string | null>(null);
-  const [tools, setTools] = useState<string[]>([]);
+  const [tools, setTools] = useState<EstadoTool[]>([]);
   const [cancelando, setCancelando] = useState(false);
   const fimRef = useRef<HTMLDivElement | null>(null);
 
@@ -77,9 +80,9 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
         setStreaming((s) => s + texto);
       }
       if (evento.evento === "chat.tool") {
-        const dados = evento.dados as { tool?: string; fase?: string };
-        if (dados.fase === "inicio" && dados.tool) {
-          setTools((t) => [...t, dados.tool!]);
+        const dados = evento.dados as unknown as DadosChatTool;
+        if (typeof dados.trace_id === "string" && typeof dados.tool === "string") {
+          setTools((anterior) => aplicarEventoTool(anterior, dados));
         }
       }
     });
@@ -89,11 +92,16 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
     fimRef.current?.scrollIntoView?.({ block: "end" });
   }, [mensagens, streaming]);
 
+  // A1: o turno foi despachado e ainda não veio texto nem tool. É estado real do
+  // turno, não timer — some no primeiro `chat.delta` (AP-07 / F1-16 §A1).
+  const pensando = enviando && streaming === "" && tools.length === 0;
+
   async function cancelar() {
     if (!conversationId || !enviando) return;
     const ponte = api();
     if (ponte === undefined) return;
     setCancelando(true);
+    setTools(cancelarPendentes);
     await ponte.chamar("chat.cancelar", { conversation_id: conversationId });
   }
 
@@ -179,16 +187,16 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
           </div>
         ))}
         {streaming && (
-          <div className={estilos.bolha} data-papel="assistente">
+          <div className={estilos.bolha} data-papel="assistente" data-streaming="sim">
             <span className={estilos.papel}>assistente</span>
-            <p className={estilos.texto}>{streaming}</p>
+            <p className={estilos.texto}>
+              {streaming}
+              <span className={estilos.cursor} aria-hidden="true" />
+            </p>
           </div>
         )}
-        {tools.length > 0 && (
-          <p className={estilos.tools} aria-live="polite">
-            tools: {tools.join(" · ")}
-          </p>
-        )}
+        <ListaCartoesTool tools={tools} />
+        {pensando && <IndicadorPensando />}
         {erro && (
           <p className={estilos.erro} role="alert">
             {erro}

@@ -18,7 +18,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
 | G — agente | M7 | **parcial** — G1–G7/G9–G11 fechados (24/27 tools reais, cancelamento com parcial gravada, traces reais); falta G8 (VCR) e as 3 tools travadas em R21/F1-07 |
-| H — motion e preview | M8 | **não iniciado** |
+| H — motion e preview | M8 | **parcial** — H1–H5 e H7 fechados; H6 só o que tem evento (galeria/abas), o resto espera `workspace.mudou`/`mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
 ## Pré-voo
@@ -180,13 +180,14 @@ Plano: [F1-16](16-design-system-dark.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| H1 | `job.artefato_parcial` no núcleo (4 tipos, caminho relativo) | [ ] | `nucleo/.../motores/gerar.py` |
-| H2 | A1 pensando · A2 streaming · A3 tool | [ ] | `app/src/componentes/` |
-| H3 | A4 progresso segmentado (10 etapas) | [ ] | `app/src/componentes/BarraProgressoJob.tsx` |
-| H4 | A5 fase 1 — esqueleto de camadas por `item` | [ ] | `app/src/paineis/Preview.tsx` |
-| H5 | A5 fase 2 — rasterização real com crossfade | [ ] | idem, depende de H1 |
-| H6 | A6 microinterações (pasta, galeria, versões, watcher) | [ ] | vários |
-| H7 | Testes com evento injetado (≥ 3 animações) | [ ] | `app/tests/visual/` |
+| H1 | `job.artefato_parcial` no núcleo (4 tipos, caminho relativo) | [x] | `nucleo/.../artefatos.py`, `progresso.py`, `motores/gerar.py`, `motores/nativo.py`, `camadas/materializar.py` |
+| H1b | `artefato.ler` — renderer lê o PNG **pelo núcleo** (fronteira 1) | [x] | `nucleo/.../leitor_artefato.py` |
+| H2 | A1 pensando · A2 streaming · A3 tool | [x] | `componentes/IndicadorPensando.tsx`, `componentes/CartaoTool.tsx`, `paineis/PainelChat.tsx` |
+| H3 | A4 progresso segmentado (10 etapas) | [x] | `app/src/componentes/BarraProgressoJob.tsx` (C6 + varredura do segmento ativo) |
+| H4 | A5 fase 1 — esqueleto de camadas por `item` | [x] | `app/src/paineis/Preview.tsx` |
+| H5 | A5 fase 2 — rasterização real com crossfade | [x] | `paineis/Preview.tsx` + `estado/artefatos.ts` |
+| H6 | A6 microinterações | [~] | seleção na galeria (`CartaoModelo`) e abas do painel direito; pasta/versões/watcher esperam `workspace.mudou` e `mapspec.atualizado` — não foram fingidos |
+| H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)
 

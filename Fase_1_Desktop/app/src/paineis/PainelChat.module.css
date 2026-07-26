@@ -50,6 +50,32 @@
   color: var(--mf-texto-2);
 }
 
+/* A2 — cursor de 2 px piscando a 1 Hz no fim do texto que está chegando.
+   O texto é acrescentado ao nó existente; nada anima caractere por caractere
+   nem simula digitação (F1-16 §A2 §Proibido). */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--mf-acento);
+  animation: piscar 1000ms steps(2, start) infinite;
+}
+
+@keyframes piscar {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
 .erro {
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
   color: var(--mf-perigo, #f87171);

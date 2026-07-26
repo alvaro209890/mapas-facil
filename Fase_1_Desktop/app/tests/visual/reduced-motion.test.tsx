@@ -12,6 +12,9 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { App } from "../../src/App.js";
 import { BarraProgressoJob } from "../../src/componentes/BarraProgressoJob.js";
+import { CartaoTool } from "../../src/componentes/CartaoTool.js";
+import { IndicadorPensando } from "../../src/componentes/IndicadorPensando.js";
+import { Preview } from "../../src/paineis/Preview.js";
 import type { RelatorioDoctor } from "../../src/estado/doctor.js";
 import { DURACAO_MOVIMENTO_REDUZIDO, duracao } from "../../src/motion/tokens.js";
 import { desligarPonteFake, ligarPonteFake } from "../ponte-fake.js";
@@ -130,5 +133,36 @@ describe("reduced-motion (C11)", () => {
 
     const max = maxDuracaoNaArvore(container);
     expect(max).toBeLessThanOrEqual(DURACAO_MOVIMENTO_REDUZIDO);
+  });
+
+  it("as animações do M8 (A1, A3, A5) também respeitam o teto", async () => {
+    mockMatchMedia(true);
+    const estilo = document.createElement("style");
+    estilo.id = "mf-teste-reduced";
+    estilo.textContent = ESTILO_REDUZIDO;
+    document.head.appendChild(estilo);
+
+    const ponte = ligarPonteFake();
+    const { container } = render(
+      <div>
+        <IndicadorPensando />
+        <CartaoTool estado={{ traceId: "t1", tool: "gerar_mapa", fase: "inicio" }} />
+        <Preview mapspec={{ titulo: "Dinâmica", camadas: [{ id: "avn", ordem: 30 }] }} />
+      </div>,
+    );
+    ponte.emitir({
+      evento: "job.progresso",
+      dados: { etapa: "resolvendo_camadas_locais", pct: 10, item: "avn" } as unknown as Record<
+        string,
+        unknown
+      >,
+    });
+    await waitFor(() =>
+      expect(container.querySelector('[data-camada="avn"]')?.getAttribute("data-estado")).toBe(
+        "pronta",
+      ),
+    );
+
+    expect(maxDuracaoNaArvore(container)).toBeLessThanOrEqual(DURACAO_MOVIMENTO_REDUZIDO);
   });
 });
