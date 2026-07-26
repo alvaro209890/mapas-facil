@@ -4,4 +4,6 @@
 # Demais módulos (provedor, deepseek, contexto, tools, prompt) entram nos
 # itens G1/G3–G10 do checklist.
 
-from mapasfacil_nucleo.agente import limites as limites  # noqa: F401
+from . import limites
+
+__all__ = ("limites",)
