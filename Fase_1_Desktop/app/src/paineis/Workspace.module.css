@@ -1,0 +1,172 @@
+/* C7 — `painel-workspace`. O que diferencia de um explorador de arquivos é o
+   metadado inline: feições, CRS e área em hectare (F1-02 §painel-workspace). */
+
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e3);
+  height: 100%;
+}
+
+.projeto {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+}
+
+.nome {
+  font: var(--mf-fs-t2) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acoesProjeto {
+  display: flex;
+  gap: var(--mf-e1);
+  margin-left: auto;
+}
+
+.botaoIcone {
+  display: inline-flex;
+  padding: var(--mf-e1);
+  border-radius: var(--mf-raio-1);
+  color: var(--mf-texto-3);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida),
+    color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.botaoIcone:hover {
+  background: var(--mf-superficie-3);
+  color: var(--mf-texto);
+}
+
+/* Cartão do imóvel: o que o recibo do CAR disse, sem CPF (AP-09). */
+.imovel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+  padding: var(--mf-e3);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.imovelTitulo {
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+}
+
+.tituloGrupo {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mf-texto-3);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--mf-e2);
+  border-radius: var(--mf-raio-1);
+  border-left: 2px solid transparent;
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.item:hover {
+  background: var(--mf-superficie-2);
+}
+
+.item[data-alerta="true"] {
+  border-left-color: var(--mf-aviso);
+}
+
+.linhaArquivo {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+}
+
+.arquivo {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.papel {
+  padding: 0 var(--mf-e1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.alerta {
+  display: inline-flex;
+  color: var(--mf-aviso);
+}
+
+/* Metadados: números em monoespaçada, colunas alinhadas (F1-16). */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mf-e1) var(--mf-e3);
+  font-size: 11px;
+  color: var(--mf-texto-3);
+}
+
+.area {
+  color: var(--mf-texto-2);
+}
+
+.recentes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e1);
+}
+
+.recente {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  padding: var(--mf-e2);
+  border-radius: var(--mf-raio-1);
+  text-align: left;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.recente:hover {
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto);
+}
+
+.dataRecente {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--mf-texto-3);
+}
+
+.abrindo {
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.rodape {
+  margin-top: auto;
+  padding-top: var(--mf-e3);
+  border-top: 1px solid var(--mf-borda);
+}
