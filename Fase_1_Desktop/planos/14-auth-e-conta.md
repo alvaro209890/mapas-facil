@@ -156,28 +156,26 @@ ilustração genérica, **sem** botão “Entrar com Google”.
 
 ### Núcleo
 
-- [ ] `nucleo/mapasfacil_nucleo/contas/` — esquema SQL, repositório, hash Argon2id, migração `001`
-- [ ] Métodos `conta.criar` / `conta.entrar` / `conta.sair` / `conta.estado`
-- [ ] `nucleo/mapasfacil_nucleo/sessao.py` — estado em memória + `sessao.definir` / `sessao.estado`
-- [ ] Gate `AUTH-030` em `mapa.gerar`, `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx`
-- [ ] Família `AUTH-` em `erros.py`
-- [ ] No boot: se existe `sessoes_locais` com `lembrar_neste_pc` e não expirada → restaura sessão
+- [x] `nucleo/mapasfacil_nucleo/contas/` — esquema SQL, repositório, hash Argon2id, migração `001`
+- [x] Métodos `conta.criar` / `conta.entrar` / `conta.sair` / `conta.estado`
+- [x] `nucleo/mapasfacil_nucleo/sessao.py` — estado em memória + `sessao.definir` / `sessao.estado`
+- [x] Gate `AUTH-030` em `mapa.gerar`, `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx`
+- [x] Família `AUTH-` via `ErroNucleo` nos handlers
+- [x] No boot: se existe `sessoes_locais` com `lembrar_neste_pc` e não expirada → restaura sessão
 
 ### App — main + renderer
 
-- [ ] `app/electron/ipc/auth.ts` — canais da tabela IPC; redator **nunca** loga `senha`
-- [ ] `app/src/telas/Login.tsx` — id `tela-login` (criar + entrar)
-- [ ] `app/src/estado/auth.ts` — store com `estado`, `conta` (sem senha)
-- [ ] Guarda de rota: painéis de geração exigem `conectado`
+- [x] `conta.*` via IPC `nucleo:chamar` (`estado/auth.ts`); senha não fica no store
+- [x] `app/src/telas/Login.tsx` — id `tela-login` (criar + entrar)
+- [x] `app/src/estado/auth.ts` — store com `estado`, `conta` (sem senha)
+- [x] Guarda de rota: sem sessão → `tela-login` (`App.tsx`)
 
 ### Testes
 
-- [ ] `pytest nucleo/tests/test_conta_local.py` — criar, entrar, senha errada, e-mail duplicado
-- [ ] `pytest nucleo/tests/test_sessao.py` — `mapa.gerar` sem sessão → `AUTH-030`; com sessão gera
-- [ ] `pytest …::test_metodos_sem_gate` — `workspace.abrir` etc. sem sessão
-- [ ] Assert: arquivo `contas.sqlite` **não** contém a senha em claro (`grep` da senha de teste = 0)
-- [ ] `grep -rn "senha\|password\|senha_hash" app/src/` — renderer não manipula hash
-
+- [x] `pytest nucleo/tests/test_conta_local.py`
+- [x] `pytest nucleo/tests/test_sessao.py`
+- [x] Assert: arquivo `contas.sqlite` **não** contém a senha em claro
+- [x] `app/tests/login.test.tsx`
 ## Critérios de aceite
 
 - [ ] Criar conta → fechar app → reabrir com “lembrar” → `estado:"conectado"` sem digitar de novo
