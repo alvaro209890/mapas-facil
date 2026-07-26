@@ -165,11 +165,17 @@ Escolha na galeria ao lado, ou me diga o que você quer.
 
 ## Watcher
 
-- Observa a pasta com *debounce* de 500 ms.
+**Implementado** (A12 + épico pós-H6):
+
+- Observa a pasta com *debounce* de 500 ms — `nucleo/.../workspace/watcher.py`.
 - Reindexa só o que mudou e emite `workspace.mudou`.
 - Arquivo novo relevante aparece no chat como **aviso do sistema**, não como mensagem do agente:
-  *"apareceu `AUAS_corrigido.shp` (8 feições, 491,26 ha)"*.
-- Arquivo removido que era usado por um `MapSpec` ativo vira alerta.
+  *"apareceu `AUAS_corrigido.shp` (AUAS) · 8 feições · 491,26 ha"* — o `resumo` vem pronto do
+  núcleo; a UI (`estado/avisosSistema.ts` → `PainelChat`) só decide a gravidade. Não custa turno,
+  não vai ao LLM, não entra no transcript.
+- Arquivo removido que era usado pelo `MapSpec` ativo vira **alerta** (`role="alert"`), dizendo a
+  consequência: gerar agora falha ou sai incompleto. Removido que o mapa não usa fica em `info`.
+- `modificado` **não** vira aviso: arquivo reescrito por outro programa geraria ruído constante.
 - Ignora: `.lock`, `~$*`, `.tmp`, e a própria pasta de saída durante um job.
 
 ## Estados vazios, carregamento e erro

@@ -7,6 +7,8 @@ import { IndicadorPensando } from "../componentes/IndicadorPensando.js";
 import type { EstadoTool } from "../componentes/CartaoTool.js";
 import { ListaCartoesTool, aplicarEventoTool, cancelarPendentes } from "../componentes/CartaoTool.js";
 import { api } from "../estado/ponte.js";
+import type { MapSpecEmUso } from "../estado/avisosSistema.js";
+import { useAvisosSistema } from "../estado/avisosSistema.js";
 import type { DadosChatTool, EnvelopeEvento } from "../estado/eventos.js";
 import estilos from "./PainelChat.module.css";
 
@@ -38,9 +40,18 @@ export interface PropsPainelChat {
   semChaveIa: boolean;
   bannerChave?: ReactNode;
   bannerArc?: ReactNode;
+  /** MapSpec em construção — define a gravidade do aviso de arquivo removido (F1-02 §Watcher). */
+  mapspecAtivo?: MapSpecEmUso | null;
 }
 
-export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc }: PropsPainelChat) {
+export function PainelChat({
+  conversationId,
+  semChaveIa,
+  bannerChave,
+  bannerArc,
+  mapspecAtivo = null,
+}: PropsPainelChat) {
+  const { avisos: avisosSistema, dispensar } = useAvisosSistema(mapspecAtivo);
   const [mensagens, setMensagens] = useState<MensagemChat[]>([]);
   const [rascunho, setRascunho] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -196,6 +207,27 @@ export function PainelChat({ conversationId, semChaveIa, bannerChave, bannerArc 
           </div>
         )}
         <ListaCartoesTool tools={tools} />
+        {/* F1-02 §Watcher — aviso do SISTEMA: não é turno, não vai ao LLM, não
+            entra no transcript. Só existe se `workspace.mudou` chegou (AP-07). */}
+        {avisosSistema.map((aviso) => (
+          <p
+            key={aviso.id}
+            className={estilos.avisoSistema}
+            data-testid="aviso-sistema"
+            data-nivel={aviso.nivel}
+            role={aviso.nivel === "alerta" ? "alert" : "status"}
+          >
+            <span className={estilos.avisoSistemaTexto}>{aviso.texto}</span>
+            <button
+              type="button"
+              className={estilos.avisoSistemaFechar}
+              onClick={() => dispensar(aviso.id)}
+              aria-label={`dispensar aviso sobre ${aviso.caminho}`}
+            >
+              ×
+            </button>
+          </p>
+        ))}
         {pensando && <IndicadorPensando />}
         {erro && (
           <p className={estilos.erro} role="alert">

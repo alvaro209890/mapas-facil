@@ -270,6 +270,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
             semChaveIa={semChaveIa}
             bannerChave={semChaveIa ? <SemChaveDeepSeek /> : null}
             bannerArc={semArcMap ? <SemArcMap motor={doctor.relatorio?.motor_preferido ?? "nativo"} /> : null}
+            mapspecAtivo={galeria.mapspecMontado}
           />
           <div className={estilos.rodapeChat}>
             <BarraProgressoJob
