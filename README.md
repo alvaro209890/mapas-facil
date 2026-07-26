@@ -7,26 +7,20 @@ e `.xlsx` de quantitativos — com o padrão garantido por validação automáti
 O modelo mental é o de um agente de programação (Cursor, Codex, Claude Code), trocando código por
 cartografia: **você aponta uma pasta e conversa.**
 
-> Este repositório contém **planos, contratos, referências visuais** e o **núcleo Python**
-> da Fase 1 (sidecar). A UI Electron ainda não foi iniciada.
->
-> **Agente de IA: comece por [`AGENT_BRIEF.md`](AGENT_BRIEF.md)** — estado real do código, ordem
-> dos marcos, gap analysis e anti-padrões vinculantes. Os planos são escritos para serem
-> executados por agentes, não lidos por humanos.
+> **Agente de IA: comece por [`AGENT_BRIEF.md`](AGENT_BRIEF.md)** — snapshot do que falta, estado
+> real do código, ordem dos marcos, gap analysis e anti-padrões vinculantes.
 
 ## As duas fases
-
-O produto tem duas metades, com prioridades **muito** diferentes:
 
 | Fase | O quê | Prioridade |
 |---|---|---|
 | **1 — App desktop Windows** | chat + pasta do PC → `.mxd` + `.pdf` + `.xlsx` | **principal** — é onde o `.mxd` nasce |
-| 2 — Site e backend | projetos persistentes, mapa por CAR, vitrine pública | depois da Fase 1 validada |
+| 2 — Site e backend | projetos persistentes, mapa por CAR, vitrine pública | **depois do M11** |
 
-Detalhes, escopo, riscos e decisões D1–D9 em [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md).
+Detalhes em [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md).
 
 ```
-Fase 1 (Windows)                    Fase 2 (depois)
+Fase 1 (Windows)                    Fase 2 (depois do M11)
 ┌─────────────────────────┐         ┌─────────────────────────┐
 │ Electron + React        │         │ Next.js (site)          │
 │ sidecar Python          │  reuso  │ FastAPI (neste PC)      │
@@ -39,43 +33,45 @@ Fase 1 (Windows)                    Fase 2 (depois)
 
 | Pasta | O que é |
 |---|---|
-| [`AGENT_BRIEF.md`](AGENT_BRIEF.md) | **entrada para agentes**: estado real, ordem de marcos, gap analysis, anti-padrões |
+| [`AGENT_BRIEF.md`](AGENT_BRIEF.md) | **entrada para agentes**: o que falta, estado real, gap analysis, anti-padrões |
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
-| [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** |
-| [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend neste PC via Cloudflare Tunnel |
+| [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** (`app/` + `nucleo/`) |
+| [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend — **código não iniciado** |
 | [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
-| [`Referencias_IMAP/`](Referencias_IMAP/README.md) | 6 acervos reais em `Mapas/01–06`: 84 PDFs-modelo + 61 `.mxd` — gabarito visual |
-| [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2 de templates, ZIP truncado |
+| [`Referencias_IMAP/`](Referencias_IMAP/README.md) | acervos reais (PDFs-modelo + `.mxd`) — gabarito visual |
+| [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2, smoke DeepSeek |
 
 ## Por que desktop primeiro
 
 1. **O `.mxd` é o entregável que importa**, e ele só existe no Windows do usuário.
-2. O [NexoGeo Ambiental](https://github.com/alvaro209890/NexoGeo-Ambiental) já provou a metade
-   web (chat → `MapSpec` → PDF IMAP) e **falhou exatamente no `.mxd`**, que ficou como "quando
-   ArcMap estiver disponível" e nunca saiu do papel.
-3. A Fase 1 valida o produto com usuário real sem nenhuma infraestrutura.
+2. O [NexoGeo Ambiental](https://github.com/alvaro209890/NexoGeo-Ambiental) priorizou a web e
+   deixou o `.mxd` para "depois" — nunca saiu.
+3. A Fase 1 valida o produto com usuário real sem infraestrutura de site.
 
 ## Leitura recomendada
 
-1. [`AGENT_BRIEF.md`](AGENT_BRIEF.md) — **primeiro de tudo** se você é um agente implementador
-2. [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md) — visão, escopo, decisões D1–D20
-3. [`Fase_1_Desktop/planos/12-roadmap.md`](Fase_1_Desktop/planos/12-roadmap.md) — marcos M0–M11 e critérios de saída
-4. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md) — blocos A–I, o que fazer agora
-5. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md) — o contrato de dados central
+1. [`AGENT_BRIEF.md`](AGENT_BRIEF.md) — **primeiro** (snapshot + gap analysis)
+2. [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md)
+3. [`Fase_1_Desktop/planos/12-roadmap.md`](Fase_1_Desktop/planos/12-roadmap.md)
+4. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md)
+5. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md)
 
-## Estado atual
+## Estado atual (2026-07-26)
 
 | Marco | Status |
 |---|---|
-| M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
-| M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver checklist |
-| M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
-| M3–M8 — shell, galeria, auth, conversas, agente, motion | **M3+M4+M5+M6+M7+M8** fechados/parciais (M7: 24/27 tools; 3× `IA-022`) |
-| M9–M11 — Harmonia, instalador, piloto | não iniciados |
-| Fase 2 — conta nuvem / memória ([F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)) | **adiada** (pós-M11); **não** bloqueia o M5 |
-| Fase 2 — restante | não iniciado; começa depois do M11 |
+| M0 — Planos e contratos | **fechado** |
+| M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · bloco B **parcial** (precisa ArcMap para fechar) |
+| M2 — Motor `.mxd` | **parcial** — próximo grande passo (Windows + ArcMap) |
+| M3–M8 — shell, galeria, auth, chats, agente, motion | **fechados** (+ épico sem ArcMap: F1-07, 41/41 camadas, eventos, UI) |
+| M9–M11 — Harmonia, instalador, piloto | **não iniciados** |
+| Fase 2 | **não iniciada**; pós-M11 |
 
-Eventos emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`.
+**Backlog desktop sem ArcMap: esgotado.** No Linux Mint deste projeto só sobra polish opcional;
+o eixo que falta é **M2 → M9 → M10 → M11** em PC Windows.
+
+Eventos NDJSON emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`,
+`workspace.mudou`, `mapspec.atualizado`, `job.log`, `aviso` (vocabulário completo).
 
 ## Licença
 

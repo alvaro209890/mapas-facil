@@ -4,6 +4,27 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
+## Snapshot — o que falta (2026-07-26)
+
+### Fase 1 — desktop
+
+| Faixa | Estado |
+|---|---|
+| **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
+| **Com Windows + ArcMap** | **falta** — **M2** (motor `.mxd`) → **M9** (conformidade Harmonia) |
+| **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
+
+Ordem obrigatória do que resta: **M2 → M9 → M10 → M11**.
+
+Limites conhecidos (não são “falta de feature”): API DeepSeek V4 **sem** visão (`IA-060` no
+print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do MapSpec inexistente
+(núcleo não gera PNG por versão); V3/smoke Harmonia só fecha de verdade com motor M2/M9.
+
+### Fase 2 — site
+
+**Não iniciada** (só planos; 01/02/04/06 legado). Começa **depois do M11**. Login do desktop já é
+local ([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)) — F2-05 **não** bloqueia.
+
 ## Chave DeepSeek para desenvolvimento e testes (M7)
 
 Neste PC de desenvolvimento a chave de **teste** já está em `secrets.local.json` (gitignored),
@@ -23,8 +44,8 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~457 pass | verde |
-| `Fase_1_Desktop/app` Vitest | **não** | ~124 pass |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; centenas de testes | verde |
+| `Fase_1_Desktop/app` Vitest | **não** | ~163 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
 

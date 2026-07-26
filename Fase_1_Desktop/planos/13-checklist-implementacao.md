@@ -10,16 +10,19 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
 | Bloco | Marco | Estado |
 |---|---|---|
-| A — fundação do núcleo | M1 | **fechado** — A1–A13 (A9–A13 fechados em 2026-07-26) |
-| A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
-| B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
-| C — shell + design system | M3 | **fechado** — C1–C11 (shell, workspace, doctor, estados, paleta `Ctrl+K`, testes visuais/axe) |
-| D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
-| E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
-| F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 27/27 tools desde F1-07 — nenhuma tool responde `IA-022` hoje) |
-| H — motion e preview | M8 | **fechado** — H1–H7 (H6 fechou em 2026-07-26: `mapspec.atualizado` emitido + `linha-versoes`) |
-| I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
+| A — fundação do núcleo | M1 | **fechado** — A1–A13 |
+| A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3 — depende de motor bom / M9) |
+| B — motor `.mxd` | M2 | **parcial** — **próximo eixo** (exige ArcMap/Windows); B1 estendido, não testado aqui |
+| C — shell + design system | M3 | **fechado** — C1–C11 + menus/tray + banner offline + Esc≠job |
+| D — galeria | M4 | **fechado** |
+| E — conta local (e-mail + senha) | M5 | **fechado** |
+| F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
+| G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
+| H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
+| I — conformidade / instalador / piloto | M9–M11 | **não iniciado** — só falta isto na Fase 1 (depois do M2) |
+
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → M10 → M11**.
+Fase 2 começa após M11.
 
 ## Pré-voo
 

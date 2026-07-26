@@ -9,6 +9,18 @@ grafo de dependências, não um calendário.
 A Fase 2 (site/backend geo) **não entra neste roadmap**. Conta do app = **local** ([F1-14](14-auth-e-conta.md));
 [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) é pós-M11 e **não** bloqueia o M5.
 
+## Snapshot (2026-07-26)
+
+| Faixa | Marcos | Estado |
+|---|---|---|
+| Fechado sem ArcMap | M0, M1A, M3, M4, M5, M6, M7, M8 (+ F1-07, A9–A13, polish) | **feito** |
+| Parcial / próximo | **M2** (motor `.mxd`) | exige Windows + ArcMap |
+| Não iniciado | **M9** → **M10** → **M11** | Harmonia, instalador, piloto |
+| Depois | Fase 2 | após M11 |
+
+Backlog desktop **sem** ArcMap: esgotado. Detalhe vivo:
+[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
+
 ## Grafo
 
 ```

@@ -54,4 +54,7 @@ aqui, com tunnel dedicado que **não toca nos tunnels existentes** dos outros si
 |---|---|
 | **F2-05 — conta nuvem / memória** | reescrito: **adiado pós-M11**; **não** bloqueia M5 (login = F1-14 local) |
 | Planos | F2-00…F2-06 presentes; 01/02/04/06 ainda legado (a reescrever) |
-| Código | não iniciado — `backend/` e `web/` só têm `README.md` |
+| Código | **não iniciado** — `backend/` e `web/` só têm `README.md` |
+
+**Pré-requisito:** Fase 1 validada até **M11**. Enquanto isso, o desktop não depende desta pasta.
+Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
