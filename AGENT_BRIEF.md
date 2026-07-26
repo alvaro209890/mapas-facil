@@ -51,7 +51,8 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + visual/axe
 - Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
   `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato especificado, zero implementação**.
   Só `job.progresso` tem emissor.
-- Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão.
+- Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão — **exceto**
+  `agente/limites.py` (G2: tetos de orçamento + helpers puros, testados).
 - Autenticação, conta, site de login, backend de identidade.
 - Persistência de conversas (`chats.sqlite` não existe).
 - Cliente WFS/WMS em runtime, cofre/Credential Manager, instalador.
@@ -144,7 +145,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **ausente** | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **ausente** | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **ausente** | `nucleo/.../agente/deepseek.py` |
-| R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **ausente** | `nucleo/.../agente/contexto.py` |
+| R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) — 12 tetos + códigos IA-* + helpers | `nucleo/.../agente/limites.py` |
+| R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **ausente** (usa `limites`) | `nucleo/.../agente/contexto.py` |
 | R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **ausente** | `nucleo/tests/agente/cassetes/` |
 | R18 | Assert: request ao LLM sem WKT e sem CPF | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Testes | **ausente** | `nucleo/tests/test_contexto_vazamento.py` |
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **ausente** | `nucleo/.../__main__.py` |

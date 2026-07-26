@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
-| G — agente | M7 | **não iniciado** |
+| G — agente | M7 | **parcial** — G2 (`limites.py`) fechado; G1/G3–G10 ausentes |
 | H — motion e preview | M8 | **não iniciado** |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -163,7 +163,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
 | G1 | Interface de provedor + cliente DeepSeek (stream, tools, cancelar) | [ ] | `nucleo/.../agente/` |
-| G2 | `limites.py` com o orçamento de contexto | [ ] | idem |
+| G2 | `limites.py` com o orçamento de contexto | [x] | constantes F1-06 + helpers puros; `tests/test_limites.py` (14) |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [ ] | `nucleo/.../agente/contexto.py` |
 | G4 | `compact_summary` com `deepseek-v4-flash` | [ ] | `nucleo/.../agente/resumo.py` |
 | G5 | As 26 tools tipadas, incluindo `usar_modelo_da_galeria` | [ ] | `nucleo/.../agente/tools.py` |
