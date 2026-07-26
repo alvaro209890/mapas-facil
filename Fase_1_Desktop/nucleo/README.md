@@ -4,7 +4,8 @@ Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, quantitativo
 Comunica com o Electron por NDJSON (stdio), quando a UI existir. Empacotamento previsto:
 PyInstaller onedir junto do app.
 
-**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). **v0.3.6**.
+**Status:** M1 **bloco A fechado**; **bloco B parcial** (sem ArcMap). **v0.4.0** — A9 fechado: o
+núcleo emite `job.progresso`.
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -24,7 +25,8 @@ nucleo/
     bloco-b-sem-arcmap.md
   mapasfacil_nucleo/
     __main__.py             # loop NDJSON + CLI doctor
-    protocolo.py
+    protocolo.py            # envelopes, Emissor de eventos, Roteador
+    progresso.py            # as 10 etapas de job.progresso
     config.py
     erros.py
     fsguard.py
@@ -82,7 +84,7 @@ Exemplo de requisição NDJSON:
 {"v":1,"id":"01J8X","tipo":"req","metodo":"mapspec.validar","params":{"mapspec":{…}}}
 ```
 
-### Métodos implementados (v0.3.6)
+### Métodos implementados (v0.4.0)
 
 Registrados em `criar_roteador()` — 17 métodos:
 
@@ -104,7 +106,28 @@ Registrados em `criar_roteador()` — 17 métodos:
 | `zip.listar` / `zip.extrair` | ZIP SIMCAR (anti zip-slip) |
 | `template.listar` / `template.verificar` | MANIFEST; `sha256_ok` se hash registrado |
 
-**Não implementado neste sidecar:** agente IA, chat, tools DeepSeek, cliente WFS/SEMA em runtime, UI Electron.
+**Não implementado neste sidecar:** agente IA, chat, tools DeepSeek, cliente WFS/SEMA em runtime.
+
+### Eventos emitidos (v0.4.0)
+
+| Evento | Dados | Quando |
+|---|---|---|
+| `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` — **único evento emitido hoje** |
+
+Semântica (fixada em `progresso.py`): o evento sai **ao concluir** uma etapa — `etapa` é a que
+terminou e `pct` é o acumulado (3, 10, 30, 40, 45, 55, 70, 75, 90, 100). Nas etapas de camada
+(`resolvendo_camadas_locais`, `baixando_externas`) vêm eventos intermediários com `item` =
+`camadas[].id`. `pct` é monotônico. Nada é simulado por timer.
+
+```json
+{"v":1,"id":"01J8X","tipo":"evt","evento":"job.progresso","dados":{"etapa":"exportando_pdf","pct":90}}
+```
+
+No `stdio` os eventos saem na hora (com `flush`), antes da linha de `res` da requisição. Quem chama
+`processar_linha` sem sink recebe os eventos no prefixo da string devolvida.
+
+Os outros 7 eventos do contrato (`job.log`, `job.artefato_parcial`, `workspace.mudou`,
+`chat.delta`, `chat.tool`, `mapspec.atualizado`, `aviso`) continuam **sem emissor**.
 
 ### Limites conhecidos (honestos)
 
@@ -123,8 +146,7 @@ cobertura 100% em `fsguard`, validação do MapSpec canônico em `shared/fixture
 
 Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.md) (M0–M11).
 
-- **A9 — emitir `job.progresso`**: `protocolo.envelope_evt` existe e **não tem nenhum chamador**.
-  Nenhum evento NDJSON é emitido hoje; isso bloqueia a barra de progresso e as animações da UI
+- ~~A9 — emitir `job.progresso`~~ **fechado na v0.4.0** (`progresso.py`, `motores/gerar.py`)
 - A10 — `mapa.cancelar`; A11 — `cofre.*`; A12 — watcher/`workspace.mudou`; A13 — `catalogo.listar`
 - B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
 - Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
@@ -133,4 +155,5 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - Sessão (M5) — `sessao.definir`/`sessao.estado` + gate `AUTH-030`
 - Conversas (M6) — `chats.sqlite` e os 9 métodos `chat.*` de histórico
 - Agente (M7) — pasta `agente/` não existe; ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
-- UI Electron (M3) — `Fase_1_Desktop/app/` está vazia e não versionada
+- UI Electron (M3) — `Fase_1_Desktop/app/` existe e está **parcial**: scaffold, ponte NDJSON,
+  tokens e fontes; falta o shell de painéis e a barra de progresso (ver o README de lá)

@@ -9,6 +9,6 @@
     "GeoForest-IA simcar-clip TEMPLATE_LAYERS + mosaicos CURATED_IMAGERY",
     "GeoForest-IA Automacao_AUAS/ENDPOINTS.md + Oraculo 11-endpoints-sema-descobertos.md"
   ],
-  "updated": "2026-07-25",
-  "nucleo": "0.3.6"
+  "updated": "2026-07-26",
+  "nucleo": "0.4.0"
 }

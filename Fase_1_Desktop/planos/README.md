@@ -79,7 +79,7 @@ substitui nem antecede o desktop — **exceto** o serviço de identidade
 | Marco | Status |
 |---|---|
 | Planos F1-00…F1-17 | escritos; reescritos para agentes em 2026-07-25 |
-| M1 — núcleo | **bloco A fechado** · **bloco B parcial** (v0.3.6) — ver [checklist](13-checklist-implementacao.md) |
+| M1 — núcleo | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver [checklist](13-checklist-implementacao.md) |
 | M2 — motor `.mxd` | parcial (T2 copia template; T1 esqueleto; B1 não testado) |
 | M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `app/` está vazia |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |

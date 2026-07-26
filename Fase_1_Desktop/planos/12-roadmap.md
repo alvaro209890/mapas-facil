@@ -90,7 +90,7 @@ executável por agente.
 **Objetivo:** sidecar Python funcional, sem Electron, que valida `MapSpec`, indexa pasta, resolve
 camadas locais e respeita a allowlist de disco.
 
-**Estado: bloco A fechado, bloco B parcial (v0.3.6).** Detalhe em
+**Estado: bloco A fechado, bloco B parcial (v0.4.0).** Detalhe em
 [13-checklist-implementacao.md](13-checklist-implementacao.md).
 
 **Critério de saída:**

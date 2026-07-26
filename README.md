@@ -68,7 +68,7 @@ Fase 1 (Windows)                    Fase 2 (depois)
 | Marco | Status |
 |---|---|
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 |
-| M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.3.6) — ver checklist |
+| M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · **bloco B parcial** (v0.4.0) — ver checklist |
 | M2 — Motor `.mxd` | parcial (T2 copia template preparado; T1 esqueleto; B1 não testado) |
 | M3–M8 — shell, galeria, auth, conversas, agente, motion | **não iniciados** — `Fase_1_Desktop/app/` está vazia |
 | M9–M11 — Harmonia, instalador, piloto | não iniciados |

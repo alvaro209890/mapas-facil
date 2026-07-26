@@ -4,7 +4,7 @@ Contratos versionados compartilhados pela **Fase 1** (desktop) e pela **Fase 2**
 
 **Status (jul/2026):** catálogo geo versionado; schema `MapSpec` e `contract_version` **2**;
 manifesto de templates com `dinamica_retrato` **parcial** (sha256 registrado, offsets vazios);
-demais templates `a_preparar`; núcleo **v0.3.6**.
+demais templates `a_preparar`; núcleo **v0.4.0**.
 
 ## Conteúdo atual
 

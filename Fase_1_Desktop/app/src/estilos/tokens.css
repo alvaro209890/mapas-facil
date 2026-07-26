@@ -1,0 +1,115 @@
+/* C3 — tokens de cor, tipografia e movimento (F1-16 §Contratos — tokens).
+   Escuro é o default do produto (D15 / AP-08); claro é opção, em [data-tema="claro"],
+   e nunca é decidido sozinho por `prefers-color-scheme`.
+   Cor solta dentro de componente é proibida: tudo sai daqui. */
+
+:root {
+  /* superfícies — frias, sem preto puro */
+  --mf-bg: #0b0e11;
+  --mf-superficie-1: #12161b; /* painéis */
+  --mf-superficie-2: #181d24; /* cartões, mensagens */
+  --mf-superficie-3: #1f262f; /* hover, campos */
+  --mf-borda: #262e38;
+  --mf-borda-forte: #38424f;
+
+  /* texto */
+  --mf-texto: #e8edf2;
+  --mf-texto-2: #a6b2c0;
+  --mf-texto-3: #6c7a8a; /* metadados, timestamps */
+
+  /* acento — jade; não colide com a semântica do mapa (amarelo = perímetro,
+     verde hachurado = AVN, magenta = AC, laranja = AUAS) */
+  --mf-acento: #35c79a;
+  --mf-acento-forte: #57e0b4;
+  --mf-acento-fraco: rgba(53, 199, 154, 0.14);
+
+  /* semântica de status */
+  --mf-ok: #35c79a;
+  --mf-aviso: #e8a33d;
+  --mf-erro: #f2555a;
+  --mf-info: #5aa9e6;
+
+  /* raio e sombra — uma sombra, nunca pilha de sombras */
+  --mf-raio-1: 6px;
+  --mf-raio-2: 10px;
+  --mf-raio-3: 14px;
+  --mf-sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.24);
+
+  /* espaçamento — base 4 */
+  --mf-e1: 4px;
+  --mf-e2: 8px;
+  --mf-e3: 12px;
+  --mf-e4: 16px;
+  --mf-e5: 24px;
+  --mf-e6: 32px;
+  --mf-e7: 48px;
+
+  /* tipografia — as embarcadas vêm primeiro; genéricas só como último recurso */
+  --mf-fonte-display: "Space Grotesk", ui-sans-serif, sans-serif;
+  --mf-fonte-ui: "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --mf-fonte-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --mf-fs-hero: 40px/1.1; /* marca no login e no onboarding, em nenhum outro lugar */
+  --mf-fs-t1: 22px/1.25;
+  --mf-fs-t2: 17px/1.3;
+  --mf-fs-corpo: 14px/1.55;
+  --mf-fs-peq: 12px/1.45;
+  --mf-fs-micro: 11px/1.4;
+
+  --mf-tracking-display: -0.02em;
+
+  /* movimento */
+  --mf-dur-1: 120ms; /* hover, foco */
+  --mf-dur-2: 180ms; /* entrada de item, colapso */
+  --mf-dur-3: 260ms; /* troca de painel, crossfade de preview */
+  --mf-dur-4: 420ms; /* transição de tela (login → app) */
+
+  --mf-ease-saida: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mf-ease-ambos: cubic-bezier(0.4, 0, 0.2, 1);
+  --mf-ease-entrada: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Tema claro — opção explícita do usuário, nunca o default. */
+:root[data-tema="claro"] {
+  --mf-bg: #f4f6f8;
+  --mf-superficie-1: #ffffff;
+  --mf-superficie-2: #f8fafb;
+  --mf-superficie-3: #eaeef2;
+  --mf-borda: #d7dde4;
+  --mf-borda-forte: #b5bfca;
+
+  --mf-texto: #131920;
+  --mf-texto-2: #46525f;
+  --mf-texto-3: #6c7a8a;
+
+  --mf-acento: #10805e;
+  --mf-acento-forte: #0b6349;
+  --mf-acento-fraco: rgba(16, 128, 94, 0.12);
+
+  --mf-ok: #10805e;
+  --mf-aviso: #96620d;
+  --mf-erro: #c0272c;
+  --mf-info: #1c6ba8;
+
+  --mf-sombra: 0 1px 2px rgba(19, 25, 32, 0.12), 0 8px 24px rgba(19, 25, 32, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mf-dur-1: 0ms;
+    --mf-dur-2: 0ms;
+    --mf-dur-3: 0ms;
+    --mf-dur-4: 0ms;
+  }
+
+  /* Só opacidade sobrevive, e curta. Nada translada, nada escala. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 80ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 80ms !important;
+    transition-property: opacity, color, background-color, border-color !important;
+    scroll-behavior: auto !important;
+  }
+}

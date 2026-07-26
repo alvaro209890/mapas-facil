@@ -12,7 +12,7 @@ capacidade tem um plano dedicado.
 
 | Capacidade | Estado | Plano |
 |---|---|---|
-| Núcleo Python (MapSpec, workspace, quantitativos, PDF nativo, fsguard) | **parcial — v0.3.6, CI verde** | [F1-03](03-nucleo-python.md) |
+| Núcleo Python (MapSpec, workspace, quantitativos, PDF nativo, fsguard) | **parcial — v0.4.0, CI verde** | [F1-03](03-nucleo-python.md) |
 | Motor `.mxd` | **parcial** — T2 copia template; T1 esqueleto; B1 pendente | [F1-04](04-motor-mxd.md) |
 | App Electron / qualquer UI | **ausente** (`app/` vazia) | [F1-02](02-ui-chat-e-workspace.md) |
 | Design system dark + animações | **ausente** | [F1-16](16-design-system-dark.md) |

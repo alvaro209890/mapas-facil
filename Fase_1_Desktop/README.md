@@ -22,7 +22,7 @@ nenhum.
 | Pasta | O que é |
 |---|---|
 | [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 1 (F1-00…F1-13) |
-| [`nucleo/`](nucleo/) | núcleo Python sidecar — **M1 bloco A fechado**, bloco B parcial (**v0.3.6**) |
+| [`nucleo/`](nucleo/) | núcleo Python sidecar — **M1 bloco A fechado**, bloco B parcial (**v0.4.0**) |
 
 A pasta `app/` (Electron + React) **ainda não existe** no repositório — UI não iniciada.
 
@@ -46,5 +46,5 @@ Valem para as duas fases e vivem na raiz do repositório:
 | Marco | Status |
 |---|---|
 | Planos | F1-00…F1-13 escritos |
-| Núcleo Python | **bloco A fechado** · bloco B parcial — v0.3.6, CI anel 1 verde |
+| Núcleo Python | **bloco A fechado** · bloco B parcial — v0.4.0, CI anel 1 verde |
 | UI Electron | não iniciado |

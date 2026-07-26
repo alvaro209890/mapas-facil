@@ -13,14 +13,14 @@ pasta ou função. Se diz `parcial`, leia a nota — ela lista o que falta.
 Verificações rápidas de realidade (rode antes de planejar):
 
 ```bash
-ls Fase_1_Desktop/app                      # vazio/inexistente = UI não iniciada
-ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.3.6
-grep -rn "envelope_evt" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
-#   → só a definição em protocolo.py: NENHUM evento é emitido hoje
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
+ls Fase_1_Desktop/app                      # parcial: scaffold+ponte+tokens, SEM entrada do renderer
+ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
+grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
+#   → definição + chamadores: job.progresso é emitido (A9); os outros 7 eventos, não
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (148 testes)
 ```
 
-## O que existe hoje (2026-07-25, núcleo v0.3.6)
+## O que existe hoje (2026-07-26, núcleo v0.4.0)
 
 | Camada | Estado | Onde |
 |---|---|---|
@@ -30,6 +30,8 @@ cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **17 métodos** implementados | `Fase_1_Desktop/nucleo/` |
+| Emissão de `job.progresso` (10 etapas) | **fechada** (A9, v0.4.0) — único evento com emissor | `nucleo/.../progresso.py`, `motores/gerar.py` |
+| App Electron | **parcial**: scaffold, ponte NDJSON, tokens, fontes. Sem entrada do renderer, sem `pnpm install` | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -39,9 +41,12 @@ cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde
 
 ## O que NÃO existe (não invente que existe)
 
-- `Fase_1_Desktop/app/` — pasta vazia e **não versionada**. Não há Electron, React, IPC, nem build.
-- Emissão de eventos NDJSON. `job.progresso`, `chat.delta`, `chat.tool`, `workspace.mudou`,
-  `aviso` são **contrato especificado, zero implementação**.
+- Interface de verdade: `Fase_1_Desktop/app/` tem scaffold, ponte, tokens e fontes, mas **nenhum
+  componente React** — sem `index.html`, `main.tsx`, `App.tsx`, `AppShell` ou barra de progresso.
+  `pnpm install`/`build`/`test` nunca rodaram ali. Detalhe em [`app/README.md`](Fase_1_Desktop/app/README.md).
+- Os outros 7 eventos NDJSON: `job.log`, `job.artefato_parcial`, `workspace.mudou`, `chat.delta`,
+  `chat.tool`, `mapspec.atualizado`, `aviso` seguem **contrato especificado, zero implementação**.
+  Só `job.progresso` tem emissor.
 - Agente de IA, cliente DeepSeek, tools, montador de contexto, compressão.
 - Autenticação, conta, site de login, backend de identidade.
 - Galeria de modelos (`shared/galeria/` não existe).
@@ -122,11 +127,11 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **ausente** | `Fase_1_Desktop/app/` (criar) |
-| R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **ausente** | `app/src/estilos/tokens.css` |
-| R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **ausente** | `app/src/estilos/fontes/` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **parcial** — scaffold + ponte NDJSON (C1/C2); sem renderer e sem `AppShell` | `app/index.html`, `app/src/main.tsx`, `app/src/layout/AppShell.tsx` |
+| R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — falta só o `data-tema` ser aplicado por um renderer que ainda não existe | `app/src/estilos/tokens.css` |
+| R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
 | R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **ausente** | `app/src/motion/` |
-| R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **ausente** (só `envelope_evt` definido) | `nucleo/mapasfacil_nucleo/motores/gerar.py` |
+| R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato novo | **ausente — contrato só especificado** | `nucleo/.../motores/gerar.py`, `protocolo.py` |
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **ausente** | `shared/galeria/modelos.json`, `nucleo/.../galeria/` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **ausente** | `nucleo/.../galeria/servico.py` |

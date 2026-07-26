@@ -6,7 +6,7 @@ Documentação do progresso do **motor `.mxd`** quando o desenvolvimento roda em
 Plano de referência: [`../../planos/04-motor-mxd.md`](../../planos/04-motor-mxd.md)  
 Checklist: [`../../planos/13-checklist-implementacao.md`](../../planos/13-checklist-implementacao.md)
 
-## Resumo (v0.3.6)
+## Resumo (v0.4.0)
 
 | Item | Status | Onde |
 |---|---|---|

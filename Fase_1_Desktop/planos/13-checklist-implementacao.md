@@ -6,14 +6,14 @@ analysis em [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#gap-analysis--requisit
 
 Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
-## Estado em 2026-07-25
+## Estado em 2026-07-26
 
 | Bloco | Marco | Estado |
 |---|---|---|
-| A — fundação do núcleo | M1 | **fechado** |
+| A — fundação do núcleo | M1 | **fechado** exceto A10–A13 (A9 fechou em 2026-07-26) |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3) |
 | B — motor `.mxd` | M2 | **parcial** — B1 estendido e **não testado** (sem arcpy neste ambiente) |
-| C — shell + design system | M3 | **não iniciado** — `app/` vazia |
+| C — shell + design system | M3 | **parcial** — scaffold + ponte + tokens + fontes; sem entrada do renderer |
 | D — galeria | M4 | **não iniciado** |
 | E — conta e auth | M5 | **não iniciado** |
 | F — conversas | M6 | **não iniciado** |
@@ -44,7 +44,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | A6 | CLI `doctor` | [x] | stub Linux; ArcMap/rede só no Windows |
 | A7 | PDF nativo + `validacao.json` | [x] | ordem de desenho: menor `ordem` por cima |
 | A8 | `pytest` + CI | [x] | anel 1 verde |
-| **A9** | **Emissão de `job.progresso` nas 10 etapas** | [ ] | `protocolo.envelope_evt` existe **sem nenhum chamador** — bloqueia C6 e H1 |
+| **A9** | **Emissão de `job.progresso` nas 10 etapas** | [x] | v0.4.0 — `progresso.py` (etapas, pesos, `pct` monotônico), `protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)`, `motores/gerar.py` nas 10 etapas com `item` nas camadas locais. `tests/test_job_progresso.py` (16 testes). Desbloqueia C6 e H1 |
 | **A10** | `mapa.cancelar` com `taskkill /T /F` | [ ] | |
 | **A11** | `cofre.definir` / `existe` / `testar` | [ ] | Credential Manager; nunca devolve valor |
 | **A12** | `workspace.mudou` (watcher, debounce 500 ms) | [ ] | |
@@ -85,16 +85,18 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 ## Bloco C — Shell Electron + design system (M3)
 
 Planos: [F1-02](02-ui-chat-e-workspace.md), [F1-16](16-design-system-dark.md).
-**A pasta `Fase_1_Desktop/app/` está vazia e não versionada — comece criando-a.**
+**A pasta `Fase_1_Desktop/app/` existe e está parcial** — estado detalhado em
+[`../app/README.md`](../app/README.md). Falta a entrada do renderer (`index.html`, `main.tsx`,
+`App.tsx`): hoje `pnpm build`/`pnpm dev` **não rodam**, e nenhum `pnpm install` foi feito.
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| C1 | Scaffold Electron + Vite + React 19 + TS | [ ] | `app/package.json`, `app/electron/main.ts` |
-| C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [ ] | `app/electron/nucleo/ponte.ts` |
-| C3 | Tokens de cor, tipografia e movimento | [ ] | `app/src/estilos/tokens.css` |
-| C4 | Fontes embarcadas (Space Grotesk, IBM Plex Sans/Mono) | [ ] | `app/src/estilos/fontes/` |
-| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [ ] | `app/src/layout/AppShell.tsx` |
-| C6 | `barra-progresso-job` consumindo `job.progresso` | [ ] | depende de **A9** |
+| C1 | Scaffold Electron + Vite + React 19 + TS | [~] | `app/package.json`, `app/electron/main.ts`, `app/electron/preload.ts`, `vite.config.ts`, `tsconfig*.json` — **falta a entrada do renderer**; install/build/typecheck não rodados |
+| C2 | Ponte NDJSON com o sidecar (spawn, reinício, `UI-001`) | [~] | `app/electron/nucleo/ponte.ts` — código completo (framing, pendentes rejeitadas, 3 reinícios, `UI-001`); **sem teste executado** |
+| C3 | Tokens de cor, tipografia e movimento | [x] | `app/src/estilos/tokens.css` (+ `reset.css`); escuro default, claro em `[data-tema="claro"]`, reduced-motion ≤ 80 ms |
+| C4 | Fontes embarcadas (Space Grotesk, IBM Plex Sans/Mono) | [x] | `app/src/estilos/fontes/` — woff2 latin/latin-ext + `@font-face` + licenças OFL; zero CDN |
+| C5 | `AppShell` com os 4 painéis redimensionáveis e persistidos | [ ] | `app/src/layout/AppShell.tsx` — IPC de preferências já existe (`preferencias.ts`) |
+| C6 | `barra-progresso-job` consumindo `job.progresso` | [ ] | **desbloqueado por A9**; contrato tipado em `app/src/estado/eventos.ts` |
 | C7 | `painel-workspace` com metadados inline | [ ] | `app/src/paineis/Workspace.tsx` |
 | C8 | `doctor-resumo` + tela completa | [ ] | `app/src/componentes/Doctor*.tsx` |
 | C9 | Estados vazios e de erro (tabela de F1-02) | [ ] | `app/src/componentes/EstadoVazio.tsx` |

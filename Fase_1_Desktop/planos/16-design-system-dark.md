@@ -13,10 +13,10 @@ verdade visual da **interface**; o visual do **mapa** continua sendo
 
 | Item | Atual | Alvo |
 |---|---|---|
-| Tokens, tema, fontes | **ausentes** (não há `app/`) | `app/src/estilos/tokens.css` + fontes embarcadas |
-| Eventos NDJSON que alimentam animação | **ausentes** — `envelope_evt` existe em `protocolo.py`, **nenhum método emite evento** | `job.progresso` no M3/M8; `chat.delta`/`chat.tool` no M7 |
+| Tokens, tema, fontes | **existem** (C3/C4) — sem consumidor ainda | `app/src/estilos/tokens.css` + fontes embarcadas |
+| Eventos NDJSON que alimentam animação | **`job.progresso` emitido** (A9); `chat.delta`/`chat.tool` ainda não | `job.progresso` no M3/M8; `chat.delta`/`chat.tool` no M7 |
 | `job.artefato_parcial` (preview em construção) | **não existe nem como contrato** | contrato definido aqui, implementado no M8 |
-| `prefers-reduced-motion` | ausente | respeitado |
+| `prefers-reduced-motion` | **respeitado** em `tokens.css` (≤ 80 ms, só opacidade/cor) | respeitado |
 
 **Regra de honestidade:** enquanto o núcleo não emitir um evento, a animação correspondente
 **não existe na UI**. Não substitua por spinner infinito nem por progresso simulado por
@@ -28,7 +28,7 @@ de porcentagem.
 | Precisa de | Estado |
 |---|---|
 | M3 — shell Electron + React | ausente |
-| Emissor de `job.progresso` no núcleo | ausente — tarefa deste plano |
+| Emissor de `job.progresso` no núcleo | **existe** (A9, núcleo v0.4.0) |
 | `chat.delta` / `chat.tool` | ausentes — [F1-06](06-agente-eng-florestal.md), M7 |
 | `job.artefato_parcial` | ausente — contrato abaixo, M8 |
 
@@ -153,7 +153,7 @@ Windows ("Mostrar animações no Windows" em Facilidade de Acesso).
 
 | Evento | Dados | Quem emite | Estado |
 |---|---|---|---|
-| `job.progresso` | `{etapa, pct, item?}` | `motores/gerar.py` | **a implementar** (M3) |
+| `job.progresso` | `{etapa, pct, item?}` | `motores/gerar.py` | **implementado** (A9) — emitido ao concluir cada etapa |
 | `job.log` | `{linha}` | núcleo | a implementar |
 | `chat.delta` | `{texto}` | agente | a implementar (M7) |
 | `chat.tool` | `{trace_id, tool, fase:"inicio"\|"fim", args_resumo?, resultado_resumo?, ms?, ok?}` | agente | a implementar (M7) |
@@ -321,17 +321,17 @@ Enquanto o M8 não fecha, a Fase 2 **não é simulada**. O DoD visual aceita a F
 
 ## Tarefas agentáveis
 
-- [ ] `app/src/estilos/tokens.css` — todos os tokens acima, `:root` escuro + `[data-tema="claro"]`
-- [ ] `app/src/estilos/fontes/` — Space Grotesk, IBM Plex Sans, IBM Plex Mono (woff2) + `@font-face`
-- [ ] `app/src/estilos/reset.css`
+- [x] `app/src/estilos/tokens.css` — todos os tokens acima, `:root` escuro + `[data-tema="claro"]`
+- [x] `app/src/estilos/fontes/` — Space Grotesk, IBM Plex Sans, IBM Plex Mono (woff2) + `@font-face`
+- [x] `app/src/estilos/reset.css`
 - [ ] `app/src/motion/tokens.ts` — durações e easings espelhando o CSS, para animação em JS
 - [ ] `app/src/motion/useReducedMotion.ts`
 - [ ] Componentes da tabela de IDs, um arquivo por linha
-- [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — **emitir `job.progresso`** nas 10 etapas,
-      com `item` nas etapas de camada (usa `protocolo.envelope_evt`, hoje sem chamador)
+- [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — **emitir `job.progresso`** nas 10 etapas,
+      com `item` nas etapas de camada
 - [ ] `nucleo/mapasfacil_nucleo/protocolo.py` — registrar `job.artefato_parcial` no vocabulário
 - [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.artefato_parcial` (M8)
-- [ ] `app/src/estado/eventos.ts` — assinatura dos eventos NDJSON → store
+- [~] `app/src/estado/eventos.ts` — assinatura dos eventos NDJSON pronta; falta o store
 - [ ] `app/tests/visual/` — testes do DoD abaixo
 
 ## Critérios de aceite (DoD visual verificável)

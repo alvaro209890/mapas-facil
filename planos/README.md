@@ -48,7 +48,7 @@ O PR que muda tem de atualizar os planos de fase afetados junto.
 | Marco | Status |
 |---|---|
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 (D10–D20) |
-| Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.3.6) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
+| Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.4.0) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
 | Fase 1 — app Electron, galeria, auth, conversas, agente | não iniciados |
 | Fase 2 — identidade ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)) | **não iniciada, mas bloqueia o M5 da Fase 1** (D10) |
 | Fase 2 — restante | não iniciado; começa depois do M11 |

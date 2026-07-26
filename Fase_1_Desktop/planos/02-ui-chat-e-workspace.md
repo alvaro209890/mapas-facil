@@ -13,19 +13,19 @@ Este documento é o que amarra os quatro num layout.
 
 | Item | Atual | Alvo |
 |---|---|---|
-| `Fase_1_Desktop/app/` | pasta **vazia e não versionada** | app Electron + React completo |
-| Qualquer componente de UI | **ausente** | tabela de IDs abaixo |
-| Eventos que a UI consome | **nenhum é emitido** pelo núcleo | 8 eventos ([F1-01](01-arquitetura.md)) |
+| `Fase_1_Desktop/app/` | **parcial** — scaffold, ponte NDJSON, tokens e fontes | app Electron + React completo |
+| Qualquer componente de UI | **ausente** — nem `index.html`/`main.tsx` existem | tabela de IDs abaixo |
+| Eventos que a UI consome | **só `job.progresso`** é emitido pelo núcleo | 8 eventos ([F1-01](01-arquitetura.md)) |
 
-Um agente que for implementar M3 começa criando `Fase_1_Desktop/app/` do zero. Não há scaffold,
-`package.json`, nem configuração de build no repositório.
+Quem continuar o M3 começa pela entrada do renderer; o scaffold, o `package.json` e a ponte já
+estão no repositório — ver [`../app/README.md`](../app/README.md).
 
 ## Dependências
 
 | Precisa de | Estado |
 |---|---|
 | Núcleo respondendo NDJSON | **existe** (17 métodos) |
-| `job.progresso` emitido | ausente — bloqueia a barra de progresso real |
+| `job.progresso` emitido | **existe** (A9, núcleo v0.4.0) |
 | Backend de identidade | ausente — bloqueia a tela de login |
 | `shared/galeria/modelos.json` | ausente — bloqueia o painel da galeria |
 
@@ -221,9 +221,9 @@ claro é opção, nunca o padrão (AP-08).
 
 ## Tarefas agentáveis
 
-- [ ] `Fase_1_Desktop/app/` — scaffold Electron + Vite + React 19 + TS (a pasta está vazia)
-- [ ] `app/electron/main.ts` — janela, menus, diálogo de pasta, tray
-- [ ] `app/electron/nucleo/ponte.ts` — spawn do sidecar, NDJSON, reinício, `UI-001`
+- [~] `Fase_1_Desktop/app/` — scaffold Electron + Vite + React 19 + TS *(falta a entrada do renderer)*
+- [~] `app/electron/main.ts` — janela e ciclo da ponte prontos; menus, diálogo de pasta e tray faltam
+- [x] `app/electron/nucleo/ponte.ts` — spawn do sidecar, NDJSON, reinício, `UI-001` *(sem teste executado)*
 - [ ] `app/src/layout/AppShell.tsx` — os quatro painéis, redimensionáveis e persistidos
 - [ ] `app/src/paineis/Workspace.tsx` — árvore com metadados inline
 - [ ] `app/src/paineis/Chat.tsx` + `componentes/CartaoTool.tsx` + `BlocoRaciocinio.tsx`

@@ -13,9 +13,9 @@ redefinidos aqui.
 
 | Peça | Atual | Alvo |
 |---|---|---|
-| Sidecar Python NDJSON | **existe**, v0.3.6, 17 métodos | 40+ métodos (tabela abaixo) |
-| Emissão de eventos | **ausente** — `envelope_evt` definido em `protocolo.py`, sem nenhum chamador | 8 eventos emitidos |
-| Electron main + renderer | **ausente** — `Fase_1_Desktop/app/` vazia e não versionada | shell completo |
+| Sidecar Python NDJSON | **existe**, v0.4.0, 17 métodos | 40+ métodos (tabela abaixo) |
+| Emissão de eventos | **parcial** — `job.progresso` emitido (A9); os outros 7 sem chamador | 8 eventos emitidos |
+| Electron main + renderer | **parcial** — main, preload e ponte NDJSON existem; renderer ainda não | shell completo |
 | Ponte ArcPy (py 2.7) | esqueleto | T1 funcional |
 | Cofre / Credential Manager | **ausente** | tokens de sessão + chaves BYOK |
 | Backend de identidade | **ausente** | [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md), dependência bloqueante |
@@ -128,12 +128,13 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 
 ### Eventos
 
-**Nenhum evento é emitido hoje.** `protocolo.envelope_evt` existe e não tem chamador — o agente
-que implementar o primeiro emissor é quem inaugura a mecânica.
+**Só `job.progresso` é emitido hoje** (A9, núcleo v0.4.0). A mecânica está inaugurada:
+`protocolo.Emissor` + `Roteador.despachar(mensagem, emitir)` + registro com `com_eventos=True`.
+Quem implementar os outros eventos reaproveita esse canal.
 
 | Evento | Dados | Quando | Estado |
 |---|---|---|---|
-| `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` | **falta** — bloqueia A4/A5 de [F1-16](16-design-system-dark.md) |
+| `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar` | **existe** (A9) — emitido ao concluir cada etapa; `pct` acumulado e monotônico |
 | `job.log` | `{linha}` | log técnico do job | falta |
 | `job.artefato_parcial` | `{tipo, caminho, etapa, …}` | artefato intermediário pronto | **falta — contrato novo**, ver [F1-16](16-design-system-dark.md) |
 | `workspace.mudou` | `{mudancas:[]}` | watcher detectou alteração | falta |
@@ -332,21 +333,23 @@ só a checagem de sanidade no boot (`UI-010`).
 
 ## Tarefas agentáveis
 
-- [ ] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.progresso` nas 10 etapas
-- [ ] `nucleo/mapasfacil_nucleo/__main__.py` — canal de eventos no roteador (hoje só req/res)
+- [x] `nucleo/mapasfacil_nucleo/motores/gerar.py` — emitir `job.progresso` nas 10 etapas
+- [x] `nucleo/mapasfacil_nucleo/__main__.py` — canal de eventos no roteador
 - [ ] `nucleo/mapasfacil_nucleo/sessao.py` — `sessao.definir` / `sessao.estado` + gate
 - [ ] `nucleo/mapasfacil_nucleo/cofre.py` — Credential Manager; `existe`/`testar` nunca devolvem valor
 - [ ] `nucleo/mapasfacil_nucleo/workspace/watcher.py` — debounce 500 ms + `workspace.mudou`
 - [ ] `nucleo/mapasfacil_nucleo/jobs.py` — `mapa.cancelar` com `taskkill /T /F`
-- [ ] `app/electron/main.ts`, `app/electron/nucleo/ponte.ts` — spawn, NDJSON, reinício
-- [ ] `app/electron/ipc/` — canais tipados; nenhum expõe caminho absoluto sem passar pelo núcleo
-- [ ] `app/src/estado/eventos.ts` — assinatura dos 8 eventos
+- [x] `app/electron/main.ts`, `app/electron/nucleo/ponte.ts` — spawn, NDJSON, reinício *(sem teste executado)*
+- [x] `app/electron/ipc/` — canais tipados; nenhum expõe caminho absoluto sem passar pelo núcleo
+- [x] `app/src/estado/eventos.ts` — assinatura dos 8 eventos
 
 ## Critérios de aceite
 
-- [ ] `python -m mapasfacil_nucleo stdio` + `mapa.gerar` na fixture Harmonia emite **10** linhas
-      `tipo:"evt"` com `evento:"job.progresso"`, `pct` monotônico de 3 a 100
-- [ ] `grep -rn "envelope_evt" nucleo/mapasfacil_nucleo/` retorna a definição **e ao menos um chamador**
+- [x] `python -m mapasfacil_nucleo stdio` + `mapa.gerar` na fixture Harmonia emite **as 10 etapas**
+      em linhas `tipo:"evt"` com `evento:"job.progresso"`, `pct` monotônico de 3 a 100 — mais um
+      evento por camada nas etapas com `item`, então o total é ≥ 10
+      (`tests/test_job_progresso.py::test_mapa_gerar_emite_as_dez_etapas_em_ordem`)
+- [x] `grep -rn "envelope_evt" nucleo/mapasfacil_nucleo/` retorna a definição **e ao menos um chamador**
 - [ ] `mapa.cancelar` durante um job mata a árvore de processos: nenhum `python.exe` órfão
       (`tasklist` antes/depois no teste do anel 3)
 - [ ] `sessao.estado` = `desconectado` faz `mapa.gerar` devolver `AUTH-030` e `workspace.abrir` funcionar
