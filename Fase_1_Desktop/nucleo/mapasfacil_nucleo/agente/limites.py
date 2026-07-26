@@ -40,6 +40,8 @@ CODIGO_LIMITE_RODADAS: Final = "IA-030"
 CODIGO_CONTEXTO_EXCEDIDO: Final = "IA-040"
 CODIGO_TETO_CONVERSA: Final = "IA-041"
 CODIGO_RESPOSTA_TRUNCADA: Final = "IA-050"
+CODIGO_VISAO_INDISPONIVEL: Final = "IA-060"
+CODIGO_VISAO_RESPOSTA_INVALIDA: Final = "IA-061"
 
 # --------------------------------------------------------------------------- tipos
 
@@ -78,6 +80,8 @@ __all__ = (
     "CODIGO_CONTEXTO_EXCEDIDO",
     "CODIGO_TETO_CONVERSA",
     "CODIGO_RESPOSTA_TRUNCADA",
+    "CODIGO_VISAO_INDISPONIVEL",
+    "CODIGO_VISAO_RESPOSTA_INVALIDA",
     "ResultadoToolTruncado",
     "estimar_tokens",
     "estimar_tokens_json",

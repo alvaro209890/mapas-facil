@@ -146,25 +146,44 @@ Regra: **confiança abaixo de 0,7 em qualquer item vira pergunta, não palpite.*
 
 ## Checklist de implementação
 
-- [ ] Pré-processamento de imagem (deskew, recorte, normalização)
-- [ ] Detecção de moldura e segmentação de blocos
-- [ ] Amostragem de cor nos swatches da legenda
-- [ ] OCR para print; extração direta para PDF
-- [ ] Contagem de rótulos DMS
-- [ ] Prompt de visão recebendo imagem + medidas
-- [ ] Mapeamento cor → estilo do catálogo com distância de cor
-- [ ] Extrator de `.mxd` (com e sem arcpy)
-- [ ] Detecção de definition queries herdadas
-- [ ] Leitor de `.zip` reusando o do workspace
-- [ ] Tela de confirmação item a item, com confiança
-- [ ] Recusa explícita quando o layout não é do perfil
+Estado em 2026-07-26 — `agente/visao/` (núcleo), tool `analisar_referencia` real.
+
+- [~] Pré-processamento de imagem — sem deskew/recorte de margem (MVP simples, como o
+      documento de missão autorizou); `imagem.py` mede orientação, proporção e formato
+      direto na imagem/raster
+- [~] Detecção de moldura — heurística de luminância borda×interior (`imagem.detectar_moldura`),
+      não segmentação de blocos/faixa inferior de verdade
+- [~] Amostragem de cor — paleta quantizada da imagem inteira (`imagem.cores_dominantes`),
+      não o swatch exato da legenda; o modelo de visão interpreta qual cor é qual camada
+- [ ] OCR para print — **não implementado, deliberado** (P2): sem Tesseract embarcado;
+      o modelo de visão lê o texto da imagem direto, print sem chave vira só o determinístico
+- [x] Extração direta de texto para PDF — `pdf.py` (PyMuPDF), com raster da página 1 sempre
+      (alimenta as medidas de imagem e o modelo de visão)
+- [ ] Contagem de rótulos DMS — não implementado
+- [x] Prompt de visão recebendo imagem + medidas — `prompt.py`, instrui a não contradizer
+      as medidas e restringe o vocabulário (série/estilo) ao catálogo real
+- [~] Mapeamento cor → estilo — o modelo de visão sugere; `mapear.sanitizar_resposta`
+      valida contra `ESTILOS_PERMITIDOS` e descarta o que não bate (AP-04); **não** há
+      cálculo de distância de cor determinístico até o estilo mais próximo
+- [x] Extrator de `.mxd` sem arcpy — `mxd_strings.py`: varredura de strings ASCII/UTF-16LE
+      + heurística contra o vocabulário real (papéis locais + `layer` do catálogo A13);
+      testado contra o acervo real (`Referencias_IMAP/MXD/Dinamica_2026.mxd` acha `CAR_ATP`)
+- [x] Detecção de definition queries herdadas — mesmo extrator; achado do plano confirmado
+      ao vivo (`"nome" = 'Querência'` sobrevive no blob de vários `.mxd` do acervo)
+- [x] Leitor de `.zip` reusando o do workspace — `zip_inventario.py` sobre
+      `workspace/zip_simcar.py` (anti zip-slip já existente); se achar `.mxd`, extrai e
+      segue caminho 2; se um único PDF sem `.mxd`, segue caminho 1
+- [ ] Tela de confirmação item a item — **fora de escopo desta fatia** (mission explícita);
+      a confirmação hoje é o resultado tipado da tool no chat (perguntas + MapSpec candidato)
+- [x] Recusa explícita quando o layout não é do perfil — `mapa_da_serie`/`template_sugerido`
+      fora do vocabulário nunca vira MapSpec; vira pergunta, nunca template inventado
 
 ## Pendências
 
-| # | Questão |
-|---|---|
-| P1 | Confirmar que o modelo DeepSeek V4 com visão está disponível e é bom o suficiente |
-| P2 | OCR: Tesseract embarcado (+40 MB) ou deixar para o modelo de visão ler? |
-| P3 | Ler strings de `.mxd` sem `arcpy` é frágil (OLE binário). Medir a taxa de acerto no acervo de 24 arquivos |
-| P4 | Vale extrair simbologia do `.mxd` de referência para gerar um `.lyr` novo automaticamente? |
-| P5 | Limiar de confiança 0,7 é chute — calibrar com os 21 PDFs do acervo como conjunto de teste |
+| # | Questão | Estado 2026-07-26 |
+|---|---|---|
+| P1 | Confirmar que o modelo DeepSeek V4 com visão está disponível e é bom o suficiente | **ainda aberta** — `agente/visao/provedor.py` está pronto (payload multimodal OpenAI-compatible, `MODELO_VISAO_PADRAO = "deepseek-vl"` sobrescrevível por `MAPASFACIL_MODELO_VISAO`), mas ninguém confirmou o nome do modelo real na conta. Sem confirmação, toda chamada real degrada com `IA-060` — o determinístico continua valendo |
+| P2 | OCR: Tesseract embarcado (+40 MB) ou deixar para o modelo de visão ler? | **decidido por ora**: sem Tesseract. Print sem chave de visão configurada fica só no determinístico (orientação/cores/moldura), sem nenhum texto lido — reabrir se P1 confirmar que o modelo de visão não lê texto bem o bastante |
+| P3 | Ler strings de `.mxd` sem `arcpy` é frágil (OLE binário). Medir a taxa de acerto no acervo de 24 arquivos | **medido parcialmente**: rodei contra os 24 `.mxd` do acervo — a maioria acha ao menos 1 `layer` do catálogo (`CAR_ATP` etc.) e as definition queries herdadas; taxa de acerto formal (precision/recall por arquivo) não foi calculada, é leitura honestamente parcial, nunca estrutura completa |
+| P4 | Vale extrair simbologia do `.mxd` de referência para gerar um `.lyr` novo automaticamente? | ainda aberta — fora de escopo desta fatia |
+| P5 | Limiar de confiança 0,7 é chute — calibrar com os 21 PDFs do acervo como conjunto de teste | ainda aberta — o limiar está em `mapear.LIMIAR_CONFIANCA`, um único ponto pra ajustar quando alguém calibrar com dado real |

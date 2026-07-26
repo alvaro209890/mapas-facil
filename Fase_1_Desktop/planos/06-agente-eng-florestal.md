@@ -12,7 +12,7 @@ custo em pastas reais), os guard rails e os testes.
 | Item | Atual | Alvo |
 |---|---|---|
 | Cliente DeepSeek | **feito** (stream SSE + fake CI) | streaming + tool calling + cancelamento |
-| Tools | **26/27 reais** (A13 ligou `consultar_sema`/`distancia_ate`); 1 com `IA-022` até F1-07 | 27 tools tipadas |
+| Tools | **27/27 reais** (A13 ligou `consultar_sema`/`distancia_ate`; F1-07 ligou `analisar_referencia`) | 27 tools tipadas |
 | Orquestrador / cancelamento | **feito** | parcial gravada + HTTP fechado |
 | `chat.enviar` / `chat.cancelar` | **feitos** (G7) — cancelamento grava parcial e fecha o stream | métodos NDJSON |
 | Edição versionada do MapSpec | **feito** — `agente/edicao.py` + `mapspec_store.py` (disco) | §Versionamento |
@@ -24,11 +24,12 @@ custo em pastas reais), os guard rails e os testes.
 A pasta `agente/` cobre G1–G11 com testes sem rede (FakeProvedor + VCR).
 
 `consultar_sema` e `distancia_ate` saíram de `IA-022` em A13 — chamam `camadas/resolver.py`
-(`camada.resolver`) de verdade, com fixtures HTTP nos testes (sem rede no CI). Só
-`analisar_referencia` ainda responde `IA-022`, esperando o fluxo de visão
-([F1-07](07-visao-print-e-zip.md)). Nenhuma outra tool é stub — o registro está em
-`TOOLS_COM_DEPENDENCIA_PENDENTE` e um teste falha se essa lista crescer sem que alguém atualize
-este plano.
+(`camada.resolver`) de verdade, com fixtures HTTP nos testes (sem rede no CI). `analisar_referencia`
+saiu de `IA-022` em F1-07 (2026-07-26) — chama `agente/visao/servico.py` de verdade: determinístico
+sempre (imagem/PDF/`.mxd`/`.zip`), modelo de visão só quando há chave configurada, com degrade
+tipado (`IA-060`/`IA-061`) quando não há. **Nenhuma tool é stub hoje** —
+`TOOLS_COM_DEPENDENCIA_PENDENTE` está vazio e um teste falha se essa lista crescer sem que alguém
+atualize este plano.
 
 ## Dependências
 
@@ -421,12 +422,14 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] `nucleo/mapasfacil_nucleo/agente/limites.py` — as constantes da tabela de orçamento
 - [x] `nucleo/mapasfacil_nucleo/agente/contexto.py` — memória de trabalho, transcript, diff, compressão
 - [x] `nucleo/mapasfacil_nucleo/agente/resumo.py` — `compact_summary` (heurística CI + LLM opcional)
-- [~] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools; 26 reais (A13), 1 travada em F1-07
+- [x] `nucleo/mapasfacil_nucleo/agente/tools.py` — 27 tools, todas reais (A13 + F1-07 fecharam as últimas 3)
 - [x] `nucleo/mapasfacil_nucleo/agente/edicao.py` — nova versão do MapSpec + diff em português
 - [x] `nucleo/mapasfacil_nucleo/agente/mapspec_store.py` — persistência em `{chats}/mapspecs/{id}.json`
 - [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
 - [x] redator reusa `conversas/redator.py` (WKT/CPF/chaves/caminhos)
-- [ ] `nucleo/mapasfacil_nucleo/agente/visao.py` — print/zip → `MapSpec` ([F1-07](07-visao-print-e-zip.md))
+- [x] `nucleo/mapasfacil_nucleo/agente/visao/` — print/PDF/`.mxd`/`.zip` → `MapSpec`
+      ([F1-07](07-visao-print-e-zip.md)) — determinístico completo; modelo de visão pronto,
+      mas P1 (nome/disponibilidade do modelo DeepSeek com visão) segue em aberto
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — `chat.enviar`, `chat.cancelar` + eventos
 - [x] FakeProvedor + VCR (`agente/vcr.py`, `tests/agente/cassetes/`, `tests/test_agente_vcr.py`)
 - [x] `nucleo/tests/test_contexto_vazamento.py`
@@ -496,7 +499,7 @@ Critério de aprovação: **11 de 12 em 3 execuções consecutivas.**
 
 | # | Questão | Recomendação |
 |---|---|---|
-| P1 | Qual modelo da família V4 tem visão | confirmar antes do M7; se nenhum, o [F1-07](07-visao-print-e-zip.md) degrada para leitura de `.mxd`/`.zip` |
+| P1 | Qual modelo da família V4 tem visão | **ainda sem confirmação** (F1-07, 2026-07-26) — cliente pronto (`agente/visao/provedor.py`), mas sem nome de modelo confirmado toda chamada degrada com `IA-060`; `.mxd`/`.zip` já funcionam sem depender disso |
 | P2 | Resumo do histórico: por LLM (custa) ou por regra (perde nuance) | **por LLM com `flash`**, a cada 6 turnos — barato e melhor |
 | P3 | Sugerir a série inteira ao detectar pasta de análise | sugerir **uma vez**, na mensagem de abertura, sem executar |
 | P4 | System prompt no binário ou em arquivo editável | **no binário**, versionado com o app; arquivo editável vira suporte impossível |

@@ -53,10 +53,11 @@ def test_todas_as_tools_tem_schema_tipado():
         assert fn["description"] and not fn["description"].startswith("Tool "), nome
 
 
-def test_so_analisar_referencia_depende_de_peca_futura(ctx: dict[str, Any]):
-    """O resto tem de responder de verdade — stub silencioso é dívida escondida.
+def test_nenhuma_tool_depende_de_peca_futura(ctx: dict[str, Any]):
+    """Nenhuma tool é stub — a última (`analisar_referencia`) fechou em F1-07.
 
-    A13 tirou `consultar_sema`/`distancia_ate` da lista (camada.resolver real).
+    A13 tirou `consultar_sema`/`distancia_ate` (camada.resolver real); F1-07 tirou
+    `analisar_referencia` (agente/visao/).
     """
     pendentes = set()
     for nome in nomes_tools():

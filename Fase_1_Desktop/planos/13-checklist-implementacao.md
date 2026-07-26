@@ -17,7 +17,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | D — galeria | M4 | **fechado** — catálogo, montar_mapspec, UI no painel direito |
 | E — conta local (e-mail + senha) | M5 | **fechado** — E1–E9 (SQLite Argon2id, `tela-login`, gate `AUTH-030`, testes) |
 | F — conversas | M6 | **fechado** — F1–F7 (SQLite, redator, 10 métodos `chat.*`, barra-chats, testes) |
-| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 26/27 tools desde A13; 1× `IA-022` até F1-07) |
+| G — agente | M7 | **fechado** — G1–G11 (VCR/cassetes, MapSpec em disco, 27/27 tools desde F1-07 — nenhuma tool responde `IA-022` hoje) |
 | H — motion e preview | M8 | **fechado** — H1–H7 (H6 fechou em 2026-07-26: `mapspec.atualizado` emitido + `linha-versoes`) |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** |
 
@@ -164,7 +164,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G2 | `limites.py` com o orçamento de contexto | [x] | tetos F1-06; `tests/test_limites.py` |
 | G3 | Montador de contexto + compressão (memória, transcript, diff) | [x] | `agente/contexto.py` |
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
-| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 26 reais desde A13 (`consultar_sema`/`distancia_ate` ligadas a `camada.resolver`); só `analisar_referencia` → `IA-022` até F1-07 |
+| G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 27/27 reais — `consultar_sema`/`distancia_ate` ligadas a `camada.resolver` (A13); `analisar_referencia` ligada a `agente/visao/` (F1-07, 2026-07-26) |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
 | G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
 | G8 | Cassetes VCR + fixture de 120 turnos | [x] | `agente/vcr.py` + `tests/agente/cassetes/`; compressão 120 turnos em `test_agente.py` |

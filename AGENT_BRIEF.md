@@ -23,7 +23,7 @@ campo `deepseek_api_key`. **Não copie o valor para arquivos versionados** — v
 
 | Suíte | Precisa da chave ao vivo? | Resultado neste PC |
 |---|---|---|
-| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~365 pass | verde |
+| `Fase_1_Desktop/nucleo` pytest (anel 1) | **não** — FakeProvedor; ~421 pass | verde |
 | `Fase_1_Desktop/app` Vitest | **não** | ~111 pass |
 | `test_agente*.py` (agente, tools, orquestrador) / vazamento / paridade galeria | **não** — fake | verde |
 | Smoke live | **sim** — `ferramentas/deepseek_smoke.py` | opcional |
@@ -62,7 +62,7 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: 6 dos 8 eventos do vocabulário são emitidos; `job.log`/`aviso`, não
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~365)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~421)
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~111)
 ```
 
@@ -82,7 +82,8 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
-| Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, 26/27 tools reais desde A13; 1 tool `IA-022` até F1-07 | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
+| Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, **27/27 tools reais** (F1-07 fechou `analisar_referencia`) | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
+| Visão de referência (F1-07) | **determinístico fechado** (imagem/PDF/`.mxd`/`.zip`); modelo de visão pronto mas **sem confirmação** de qual DeepSeek tem visão (P1) — degrada com `IA-060` até alguém confirmar | `nucleo/.../agente/visao/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -99,14 +100,18 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Crossfade de **imagem do mapa** por versão do MapSpec: o núcleo não gera PNG por versão (só por
   etapa de `mapa.gerar`); `linha-versoes` crossfadeia o card de diff/resumo, não uma imagem — ver
   nota em [16-design-system-dark.md §A6](Fase_1_Desktop/planos/16-design-system-dark.md#a6--microinterações).
-- Tools do agente ainda sem implementação, por dependência que não existe (respondem `IA-022`
-  com o motivo): só `analisar_referencia` (espera o fluxo de visão, F1-07). `consultar_sema` e
-  `distancia_ate` saíram de `IA-022` em A13 — as outras 26 são reais.
+- Tools do agente que respondem `IA-022`: **nenhuma hoje** — `TOOLS_COM_DEPENDENCIA_PENDENTE`
+  está vazio. `consultar_sema`/`distancia_ate` saíram em A13; `analisar_referencia` saiu em F1-07.
+- Modelo de visão confirmado (P1 de F1-07): o cliente (`agente/visao/provedor.py`) e o pipeline
+  determinístico existem, mas ninguém confirmou que um modelo DeepSeek da conta enxerga imagem —
+  toda chamada real degrada com `IA-060` até isso ser confirmado. O determinístico (medidas de
+  imagem, texto de PDF, strings de `.mxd`, inventário de `.zip`) funciona sem depender disso.
+- OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
+  +40 MB (F1-07 P2); sem chave, o print fica só na análise determinística (sem texto lido).
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
 - Cliente WFS/WMS em runtime para os tipos `arcgis_rest` (IBAMA PAMGIA), `wfs_gml` (INCRA
   SIGEF/SNCI) e `wms_raster` (mosaicos, SISCOM, PRODES) — só `wms_wfs` (33/41 camadas) tem
   cliente; `camada.resolver` devolve `NU-140` tipado para os outros, não finge. Instalador.
-- Visão / `analisar_referencia` (F1-07).
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
 ## Ordem de implementação (dependências, nunca calendário)
@@ -197,7 +202,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — lista + busca + filtro pasta; menu de contexto parcial (apagar) | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |
-| R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **feito** — 26/27 reais desde A13; só `analisar_referencia` com `IA-022` até F1-07 | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
+| R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **feito** — 27/27 reais; A13 fechou `consultar_sema`/`distancia_ate`, F1-07 fechou `analisar_referencia` | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
 | R16a | Orçamento de contexto (`limites.py`) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G2) | `nucleo/.../agente/limites.py` |
 | R16 | Pipeline de compressão de contexto | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Orçamento | **feito** (G3) | `nucleo/.../agente/contexto.py` |
 | R17 | VCR/fake do provedor no CI | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md), [F1-10](Fase_1_Desktop/planos/10-testes-e-qa.md) | **feito** (G8) — FakeProvedor + cassetes SSE/passos em `tests/agente/cassetes/` | `nucleo/.../agente/vcr.py`, `fake.py` |
@@ -209,6 +214,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
+| R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** (2026-07-26) — determinístico completo; modelo de visão pronto, P1 (nome do modelo DeepSeek com visão) em aberto | `nucleo/.../agente/visao/`, `agente/tools.py` |
 
 ## Anti-padrões — vinculantes para qualquer agente implementador
 

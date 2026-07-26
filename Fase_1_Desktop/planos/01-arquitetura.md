@@ -125,7 +125,7 @@ Verificável: `grep -n "registrar\|criar_roteador" nucleo/mapasfacil_nucleo/__ma
 | `chat.enviar` | `{conversation_id, mensagem, anexos?}` | stream de `evt` | **falta** |
 | `chat.cancelar` | `{turno_id}` | aborta o turno | **falta** |
 | `chat.criar_conversa` · `listar_conversas` · `abrir_conversa` · `carregar_anteriores` · `renomear` · `arquivar` · `apagar` · `ramificar` · `buscar` | ver [F1-17](17-persistencia-de-conversas.md) | — | **falta** |
-| `visao.analisar_referencia` | `{imagem\|zip}` | `MapSpec` proposto | **falta** |
+| `analisar_referencia` | não é método NDJSON — é **tool do agente** (F1-06/G5), chamada via `chat.enviar` | proposta F1-07 + `MapSpec` candidato | **existe** (F1-07) — `agente/visao/` |
 
 ### Eventos
 

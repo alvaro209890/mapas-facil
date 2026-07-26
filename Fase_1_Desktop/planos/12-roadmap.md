@@ -241,8 +241,9 @@ orçamento de contexto respeitado.
 - [x] Cassetes VCR (passos + SSE) em `tests/agente/cassetes/`
 - [x] MapSpec vivo persistido em `chats/mapspecs/<id>.json`
 
-**Nota:** 3 tools (`consultar_sema`, `distancia_ate`, `analisar_referencia`) respondem `IA-022`
-até existirem R21 / F1-07 — fora do critério de fechamento do M7.
+**Nota:** as 3 tools que respondiam `IA-022` no fechamento do M7 (`consultar_sema`, `distancia_ate`,
+`analisar_referencia`) ficaram reais depois — A13 (R21) e F1-07 fecharam as três; não bloquearam
+o critério de fechamento do M7 na época.
 
 **Dependências:** M4 (a galeria é a fonte de template) e M6 (onde o transcript vive).
 

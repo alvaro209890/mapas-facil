@@ -4,9 +4,11 @@ Sidecar Python da Fase 1 — geo, `MapSpec`, motores de `.mxd`/PDF, quantitativo
 Comunica com o Electron por NDJSON (stdio), quando a UI existir. Empacotamento previsto:
 PyInstaller onedir junto do app.
 
-**Status:** M1 **bloco A fechado** (A1–A13); **bloco B parcial** (sem ArcMap). **v0.4.0** — o
-núcleo emite `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool` e `workspace.mudou`;
-A13 acrescentou o cliente WFS em runtime (`camadas/`).
+**Status:** M1 **bloco A fechado** (A1–A13); **bloco B parcial** (sem ArcMap); M7 **fechado**
+(27/27 tools reais, F1-07 fechou a última). **v0.4.0** — o núcleo emite `job.progresso`,
+`job.artefato_parcial`, `chat.delta`, `chat.tool`, `workspace.mudou` e `mapspec.atualizado`; A13
+acrescentou o cliente WFS em runtime (`camadas/`); F1-07 acrescentou a análise de referência
+(`agente/visao/`).
 
 Acervo de calibração: [`Referencias_IMAP/Mapas/03/`](../../Referencias_IMAP/Mapas/03/README.md).
 
@@ -60,7 +62,7 @@ nucleo/
     mapspec/
       validar.py
       diff.py
-  tests/                    # anel 1 — CI Linux (365 testes coletados, 1 skip)
+  tests/                    # anel 1 — CI Linux (421 testes coletados, 1 skip)
 ```
 
 ## Desenvolvimento
@@ -122,10 +124,13 @@ Registrados em `criar_roteador()` — **45 métodos** (`grep -c "roteador.regist
 | `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM) |
 | `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool` |
 
-**Não implementado neste sidecar:** `analisar_referencia` (visão, `IA-022`, espera F1-07); tipos de
-catálogo fora de `wms_wfs` (`arcgis_rest`, `wfs_gml`, `wms_raster` — `camada.resolver` devolve
-`NU-140`, tipado, sem fingir). Cliente WFS em runtime (SEMA/FUNAI/MapBiomas/PRODES, 33/41 camadas)
-**existe desde A13**; `consultar_sema` e `distancia_ate` saíram de `IA-022`.
+**Nenhuma tool do agente responde `IA-022` hoje** (`TOOLS_COM_DEPENDENCIA_PENDENTE` vazio):
+`consultar_sema`/`distancia_ate` saíram em A13 (`camada.resolver`); `analisar_referencia` saiu em
+F1-07 (`agente/visao/` — determinístico completo para imagem/PDF/`.mxd`/`.zip`; o modelo de visão
+em si degrada com `IA-060` até alguém confirmar qual DeepSeek da conta enxerga imagem — P1 do
+plano). Tipos de catálogo fora de `wms_wfs` (`arcgis_rest`, `wfs_gml`, `wms_raster`) seguem sem
+cliente — `camada.resolver` devolve `NU-140`, tipado, sem fingir. Cliente WFS em runtime
+(SEMA/FUNAI/MapBiomas/PRODES, 33/41 camadas) **existe desde A13**.
 
 ### Eventos emitidos (v0.4.0)
 
@@ -183,6 +188,8 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~A11 — `cofre.*`~~ **fechado** (`cofre.py` + `keyring`)
 - ~~A13 — `catalogo.listar` / `camada.resolver`~~ **fechado** (`camadas/`; `consultar_sema`/`distancia_ate` reais)
 - ~~H6 — `mapspec.atualizado`~~ **fechado** (`agente/tools.py`; `app/` tem `linha-versoes`)
+- ~~F1-07 — `analisar_referencia`~~ **fechado** (`agente/visao/`) — determinístico completo;
+  P1 (modelo DeepSeek com visão) segue em aberto, degrada com `IA-060`
 - ~~Galeria (M4)~~ **fechada** — `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
 - ~~Conta local (M5)~~ **fechada** — `conta.*` + `sessao.*` + gate `AUTH-030`
 - ~~Conversas (M6)~~ **fechada** — `chats.sqlite` e os métodos `chat.*` de histórico

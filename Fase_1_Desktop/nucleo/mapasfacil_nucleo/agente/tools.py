@@ -18,6 +18,7 @@ from shapely.ops import unary_union
 
 from mapasfacil_nucleo.agente import limites
 from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, descrever_diff, nova_versao, resumo_versao
+from mapasfacil_nucleo.agente.visao import servico as visao_servico
 from mapasfacil_nucleo.camadas import clip as clip_camadas
 from mapasfacil_nucleo.camadas.resolver import resolver_camada
 from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared
@@ -1061,9 +1062,26 @@ def tool_distancia_ate(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
 
 
 def tool_analisar_referencia(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    """Print/zip → MapSpec proposto — depende do fluxo de visão (F1-07)."""
-    del args, ctx
-    return _erro_dependencia("analisar_referencia", "fluxo de visão F1-07 (agente/visao.py)")
+    """Print/PDF/.mxd/.zip de referência → proposta F1-07 (determinístico + visão)."""
+    arquivo = args.get("arquivo")
+    if not isinstance(arquivo, str) or not arquivo:
+        return _erro("NU-001", "Parâmetro 'arquivo' é obrigatório.")
+    estado = _estado()
+    if estado is None:
+        return _erro("NU-040", "Nenhuma pasta conectada — abra o workspace antes de analisar.")
+    try:
+        resultado = visao_servico.analisar_referencia(arquivo, guard=estado.guard)
+    except ErroNucleo as exc:
+        return _erro(exc.codigo, exc.mensagem, detalhes=exc.detalhes)
+
+    mapspec_candidato = resultado.pop("mapspec_candidato", None)
+    if isinstance(mapspec_candidato, dict):
+        ctx["mapspec"] = mapspec_candidato
+        ctx["mapspec_origem"] = "analisar_referencia"
+        _emitir_mapspec_atualizado(ctx, mapspec_candidato, mapspec_diff({}, mapspec_candidato))
+        resultado["mapspec_id"] = mapspec_candidato.get("id")
+        resultado["mapspec_versao"] = mapspec_candidato.get("versao")
+    return _ok(resultado)
 
 
 # --------------------------------------------------------------------------- memória
@@ -1148,8 +1166,9 @@ _HANDLERS: dict[str, HandlerTool] = {
 }
 
 # Tools registradas cuja dependência ainda não existe — respondem IA-022 por contrato.
-# `consultar_sema`/`distancia_ate` saíram daqui em A13 (camada.resolver / cliente WFS).
-TOOLS_COM_DEPENDENCIA_PENDENTE: frozenset[str] = frozenset({"analisar_referencia"})
+# `consultar_sema`/`distancia_ate` saíram daqui em A13 (camada.resolver / cliente WFS);
+# `analisar_referencia` saiu em F1-07 (agente/visao/). Vazio — nenhuma tool é stub hoje.
+TOOLS_COM_DEPENDENCIA_PENDENTE: frozenset[str] = frozenset()
 
 _STR: dict[str, Any] = {"type": "string"}
 _ESQUEMAS: dict[str, dict[str, Any]] = {
@@ -1327,8 +1346,12 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
     },
     "gerar_planilha": {"descricao": "Exporta o .xlsx de quantitativos.", "props": {}},
     "analisar_referencia": {
-        "descricao": "Print ou .zip de referência → MapSpec proposto.",
-        "props": {"arquivo": _STR},
+        "descricao": (
+            "Print, PDF, .mxd ou .zip de referência → proposta com mapa da série, camadas "
+            "reconhecidas e MapSpec candidato (ou perguntas quando a confiança é baixa)."
+        ),
+        "props": {"arquivo": {**_STR, "description": "caminho relativo à pasta do projeto"}},
+        "obrig": ["arquivo"],
     },
     "comparar_com_modelo": {
         "descricao": "Compara o PDF gerado com o PDF-modelo da série (diff raster).",
