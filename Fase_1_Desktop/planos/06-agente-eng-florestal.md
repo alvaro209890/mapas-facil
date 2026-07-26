@@ -72,7 +72,7 @@ Não é um "chat que gera mapa". É um agente de domínio. O system prompt e as 
 | Uso | Modelo | Por quê |
 |---|---|---|
 | Conversa e orquestração de tools | `deepseek-v4-pro` | raciocínio alto; decide bem sequência de tools |
-| Análise de print de referência | `deepseek-v4-pro` (visão) | precisa ler layout de imagem — **confirmar suporte a visão antes de depender** (P1) |
+| Análise de print de referência | **sem modelo na API hoje** | V4 Pro/Flash são **só texto** na API oficial (P1 fechada); interpretação LLM do print fica em `IA-060`; determinístico + `.mxd`/`.zip` cobrem o fluxo |
 | Título de conversa, resumo de transcript | `deepseek-v4-flash` | tarefa trivial, ~10× mais barato |
 
 Gotchas confirmados em produção nos outros sistemas do mesmo dono:
@@ -81,7 +81,8 @@ Gotchas confirmados em produção nos outros sistemas do mesmo dono:
 - `temperature` é **ignorado** nos modelos de raciocínio; não perca tempo ajustando.
 - Latência de 10–40 s em turno com raciocínio alto: streaming e estado "pensando" são obrigatórios
   ([F1-16 §A1](16-design-system-dark.md#a1--pensando-bloco-raciocinio)), senão parece travado.
-- Nem todo modelo da família tem visão.
+- A API DeepSeek V4 **não** aceita imagem (`400 image_url` em Pro e Flash — P1 fechada 2026-07-26).
+  Visão no chat web, se existir, **não** vale para o app (transporte é a API).
 
 Trocar de provedor é uma decisão de contrato, não de configuração: o cliente é isolado em
 `agente/provedor.py` com uma interface (`enviar_stream`, `cancelar`), e a troca exige revisar este
@@ -428,8 +429,8 @@ da série tem de ser gerável sem IA nenhuma.
 - [x] `nucleo/mapasfacil_nucleo/agente/prompt.py` — system prompt versionado
 - [x] redator reusa `conversas/redator.py` (WKT/CPF/chaves/caminhos)
 - [x] `nucleo/mapasfacil_nucleo/agente/visao/` — print/PDF/`.mxd`/`.zip` → `MapSpec`
-      ([F1-07](07-visao-print-e-zip.md)) — determinístico completo; modelo de visão pronto,
-      mas P1 (nome/disponibilidade do modelo DeepSeek com visão) segue em aberto
+      ([F1-07](07-visao-print-e-zip.md)) — determinístico completo; P1 fechada: API V4
+      **sem** visão (`400 image_url`); interpretação LLM → `IA-060` até existir id multimodal
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — `chat.enviar`, `chat.cancelar` + eventos
 - [x] FakeProvedor + VCR (`agente/vcr.py`, `tests/agente/cassetes/`, `tests/test_agente_vcr.py`)
 - [x] `nucleo/tests/test_contexto_vazamento.py`
@@ -499,7 +500,7 @@ Critério de aprovação: **11 de 12 em 3 execuções consecutivas.**
 
 | # | Questão | Recomendação |
 |---|---|---|
-| P1 | Qual modelo da família V4 tem visão | **ainda sem confirmação** (F1-07, 2026-07-26) — cliente pronto (`agente/visao/provedor.py`), mas sem nome de modelo confirmado toda chamada degrada com `IA-060`; `.mxd`/`.zip` já funcionam sem depender disso |
+| P1 | Qual modelo da família V4 tem visão | **fechada 2026-07-26: nenhum na API** — `deepseek-v4-pro` e `deepseek-v4-flash` rejeitam `image_url` (`400`); catálogo `/models` só lista esses dois. Cliente multimodal permanece (`agente/visao/provedor.py` + `MAPASFACIL_MODELO_VISAO`) para quando a DeepSeek publicar id multimodal; até lá `IA-060` é esperado |
 | P2 | Resumo do histórico: por LLM (custa) ou por regra (perde nuance) | **por LLM com `flash`**, a cada 6 turnos — barato e melhor |
 | P3 | Sugerir a série inteira ao detectar pasta de análise | sugerir **uma vez**, na mensagem de abertura, sem executar |
 | P4 | System prompt no binário ou em arquivo editável | **no binário**, versionado com o app; arquivo editável vira suporte impossível |

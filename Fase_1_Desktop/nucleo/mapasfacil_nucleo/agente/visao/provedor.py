@@ -1,12 +1,12 @@
 # F1-07 — cliente do modelo de visão. Chamada única (sem streaming): manda o
 # print/raster + o prompt com as medidas já feitas, espera um JSON de volta.
 #
-# P1 (pendência do plano): disponibilidade e qualidade de um modelo DeepSeek com
-# visão ainda **não estão confirmadas** — `MODELO_VISAO_PADRAO` é o melhor
-# palpite hoje, sobrescrevível por env (`MAPASFACIL_MODELO_VISAO`) assim que
-# alguém confirmar o nome real. Enquanto isso, o caminho de falha (`IA-060`) é
-# tratado como esperado, não como bug — é a mesma chave/endpoint do chat de
-# texto (G1), só muda o payload.
+# P1 (fechada 2026-07-26): a API oficial DeepSeek V4 **não** aceita imagem.
+# `GET /models` só lista `deepseek-v4-pro` e `deepseek-v4-flash`; ambos rejeitam
+# `content` com `image_url` (`400` — "unknown variant image_url, expected text").
+# O cliente multimodal fica pronto para quando a DeepSeek publicar um modelo com
+# visão na API; até lá, `IA-060` é o caminho esperado. Sobrescreva o nome com
+# `MAPASFACIL_MODELO_VISAO` se um dia existir id multimodal.
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from mapasfacil_nucleo.agente import limites
 from mapasfacil_nucleo.erros import ErroNucleo
 
 ENDPOINT_PADRAO = "https://api.deepseek.com/chat/completions"
+# Placeholder histórico — nenhum id atual da API aceita imagem (teste live 2026-07-26).
 MODELO_VISAO_PADRAO = "deepseek-vl"
 
 

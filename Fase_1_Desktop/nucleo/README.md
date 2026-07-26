@@ -126,9 +126,9 @@ Registrados em `criar_roteador()` — **45 métodos** (`grep -c "roteador.regist
 
 **Nenhuma tool do agente responde `IA-022` hoje** (`TOOLS_COM_DEPENDENCIA_PENDENTE` vazio):
 `consultar_sema`/`distancia_ate` saíram em A13 (`camada.resolver`); `analisar_referencia` saiu em
-F1-07 (`agente/visao/` — determinístico completo para imagem/PDF/`.mxd`/`.zip`; o modelo de visão
-em si degrada com `IA-060` até alguém confirmar qual DeepSeek da conta enxerga imagem — P1 do
-plano). **Os 4 tipos do catálogo têm cliente** (41/41 camadas): `wms_wfs` (A13),
+F1-07 (`agente/visao/` — determinístico completo para imagem/PDF/`.mxd`/`.zip`; a API DeepSeek V4
+**não** aceita imagem — P1 fechada 2026-07-26 com teste live `400 image_url`; interpretação LLM
+degrada com `IA-060` até existir modelo multimodal na API). **Os 4 tipos do catálogo têm cliente** (41/41 camadas): `wms_wfs` (A13),
 `arcgis_rest` (IBAMA PAMGIA), `wfs_gml` (INCRA — GML 1.0, reprojeta do EPSG nativo 4326) e
 `wms_raster` (mosaicos/SISCOM — devolve **imagem**, `tipo_saida="raster"`, sem contagem de
 feições nem área). `NU-140` virou salvaguarda de tipo desconhecido, não "ainda não implementei".
@@ -193,7 +193,7 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~A13 — `catalogo.listar` / `camada.resolver`~~ **fechado** (`camadas/`; `consultar_sema`/`distancia_ate` reais)
 - ~~H6 — `mapspec.atualizado`~~ **fechado** (`agente/tools.py`; `app/` tem `linha-versoes`)
 - ~~F1-07 — `analisar_referencia`~~ **fechado** (`agente/visao/`) — determinístico completo;
-  P1 (modelo DeepSeek com visão) segue em aberto, degrada com `IA-060`
+  P1 fechada: API V4 **sem** visão (`400 image_url`); LLM do print → `IA-060`
 - ~~Galeria (M4)~~ **fechada** — `galeria.*`, ver [`../planos/15-galeria-de-modelos.md`](../planos/15-galeria-de-modelos.md)
 - ~~Conta local (M5)~~ **fechada** — `conta.*` + `sessao.*` + gate `AUTH-030`
 - ~~Conversas (M6)~~ **fechada** — `chats.sqlite` e os métodos `chat.*` de histórico

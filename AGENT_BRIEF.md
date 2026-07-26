@@ -83,7 +83,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
 | Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, **27/27 tools reais** (F1-07 fechou `analisar_referencia`) | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
-| Visão de referência (F1-07) | **determinístico fechado** (imagem/PDF/`.mxd`/`.zip`); modelo de visão pronto mas **sem confirmação** de qual DeepSeek tem visão (P1) — degrada com `IA-060` até alguém confirmar | `nucleo/.../agente/visao/` |
+| Visão de referência (F1-07) | **determinístico fechado**; API V4 **sem** imagem (P1 fechada 2026-07-26 — `400 image_url`) — interpretação LLM fica em `IA-060` até a DeepSeek publicar modelo multimodal na API | `nucleo/.../agente/visao/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
 | PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
@@ -101,12 +101,14 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - **Backlog desktop sem ArcMap: esgotado** (F1-07, clientes 41/41, `job.log`/`aviso`, watcher→chat,
   menu de chats R14, menus/tray Electron, banner offline, Esc≠job). O que falta é o eixo
   **Windows+ArcMap (M2→M9)**, **instalador/piloto (M10–M11)** e **Fase 2**.
-- Modelo de visão confirmado (P1 de F1-07): o cliente (`agente/visao/provedor.py`) e o pipeline
-  determinístico existem, mas ninguém confirmou que um modelo DeepSeek da conta enxerga imagem —
-  toda chamada real degrada com `IA-060` até isso ser confirmado. O determinístico (medidas de
-  imagem, texto de PDF, strings de `.mxd`, inventário de `.zip`) funciona sem depender disso.
+- Modelo de visão na **API** DeepSeek V4 (P1 de F1-07, **fechada 2026-07-26**): teste live com
+  a chave do projeto — `GET /models` só devolve `deepseek-v4-pro` e `deepseek-v4-flash`; ambos
+  rejeitam payload com `image_url` (`400` "unknown variant image_url, expected text"). Chat no
+  site pode ter upload; o app usa a API e por isso a interpretação LLM do print degrada com
+  `IA-060`. O determinístico (medidas, PDF, `.mxd`/`.zip`) continua. Cliente multimodal pronto
+  para quando existir id multimodal (`MAPASFACIL_MODELO_VISAO`).
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
-  +40 MB (F1-07 P2); sem chave, o print fica só na análise determinística (sem texto lido).
+  +40 MB (F1-07 P2); sem modelo de visão na API, o print fica só na análise determinística.
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
 - Instalador Windows (M10) — nada de empacotamento neste repositório ainda.
 - Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
@@ -211,7 +213,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
-| R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** (2026-07-26) — determinístico completo; modelo de visão pronto, P1 (nome do modelo DeepSeek com visão) em aberto | `nucleo/.../agente/visao/`, `agente/tools.py` |
+| R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 
 ## Anti-padrões — vinculantes para qualquer agente implementador
 
