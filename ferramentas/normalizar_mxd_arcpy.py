@@ -9,14 +9,22 @@ máquina).
 Trabalha sempre numa CÓPIA (nunca sobrescreve o `.mxd` de entrada). Renomeia o que dá para
 inferir com confiança (data frames por CRS+escala, camadas por nome legado conhecido,
 elementos de layout já existentes mas sem nome). O que não dá para inferir com segurança
-(qual dos 2 legend/quais dos 5 graphics são MINIMAPA_RETANGULO/GUIA, título do imóvel que
-não existe como elemento próprio) fica listado em `pendencias` no relatório — precisa de
-confirmação visual no ArcMap.
+fica listado em `pendencias` no relatório — precisa de confirmação visual no ArcMap.
+
+Rodada 2026-07-25: comparando com outro template do acervo (`Divisão de talhões.mxd`, que
+já tem título e rótulos como caixas de texto arredondadas), percebemos que o `Dinamica_2026`
+JÁ TEM uma caixa de texto no estilo balão ("Ano: 2026") e rótulos soltos ("Vila Rica", "MT")
+— não precisa criar elemento novo pra TITULO/ROTULO_IMOVEL, só reaproveitar (renomear +
+reposicionar + trocar o texto) o que já existe. Isso é 100% dentro do que `arcpy.mapping`
+permite (`.text`, `.elementPositionX/Y`, `.name` são graváveis em TextElement). Ainda **não
+testado** neste ambiente (sem arcpy/Windows) — rodar no ArcMap e conferir o relatório.
 """
 from __future__ import print_function
 
 import argparse
 import json
+import os
+import re
 import shutil
 import sys
 
@@ -32,6 +40,16 @@ RENOMEAR_CAMADAS = {
     u"Limite municipal": u"MUNICIPIOS",
     u"Limite estadual": u"UF",
 }
+
+# TITULO no acervo Dinamica_2026 e' a caixa balao com o ano ("Ano: 2026") — mesmo estilo
+# visual da caixa de titulo em `Divisão de talhões.mxd`. Repurposar em vez de criar nova.
+_RE_TITULO_ANO = re.compile(r"^Ano:\s*\d{4}$", re.IGNORECASE)
+
+# Logo padrao (variante "sem fundo, tom escuro" — confere com o logo ja usado nos PDFs
+# renderizados do acervo, fundo branco da pagina). Caminho relativo a raiz do repo.
+LOGO_PADRAO = os.path.join(
+    u"Referencias_IMAP", u"Logos IMAP", u"LOGOTIPO SEM FUNDO", u"TOM ESCURO.png"
+)
 
 
 def _safe(getter, default=None):
@@ -63,7 +81,27 @@ def _classificar_data_frames(dfs):
     return mapa["df"], (minimapa["df"] if minimapa else None), [c["df"] for c in extras]
 
 
-def normalizar(mxd_entrada, mxd_saida, dry_run=False):
+def _eh_grafico_fino(largura, altura):
+    """Heuristica geometrica p/ distinguir linha-guia (fininha) de retangulo indicador."""
+    maior = max(largura, altura)
+    menor = min(largura, altura)
+    if maior <= 0:
+        return False
+    # "fino": lado menor quase zero OU proporcao extrema (linha/diagonal, nao retangulo)
+    return menor <= max(0.02 * maior, 0.3)
+
+
+def _dentro_ou_perto(x, y, df, folga=5.0):
+    dx = _safe(lambda: df.elementPositionX)
+    dy = _safe(lambda: df.elementPositionY)
+    dw = _safe(lambda: df.elementWidth)
+    dh = _safe(lambda: df.elementHeight)
+    if None in (dx, dy, dw, dh):
+        return False
+    return (dx - folga) <= x <= (dx + dw + folga) and (dy - folga) <= y <= (dy + dh + folga)
+
+
+def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
     shutil.copy2(mxd_entrada, mxd_saida)
     mxd = arcpy.mapping.MapDocument(mxd_saida)
     aplicados = []
@@ -104,8 +142,11 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False):
                     lyr.name = novo
                     aplicados.append(u"camada '{0}' -> {1} (df {2})".format(antigo, novo, df.name))
 
+        # --- Textos: METADADOS (ja resolvido), TITULO (novo: reaproveita a caixa balao
+        # "Ano: NNNN") e ROTULO_IMOVEL (novo: reaproveita o rotulo solto que sobrar). ---
         metadados_feito = False
-        textos_sem_mapear = []
+        titulo_feito = False
+        textos_sem_mapear = []  # lista de (elemento, texto) ainda sem nome canonico
         for el in arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT"):
             texto = el.text or ""
             nome_atual = _safe(lambda: el.name) or ""
@@ -114,13 +155,41 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False):
                     el.name = "METADADOS"
                     aplicados.append("text_element (conteudo METADADOS IMAGEM) -> METADADOS")
                 metadados_feito = True
+            elif not titulo_feito and _RE_TITULO_ANO.match(texto.strip()):
+                if nome_atual != "TITULO":
+                    el.name = "TITULO"
+                    aplicados.append(
+                        u"text_element '{0}' (caixa balao existente, reaproveitada) -> TITULO "
+                        u"— trocar .text por job em mapa.gerar, nao precisa GUI".format(texto.strip())
+                    )
+                titulo_feito = True
             elif not nome_atual:
-                textos_sem_mapear.append(texto[:60])
-        if textos_sem_mapear:
+                textos_sem_mapear.append((el, texto))
+
+        if not titulo_feito:
             pendencias.append(
-                u"TEXT_ELEMENT sem nome canonico (TITULO/ROTULO_IMOVEL) — conteudo: {0}".format(
-                    textos_sem_mapear
+                u"Nenhum TEXT_ELEMENT no padrao 'Ano: NNNN' pra virar TITULO — confirmar no ArcMap "
+                u"(pode ser que este .mxd nao tenha a caixa balao; nesse caso precisa criar na GUI)."
+            )
+
+        if len(textos_sem_mapear) == 1:
+            el, texto = textos_sem_mapear[0]
+            el.name = "ROTULO_IMOVEL"
+            aplicados.append(
+                u"text_element '{0}' (rotulo solto, unico sobrando) -> ROTULO_IMOVEL "
+                u"— reposicionar sobre o poligono (elementPositionX/Y) e trocar .text por job, "
+                u"nao precisa GUI".format(texto[:40])
+            )
+        elif len(textos_sem_mapear) > 1:
+            pendencias.append(
+                u"{0} TEXT_ELEMENT soltos sobrando para ROTULO_IMOVEL — escolher qual pelo "
+                u"conteudo/posicao (decisao de codigo, nao precisa GUI): {1}".format(
+                    len(textos_sem_mapear), [t[:40] for _, t in textos_sem_mapear]
                 )
+            )
+        elif not titulo_feito:
+            pendencias.append(
+                u"Nenhum TEXT_ELEMENT solto sobrando para ROTULO_IMOVEL — confirmar no ArcMap."
             )
 
         legendas = arcpy.mapping.ListLayoutElements(mxd, "LEGEND_ELEMENT")
@@ -157,6 +226,10 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False):
                     aplicados.append(u"mapsurround '{0}' -> NORTE".format(nome_atual))
                 break
 
+        # --- LOGO: agora existe arquivo real (Referencias_IMAP/Logos IMAP/), antes o
+        # sourceImage ficava vazio por falta de asset. Tenta gravar via script; arcpy.mapping
+        # historicamente trata PictureElement.sourceImage como somente-leitura em algumas
+        # versoes — por isso o try/except em vez de assumir que vai funcionar. ---
         pictures = arcpy.mapping.ListLayoutElements(mxd, "PICTURE_ELEMENT")
         if len(pictures) == 1:
             if _safe(lambda: pictures[0].name) != "LOGO":
@@ -164,18 +237,89 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False):
                 aplicados.append("picture_element unico -> LOGO")
             fonte = _safe(lambda: pictures[0].sourceImage) or ""
             if not fonte:
-                pendencias.append(u"PICTURE_ELEMENT 'LOGO' sem sourceImage — precisa apontar logo no ArcMap.")
+                caminho_logo = logo or LOGO_PADRAO
+                if os.path.isfile(caminho_logo):
+                    try:
+                        pictures[0].sourceImage = caminho_logo
+                        aplicados.append(
+                            u"picture_element 'LOGO' sourceImage -> {0}".format(caminho_logo)
+                        )
+                    except Exception as exc:
+                        pendencias.append(
+                            u"PICTURE_ELEMENT 'LOGO' sem sourceImage — tentativa via script falhou "
+                            u"({0}); apontar manualmente no ArcMap (Propriedades da Imagem) usando "
+                            u"'{1}'.".format(exc, caminho_logo)
+                        )
+                else:
+                    pendencias.append(
+                        u"PICTURE_ELEMENT 'LOGO' sem sourceImage — arquivo padrao nao encontrado "
+                        u"({0}); passe --logo apontando pro PNG certo.".format(caminho_logo)
+                    )
         elif len(pictures) > 1:
             pendencias.append(u"{0} PICTURE_ELEMENT encontrados — LOGO ambiguo.".format(len(pictures)))
 
+        # --- Graficos do minimapa: heuristica geometrica (fino = linha-guia) + heuristica
+        # posicional (dentro do data frame MINIMAPA = retangulo indicador). Antes o script so
+        # listava posicoes sem tentar classificar; agora tenta, mas so aplica em caso
+        # inequivoco (1 candidato) — senao fica pendencia com os dados prontos pra decisao
+        # rapida (nao precisa mais abrir o ArcMap so pra olhar posicao). ---
         graficos = arcpy.mapping.ListLayoutElements(mxd, "GRAPHIC_ELEMENT")
-        pendencias.append(
-            u"{0} GRAPHIC_ELEMENT sem classificacao segura (MINIMAPA_RETANGULO/MINIMAPA_GUIA) "
-            u"— posicoes: {1}".format(
-                len(graficos),
-                [(round(_safe(lambda: g.elementPositionX, 0), 3), round(_safe(lambda: g.elementPositionY, 0), 3)) for g in graficos],
-            )
-        )
+        if graficos:
+            info = []
+            for g in graficos:
+                info.append(
+                    {
+                        "el": g,
+                        "w": _safe(lambda: g.elementWidth) or 0,
+                        "h": _safe(lambda: g.elementHeight) or 0,
+                        "x": _safe(lambda: g.elementPositionX) or 0,
+                        "y": _safe(lambda: g.elementPositionY) or 0,
+                    }
+                )
+
+            linhas = [i for i in info if _eh_grafico_fino(i["w"], i["h"])]
+            linhas_ids = set(id(i) for i in linhas)
+            retangulos = [i for i in info if id(i) not in linhas_ids]
+
+            if len(linhas) == 1:
+                linhas[0]["el"].name = "MINIMAPA_GUIA"
+                aplicados.append(
+                    u"graphic_element fino (w={0:.2f} h={1:.2f}) -> MINIMAPA_GUIA "
+                    u"(heuristica geometrica, confirmar visualmente)".format(linhas[0]["w"], linhas[0]["h"])
+                )
+            else:
+                pendencias.append(
+                    u"{0} candidato(s) a linha-guia (heuristica geometrica ambigua) — "
+                    u"MINIMAPA_GUIA nao atribuido automaticamente: {1}".format(
+                        len(linhas), [(round(i["w"], 2), round(i["h"], 2)) for i in linhas]
+                    )
+                )
+
+            candidatos_retangulo = retangulos
+            if df_minimapa is not None:
+                dentro = [i for i in retangulos if _dentro_ou_perto(i["x"], i["y"], df_minimapa)]
+                if dentro:
+                    candidatos_retangulo = dentro
+
+            if len(candidatos_retangulo) == 1:
+                candidatos_retangulo[0]["el"].name = "MINIMAPA_RETANGULO"
+                aplicados.append(
+                    u"graphic_element dentro/perto do MINIMAPA (w={0:.2f} h={1:.2f}) -> "
+                    u"MINIMAPA_RETANGULO (heuristica posicional, confirmar visualmente)".format(
+                        candidatos_retangulo[0]["w"], candidatos_retangulo[0]["h"]
+                    )
+                )
+            else:
+                pendencias.append(
+                    u"{0} candidato(s) a retangulo indicador — MINIMAPA_RETANGULO nao atribuido "
+                    u"automaticamente. Posicoes/tamanhos: {1}".format(
+                        len(candidatos_retangulo),
+                        [
+                            (round(i["x"], 2), round(i["y"], 2), round(i["w"], 2), round(i["h"], 2))
+                            for i in candidatos_retangulo
+                        ],
+                    )
+                )
 
         if not dry_run and aplicados:
             mxd.save()
@@ -190,10 +334,11 @@ def main():
     parser.add_argument("entrada", help="MXD de origem (nunca modificado)")
     parser.add_argument("saida", help="MXD de destino (sera criado/sobrescrito)")
     parser.add_argument("--dry-run", action="store_true", help="Nao salva, so relata")
+    parser.add_argument("--logo", help="Caminho do PNG do logo (default: acervo Logos IMAP, tom escuro sem fundo)")
     parser.add_argument("-o", "--relatorio", help="Gravar relatorio JSON neste arquivo")
     args = parser.parse_args()
 
-    rel = normalizar(args.entrada, args.saida, dry_run=args.dry_run)
+    rel = normalizar(args.entrada, args.saida, dry_run=args.dry_run, logo=args.logo)
 
     def _out(prefixo, item):
         linha = u"  {0} {1}".format(prefixo, item)

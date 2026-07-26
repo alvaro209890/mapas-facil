@@ -4,10 +4,12 @@
 
 Contexto
 --------
-Os 24 .mxd do acervo IMAP guardam, dentro das camadas WMTS (Planet) e WMS
-(GeoServer da SEMA), a chave de API em texto claro — 566 ocorrencias no total.
-O repositorio e publico, entao a versao versionada dos .mxd tem as chaves
-zeradas por placeholders **do mesmo comprimento**.
+Os .mxd do acervo IMAP guardam, dentro das camadas WMTS (Planet) e WMS
+(GeoServer da SEMA), a chave de API em texto claro (achado original: 24 arquivos, 566
+ocorrencias em Referencias_IMAP/MXD/; 2026-07-25 confirmou o mesmo padrao em todo .mxd novo
+adicionado ao acervo). O repositorio e publico, entao a versao versionada dos .mxd tem as
+chaves zeradas por placeholders **do mesmo comprimento**. Toda pasta nova de .mxd de
+referencia precisa entrar em MXD_DIRS (abaixo) antes do primeiro commit.
 
 Substituicao de mesmo comprimento e a unica segura aqui: .mxd e um documento
 composto OLE (Compound File Binary), com tabela de setores e tamanhos de stream
@@ -32,7 +34,12 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-MXD_DIR = RAIZ / "Referencias_IMAP" / "MXD"
+# Todo diretorio do acervo versionado que guarda .mxd precisa entrar aqui —
+# cada pasta nova de referencia (ex.: OneDrive_*) traz chave real embutida.
+MXD_DIRS = [
+    RAIZ / "Referencias_IMAP" / "MXD",
+    RAIZ / "Referencias_IMAP" / "OneDrive_1_25-07-2026 (1)" / "Divisão de talhões e mapa retrato",
+]
 SECRETS = RAIZ / "secrets.local.json"
 
 # chave_no_secrets -> placeholder (mesmo comprimento, obrigatoriamente)
@@ -75,10 +82,16 @@ def carregar_chaves() -> dict[str, str]:
     return chaves
 
 
+def _arquivos_mxd():
+    for pasta in MXD_DIRS:
+        for arquivo in sorted(pasta.glob("*.mxd")):
+            yield arquivo
+
+
 def aplicar(pares: list[tuple[str, str]], rotulo: str) -> None:
     """Aplica substituicoes UTF-16LE de mesmo comprimento em todos os .mxd."""
     total = 0
-    for arquivo in sorted(MXD_DIR.glob("*.mxd")):
+    for arquivo in _arquivos_mxd():
         original = arquivo.read_bytes()
         if original[:8] != ASSINATURA_OLE:
             print(f"  ! {arquivo.name}: nao e um documento OLE — pulado")
@@ -97,7 +110,7 @@ def aplicar(pares: list[tuple[str, str]], rotulo: str) -> None:
         total += ocorrencias
         print(f"  {arquivo.name:40s} {ocorrencias:4d}")
 
-    print(f"\n{rotulo}: {total} ocorrencias em {MXD_DIR}")
+    print(f"\n{rotulo}: {total} ocorrencias em {', '.join(str(p) for p in MXD_DIRS)}")
 
 
 def verificar() -> None:
@@ -109,7 +122,7 @@ def verificar() -> None:
     chaves = carregar_chaves() if SECRETS.exists() else {}
     reais: dict[str, int] = {}
     placeholders: dict[str, int] = {}
-    for arquivo in sorted(MXD_DIR.glob("*.mxd")):
+    for arquivo in _arquivos_mxd():
         dados = arquivo.read_bytes()
         for nome, placeholder in PLACEHOLDERS.items():
             placeholders[nome] = placeholders.get(nome, 0) + dados.count(

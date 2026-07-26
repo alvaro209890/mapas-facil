@@ -12,6 +12,13 @@ Qualquer ajuste de layout no Mapas Fácil deve ser conferido contra estes arquiv
 | [`Mapas/02/`](Mapas/02/) | PDFs da **Fazenda Trevisol** (Querência/MT) | contraste — perfil **descartado** |
 | [`Mapas/03/`](Mapas/03/) | Export SIMCAR completo + Dinâmica L5 2003–2008 | calibração de papéis / anos históricos |
 | [`MXD/`](MXD/) | Templates `.mxd` Harmonia + documentação da adaptação | gabarito para o motor |
+| [`OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/`](<OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/>) | `.mxd`+PDF da Fazenda Macaré, retrato, com título e rótulos em caixa balão já prontos | referência de estilo pro B1 — mostrou que `Dinamica_2026` já tem os mesmos elementos, só sem nome canônico (ver `Fase_1_Desktop/nucleo/docs/bloco-b-sem-arcmap.md`) |
+| [`Logos IMAP/`](<Logos IMAP/>) | 4 PNGs oficiais do logo (com/sem fundo × tom claro/escuro, 8334×8334) | fonte do `LOGO.sourceImage` do template |
+
+`OneDrive_1_25-07-2026 (1)/` também trouxe `Analise de Area/` e `AEP/` (~30 `.mxd`, ~490MB) —
+**não versionados** por enquanto (fora do escopo do que motivou a adição; também têm chave de
+API real embutida, precisam passar por `chaves_mxd.py` antes de qualquer commit). Ficam só
+no disco local até serem necessários.
 
 ## Documentação operacional
 

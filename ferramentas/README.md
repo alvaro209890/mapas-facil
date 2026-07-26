@@ -17,7 +17,14 @@ Scripts presentes:
 
 ## `chaves_mxd.py`
 
-Remove ou reinjeta as chaves de API embutidas nos `.mxd` de [`Referencias_IMAP/MXD/`](../Referencias_IMAP/MXD/).
+Remove ou reinjeta as chaves de API embutidas nos `.mxd` do acervo — hoje cobre
+[`Referencias_IMAP/MXD/`](../Referencias_IMAP/MXD/) e
+[`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/`](<../Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e mapa retrato/>)
+(lista em `MXD_DIRS`, `ferramentas/chaves_mxd.py`). **Toda pasta nova de referência com
+`.mxd` que for versionada precisa entrar em `MXD_DIRS` antes do primeiro commit** — 2026-07-25
+achamos chave real (`planet_api_key_antiga`) embutida em todos os 31 `.mxd` da pasta nova
+`OneDrive_1_25-07-2026 (1)/`; só a de `Divisão de talhões` foi limpa e versionada (as outras
+30, em `Analise de Area/` e `AEP/`, ficaram de fora deste commit — ver nota abaixo).
 
 
 
@@ -92,8 +99,16 @@ C:\Python27\ArcGIS10.8\python.exe ferramentas/normalizar_mxd_arcpy.py `
 ```
 
 Imprime o que foi aplicado (`relativePaths`, data frames, camadas, `METADADOS`, `NORTE`,
-`LOGO`, `LEGENDA`) e o que ficou como **pendência** (precisa da GUI porque exige criar
-elemento novo, não só renomear).
+`LOGO`, `LEGENDA`, e — desde 2026-07-25 — `TITULO`/`ROTULO_IMOVEL`/`MINIMAPA_RETANGULO`/
+`MINIMAPA_GUIA` via reaproveitamento de elemento existente) e o que ficou como
+**pendência** (heurística ambígua ou realmente exige a GUI — ver passo 3). Use
+`--logo <caminho.png>` pra apontar outra variante do logo; o default é
+`Referencias_IMAP/Logos IMAP/LOGOTIPO SEM FUNDO/TOM ESCURO.png`.
+
+> **Ainda não testado**: as 4 heurísticas novas (título, rótulo do imóvel, gráficos do
+> minimapa, logo) foram escritas sem acesso a arcpy/ArcMap neste ambiente. Rode e confira o
+> relatório antes de assumir que fecharam — ver detalhes em
+> [`../Fase_1_Desktop/nucleo/docs/bloco-b-sem-arcmap.md`](../Fase_1_Desktop/nucleo/docs/bloco-b-sem-arcmap.md).
 
 > **Cuidado com `save()` travado:** às vezes o `mxd.save()` grava o arquivo certo mas trava
 > no cleanup do processo (mesmo sintoma documentado em
@@ -101,18 +116,22 @@ elemento novo, não só renomear).
 > min, **não mate o processo** — espere terminar sozinho (~2-3 min) ou o arquivo pode ficar
 > truncado no meio da escrita. Sempre confirme depois com `inspecionar_mxd_arcpy.py`.
 
-### 3. Trabalho manual no ArcMap — só o que sobrou (B1)
+### 3. Trabalho manual no ArcMap — só o que sobrar depois do passo 2 (B1)
 
 Abrir a cópia gerada (`shared/templates/Dinamica_retrato.mxd`; não commitar sem
-`chaves_mxd.py limpar` se tiver restaurado chaves) e resolver as pendências listadas pelo
-passo 2 — tipicamente:
+`chaves_mxd.py limpar` se tiver restaurado chaves) e resolver as pendências que o **relatório
+do passo 2** listar — não é mais uma lista fixa de 4 itens. Na pior hipótese ainda são
+estes, mas cada um só precisa de GUI se a heurística correspondente não fechar sozinha:
 
-1. Criar texto `TITULO` (título do mapa) e `ROTULO_IMOVEL` (nome do imóvel) — não existem
-   como elementos próprios no acervo.
+1. `TITULO`/`ROTULO_IMOVEL` sem candidato — só acontece se este `.mxd` não tiver a caixa
+   balão "Ano: NNNN" nem rótulo solto sobrando; nesse caso sim precisa criar elemento novo.
 2. Confirmar visualmente qual `LEGEND_ELEMENT` é a legenda do `MAPA` (o script escolhe a
-   maior por heurística; confirmar que não é a do `MINIMAPA`).
-3. Nomear entre os `GRAPHIC_ELEMENT` quais são `MINIMAPA_RETANGULO` e `MINIMAPA_GUIA`.
-4. Apontar a imagem de `LOGO` (`sourceImage` vazio no acervo).
+   maior por heurística; confirmar que não é a do `MINIMAPA`) — sempre manual, é só
+   confirmação visual rápida.
+3. `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` sem candidato inequívoco — a heurística
+   (geometria + posição) já tenta; só sobra pra GUI se ficar ambíguo.
+4. `LOGO.sourceImage` — só precisa da GUI se `PictureElement.sourceImage` não for gravável
+   nesta versão do arcpy (o script tenta e avisa no relatório se falhou).
 5. Salvar.
 
 ### 4. Calibrar offsets (B2)

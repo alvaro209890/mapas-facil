@@ -3,8 +3,12 @@
 Lista operacional da Fase 1. Complementa o [roadmap](12-roadmap.md).
 
 Estado em 2026-07-25: **M0 fechado** · **bloco A fechado** · **bloco B parcial** (v0.3.6) — B1
-automatizado parcialmente via arcpy (`ferramentas/normalizar_mxd_arcpy.py`); faltam 4
-elementos de layout que só a GUI do ArcMap cria.
+automatizado parcialmente via arcpy (`ferramentas/normalizar_mxd_arcpy.py`). Rodada 2026-07-25
+(2) achou que os 4 elementos de layout pendentes são reaproveitamento de elemento já
+existente no acervo (título, rótulo do imóvel, gráficos do minimapa, logo agora com arquivo
+real), não criação — script estendido com essas heurísticas, mas **não testado** (sem
+arcpy/ArcMap neste ambiente). Só o que sobrar depois de rodar no Windows precisa mesmo da
+GUI. Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arcmap.md).
 
 ## Pré-voo
 
@@ -49,13 +53,13 @@ Detalhe: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucleo/docs/bloco-b-sem-arc
 
 | # | Tarefa | Feito |
 |---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] automatizado via `normalizar_mxd_arcpy.py` (data frames, camadas, metadados, norte, logo, legenda); faltam `TITULO`, `ROTULO_IMOVEL` (texto) e `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` (gráficos) — só GUI cria elemento novo |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] `normalizar_mxd_arcpy.py` estendido 2026-07-25 pra reaproveitar elemento existente em vez de criar (`TITULO` ← caixa "Ano: NNNN", `ROTULO_IMOVEL` ← rótulo solto, `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` ← heurística geometria+posição, `LOGO` ← arquivo real em `Referencias_IMAP/Logos IMAP/`); **não testado** (sem arcpy/Windows aqui) — GUI só se sobrar pendência no relatório |
 | B2 | MANIFEST sha256 + offsets | [~] `dinamica_retrato` com sha256 registrado, `status: parcial`; offsets ainda pendem de B1 terminar (senão invalidam) |
 | B3 | `arcpy_job.py` + ponte | [x] esqueleto |
 | B4 | Materializar SHP/ | [~] cópia + ogr2ogr opcional |
 | B5 | Extent bbox `.shp` | [~] via metadados |
 | B6 | Textos / definition query | [~] infra UTF-16LE; falta MANIFEST |
-| B7 | Minimapa retângulo + guia | [ ] aguarda B1 |
+| B7 | Minimapa retângulo + guia | [~] candidatos identificáveis por heurística desde 2026-07-25 (ver B1); confirmar rodando no ArcMap |
 | B8 | Patch T2 sem ArcMap | [~] cópia do template preparado (`resolver_caminho_preparado`) |
 | B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke Harmonia manual pendente |
 

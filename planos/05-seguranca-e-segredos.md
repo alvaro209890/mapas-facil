@@ -50,6 +50,20 @@ As chaves antigas continuam no histórico do git (commits `a81c1f4` até o commi
 Rotacionar é a única forma de matá-las de fato. Enquanto não for feito, o risco é: qualquer
 pessoa que clone o repositório consegue consumir a cota Planet e o WMS da SEMA em nome do dono.
 
+### Quase-repetição 2026-07-25
+
+Pasta nova de referência (`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/Divisão de talhões e
+mapa retrato/`) chegou ao acervo com o **mesmo padrão de chave real embutida**
+(`planet_api_key_antiga`, 4 ocorrências no `.mxd`) — `chaves_mxd.py` só olhava
+`Referencias_IMAP/MXD/`, então não pegou automaticamente. Detectado antes do commit (grep
+manual por ocorrência da chave real, não pelo hook — porque o hook nunca foi implementado,
+ver dívida acima), limpo e `MXD_DIRS` estendido pra cobrir a pasta nova. As outras ~30
+`.mxd` que vieram na mesma pasta (`Analise de Area/`, `AEP/`) **também têm chave real** e
+ficaram de fora deste commit — se algum dia forem versionadas, rodar `chaves_mxd.py limpar`
+com `MXD_DIRS` apontando pra elas primeiro. Reforça a prioridade do item pendente "Hook de
+pre-commit rodando `chaves_mxd.py verificar`" — desta vez pegamos manualmente, na próxima
+pode não pegar.
+
 ## Cofre de segredos
 
 ### Onde cada segredo vive

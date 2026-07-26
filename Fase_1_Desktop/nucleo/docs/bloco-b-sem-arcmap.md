@@ -10,7 +10,7 @@ Checklist: [`../planos/13-checklist-implementacao.md`](../planos/13-checklist-im
 
 | Item | Status | Onde |
 |---|---|---|
-| B1 — Preparar template no ArcMap | **Automatizado parcialmente** via arcpy scriptado (sem GUI) | `ferramentas/normalizar_mxd_arcpy.py` |
+| B1 — Preparar template no ArcMap | **Automatizado parcialmente** via arcpy scriptado (sem GUI); rodada 2026-07-25 reduziu os 4 pendentes a 0-1 (ver seção abaixo) — **falta rodar no Windows pra confirmar** | `ferramentas/normalizar_mxd_arcpy.py` |
 | B2 — `sha256` + offsets no MANIFEST | `dinamica_retrato` com sha256 registrado, `status: parcial` | `motores/manifesto.py`, `ferramentas/registrar_template.py` |
 | B3 — `arcpy_job.py` + ponte | Esqueleto | `scripts/arcpy_job.py`, `motores/arcpy_ponte.py` |
 | B4 — Materializar homônimos em `SHP/` | Cópia + **ogr2ogr opcional** | `camadas/materializar.py`, `geo/ogr2ogr.py` |
@@ -60,6 +60,44 @@ Aplicado automaticamente em `Dinamica_retrato.mxd` (a partir de `Dinamica_2026.m
 
 Depois desses 4 ajustes manuais, **repetir a normalização e recalibrar os offsets** — a
 estrutura binária do `.mxd` muda ao inserir elementos novos, invalidando offsets antigos.
+
+## Rodada 2026-07-25 (2): os "4 pendentes" viraram reaproveitamento, não criação
+
+Novo material de referência chegou no acervo (`Referencias_IMAP/OneDrive_1_25-07-2026 (1)/
+Divisão de talhões e mapa retrato/` + `Referencias_IMAP/Logos IMAP/`). Comparar o
+`Divisão de talhões.mxd` (que já tem título e rótulos como caixas balão) com o
+`Dinamica_2026.mxd` mostrou que **o template de produção já tem os elementos certos, só sem
+o nome canônico**:
+
+- O elemento "Ano: 2026" no topo do `Dinamica_2026` **já é** a mesma caixa branca
+  arredondada (estilo balão) que serve de título no template de referência — não precisa
+  criar `TITULO` do zero, só renomear + trocar o `.text` dinamicamente. `.text`,
+  `.elementPositionX/Y` e `.name` são propriedades **graváveis** em `TextElement` — 100%
+  scriptável, sem GUI.
+- "Vila Rica" (hoje um rótulo solto dentro do mini-mapa localizador) pode virar
+  `ROTULO_IMOVEL` — renomear, reposicionar sobre o polígono principal e trocar o texto pelo
+  nome da fazenda. Mesmo raciocínio, mesma API gravável. Trade-off: o mini-mapa perde o
+  rótulo do município (aceitável).
+- Os "5 GRAPHIC_ELEMENT sem classificação" já são candidatos a `MINIMAPA_RETANGULO`/
+  `MINIMAPA_GUIA` — não precisam ser criados, só identificados. Adicionamos duas
+  heurísticas: geometria (bbox bem fino = linha-guia) e posição (dentro do data frame
+  `MINIMAPA` = retângulo indicador). Aplica automático só quando o candidato é inequívoco;
+  senão vira pendência já com os dados prontos pra decisão rápida.
+- `Referencias_IMAP/Logos IMAP/` trouxe os 4 PNGs oficiais do logo IMAP (com/sem fundo, tom
+  claro/escuro, 8334×8334). `LOGO.sourceImage` estava vazio só por falta do arquivo — agora
+  `normalizar_mxd_arcpy.py --logo` tenta apontar pra variante "sem fundo, tom escuro"
+  (confere com o logo que já aparece nos PDFs renderizados do acervo). **Único item
+  genuinamente incerto**: `arcpy.mapping.PictureElement.sourceImage` é historicamente
+  somente-leitura em algumas versões do ArcMap 10.x — o script tenta via `try/except` e
+  degrada pra pendência se não for gravável.
+
+**Resultado**: `ferramentas/normalizar_mxd_arcpy.py` foi estendido com essas 4 heurísticas
+(ver código — regex `Ano: NNNN`, texto solto único, geometria fina, posição dentro do data
+frame). **Nada disso foi testado de verdade** — este ambiente não tem arcpy/ArcMap/Windows.
+Próxima vez que alguém rodar o script numa máquina com ArcMap, o relatório
+(`aplicados`/`pendencias`) vai dizer exatamente quantos dos "4 pendentes do B1" sobrevivem.
+Se sobrar só o `LOGO.sourceImage` (ou nada), B1 fecha com **1 clique de 30s no ArcMap** ou
+**zero GUI**, não mais "5-10 min criando elemento novo".
 
 ## Bug encontrado e corrigido: `registrar_template.py --dry-run`
 
@@ -162,6 +200,9 @@ O comando define `motor_preferido` (`arcpy` > `patch` > `arcpy_provavel` > `nati
 3. ~~Teste raster B9 contra `Referencias_IMAP/Mapas/01/Dinamica_2026.pdf`~~ — módulo pronto; smoke com PDF nativo Harmonia pendente (motor ainda estrutural).
 4. ~~Integrar escolha T1 vs T2 em `doctor`~~ — `motor_preferido` + `arcpy_provavel`.
 5. ~~B1 sem GUI~~ — `normalizar_mxd_arcpy.py` fez a parte automatizável.
-6. B1 final (GUI, 5-10 min): 2 textos + 2 gráficos + confirmar legenda + logo — ver seção
-   acima. Depois disso, calibrar offsets (B2) e o T2 passa a fazer patch de verdade
-   (extent/escala/textos), não só cópia.
+6. **B1 final — a testar, não mais GUI garantida** (ver "Rodada 2026-07-25 (2)" acima):
+   rodar `normalizar_mxd_arcpy.py` atualizado numa máquina com ArcMap e ler o relatório.
+   Só o que continuar em `pendencias` depois disso precisa da GUI (na pior hipótese:
+   confirmar a legenda certa + `LOGO.sourceImage`, ~1 min; nada de criar elemento novo).
+   Depois, calibrar offsets (B2) e o T2 passa a fazer patch de verdade (extent/escala/
+   textos), não só cópia.
