@@ -1,53 +1,115 @@
+/* Duas colunas: cena decorativa à esquerda, formulário à direita. Abaixo de
+   960px (ou com movimento reduzido, quando a cena some) vira coluna única
+   centrada — o formulário nunca depende da cena para ficar legível. */
 .tela {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: var(--mf-e5);
-  background: var(--mf-bg);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: var(--mf-e7);
+  padding: var(--mf-e6);
+  background:
+    radial-gradient(120% 90% at 8% 0%, #101a20 0%, transparent 58%),
+    radial-gradient(90% 80% at 100% 100%, #101c19 0%, transparent 60%),
+    var(--mf-bg);
+}
+
+@media (max-width: 960px) {
+  .tela {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: var(--mf-e5);
+  }
 }
 
 .cartao {
-  width: min(420px, 100%);
-  padding: var(--mf-e5);
+  width: min(440px, 100%);
+  justify-self: center;
+  padding: var(--mf-e6);
   border: 1px solid var(--mf-borda);
-  border-radius: var(--mf-raio-2);
-  background: var(--mf-superficie-1);
-  box-shadow: var(--mf-sombra-1, none);
+  border-radius: var(--mf-raio-3);
+  background: color-mix(in srgb, var(--mf-superficie-1) 92%, transparent);
+  box-shadow: var(--mf-sombra-alta);
+  animation: entrarCartao var(--mf-dur-4) var(--mf-ease-saida) both;
+}
+
+.selo {
+  display: inline-block;
+  margin-bottom: var(--mf-e3);
+  padding: 3px var(--mf-e2);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: 999px;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mf-texto-3);
 }
 
 .marca {
   margin: 0;
-  font: var(--mf-fs-hero) var(--mf-fonte-display);
+  font: var(--mf-fs-t1) var(--mf-fonte-display);
+  font-weight: 600;
   letter-spacing: var(--mf-tracking-display);
   color: var(--mf-texto);
 }
 
+.marca em {
+  display: block;
+  font-style: normal;
+  color: var(--mf-acento);
+}
+
 .nota {
-  margin: var(--mf-e2) 0 var(--mf-e4);
+  margin: var(--mf-e3) 0 var(--mf-e5);
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
   color: var(--mf-texto-3);
+}
+
+.rodape {
+  margin: var(--mf-e4) 0 0;
+  padding-top: var(--mf-e3);
+  border-top: 1px solid var(--mf-borda);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+@keyframes entrarCartao {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
 
 .abas {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--mf-e1);
-  margin-bottom: var(--mf-e4);
+  margin-bottom: var(--mf-e5);
+  padding: var(--mf-e1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-bg);
 }
 
 .aba {
   padding: var(--mf-e2);
-  border: 1px solid var(--mf-borda);
+  border: 1px solid transparent;
   border-radius: var(--mf-raio-1);
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
-  color: var(--mf-texto-2);
+  font-weight: 600;
+  color: var(--mf-texto-3);
   background: transparent;
+  transition:
+    color var(--mf-dur-1) var(--mf-ease-ambos),
+    background var(--mf-dur-1) var(--mf-ease-ambos);
+}
+
+.aba:hover {
+  color: var(--mf-texto-2);
 }
 
 .aba[data-ativa="sim"] {
   color: var(--mf-texto);
-  border-color: var(--mf-acento);
-  background: var(--mf-superficie-2);
+  border-color: var(--mf-borda-forte);
+  background: var(--mf-superficie-3);
 }
 
 .form {
@@ -103,14 +165,18 @@
 }
 
 .primario {
-  margin-top: var(--mf-e2);
+  margin-top: var(--mf-e3);
   padding: var(--mf-e3);
   border: 1px solid var(--mf-acento);
-  border-radius: var(--mf-raio-1);
-  background: var(--mf-acento);
-  color: var(--mf-bg);
+  border-radius: var(--mf-raio-2);
+  background: linear-gradient(180deg, var(--mf-acento-forte), var(--mf-acento));
+  color: #06231b;
   font: var(--mf-fs-corpo) var(--mf-fonte-ui);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition:
+    filter var(--mf-dur-1) var(--mf-ease-ambos),
+    transform var(--mf-dur-1) var(--mf-ease-ambos);
 }
 
 .primario:disabled {
@@ -118,5 +184,9 @@
 }
 
 .primario:hover:not(:disabled) {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
+}
+
+.primario:active:not(:disabled) {
+  transform: translateY(1px);
 }

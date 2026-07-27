@@ -9,6 +9,7 @@ import {
   useAuth,
   type SnapshotAuth,
 } from "../estado/auth.js";
+import { CenaMapaLogin } from "./CenaMapaLogin.js";
 import estilos from "./Login.module.css";
 
 type Modo = "entrar" | "criar";
@@ -44,8 +45,14 @@ export function Login({ onConectado }: PropsLogin) {
 
   return (
     <main id="tela-login" className={estilos.tela} aria-label="entrar no Mapas Fácil">
+      <CenaMapaLogin />
+
       <div className={estilos.cartao}>
-        <h1 className={estilos.marca}>Mapas Fácil</h1>
+        <span className={estilos.selo}>Mapas Fácil · desktop</span>
+        <h1 className={estilos.marca}>
+          Do shapefile ao mapa
+          <em>sem abrir o ArcMap na mão.</em>
+        </h1>
         <p className={estilos.nota}>
           Acesso completo, sem limites · conta e dados ficam só neste PC
         </p>
@@ -133,6 +140,11 @@ export function Login({ onConectado }: PropsLogin) {
             {ocupado ? "Aguarde…" : modo === "criar" ? "Criar e entrar" : "Entrar"}
           </button>
         </form>
+
+        <p className={estilos.rodape}>
+          Sem nuvem, sem mensalidade. Os mapas e as conversas ficam neste
+          computador.
+        </p>
       </div>
     </main>
   );

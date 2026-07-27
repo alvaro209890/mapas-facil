@@ -1,0 +1,309 @@
+/* Cena decorativa do login. Ver CenaMapaLogin.tsx para o porquê de ela ser
+   `aria-hidden` e de sumir inteira em prefers-reduced-motion. */
+
+.cena {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--mf-e4);
+  padding: var(--mf-e7) var(--mf-e6);
+  overflow: hidden;
+}
+
+.halo {
+  position: absolute;
+  inset: -20% -30% auto -30%;
+  height: 78%;
+  background: radial-gradient(
+    60% 60% at 50% 40%,
+    var(--mf-acento-fraco) 0%,
+    transparent 70%
+  );
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- prompt */
+
+.prompt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  align-self: flex-start;
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: color-mix(in srgb, var(--mf-superficie-2) 82%, transparent);
+  font: var(--mf-fs-peq) var(--mf-fonte-mono);
+  color: var(--mf-texto-2);
+}
+
+.promptMarca {
+  color: var(--mf-acento);
+}
+
+.cursor {
+  width: 7px;
+  height: 14px;
+  background: var(--mf-acento);
+  animation: piscar 1.1s steps(2, end) infinite;
+}
+
+/* ------------------------------------------------------------------ papel */
+
+.papel {
+  position: relative;
+  align-self: center;
+  width: min(420px, 100%);
+  aspect-ratio: 420 / 340;
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-3);
+  overflow: hidden;
+  box-shadow: var(--mf-sombra-alta);
+  animation: subir var(--mf-dur-4) var(--mf-ease-saida) both;
+}
+
+.mapa {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.textura {
+  opacity: 0.85;
+}
+
+/* Fora do perímetro o entorno é contexto, não conteúdo: fica dessaturado
+   para o imóvel continuar sendo o que o olho pega primeiro. */
+.talhoes {
+  opacity: 0.34;
+}
+
+/* O perímetro se desenha: é a leitura de "o mapa está sendo construído". */
+.perimetro {
+  fill: none;
+  stroke: #ffd23f;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: tracar 2.6s var(--mf-ease-saida) 0.35s forwards;
+}
+
+.camadaVeg,
+.camadaAc {
+  opacity: 0;
+  animation: aparecer 700ms var(--mf-ease-saida) forwards;
+}
+
+.camadaVeg {
+  fill: rgba(53, 199, 154, 0.28);
+  stroke: rgba(87, 224, 180, 0.75);
+  stroke-width: 1.5;
+  animation-delay: 1.5s;
+}
+
+.camadaAc {
+  fill: rgba(215, 169, 75, 0.26);
+  stroke: rgba(255, 210, 63, 0.6);
+  stroke-width: 1.5;
+  animation-delay: 2.1s;
+}
+
+.varredura {
+  animation: varrer 3.4s var(--mf-ease-ambos) infinite;
+}
+
+.vertices circle {
+  fill: var(--mf-bg);
+  stroke: #ffd23f;
+  stroke-width: 2;
+  opacity: 0;
+  animation: aparecer 400ms var(--mf-ease-saida) 2.7s forwards;
+}
+
+/* ------------------------------------------------------------ sobreposto */
+
+.selo {
+  position: absolute;
+  padding: 2px var(--mf-e2);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  letter-spacing: 0.08em;
+  color: var(--mf-bg);
+  opacity: 0;
+  animation: aparecer 400ms var(--mf-ease-saida) forwards;
+}
+
+.seloAtp {
+  top: 22%;
+  left: 12%;
+  background: #ffd23f;
+  animation-delay: 2.9s;
+}
+
+.seloAvn {
+  top: 46%;
+  right: 16%;
+  background: var(--mf-acento-forte);
+  animation-delay: 3.1s;
+}
+
+.norte {
+  position: absolute;
+  top: var(--mf-e3);
+  right: var(--mf-e3);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  color: var(--mf-texto);
+}
+
+.norte i {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 12px solid var(--mf-texto);
+}
+
+/* ---------------------------------------------------------------- camadas */
+
+.camadas {
+  display: grid;
+  gap: var(--mf-e1);
+  align-self: center;
+  width: min(420px, 100%);
+  padding: var(--mf-e3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: color-mix(in srgb, var(--mf-superficie-1) 78%, transparent);
+}
+
+.camadas small {
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  letter-spacing: 0.12em;
+  color: var(--mf-texto-3);
+}
+
+.linhaCamada {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  opacity: 0;
+  animation: deslizar 460ms var(--mf-ease-saida) forwards;
+}
+
+.linhaCamada[data-atraso="1"] { animation-delay: 0.6s; }
+.linhaCamada[data-atraso="2"] { animation-delay: 1.2s; }
+.linhaCamada[data-atraso="3"] { animation-delay: 1.8s; }
+.linhaCamada[data-atraso="4"] { animation-delay: 2.4s; }
+
+.linhaCamada i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.linhaCamada i[data-cor="base"] { background: #2d6549; }
+.linhaCamada i[data-cor="atp"] { background: #ffd23f; }
+.linhaCamada i[data-cor="avn"] { background: var(--mf-acento); }
+.linhaCamada i[data-cor="ac"] { background: #d7a94b; }
+
+.linhaCamada b {
+  margin-left: auto;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  color: var(--mf-acento);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- saídas */
+
+.saidas {
+  display: flex;
+  gap: var(--mf-e2);
+  align-self: center;
+  width: min(420px, 100%);
+}
+
+.saida {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  padding: var(--mf-e2) var(--mf-e3);
+  border: 1px solid var(--mf-acento);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-acento-fraco);
+  font: var(--mf-fs-peq) var(--mf-fonte-mono);
+  color: var(--mf-texto);
+  letter-spacing: 0.06em;
+  opacity: 0;
+  animation: deslizar 460ms var(--mf-ease-saida) forwards;
+}
+
+.saida[data-atraso="1"] { animation-delay: 3.2s; }
+.saida[data-atraso="2"] { animation-delay: 3.45s; }
+
+.saida small {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+  letter-spacing: 0;
+}
+
+.legenda {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mf-e3);
+  align-self: center;
+  width: min(420px, 100%);
+  margin: 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  letter-spacing: 0.1em;
+  color: var(--mf-texto-3);
+}
+
+/* --------------------------------------------------------------- keyframes */
+
+@keyframes tracar {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes aparecer {
+  to { opacity: 1; }
+}
+
+@keyframes deslizar {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes varrer {
+  0% { transform: translateY(-90px); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(340px); opacity: 0; }
+}
+
+@keyframes piscar {
+  50% { opacity: 0; }
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Movimento é ornamento: sem ele a cena inteira sai de cena, em vez de ficar
+   um quadro estático competindo com o formulário. */
+@media (prefers-reduced-motion: reduce) {
+  .cena {
+    display: none;
+  }
+}
