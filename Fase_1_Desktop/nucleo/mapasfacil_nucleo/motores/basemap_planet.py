@@ -1,9 +1,10 @@
-"""Fase 3 (paridade Harmonia) — raster de basemap via mosaico WMTS Planet.
+"""Fase 3 (paridade Harmonia) — raster de basemap via WMTS Planet.
 
-Baixa tiles XYZ/Web Mercator do mosaico informado, monta um mosaico local e
-georeferencia com worldfile (.pgw) + .prj — sem depender de GDAL/rasterio.
-O raster fica fora do repositório (pasta do job do usuário); a chave nunca é
-escrita em disco versionado.
+Baixa tiles do endpoint WMTS oficial (`api.planet.com/.../wmts`), monta um
+mosaico local e georeferencia no **CRS do data frame** (UTM SIRGAS) — sem
+reprojeção on-the-fly no ArcMap (que era o que travava o export).
+
+A chave nunca é escrita em disco versionado.
 """
 
 from __future__ import annotations
@@ -11,23 +12,31 @@ from __future__ import annotations
 import io
 import json
 import math
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
 
 from mapasfacil_nucleo.config import raiz_repositorio
 
-_ORIGEM_MERC = 20037508.34278925  # metros — meia-circunferência Web Mercator
+_ORIGEM_MERC = 20037508.34278925
 _TILE_PX = 256
-_WKT_3857 = (
-    'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",'
-    'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",'
-    'SPHEROID["WGS_1984",6378137.0,298.257223563]],'
+
+# Endpoint WMTS estável (GetCapabilities / GetTile) — chave só em query.
+WMTS_BASE = "https://api.planet.com/basemaps/v1/mosaics/wmts"
+
+_WKT_31982 = (
+    'PROJCS["SIRGAS_2000_UTM_Zone_22S",'
+    'GEOGCS["GCS_SIRGAS_2000",DATUM["D_SIRGAS_2000",'
+    'SPHEROID["GRS_1980",6378137.0,298.257222101]],'
     'PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],'
-    'PROJECTION["Mercator_Auxiliary_Sphere"],'
-    'PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],'
-    'PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],'
-    'PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    'PROJECTION["Transverse_Mercator"],'
+    'PARAMETER["False_Easting",500000.0],'
+    'PARAMETER["False_Northing",10000000.0],'
+    'PARAMETER["Central_Meridian",-51.0],'
+    'PARAMETER["Scale_Factor",0.9996],'
+    'PARAMETER["Latitude_Of_Origin",0.0],'
+    'UNIT["Meter",1.0]]'
 )
 
 
@@ -56,6 +65,22 @@ def ler_chave_planet(*, override: str | None = None) -> str | None:
     return chave or None
 
 
+def url_wmts_capabilities(api_key: str) -> str:
+    return f"{WMTS_BASE}?{urllib.parse.urlencode({'api_key': api_key})}"
+
+
+def _url_wmts_tile(*, mosaico: str, z: int, tx: int, ty: int, api_key: str) -> str:
+    """Tile do ResourceURL Planet (XYZ = matrix GoogleMapsCompatible do WMTS).
+
+    O endpoint `.../mosaics/wmts?REQUEST=GetTile` devolve Capabilities XML —
+    os pixels vêm de `tiles.planet.com` (ResourceURL do GetCapabilities).
+    """
+    return (
+        f"https://tiles.planet.com/basemaps/v1/planet-tiles/{mosaico}"
+        f"/gmap/{z}/{tx}/{ty}.png?{urllib.parse.urlencode({'api_key': api_key})}"
+    )
+
+
 def _lonlat_para_tile(lon: float, lat: float, z: int) -> tuple[float, float]:
     lat_rad = math.radians(lat)
     n = 2**z
@@ -71,17 +96,55 @@ def _tile_para_merc(xt: float, yt: float, z: int) -> tuple[float, float]:
     return x_m, y_m
 
 
+def _escrever_georef_utm(
+    destino_png: Path,
+    *,
+    x_min_m: float,
+    y_max_m: float,
+    x_max_m: float,
+    y_min_m: float,
+    width_px: int,
+    height_px: int,
+    epsg: int,
+) -> None:
+    """Worldfile no CRS do data frame — evita warp 3857→UTM no ArcMap (travava)."""
+    from pyproj import CRS, Transformer
+
+    transformer = Transformer.from_crs("EPSG:3857", f"EPSG:{epsg}", always_xy=True)
+    ul_x, ul_y = transformer.transform(x_min_m, y_max_m)
+    ur_x, ur_y = transformer.transform(x_max_m, y_max_m)
+    ll_x, ll_y = transformer.transform(x_min_m, y_min_m)
+
+    # Affine (worldfile): A D / B E / C F
+    a = (ur_x - ul_x) / width_px
+    d = (ur_y - ul_y) / width_px
+    b = (ll_x - ul_x) / height_px
+    e = (ll_y - ul_y) / height_px
+    c, f = ul_x, ul_y
+
+    destino_png.with_suffix(".pgw").write_text(
+        f"{a}\n{d}\n{b}\n{e}\n{c}\n{f}\n",
+        encoding="ascii",
+    )
+    try:
+        wkt = CRS.from_epsg(epsg).to_wkt()
+    except Exception:
+        wkt = _WKT_31982 if epsg == 31982 else _WKT_31982
+    destino_png.with_suffix(".prj").write_text(wkt, encoding="utf-8")
+
+
 def gerar_basemap_planet(
     *,
     bbox_wgs84: tuple[float, float, float, float],
     mosaico: str,
     destino_png: Path,
     api_key: str | None = None,
-    zoom: int = 15,
+    zoom: int = 13,
     buffer_graus: float = 0.02,
-    timeout_s: int = 20,
+    timeout_s: int = 12,
+    epsg_destino: int = 31982,
 ) -> dict[str, Any] | None:
-    """Baixa e georeferencia o mosaico Planet cobrindo `bbox_wgs84` (+ buffer).
+    """Baixa tiles WMTS e georeferencia no `epsg_destino` (default UTM 22S).
 
     `bbox_wgs84` = (xmin, ymin, xmax, ymax). Grava `destino_png` + `.pgw` + `.prj`.
     Devolve `None` se a chave não estiver configurada (chamador cai para "sem
@@ -112,13 +175,8 @@ def gerar_basemap_planet(
         )
 
     def _url_tile(tx: int, ty: int) -> str:
-        return (
-            f"https://tiles.planet.com/basemaps/v1/planet-tiles/{mosaico}"
-            f"/gmap/{zoom}/{tx}/{ty}.png?api_key={chave}"
-        )
+        return _url_wmts_tile(mosaico=mosaico, z=zoom, tx=tx, ty=ty, api_key=chave)
 
-    # Sonda rapida: se o mosaico nao existir/rede indisponivel, falha em
-    # segundos em vez de tentar (e esperar timeout de) ate centenas de tiles.
     try:
         with urllib.request.urlopen(_url_tile(tx0, ty0), timeout=8) as resp:
             resp.read()
@@ -139,16 +197,20 @@ def gerar_basemap_planet(
             mosaico_img.paste(tile_img, (col * _TILE_PX, linha * _TILE_PX))
 
     destino_png.parent.mkdir(parents=True, exist_ok=True)
-    mosaico_img.save(destino_png)
+    mosaico_img.save(destino_png, optimize=True)
 
     x_min_m, y_max_m = _tile_para_merc(tx0, ty0, zoom)
     x_max_m, y_min_m = _tile_para_merc(tx1 + 1, ty1 + 1, zoom)
-    px_x = (x_max_m - x_min_m) / (n_cols * _TILE_PX)
-    px_y = (y_max_m - y_min_m) / (n_rows * _TILE_PX)
-
-    pgw = destino_png.with_suffix(".pgw")
-    pgw.write_text(f"{px_x}\n0.0\n0.0\n{-px_y}\n{x_min_m}\n{y_max_m}\n", encoding="ascii")
-    destino_png.with_suffix(".prj").write_text(_WKT_3857, encoding="ascii")
+    _escrever_georef_utm(
+        destino_png,
+        x_min_m=x_min_m,
+        y_max_m=y_max_m,
+        x_max_m=x_max_m,
+        y_min_m=y_min_m,
+        width_px=n_cols * _TILE_PX,
+        height_px=n_rows * _TILE_PX,
+        epsg=epsg_destino,
+    )
 
     return {
         "png": str(destino_png),
@@ -156,4 +218,6 @@ def gerar_basemap_planet(
         "tiles_faltando": faltando,
         "zoom": zoom,
         "mosaico": mosaico,
+        "epsg": epsg_destino,
+        "fonte": "wmts",
     }

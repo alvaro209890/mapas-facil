@@ -114,11 +114,12 @@
     "layers": {"terras_indigenas": "Funai:tis_poligonais"}
   },
   "planet_basemaps": {
-    "nome": "Planet - Basemaps",
+    "nome": "Planet - Basemaps (WMTS)",
+    "wmts": "https://api.planet.com/basemaps/v1/mosaics/wmts",
     "tiles": "https://tiles.planet.com/basemaps/v1/planet-tiles/{mosaic}/gmap/{z}/{x}/{y}.png",
-    "tipos": ["xyz"],
+    "tipos": ["wmts", "xyz"],
     "auth": "planet_api_key",
-    "obs": "mosaic = global_monthly_AAAA_MM_mosaic — basemap dos PDFs-modelo IMAP"
+    "obs": "Preferir WMTS GetTile (api.planet.com). mosaic = global_monthly_AAAA_MM_mosaic — basemap dos PDFs-modelo IMAP. Nunca embutir a chave no .mxd versionado."
   },
   "esri_world_imagery": {
     "nome": "Esri World Imagery",

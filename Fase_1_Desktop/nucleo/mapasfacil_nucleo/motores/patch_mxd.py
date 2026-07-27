@@ -146,6 +146,53 @@ def aplicar_patch_manifesto(
     return {"aplicados": aplicados, "avisos": avisos, "modo": "patch" if aplicados else "copia"}
 
 
+def _resolver_valor_metadado(rotulo: str, valor: Any, mapspec: dict[str, Any]) -> str:
+    """Troca placeholders 'auto' pelos valores reais do MapSpec / basemap."""
+    texto = str(valor or "").strip()
+    if texto and texto.lower() != "auto":
+        return texto
+
+    rot = (rotulo or "").strip().lower()
+    if rot.startswith("data"):
+        mosaico = str((mapspec.get("basemap") or {}).get("mosaico") or "")
+        # planet_..._2026-03_... ou global_monthly_2026_03_mosaic
+        import re
+
+        m = re.search(r"(20\d{2})[-_](\d{2})", mosaico)
+        if m:
+            meses = {
+                "01": "Janeiro",
+                "02": "Fevereiro",
+                "03": "Março",
+                "04": "Abril",
+                "05": "Maio",
+                "06": "Junho",
+                "07": "Julho",
+                "08": "Agosto",
+                "09": "Setembro",
+                "10": "Outubro",
+                "11": "Novembro",
+                "12": "Dezembro",
+            }
+            return f"{meses.get(m.group(2), m.group(2))}/{m.group(1)}"
+        return "Março/2026"
+    if rot.startswith("datum"):
+        crs = str(mapspec.get("crs") or "EPSG:31982")
+        if "31982" in crs:
+            return "SIRGAS 2000 UTM 22 S"
+        if "31981" in crs:
+            return "SIRGAS 2000 UTM 21 S"
+        return crs.replace("EPSG:", "EPSG ")
+    if rot.startswith("escala"):
+        escala = mapspec.get("escala")
+        if isinstance(escala, (int, float)) and escala > 0:
+            return f"1:{int(escala):,}".replace(",", ".")
+        if isinstance(escala, str) and escala.isdigit():
+            return f"1:{int(escala):,}".replace(",", ".")
+        return "1:60.000"
+    return texto
+
+
 def _textos_do_mapspec(mapspec: dict[str, Any]) -> dict[str, str]:
     textos: dict[str, str] = {}
     titulo = mapspec.get("titulo")
@@ -162,7 +209,7 @@ def _textos_do_mapspec(mapspec: dict[str, Any]) -> dict[str, str]:
             if not isinstance(item, dict):
                 continue
             rot = item.get("rotulo", "")
-            val = item.get("valor", "")
+            val = _resolver_valor_metadado(str(rot), item.get("valor", ""), mapspec)
             if rot and val:
                 linhas.append(f"<bol>{rot}</bol> {val}")
         if linhas:

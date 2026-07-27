@@ -53,10 +53,6 @@
           "filtro_de": "imovel.municipio.nome"
         }
       ],
-      "basemap_padrao": {
-        "tipo": "planet_mensal",
-        "fallback": ["mosaico_sema", "esri_world_imagery"]
-      },
       "elementos_layout_padrao": {
         "titulo_caixa": true,
         "norte": true,
@@ -84,7 +80,8 @@
       ],
       "basemap_padrao": {
         "tipo": "planet_mensal",
-        "mosaico": "planet_medres_normalized_analytic_2026-03_mosaic"
+        "mosaico": "global_monthly_2026_03_mosaic",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
       }
     },
     {

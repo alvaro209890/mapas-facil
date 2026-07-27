@@ -17,9 +17,6 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Smoke de paridade visual: aqui (e so aqui) o basemap Planet real e desejado.
-os.environ.setdefault("MAPASFACIL_BASEMAP_PLANET", "1")
-
 ROOT = Path(__file__).resolve().parents[1]
 NUCLEO = ROOT / "Fase_1_Desktop" / "nucleo"
 sys.path.insert(0, str(NUCLEO))
@@ -73,7 +70,18 @@ def main() -> int:
         default=0.3,
         help="Tolerância do diff raster (default 0,3%%)",
     )
+    parser.add_argument(
+        "--com-basemap",
+        action="store_true",
+        help="Liga Planet WMTS (lento: BuildPyramids + export). Padrao: off.",
+    )
     args = parser.parse_args()
+
+    # Basemap opt-in: com Planet o ArcPy facilmente passa de 10 min neste PC.
+    if args.com_basemap:
+        os.environ["MAPASFACIL_BASEMAP_PLANET"] = "1"
+    else:
+        os.environ["MAPASFACIL_BASEMAP_PLANET"] = "0"
 
     pasta = Path(args.pasta).expanduser().resolve()
     if not pasta.is_dir():
@@ -95,6 +103,7 @@ def main() -> int:
         sobrescritas={
             "saidas": ["mxd", "pdf"],
             "titulo": "Dinâmica 2026",
+            "escala": 60000,
         },
     )
     mapspec = montado["mapspec"]

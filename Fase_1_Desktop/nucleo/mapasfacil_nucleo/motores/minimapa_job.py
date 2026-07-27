@@ -183,6 +183,8 @@ def tentar_gerar_mxd_arcpy(
     bbox_list = list(bbox) if bbox else [0.0, 0.0, 1.0, 1.0]
 
     basemap_raster = None
+    basemap_mosaico = None
+    planet_api_key = None
     basemap_cfg = mapspec.get("basemap") or {}
     # Opt-in explicito (env var) — evita que testes/pytest disparem download
     # real de ~100+ tiles do Planet toda vez que rodam neste PC com ArcMap.
@@ -193,28 +195,37 @@ def tentar_gerar_mxd_arcpy(
         and basemap_cfg.get("tipo") == "planet_mensal"
         and basemap_cfg.get("mosaico")
     ):
-        try:
-            epsg_df = int(str(tpl.get("crs_data_frame", mapspec.get("crs", "EPSG:31982"))).replace(
-                "EPSG:", ""
-            ))
-            transformer_wgs84 = Transformer.from_crs(
-                f"EPSG:{epsg_df}", "EPSG:4326", always_xy=True
-            )
-            xs, ys = transformer_wgs84.transform(
-                [bbox[0], bbox[2]], [bbox[1], bbox[3]]
-            )
-            bbox_wgs84 = (min(xs), min(ys), max(xs), max(ys))
-            from mapasfacil_nucleo.motores.basemap_planet import gerar_basemap_planet
+        from mapasfacil_nucleo.motores.basemap_planet import ler_chave_planet
 
-            resultado_basemap = gerar_basemap_planet(
-                bbox_wgs84=bbox_wgs84,
-                mosaico=str(basemap_cfg["mosaico"]),
-                destino_png=tmp / "basemap_planet.png",
-            )
-            if resultado_basemap:
-                basemap_raster = resultado_basemap["png"]
-        except Exception:
-            basemap_raster = None
+        basemap_mosaico = str(basemap_cfg["mosaico"])
+        planet_api_key = ler_chave_planet()
+        # Raster local so sob pedido — o caminho padrao e WMTS vivo no ArcMap.
+        if os.environ.get("MAPASFACIL_BASEMAP_RASTER") == "1":
+            try:
+                epsg_df = int(
+                    str(tpl.get("crs_data_frame", mapspec.get("crs", "EPSG:31982"))).replace(
+                        "EPSG:", ""
+                    )
+                )
+                transformer_wgs84 = Transformer.from_crs(
+                    f"EPSG:{epsg_df}", "EPSG:4326", always_xy=True
+                )
+                xs, ys = transformer_wgs84.transform(
+                    [bbox[0], bbox[2]], [bbox[1], bbox[3]]
+                )
+                bbox_wgs84 = (min(xs), min(ys), max(xs), max(ys))
+                from mapasfacil_nucleo.motores.basemap_planet import gerar_basemap_planet
+
+                resultado_basemap = gerar_basemap_planet(
+                    bbox_wgs84=bbox_wgs84,
+                    mosaico=basemap_mosaico,
+                    destino_png=tmp / "basemap_planet.png",
+                    epsg_destino=epsg_df,
+                )
+                if resultado_basemap:
+                    basemap_raster = resultado_basemap["png"]
+            except Exception:
+                basemap_raster = None
     # PDF ArcMap ao lado do nativo (critério M2 §1.5): *_arcmap.pdf
     saidas_job = ["mxd"]
     saida_pdf_arc = None
@@ -244,6 +255,8 @@ def tentar_gerar_mxd_arcpy(
         textos=textos,
         graficos=ctx["graficos"],
         basemap_raster=basemap_raster,
+        basemap_mosaico=basemap_mosaico,
+        planet_api_key=planet_api_key,
         saidas=saidas_job,
         saida_mxd=str(saida_mxd),
         saida_pdf=saida_pdf_arc,

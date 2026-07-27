@@ -82,26 +82,101 @@ def _zoom_minimapa(mxd, e):
         pass
 
 
-def _aplicar_basemap(df, e):
-    """Insere o raster de basemap (Fase 3 Harmonia) como camada mais baixa do DF."""
+def _aplicar_basemap_wmts(df, e):
+    """Adiciona Planet como WMTS vivo (nao raster local) — nao trava o export.
+
+    URL: https://api.planet.com/basemaps/v1/mosaics/wmts?api_key=...
+    Camada = basemap_mosaico (ex.: global_monthly_2026_03_mosaic).
+    """
+    chave = e.get(u"planet_api_key")
+    mosaico = e.get(u"basemap_mosaico")
+    tmp = e.get(u"tmp")
+    if not chave or not mosaico or not tmp:
+        return False
+    url = u"https://api.planet.com/basemaps/v1/mosaics/wmts?api_key=%s" % _u(chave)
+    conn_dir = os.path.join(_u(tmp), u"wmts_conn")
+    try:
+        if not os.path.isdir(conn_dir):
+            os.makedirs(conn_dir)
+    except Exception:
+        return False
+
+    # ArcMap 10.8: CreateGISServerConnectionFile aceita WMTS_SERVER em builds recentes.
+    for server_type in (u"WMTS_SERVER", u"WMS_SERVER"):
+        try:
+            arcpy.mapping.CreateGISServerConnectionFile(
+                u"USE_GIS_SERVICES",
+                conn_dir,
+                u"planet",
+                url,
+                server_type,
+                True,
+                u"SAVE_USERNAME",
+                u"",
+                u"",
+                u"SAVE_PASSWORD",
+                False,
+            )
+        except Exception:
+            continue
+        # Procura arquivo de conexao gerado
+        for nome in os.listdir(conn_dir):
+            baixo = nome.lower()
+            if not (baixo.endswith(u".wmts") or baixo.endswith(u".wms") or baixo.endswith(u".ags")):
+                continue
+            caminho_conn = os.path.join(conn_dir, nome)
+            try:
+                # Tenta abrir a conexao como Layer (funciona para .wms em varios 10.x)
+                lyr = arcpy.mapping.Layer(caminho_conn)
+                # Se for grupo, procura o mosaico pelo nome
+                if lyr.isGroupLayer:
+                    for sub in lyr:
+                        if mosaico.lower() in (sub.name or u"").lower() or mosaico.lower() in (
+                            getattr(sub, u"datasetName", u"") or u""
+                        ).lower():
+                            arcpy.mapping.AddLayer(df, sub, u"BOTTOM")
+                            return True
+                    # Sem match: adiciona o primeiro sublayer
+                    for sub in lyr:
+                        arcpy.mapping.AddLayer(df, sub, u"BOTTOM")
+                        return True
+                else:
+                    arcpy.mapping.AddLayer(df, lyr, u"BOTTOM")
+                    return True
+            except Exception:
+                continue
+    return False
+
+
+def _aplicar_basemap_raster(df, e):
+    """Fallback: PNG local georeferenciado (pode ser lento — so se WMTS falhar)."""
     caminho = e.get(u"basemap_raster")
     if not caminho:
-        return
+        return False
     caminho = _u(caminho)
     if not os.path.isfile(caminho):
-        return
+        return False
     try:
-        # Sem piramides o ArcMap redesenha/exporta o raster inteiro em
-        # resolucao total a cada draw -> estoura o timeout do subprocesso.
-        try:
-            arcpy.BuildPyramids_management(caminho)
-        except Exception:
-            pass
+        if os.environ.get("MAPASFACIL_BUILD_PYRAMIDS") == "1":
+            try:
+                arcpy.BuildPyramids_management(caminho)
+            except Exception:
+                pass
         resultado = arcpy.MakeRasterLayer_management(caminho, u"BASEMAP_PLANET")
         nova = resultado.getOutput(0)
         arcpy.mapping.AddLayer(df, nova, u"BOTTOM")
+        return True
     except Exception:
-        pass
+        return False
+
+
+def _aplicar_basemap(df, e):
+    """Preferir WMTS vivo; raster local so como fallback explicito."""
+    if _aplicar_basemap_wmts(df, e):
+        return
+    # Raster local: so se MAPASFACIL_BASEMAP_RASTER=1 (evita hang no smoke).
+    if os.environ.get("MAPASFACIL_BASEMAP_RASTER") == "1":
+        _aplicar_basemap_raster(df, e)
 
 
 def _aplicar_graficos(mxd, e):
@@ -263,11 +338,14 @@ def main():
         if u"mxd" in saidas and e.get(u"saida_mxd"):
             mxd.saveACopy(_u(e[u"saida_mxd"]))
         if u"pdf" in saidas and e.get(u"saida_pdf"):
+            # Com basemap, BEST@300dpi estoura timeout (~10 min). NORMAL@150
+            # fecha em ~1 min; MAPASFACIL_PDF_HQ=1 volta ao modo entrega.
+            hq = os.environ.get("MAPASFACIL_PDF_HQ") == "1"
             arcpy.mapping.ExportToPDF(
                 mxd,
                 _u(e[u"saida_pdf"]),
-                resolution=300,
-                image_quality=u"BEST",
+                resolution=300 if hq else 150,
+                image_quality=u"BEST" if hq else u"NORMAL",
                 colorspace=u"RGB",
                 compress_vectors=True,
                 image_compression=u"ADAPTIVE",
