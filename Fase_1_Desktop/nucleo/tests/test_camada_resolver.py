@@ -250,7 +250,7 @@ def test_ndjson_camada_resolver_nunca_devolve_authkey(tmp_path: Path) -> None:
         assert res["ok"] is True
         assert res["resultado"]["feicoes"] == 1
         assert "geometrias" not in res["resultado"]
-        assert res["resultado"]["arquivo"].startswith("SHP/")
+        assert res["resultado"]["arquivo"].replace("\\", "/").startswith("SHP/")
     finally:
         workspace_servico.fechar()
 
