@@ -190,10 +190,10 @@ Orçamento estimado do instalador comprimido:
 | Componente | Tamanho estimado |
 |---|---|
 | Electron + Chromium + React | ~80 MB |
-| Núcleo Python onedir (libs geo) | ~120 MB |
+| Núcleo Python onedir (libs geo) | ~120 MB estimado; **~247 MB** medido no Linux (matplotlib/shapely/pymupdf) — NSIS comprime |
 | Templates `.mxd` + manifesto | ~15 MB |
 | `arcpy_job.py` + assets | < 1 MB |
-| **Total** | **~215 MB** |
+| **Total** | **medir no 1º build CI** (meta P5 &lt; 250 MB comprimido) |
 
 Se passar de 250 MB:
 

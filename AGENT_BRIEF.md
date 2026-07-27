@@ -11,17 +11,18 @@ em qualquer coisa.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap; paridade &lt;0,3% **não** atingida (~81% Dinâmica). Próximo: ajuste cartográfico / templates restantes → **M10 → M11** |
-| **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
+| **Instalador / release (M10 infra)** | **feito** — PyInstaller onedir + electron-builder NSIS + `electron-updater` + workflow `desktop-v*` + `download-manifest.json` ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)). Falta Authenticode + smoke em Windows limpo. |
+| **Com Windows + ArcMap** | **M2 fechado** · **M9 parcial** (2026-07-27) — pipeline de checks + smoke; paridade &lt;0,3% **não** atingida (~81% Dinâmica). Próximo: ajuste cartográfico → validar M10 → **M11** |
+| **Piloto** | **falta** — **M11** |
 
-Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
+Ordem do que resta: **fechar M9 (Harmonia) → validar M10 no Windows → M11**.
 Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
-Entrega M9 (infra + medição): [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.
+Entrega M9: [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.
 
-### Handoff operacional (amanhã / outro PC)
+### Handoff operacional (Windows)
 
-**→ [`docs/handoff-windows-fase1.md`](docs/handoff-windows-fase1.md)** — o que já rodou neste Windows,
-comandos exatos da GUI pendente, e o que **não** refazer.
+**→ [`docs/handoff-windows-fase1.md`](docs/handoff-windows-fase1.md)** — o que já rodou, GUI pendente, o que **não** refazer.
+**Publicar `.exe`:** [`Fase_1_Desktop/EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md) (tag `desktop-v*`).
 
 ### Guia passo a passo no Windows
 
@@ -139,8 +140,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Tools do agente que respondem `IA-022`: **nenhuma hoje** — `TOOLS_COM_DEPENDENCIA_PENDENTE`
   está vazio. `consultar_sema`/`distancia_ate` saíram em A13; `analisar_referencia` saiu em F1-07.
 - **Backlog desktop sem ArcMap: esgotado** (F1-07, clientes 41/41, `job.log`/`aviso`, watcher→chat,
-  menu de chats R14, menus/tray Electron, banner offline, Esc≠job). O que falta é o eixo
-  **Windows+ArcMap (M2→M9)**, **instalador/piloto (M10–M11)** e **Fase 2**.
+  menu de chats R14, menus/tray Electron, banner offline, Esc≠job). **M10 infra** (instalador +
+  CI de release) está no repo — falta validar no Windows e Authenticode. O que falta de mapa é
+  o eixo **Windows+ArcMap (M2→M9)** + **M11** e **Fase 2**.
 - Modelo de visão na **API** DeepSeek V4 (P1 de F1-07, **fechada 2026-07-26**): teste live com
   a chave do projeto — `GET /models` só devolve `deepseek-v4-pro` e `deepseek-v4-flash`; ambos
   rejeitam payload com `image_url` (`400` "unknown variant image_url, expected text"). Chat no
@@ -150,7 +152,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
   +40 MB (F1-07 P2); sem modelo de visão na API, o print fica só na análise determinística.
 - Conta na nuvem / login no site (F2-05) — **adiado**; site v1 **sem** login (D21).
-- Instalador Windows (M10) — nada de empacotamento neste repositório ainda.
+- Assinatura Authenticode do instalador (M10 dívida) — beta unsigned com SHA-256 na release.
 - Backend da Fase 2 — **fora da v1**. O frontend público em `web/` já está implementado.
 
 ## Ordem de implementação (dependências, nunca calendário)
@@ -253,7 +255,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf` | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py` |
-| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
+| R25 | Instalador Windows + release CI | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — NSIS + PyInstaller + workflow `desktop-v*` + manifesto do site; **sem** Authenticode | [`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md), `app/electron-builder.yml`, `.github/workflows/release-desktop.yml` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 
 ## Anti-padrões — vinculantes para qualquer agente implementador

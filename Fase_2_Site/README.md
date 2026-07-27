@@ -27,12 +27,15 @@ Site público: vitrine, requisitos e **download** do instalador Windows. **Não*
 3. [F2-00 — escopo](planos/00-visao-e-escopo.md)
 4. [Índice dos planos](planos/README.md)
 
-## Estado
+## Status
 
 | Marco | Status |
 |---|---|
 | Planos | **reescritos** (site = distribuição) |
-| Código | **implementado e validado localmente** — hero cinematográfico, mapa fictício, animação completa e contatos do desenvolvedor |
+| Código | **implementado** — hero, requisitos, download, contato |
 | Conta nuvem (F2-05) | **adiado** |
+| Desktop `.exe` | manifesto [`../shared/releases/`](../shared/releases/); build tag `desktop-v*` ([`../Fase_1_Desktop/EMPACOTAMENTO.md`](../Fase_1_Desktop/EMPACOTAMENTO.md)) |
 
-Fluxo: desenvolver neste PC → enviar/publicar no PC servidor ([F2-06](planos/06-deploy-tunnel-neste-pc.md)).
+Fluxo: desenvolver neste PC → publicar no PC servidor ([F2-06](planos/06-deploy-tunnel-neste-pc.md)).
+O download do instalador pode ir ao ar antes do M11. Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md).
+

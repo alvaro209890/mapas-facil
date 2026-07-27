@@ -24,8 +24,10 @@ nenhum. Login = conta **local** (e-mail + senha em SQLite) — [F1-14](planos/14
 | Pasta | O que é |
 |---|---|
 | [`planos/`](planos/README.md) | F1-00…F1-17 |
-| [`nucleo/`](nucleo/) | sidecar Python — M1 + agente + camadas + visão determinística |
-| [`app/`](app/) | Electron + React — M3–M8 + polish do épico sem ArcMap |
+| [`nucleo/`](nucleo/) | sidecar Python — M1 + agente + camadas + visão determinística + packaging/ |
+| [`app/`](app/) | Electron + React — M3–M8 + polish; electron-builder (M10) |
+| [`EMPACOTAMENTO.md`](EMPACOTAMENTO.md) | gerar `.exe`, tag `desktop-v*`, manifesto do site |
+| [`GUIA_WINDOWS.md`](GUIA_WINDOWS.md) | M2→M9 no PC com ArcMap |
 
 ## Contratos e referências
 
@@ -40,7 +42,7 @@ nenhum. Login = conta **local** (e-mail + senha em SQLite) — [F1-14](planos/14
 3. [F1-00 — Visão e escopo](planos/00-visao-e-escopo.md)
 4. [Roadmap](planos/12-roadmap.md) · [Checklist](planos/13-checklist-implementacao.md)
 
-## Estado (2026-07-26)
+## Estado (2026-07-27)
 
 | Marco | Status |
 |---|---|
@@ -48,17 +50,18 @@ nenhum. Login = conta **local** (e-mail + senha em SQLite) — [F1-14](planos/14
 | M1 — núcleo | A fechado · B parcial |
 | **M3–M8** | **fechados** (shell, galeria, conta local, chats, agente 27/27 tools, motion) |
 | Épico sem ArcMap | **esgotado** (F1-07, 41/41 camadas, 8 eventos, menus/tray, offline, Esc≠job, R14) |
-| **M2** motor `.mxd` | **parcial** — **próximo** (exige Windows + ArcMap) |
+| **M10** instalador | **infra feita** — [`EMPACOTAMENTO.md`](EMPACOTAMENTO.md); Authenticode/smoke Windows pendentes |
+| **M2** motor `.mxd` | **parcial** — **próximo no ArcMap** |
 | **M9** Harmonia | não iniciado (exige M2) |
-| **M10–M11** instalador / piloto | não iniciados (Windows) |
+| **M11** piloto | não iniciado |
 
-### O que falta na Fase 1 (só isto)
+### O que falta na Fase 1
 
 1. **M2** — fechar motor `.mxd` (B1–B8 de verdade no ArcMap)
 2. **M9** — conformidade Harmonia (14 HARD, diff &lt; 0,3%)
-3. **M10** — instalador assinado + auto-update
+3. **M10** — validar instalador no Windows limpo + Authenticode
 4. **M11** — piloto instala, loga e gera o 1º mapa
 
-**Guia operacional (Windows):** [`GUIA_WINDOWS.md`](GUIA_WINDOWS.md) — passo a passo com
-comandos PowerShell. Detalhe de planos: [`planos/12-roadmap.md`](planos/12-roadmap.md) ·
-snapshot em [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
+**Publicar `.exe`:** [`EMPACOTAMENTO.md`](EMPACOTAMENTO.md) (tag `desktop-v*`).  
+**Guia ArcMap:** [`GUIA_WINDOWS.md`](GUIA_WINDOWS.md). Snapshot:
+[`../AGENT_BRIEF.md`](../AGENT_BRIEF.md).

@@ -19,10 +19,11 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
-| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
+| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** + **M10 infra feita**; Authenticode/smoke/M11 pendentes |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M9 → M10 → M11**.
-Fase 2 começa após M11.
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **fechar M9 → validar M10 → M11**.
+Guia de build: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md). Fase 2 (site) já tem front de distribuição.
+
 
 **Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) · handoff: [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md).
 
@@ -202,12 +203,12 @@ Plano: [F1-16](16-design-system-dark.md).
 
 | # | Tarefa | Feito |
 |---|---|---|
-| I1 | Série completa da Harmonia com 14 HARD verdes | [~] | 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador |
-| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] | medido ~81% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json` |
-| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] | paths relativos no T1; teste manual em outro PC pendente |
-| I4 | PyInstaller onedir + `electron-builder` + NSIS | [ ] |
-| I5 | Assinatura Authenticode + `sha256.txt` na release | [ ] |
-| I6 | Auto-update N → N+1 | [ ] |
+| I1 | Série completa da Harmonia com 14 HARD verdes | [~] — 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador |
+| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] — medido ~81% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json` |
+| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] — paths relativos no T1; teste manual em outro PC pendente |
+| I4 | PyInstaller onedir + `electron-builder` + NSIS + CI `desktop-v*` | [x] — ver [`EMPACOTAMENTO.md`](../EMPACOTAMENTO.md); falta smoke em Windows limpo |
+| I5 | Assinatura Authenticode + `sha256.txt` na release | [~] — `sha256.txt` + manifesto na release; Authenticode sem certificado |
+| I6 | Auto-update N → N+1 | [~] — `electron-updater` + `latest.yml`; validar N→N+1 no Windows |
 | I7 | Login funcionando a partir da build instalada | [ ] |
 | I8 | Piloto instala, faz login e gera o primeiro mapa em < 15 min | [ ] |
 

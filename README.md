@@ -64,14 +64,17 @@ Fase 1 (Windows)                    Fase 2 (distribuição)
 | M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · bloco B **parcial** (precisa ArcMap para fechar) |
 | M2 — Motor `.mxd` | **parcial** — próximo grande passo (Windows + ArcMap) |
 | M3–M8 — shell, galeria, auth, chats, agente, motion | **fechados** (+ épico sem ArcMap: F1-07, 41/41 camadas, eventos, UI) |
-| M9–M11 — Harmonia, instalador, piloto | **não iniciados** |
-| Fase 2 | planos **reescritos** (D21 = distribuição); código `web/` não iniciado |
+| M10 — instalador / release CI | **infra feita** — tag `desktop-v*` → `.exe` ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)); Authenticode/smoke pendentes |
+| M9 — Harmonia | **parcial** — pipeline + smoke; paridade &lt;0,3% ainda não |
+| M11 — piloto | **não iniciado** |
+| Fase 2 | site de distribuição **implementado** (`web/`); download via GitHub Releases |
+
 
 **Backlog desktop sem ArcMap: esgotado.** No Linux Mint deste projeto só sobra polish opcional;
-o eixo que falta é **M2 → M9 → M10 → M11** em PC Windows.
+o eixo que falta no mapa é **M2 → M9 → validar M10 → M11** em PC Windows.
 
-**No Windows agora:** siga o guia passo a passo  
-[`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md).
+**No Windows agora:** [`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md).  
+**Publicar instalador:** [`Fase_1_Desktop/EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md).
 
 Eventos NDJSON emitidos: `job.progresso`, `chat.delta`, `chat.tool`, `job.artefato_parcial`,
 `workspace.mudou`, `mapspec.atualizado`, `job.log`, `aviso` (vocabulário completo).

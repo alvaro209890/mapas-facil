@@ -2042,6 +2042,52 @@ select {
   animation: pulse 1.8s ease-in-out infinite;
 }
 
+.download__notas {
+  max-width: 520px;
+  margin-top: 18px;
+  color: rgba(249, 250, 245, 0.55);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.download__checklist {
+  max-width: 560px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(249, 250, 245, 0.62);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.download__checklist li {
+  position: relative;
+  padding: 8px 0 8px 22px;
+  border-top: 1px solid rgba(249, 250, 245, 0.08);
+}
+
+.download__checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.95em;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--acid);
+  border-radius: 50%;
+}
+
+.download__content small a {
+  color: var(--acid);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.download__content small code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
 .download__links {
   display: grid;
   grid-template-columns: 1fr 1fr;

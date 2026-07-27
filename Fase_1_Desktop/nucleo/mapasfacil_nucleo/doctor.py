@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from mapasfacil_nucleo import __version__
-from mapasfacil_nucleo.config import caminho_shared, raiz_repositorio
+from mapasfacil_nucleo.config import caminho_shared, empacotado, raiz_repositorio
 from mapasfacil_nucleo.motores.arcpy_ponte import _python_arcmap_padrao
 
 
@@ -134,6 +134,8 @@ def _chaves_configuradas() -> dict[str, bool]:
         pass
 
     for nome in ("secrets.local.json", "secrets.json"):
+        if empacotado():
+            break
         caminho = raiz_repositorio() / nome
         if not caminho.is_file():
             continue

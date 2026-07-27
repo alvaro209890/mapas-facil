@@ -42,9 +42,12 @@ test("site não cria rotas de autenticação ou chat", () => {
   assert.doesNotMatch(page, /href=["']\/(?:login|signup|chat)/);
 });
 
-test("download não inventa um instalador ausente", () => {
+test("download lê o manifesto GitHub e não inventa instalador", () => {
+  assert.match(download, /carregarDesktopRelease/);
+  assert.match(download, /DESKTOP_MANIFEST_URL/);
   assert.match(download, /NEXT_PUBLIC_DOWNLOAD_URL/);
   assert.match(download, /Instalador em breve/);
+  assert.match(download, /BYOK/);
 });
 
 test("a demonstração usa somente o mapa fictício", () => {

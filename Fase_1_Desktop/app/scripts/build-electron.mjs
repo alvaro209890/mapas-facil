@@ -9,6 +9,7 @@ const comum = {
   target: "node20",
   format: "cjs",
   sourcemap: true,
+  // electron-updater entra no bundle do main; `electron` fica externo.
   external: ["electron"],
   logLevel: "info",
 };

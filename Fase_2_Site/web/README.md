@@ -37,7 +37,8 @@ Copie `.env.example` para `.env.local` quando precisar configurar os canais púb
 
 | Variável | Uso |
 |---|---|
-| `NEXT_PUBLIC_DOWNLOAD_URL` | URL do instalador Windows; vazia mantém “Instalador em breve” |
+| `NEXT_PUBLIC_DOWNLOAD_URL` | URL do instalador Windows (fallback). Preferir o manifesto GitHub Releases em `lib/desktop-release.ts` |
+| _(manifesto)_ | `https://github.com/alvaro209890/mapas-facil/releases/latest/download/download-manifest.json` — ver [`../../shared/releases/`](../../shared/releases/) |
 | `NEXT_PUBLIC_DEVELOPER_NAME` | Nome público do desenvolvedor |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | E-mail mostrado em `/contato` e no rodapé |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | WhatsApp no formato internacional, somente números |
@@ -57,3 +58,4 @@ Quando houver uma gravação aprovada do aplicativo, ela poderá complementar a 
 
 O histórico da implementação, a arquitetura, os contatos públicos e o roteiro de validação
 estão em [`../DOCUMENTACAO_FASE_2.md`](../DOCUMENTACAO_FASE_2.md).
+
