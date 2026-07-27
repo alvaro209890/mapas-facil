@@ -1,0 +1,234 @@
+{
+  "data": "2026-07-26",
+  "local": "Windows PC usuario (IP BR)",
+  "criterio": "GetMap sem authkey/senha. Servicos com auth=sema_authkey NAO funcionam neste ambiente (sem chave). GetCapabilities publico != GetMap liberado.",
+  "bbox_teste": "-55.5,-10.2,-55.3,-10.0",
+  "crs": "EPSG:4326",
+  "get_capabilities": [
+    {
+      "id": "sema_ows",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "auth": "sema_authkey",
+      "http": 200,
+      "ok": true,
+      "bytes": 65110,
+      "layers_amostra": [
+        "OGC:WMS",
+        "Mosaicos:LANDSAT_5_1984",
+        "semamt:LANDSAT_5",
+        "semamt:LANDSAT_5",
+        "Mosaicos:LANDSAT_5_1985",
+        "semamt:LANDSAT_5",
+        "Mosaicos:LANDSAT_5_1986",
+        "semamt:LANDSAT_5"
+      ],
+      "nota": ""
+    },
+    {
+      "id": "funai",
+      "endpoint": "https://geoserver.funai.gov.br/geoserver/ows",
+      "auth": null,
+      "http": 200,
+      "ok": true,
+      "bytes": 243665,
+      "layers_amostra": [
+        "OGC:WMS",
+        "Funai:aldeias_pontos",
+        "Funai:tis_amazonia_legal_poligonais",
+        "Funai:tis_cr",
+        "Funai:tis_ctl",
+        "Funai:tis_poligonais",
+        "Funai:terras_indigenas",
+        "Funai:tis_poligonais_portarias"
+      ],
+      "nota": ""
+    },
+    {
+      "id": "mapbiomas",
+      "endpoint": "https://production.alerta.mapbiomas.org/geoserver/ows",
+      "auth": null,
+      "http": 200,
+      "ok": true,
+      "bytes": 253432,
+      "layers_amostra": [
+        "OGC:WMS",
+        "mapbiomas-layers:embargoed_areas",
+        "mapbiomas-alertas:alert_report",
+        "mapbiomas-alertas:crew_alerts",
+        "mapbiomas-alertas:crew_alert",
+        "mapbiomas-alertas:crew_alerts-within-rural-properties",
+        "mapbiomas-alertas:crew_alert",
+        "mapbiomas-alertas:crew_alert-centroid-point"
+      ],
+      "nota": ""
+    },
+    {
+      "id": "prodes",
+      "endpoint": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/ows",
+      "auth": null,
+      "http": 200,
+      "ok": true,
+      "bytes": 26818,
+      "layers_amostra": [
+        "OGC:WMS"
+      ],
+      "nota": ""
+    },
+    {
+      "id": "siscom",
+      "endpoint": "https://siscom.ibama.gov.br/geoserver/publica/wms",
+      "auth": null,
+      "http": 403,
+      "ok": false,
+      "bytes": 25,
+      "layers_amostra": [],
+      "nota": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "cbers_cursar",
+      "endpoint": "https://wms.cursar.space/geoserver/cbers/wms",
+      "auth": null,
+      "http": 200,
+      "ok": true,
+      "bytes": 2170420,
+      "layers_amostra": [
+        "OGC:WMS"
+      ],
+      "nota": ""
+    }
+  ],
+  "get_map": [
+    {
+      "id_catalogo": "terras_indigenas_funai",
+      "endpoint": "https://geoserver.funai.gov.br/geoserver/ows",
+      "layer": "Funai:tis_poligonais",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": true,
+      "bytes": 1784,
+      "nota": "PNG"
+    },
+    {
+      "id_catalogo": "alertas_mapbiomas",
+      "endpoint": "https://production.alerta.mapbiomas.org/geoserver/ows",
+      "layer": "mapbiomas-alertas:v_alerts_last_status",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": true,
+      "bytes": 11599,
+      "nota": "PNG"
+    },
+    {
+      "id_catalogo": "alertas_mapbiomas_simpl",
+      "endpoint": "https://production.alerta.mapbiomas.org/geoserver/ows",
+      "layer": "mapbiomas-alertas:crew_simplified-alerts",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": true,
+      "bytes": 11599,
+      "nota": "PNG"
+    },
+    {
+      "id_catalogo": "prodes_inpe",
+      "endpoint": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/ows",
+      "layer": "accumulated_deforestation_2007",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": true,
+      "bytes": 22115,
+      "nota": "PNG"
+    },
+    {
+      "id_catalogo": "prodes_yearly",
+      "endpoint": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-legal-amz/ows",
+      "layer": "prodes-legal-amz:yearly_deforestation",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": true,
+      "bytes": 19057,
+      "nota": "PNG"
+    },
+    {
+      "id_catalogo": "embargos_ibama_siscom",
+      "endpoint": "https://siscom.ibama.gov.br/geoserver/publica/wms",
+      "layer": "publica:vw_brasil_adm_embargo_a",
+      "auth": null,
+      "http": 403,
+      "ok_imagem": false,
+      "bytes": 25,
+      "nota": "HTTP 403 Forbidden (Cloudflare/WAF) — bloqueia cliente fora do navegador"
+    },
+    {
+      "id_catalogo": "mosaico_spot_2008",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Mosaicos:MOSAICO_SPOT_SEPLAN",
+      "auth": "sema_authkey",
+      "http": 200,
+      "ok_imagem": false,
+      "bytes": 379,
+      "nota": "ServiceException LayerNotDefined sem authkey (camada exige sema_authkey; GetCapabilities publico != GetMap liberado)"
+    },
+    {
+      "id_catalogo": "embargos_siga",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AREA_EMBARGADA_SIGA_POLIGONO",
+      "auth": "sema_authkey",
+      "http": 200,
+      "ok_imagem": false,
+      "bytes": 389,
+      "nota": "ServiceException LayerNotDefined sem authkey (camada exige sema_authkey; GetCapabilities publico != GetMap liberado)"
+    },
+    {
+      "id_catalogo": "vegetacao_radam",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:VEGETACAO_RADAMBRASIL",
+      "auth": "sema_authkey",
+      "http": 200,
+      "ok_imagem": false,
+      "bytes": 382,
+      "nota": "ServiceException LayerNotDefined sem authkey (camada exige sema_authkey; GetCapabilities publico != GetMap liberado)"
+    },
+    {
+      "id_catalogo": "cbers_cursar_ref",
+      "endpoint": "https://wms.cursar.space/geoserver/cbers/wms",
+      "layer": "OGC:WMS",
+      "auth": null,
+      "http": 200,
+      "ok_imagem": false,
+      "bytes": 358,
+      "nota": "GetCapabilities OK; GetMap com Name OGC:WMS invalido — fora da v1; precisa layer real do workspace"
+    }
+  ],
+  "resumo": {
+    "getmap_ok_sem_senha": [
+      "terras_indigenas_funai",
+      "alertas_mapbiomas",
+      "alertas_mapbiomas_simpl",
+      "prodes_inpe",
+      "prodes_yearly"
+    ],
+    "getmap_falha_pede_auth_ou_bloqueado": [
+      "embargos_ibama_siscom",
+      "mosaico_spot_2008",
+      "embargos_siga",
+      "vegetacao_radam",
+      "cbers_cursar_ref"
+    ]
+  },
+  "conclusao": {
+    "funcionam_getmap_sem_senha": [
+      "terras_indigenas_funai (Funai:tis_poligonais)",
+      "alertas_mapbiomas",
+      "alertas_mapbiomas_simpl",
+      "prodes_inpe (accumulated_deforestation_2007)",
+      "prodes_yearly (yearly_deforestation)"
+    ],
+    "nao_funcionam_neste_pc_sem_chave": [
+      "todo SEMA (auth=sema_authkey) — GetMap ServiceException",
+      "embargos_ibama_siscom — 403",
+      "mosaicos_sema.json inteiro — exige authkey",
+      "wms.cursar.space CBERS — fora da v1 / GetMap nao validado"
+    ],
+    "alternativa_embargos_federais": "embargos_ibama (PAMGIA ArcGIS REST) — nao e WMS; testar a parte"
+  }
+}
