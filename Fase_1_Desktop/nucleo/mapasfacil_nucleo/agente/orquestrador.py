@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from mapasfacil_nucleo.agente import limites
+from mapasfacil_nucleo.agente.anexos import AnexoEntrada
 from mapasfacil_nucleo.agente.chave import ler_chave_deepseek
 from mapasfacil_nucleo.agente.contexto import (
     compactar_se_preciso,
@@ -113,12 +114,20 @@ def executar_turno(
     conversation_id: str,
     mensagem: str,
     emissor: Emissor | None = None,
-    anexos: list[Any] | None = None,
+    anexos: list[AnexoEntrada] | None = None,
 ) -> dict[str, Any]:
-    del anexos  # anexos entram com o fluxo de visão (F1-07)
     _limpar_cancelamento(conversation_id)
     repo = conversas_servico.repositorio()
-    repo.adicionar_mensagem(conversation_id, papel="usuario", conteudo=mensagem)
+    msg_usuario = repo.adicionar_mensagem(conversation_id, papel="usuario", conteudo=mensagem)
+    for indice, anexo in enumerate(anexos or [], start=1):
+        repo.adicionar_anexo(
+            conversation_id,
+            message_id=msg_usuario["message_id"],
+            indice=indice,
+            nome_original=anexo.nome,
+            mime=anexo.mime,
+            dados=anexo.dados,
+        )
 
     ctx_conversa = repo.contexto_para_turno(conversation_id)
     if limites.excede_conversa(ctx_conversa.tokens_entrada):
@@ -169,6 +178,8 @@ def executar_turno(
                 texto_rodada += delta.texto
                 if emissor is not None:
                     emissor.emitir("chat.delta", {"texto": delta.texto})
+            if delta.raciocinio and emissor is not None:
+                emissor.emitir("chat.raciocinio", {"texto": delta.raciocinio})
             if delta.tool_calls:
                 tool_calls = delta.tool_calls
             if delta.truncado:

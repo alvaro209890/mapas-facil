@@ -59,6 +59,7 @@ EVENTOS: frozenset[str] = frozenset(
         "job.artefato_parcial",
         "workspace.mudou",
         "chat.delta",
+        "chat.raciocinio",
         "chat.tool",
         "chat.pergunta",
         "mapspec.atualizado",
