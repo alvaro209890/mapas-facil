@@ -11,6 +11,7 @@ import {
   CANAL_EVENTO,
   CANAL_PREFERENCIAS_GRAVAR,
   CANAL_PREFERENCIAS_LER,
+  CANAL_ESTADO_ATUAL,
   CANAL_REINICIAR,
   CANAL_WORKSPACE_ABRIR_RECENTE,
   CANAL_WORKSPACE_CONECTAR,
@@ -75,14 +76,14 @@ function espelharProvisao(raiz: string, appPath: string, packaged: boolean): str
     if (!existsSync(origem)) continue;
     try {
       const bruto = JSON.parse(readFileSync(origem, "utf8")) as Record<string, unknown>;
-      const deepseek =
-        typeof bruto.deepseek_api_key === "string" ? bruto.deepseek_api_key.trim() : "";
-      if (!deepseek) continue;
-      const payload: Record<string, string> = { deepseek_api_key: deepseek };
-      for (const k of ["sema_authkey", "planet_api_key"] as const) {
+      const payload: Record<string, string> = {};
+      // SEMA/Planet destravam as camadas do catálogo e valem por si — um
+      // arquivo sem a chave DeepSeek ainda precisa ser espelhado.
+      for (const k of ["deepseek_api_key", "sema_authkey", "planet_api_key"] as const) {
         const v = bruto[k];
         if (typeof v === "string" && v.trim()) payload[k] = v.trim();
       }
+      if (Object.keys(payload).length === 0) continue;
       writeFileSync(destino, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
       return destino;
     } catch {
@@ -279,6 +280,11 @@ function registrarIpc(): void {
     }
     return { cancelado: false, ...(await abrirWorkspace(projeto.caminho)) };
   });
+
+  ipcMain.handle(CANAL_ESTADO_ATUAL, () => ({
+    estado: ponte?.estado ?? "iniciando",
+    erro: null,
+  }));
 
   ipcMain.handle(CANAL_REINICIAR, () => {
     ponte?.reiniciar();

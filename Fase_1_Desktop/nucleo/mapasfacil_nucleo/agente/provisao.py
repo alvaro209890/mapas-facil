@@ -24,7 +24,24 @@ from mapasfacil_nucleo.dados import (
 )
 
 
-def _ler_secrets_repo() -> str | None:
+# Chaves que o app provisiona sozinho no login. SEMA e Planet destravam as
+# camadas do catálogo (30 das 41 exigem `sema_authkey`) — sem elas o usuário
+# final bateria em `NU-102` pedindo configuração manual.
+CHAVES_PROVISIONADAS: tuple[str, ...] = (
+    "deepseek_api_key",
+    "sema_authkey",
+    "planet_api_key",
+)
+
+# Env var por chave — mantém `DEEPSEEK_API_KEY`, que já era contrato.
+_ENV_POR_CHAVE: dict[str, str] = {
+    "deepseek_api_key": "DEEPSEEK_API_KEY",
+    "sema_authkey": "MAPASFACIL_SEMA_AUTHKEY",
+    "planet_api_key": "MAPASFACIL_PLANET_API_KEY",
+}
+
+
+def _ler_secrets_repo(chave: str = "deepseek_api_key") -> str | None:
     for nome in ("secrets.local.json", "secrets.json"):
         caminho = raiz_repositorio() / nome
         if not caminho.is_file():
@@ -33,29 +50,36 @@ def _ler_secrets_repo() -> str | None:
             dados = json.loads(caminho.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
-        chave = (dados.get("deepseek_api_key") or "").strip()
-        if chave:
-            return chave
+        valor = (dados.get(chave) or "").strip()
+        if valor:
+            return valor
     return None
 
 
-def ler_chave_projeto() -> str | None:
-    """Chave do projeto (teste/piloto). Nunca logar o retorno."""
-    env = (os.environ.get("DEEPSEEK_API_KEY") or "").strip()
-    if env:
-        return env
+def ler_chave_provisionada(chave: str) -> str | None:
+    """Valor de uma chave do projeto. Nunca logar o retorno."""
+    env_nome = _ENV_POR_CHAVE.get(chave)
+    if env_nome:
+        env = (os.environ.get(env_nome) or "").strip()
+        if env:
+            return env
 
     path_env = (os.environ.get("MAPASFACIL_PROVISAO_PATH") or "").strip()
     if path_env:
         dados = ler_provisao_arquivo(Path(path_env))
-        if dados.get("deepseek_api_key"):
-            return dados["deepseek_api_key"]
+        if dados.get(chave):
+            return dados[chave]
 
     dados_local = ler_provisao_arquivo()
-    if dados_local.get("deepseek_api_key"):
-        return dados_local["deepseek_api_key"]
+    if dados_local.get(chave):
+        return dados_local[chave]
 
-    return _ler_secrets_repo()
+    return _ler_secrets_repo(chave)
+
+
+def ler_chave_projeto() -> str | None:
+    """Chave DeepSeek do projeto (teste/piloto). Nunca logar o retorno."""
+    return ler_chave_provisionada("deepseek_api_key")
 
 
 def espelhar_secrets_para_provisao(destino: Path | None = None) -> bool:
@@ -64,48 +88,42 @@ def espelhar_secrets_para_provisao(destino: Path | None = None) -> bool:
     Assim o instalador/Electron neste PC e sessões futuras leem a mesma chave
     sem depender do monorepo.
     """
-    chave = _ler_secrets_repo()
-    if not chave:
+    do_secrets = {
+        chave: valor
+        for chave in CHAVES_PROVISIONADAS
+        if (valor := _ler_secrets_repo(chave))
+    }
+    if not do_secrets:
         return False
     alvo = destino or caminho_provisao()
-    if alvo.is_file():
-        atual = ler_provisao_arquivo(alvo)
-        if atual.get("deepseek_api_key") == chave:
-            return True
-    alvo.parent.mkdir(parents=True, exist_ok=True)
-    # Preserva outras chaves já provisionadas.
     base = ler_provisao_arquivo(alvo) if alvo.is_file() else {}
-    base["deepseek_api_key"] = chave
-    # SEMA/Planet do secrets, se existirem
-    for nome in ("secrets.local.json", "secrets.json"):
-        caminho = raiz_repositorio() / nome
-        if not caminho.is_file():
-            continue
-        try:
-            dados = json.loads(caminho.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        for k in ("sema_authkey", "planet_api_key"):
-            v = (dados.get(k) or "").strip()
-            if v:
-                base[k] = v
-        break
+    if all(base.get(chave) == valor for chave, valor in do_secrets.items()):
+        return True
+    alvo.parent.mkdir(parents=True, exist_ok=True)
+    base.update(do_secrets)  # preserva chaves já provisionadas
     gravar_provisao_arquivo(base, alvo)
     return True
 
 
 def sincronizar_chave_projeto_no_cofre() -> dict[str, bool | str]:
-    """Garante DeepSeek no cofre a partir da chave do projeto.
+    """Grava no cofre as chaves do projeto (DeepSeek, SEMA, Planet).
 
-    Retorno só com booleans/status — nunca o segredo.
+    SEMA/Planet são o que destrava as camadas do catálogo sem o usuário
+    configurar nada. Retorno só com booleans/status — nunca o segredo.
     """
     from mapasfacil_nucleo import cofre
 
-    chave = ler_chave_projeto()
-    if not chave:
+    sincronizadas: list[str] = []
+    for chave in CHAVES_PROVISIONADAS:
+        valor = ler_chave_provisionada(chave)
+        if not valor:
+            continue
+        try:
+            cofre.definir(chave, valor)
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "motivo": exc.__class__.__name__}
+        sincronizadas.append(chave)
+
+    if not sincronizadas:
         return {"ok": False, "motivo": "provisao_ausente"}
-    try:
-        cofre.definir("deepseek_api_key", chave)
-    except Exception as exc:  # noqa: BLE001
-        return {"ok": False, "motivo": exc.__class__.__name__}
-    return {"ok": True, "motivo": "cofre"}
+    return {"ok": True, "motivo": "cofre", "chaves": ",".join(sincronizadas)}

@@ -13,6 +13,7 @@ from mapasfacil_nucleo.agente.provisao import (
     ler_chave_projeto,
     sincronizar_chave_projeto_no_cofre,
 )
+from mapasfacil_nucleo.camadas import resolver as resolver_camadas
 from mapasfacil_nucleo.contas import servico as contas_servico
 from mapasfacil_nucleo.dados import (
     arquivar_artefatos_do_job,
@@ -56,10 +57,10 @@ def test_login_cria_pasta_e_ativa_deepseek(raiz_dados: Path, monkeypatch: pytest
         encoding="utf-8",
     )
     monkeypatch.setenv("MAPASFACIL_PROVISAO_PATH", str(provisao))
-    # Isola secrets do monorepo
+    # Isola secrets do monorepo (assinatura recebe a chave a ler)
     monkeypatch.setattr(
         "mapasfacil_nucleo.agente.provisao._ler_secrets_repo",
-        lambda: None,
+        lambda _chave="deepseek_api_key": None,
     )
 
     r = _ndjson(
@@ -83,6 +84,37 @@ def test_login_cria_pasta_e_ativa_deepseek(raiz_dados: Path, monkeypatch: pytest
     assert ativo is not None
     assert ativo["email"] == "tecnico@mapa.local"
     assert Path(ativo["chats"]).is_dir()
+
+
+def test_login_provisiona_sema_e_planet(raiz_dados: Path, monkeypatch: pytest.MonkeyPatch):
+    """30 das 41 camadas exigem `sema_authkey`: ela tem de chegar ao cofre
+    sozinha no login, senão o usuário final bate em `NU-102`."""
+    provisao = raiz_dados / "provisao.local.json"
+    provisao.write_text(
+        json.dumps(
+            {
+                "deepseek_api_key": "sk-projeto-teste-1234567890",
+                "sema_authkey": "authkey-sema-de-teste",
+                "planet_api_key": "PLAK-de-teste",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("MAPASFACIL_PROVISAO_PATH", str(provisao))
+    monkeypatch.setattr(
+        "mapasfacil_nucleo.agente.provisao._ler_secrets_repo",
+        lambda _chave="deepseek_api_key": None,
+    )
+
+    r = _ndjson("conta.criar", {"email": "campo@mapa.local", "senha": "segredo99"})
+    assert r["ok"] is True
+
+    assert cofre.existe("sema_authkey")
+    assert cofre.existe("planet_api_key")
+
+    # A camada resolve a chave do cofre em vez de exigir configuração manual.
+    camada = {"id": "car_sema", "auth": "sema_authkey"}
+    assert resolver_camadas._obter_authkey(camada) == "authkey-sema-de-teste"
 
 
 def test_arquivar_artefatos(raiz_dados: Path):
