@@ -1,7 +1,15 @@
 # Melhoria do front — chat desktop (estilo Claude)
 
-Pasta **somente de plano**. Nenhum código foi alterado aqui.
-Data: **2026-07-27**. Base: código atual em `Fase_1_Desktop/app/` + prints do chat atual vs Claude.
+**Executado em 2026-07-27.** Esta pasta preserva o diagnóstico, os contratos e o roteiro usados
+na implementação em `Fase_1_Desktop/app/` e no suporte mínimo de anexos do núcleo.
+
+Entregue:
+
+- timeline live intercalada, markdown GFM e histórico com `tool_traces`;
+- grupos e tools retráteis, incluindo argumentos e resultado;
+- raciocínio dedicado via `chat.raciocinio` quando o provedor emitir, sem fallback inventado;
+- composer com picker, drag-drop, colar imagem, preview e limite de 20 MB;
+- persistência local do anexo e scrollbar dark global baseada em `--mf-*`.
 
 ## Por que esta pasta existe
 

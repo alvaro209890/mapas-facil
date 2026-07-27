@@ -159,6 +159,7 @@ Plano: [F1-17](17-persistencia-de-conversas.md).
 | F5 | Os 9 métodos `chat.*` de histórico (+ `chat.gravar_mensagem` para modo determinístico) | [x] | `nucleo/.../conversas/servico.py` + `__main__.py` |
 | F6 | `barra-chats` + busca + filtro por pasta + menu de contexto | [x] | `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts`; menu R14 completo (renomear/arquivar/ramificar/apagar) em `app/tests/barra-chats-menu.test.tsx` |
 | F7 | Testes: ciclo completo, escala, CPF ausente do arquivo, FTS, ramificar | [x] | `nucleo/tests/test_conversas.py`, `test_conversas_redator.py`, `app/tests/barra-chats.test.tsx` |
+| F8 | Anexos no chat: 20 MB, cópia local, vínculo e histórico | [x] | `agente/anexos.py`, `conversas/repositorio.py`, `componentes/CampoEntrada.tsx`, `test_agente_anexos.py`, `campo-entrada.test.tsx` |
 
 ## Bloco G — Agente (M7)
 
@@ -172,7 +173,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
 | G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 27/27 reais — `consultar_sema`/`distancia_ate` ligadas a `camada.resolver` (A13); `analisar_referencia` ligada a `agente/visao/` (F1-07, 2026-07-26) |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
-| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
+| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool`/`chat.raciocinio` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”); reasoning só aparece se vier do provedor |
 | G8 | Cassetes VCR + fixture de 120 turnos | [x] | `agente/vcr.py` + `tests/agente/cassetes/`; compressão 120 turnos em `test_agente.py` |
 | G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
 | G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
@@ -193,6 +194,7 @@ Plano: [F1-16](16-design-system-dark.md).
 | H5 | A5 fase 2 — rasterização real com crossfade | [x] | `paineis/Preview.tsx` + `estado/artefatos.ts` |
 | H6 | A6 microinterações | [x] | seleção na galeria (`CartaoModelo`), abas do painel direito, realce de arquivo novo (`workspace.mudou`) e **troca de versão** — `mapspec.atualizado` emitido em `agente/tools.py` (`_editar`/`criar_mapa`/`usar_modelo_da_galeria`) + `linha-versoes` (`estado/mapspecVersoes.ts`, `componentes/LinhaVersoes.tsx`) |
 | H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
+| H8 | Chat estilo Claude: timeline, markdown, tools/raciocínio retráteis e scrollbar dark | [x] | [`melhoria-front-chat/`](melhoria-front-chat/README.md), `app/src/chat/timeline.ts`, `BolhaMarkdown.tsx`, `GrupoTools.tsx`, `BlocoRaciocinio.tsx`, `scrollbar.css` |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)
 

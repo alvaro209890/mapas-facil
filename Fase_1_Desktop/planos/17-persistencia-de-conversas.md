@@ -145,6 +145,7 @@ transação. **Nunca** `DROP TABLE` sem cópia de segurança do arquivo ao lado 
 | `chat.apagar` | `{conversation_id}` | `{ok:true, anexos_removidos:N}` |
 | `chat.ramificar` | `{conversation_id, a_partir_do_seq, title?}` | `{conversation_id}` — copia mensagens `seq <= a_partir_do_seq` |
 | `chat.buscar` | `{termo, workspace?, limite?:30}` | `{resultados:[{conversation_id, message_id, seq, trecho_destacado, updated_at}]}` |
+| `chat.enviar` | `{conversation_id, mensagem, anexos?:[{nome,mime,bytes,base64}]}` | resposta do agente; anexo validado (máx. 20 MB) e copiado antes da chamada ao provedor |
 
 Nenhum destes tem gate de sessão ([F1-14](14-auth-e-conta.md)): ler o próprio histórico offline e
 com sessão expirada é permitido. `chat.enviar` (que grava mensagem nova de IA) **tem** gate.
@@ -198,6 +199,9 @@ com sessão expirada é permitido. `chat.enviar` (que grava mensagem nova de IA)
 - [x] `nucleo/mapasfacil_nucleo/__main__.py` — registrar os 9 métodos (+ `chat.gravar_mensagem`)
 - [x] `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts`
 - [x] `nucleo/tests/test_conversas.py`, `nucleo/tests/test_conversas_redator.py`
+- [x] `chat.enviar` persiste anexos, `chat.abrir_conversa` os devolve por mensagem e o renderer
+      consome `tool_traces` + anexos — `agente/anexos.py`, `conversas/repositorio.py`,
+      `app/src/componentes/CampoEntrada.tsx`
 
 ## Critérios de aceite
 

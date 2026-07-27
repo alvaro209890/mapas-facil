@@ -1,71 +1,71 @@
 # 05 — Fases de implementação e DoD
 
-**Regra:** esta pasta é só plano. Implementação = commits futuros, fase a fase, com testes verdes.
+**Estado:** executado em 2026-07-27, fase a fase, com testes e build verdes.
 
 ## Fase 0 — Preparação (½ dia)
 
-- [ ] Confirmar contrato real de `chat.enviar` + `anexos` no núcleo (`servico.py` / schema).
-- [ ] Confirmar shape de `tool_traces` em `chat.abrir_conversa`.
-- [ ] Checar se DeepSeek/orquestrador emite reasoning (sim/não) → decide Fase 4.
-- [ ] Inventariar testes que quebram com refactor (`painel-chat`, `CartaoTool`, motion).
+- [x] Confirmar contrato real de `chat.enviar` + `anexos` no núcleo (`servico.py` / schema).
+- [x] Confirmar shape de `tool_traces` em `chat.abrir_conversa`.
+- [x] Checar se DeepSeek/orquestrador emite reasoning (sim/não) → decide Fase 4.
+- [x] Inventariar testes que quebram com refactor (`painel-chat`, `CartaoTool`, motion).
 
 **DoD:** nota curta no PR/commit ou checklist marcado; sem UI ainda.
 
 ## Fase 1 — Scrollbar + polish mínimo (baixo risco)
 
-- [ ] `scrollbar.css` + import.
-- [ ] Revisar `.conversa` / overflow.
-- [ ] Autoscroll só se perto do fim (≤48px), conforme F1-02.
+- [x] `scrollbar.css` + import.
+- [x] Revisar `.conversa` / overflow.
+- [x] Autoscroll só se perto do fim (≤48px), conforme F1-02.
 
 **DoD:** print do chat sem barra branca; testes existentes verdes.
 
 ## Fase 2 — Markdown nas bolhas
 
-- [ ] Dependência `react-markdown` + `remark-gfm`.
-- [ ] `BolhaMarkdown` para papel assistente (usuário pode ficar texto simples).
-- [ ] Estilos de tabela/lista/código nos tokens.
+- [x] Dependência `react-markdown` + `remark-gfm`.
+- [x] `BolhaMarkdown` para papel assistente (usuário pode ficar texto simples).
+- [x] Estilos de tabela/lista/código nos tokens.
 
 **DoD:** mensagem com `**ATP** | 3.823` renderiza negrito/tabela; sem XSS HTML.
 
 ## Fase 3 — Tools retráteis (ainda sem intercalação fina)
 
-- [ ] `GrupoTools` colapsado por padrão envolvendo a lista atual do turno.
-- [ ] `CartaoTool` expansível com `resultadoResumo`.
-- [ ] Histórico: consumir `tool_traces` ao abrir conversa (grupo + texto).
+- [x] `GrupoTools` colapsado por padrão envolvendo a lista atual do turno.
+- [x] `CartaoTool` expansível com `resultadoResumo`.
+- [x] Histórico: consumir `tool_traces` ao abrir conversa (grupo + texto).
 
 **DoD:** turno com 10 tools = **1** card colapsado na vista default; expand mostra as 10; reabrir conversa mostra traces.
 
 ## Fase 4 — Timeline intercalada
 
-- [ ] Tipo `BlocoTurno` + `aplicarEventoTimeline`.
-- [ ] `PainelChat` renderiza `blocos` ao vivo.
-- [ ] Testes de ordem: tool → delta → tool → delta.
+- [x] Tipo `BlocoTurno` + `aplicarEventoTimeline`.
+- [x] `PainelChat` renderiza `blocos` ao vivo.
+- [x] Testes de ordem: tool → delta → tool → delta.
 
 **DoD:** com mock de eventos, DOM na ordem Claude; print real com texto entre grupos.
 
 ## Fase 5 — Raciocínio retrátil
 
-- [ ] `BlocoRaciocinio` (UI).
-- [ ] Se houver emissor: ligar evento.
-- [ ] Se **não** houver: UI morta + `IndicadorPensando` permanece; documentar gap no núcleo.
+- [x] `BlocoRaciocinio` (UI).
+- [x] Se houver emissor: ligar evento.
+- [x] Se **não** houver: UI morta + `IndicadorPensando` permanece; documentar gap no núcleo.
 
 **DoD:** componente no inventário F1-16; colapsável; sem texto inventado.
 
 ## Fase 6 — Composer + anexos + paste
 
-- [ ] Extrair `CampoEntrada`.
-- [ ] Chips, `+`, drag-drop, paste imagem.
-- [ ] Wire `anexos` no `chat.enviar`.
-- [ ] Preview imagem; limite 20 MB; aviso se modelo sem visão.
+- [x] Extrair `CampoEntrada`.
+- [x] Chips, `+`, drag-drop, paste imagem.
+- [x] Wire `anexos` no `chat.enviar`.
+- [x] Preview imagem; limite 20 MB; aviso se modelo sem visão.
 
 **DoD:** colar PNG → chip → enviar → anexo no disco/`anexos` (ou path aceito pelo núcleo); testes Vitest do composer.
 
 ## Fase 7 — QA visual + regressão
 
-- [ ] `pnpm typecheck` / `test` / `build`.
-- [ ] axe nos novos componentes (padrão F1-16).
-- [ ] Passar checklist “parece Claude?” ([01-visao-claude-like.md](01-visao-claude-like.md)).
-- [ ] Atualizar referência cruzada em `Fase_1_Desktop/planos/README.md` (apontar esta pasta).
+- [x] `pnpm typecheck` / `test` / `build`.
+- [x] axe nos novos componentes (padrão F1-16).
+- [x] Passar checklist “parece Claude?” ([01-visao-claude-like.md](01-visao-claude-like.md)).
+- [x] Atualizar referência cruzada em `Fase_1_Desktop/planos/README.md` (apontar esta pasta).
 
 ## Ordem e paralelismo
 

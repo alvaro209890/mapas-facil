@@ -232,11 +232,12 @@ claro é opção, nunca o padrão (AP-08).
 - [x] `app/electron/nucleo/ponte.ts` — spawn do sidecar, NDJSON, reinício, `UI-001` *(7 testes)*
 - [x] `app/src/layout/AppShell.tsx` — os quatro painéis, redimensionáveis e persistidos
 - [x] `app/src/paineis/Workspace.tsx` — árvore com metadados inline (feições, CRS, ha pt-BR)
-- [ ] `app/src/paineis/Chat.tsx` + `componentes/CartaoTool.tsx` + `BlocoRaciocinio.tsx`
+- [x] `app/src/paineis/PainelChat.tsx` + `componentes/CartaoTool.tsx` + `GrupoTools.tsx` +
+      `BlocoRaciocinio.tsx` — timeline intercalada e cards retráteis
 - [x] `app/src/componentes/BarraProgressoJob.tsx` — 10 etapas nomeadas, `role="progressbar"`
 - [ ] `app/src/paineis/Preview.tsx` — esqueleto de camadas + `pdf.js` + `linha-versoes`
 - [ ] `app/src/paineis/PainelDireito.tsx` — abas
-- [ ] `app/src/componentes/CampoEntrada.tsx` — textarea, anexos, enviar/cancelar
+- [x] `app/src/componentes/CampoEntrada.tsx` — textarea, anexos, paste/drag-drop, enviar/cancelar
 - [x] `app/src/componentes/EstadoVazio.tsx` — casos com dado real + **SemInternet**
 - [x] `app/src/paleta/PaletaComandos.tsx` — `Ctrl+K` (+ atalhos F1-02; preferências de tema)
 - [~] `app/tests/` — asserts dos critérios de aceite (maioria coberta; ver lista abaixo)

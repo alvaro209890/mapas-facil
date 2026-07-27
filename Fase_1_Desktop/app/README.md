@@ -123,13 +123,14 @@ app/
     main.tsx                 monta o React; fontes → tokens → reset; tema escuro default
     App.tsx                  tema salvo + banner UI-001 com "reiniciar o núcleo"
     layout/                  AppShell (4 painéis), TopoApp, Divisor
-    paineis/                 Workspace (árvore), Galeria + GaleriaDetalhe (M4)
-    componentes/             BarraProgressoJob, DoctorResumo, EstadoVazio, Preferencias, CartaoModelo
+    paineis/                 Workspace, Galeria + GaleriaDetalhe, PainelChat
+    componentes/             progresso/doctor + markdown, tools, raciocínio e CampoEntrada
+    chat/                    redutor puro da timeline intercalada
     paleta/                  PaletaComandos + atalhos globais (C10)
     estado/                  eventos, ponte, progressoJob, workspace, doctor, preferencias, tema, galeria
     formato/                 numeros.ts (hectare pt-BR com 4 casas)
     motion/                  tokens.ts, useReducedMotion.ts
-    estilos/                 tokens.css, reset.css, fontes/
+    estilos/                 tokens.css, reset.css, scrollbar.css, fontes/
   public/galeria/            cópia dos previews PNG para o Vite
   tests/                     ponte, barra, workspace, doctor, estado-vazio, app-shell, paleta,
                              galeria, visual/ (tema, contraste/axe, reduced-motion, layout) + fixtures/
@@ -172,6 +173,12 @@ nunca do disco pelo renderer. `linha-versoes` (A6/H6) segue a mesma regra: sem `
 o componente não existe no DOM — nada de "v1" fixo antes de qualquer edição real.
 `tests/visual/motion-eventos.test.tsx` prova cada uma nas duas metades: antes do evento não
 existe, depois do evento aparece.
+
+O chat agrupa tools consecutivas e mantém a ordem `tool → texto → tool → texto`. Respostas do
+assistente usam Markdown GFM sem HTML cru. `chat.raciocinio` só cria o bloco retrátil quando o
+provedor enviou `reasoning_content`; sem isso permanece apenas o indicador de turno real. O
+`CampoEntrada` envia anexos como base64 pelo IPC, com limite local de 20 MB e aviso explícito de
+que o modelo atual não vê imagens.
 
 ## Comandos
 

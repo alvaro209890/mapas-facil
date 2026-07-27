@@ -1,6 +1,6 @@
-# 06 — Inventário de arquivos (para a implementação futura)
+# 06 — Inventário de arquivos
 
-Referência rápida. **Não alterar agora** — só quando executar as fases.
+Referência do que foi criado e modificado na execução de 2026-07-27.
 
 ## Criar
 

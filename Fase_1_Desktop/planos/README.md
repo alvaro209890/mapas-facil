@@ -26,6 +26,7 @@ ganha — e a divergência tem de ser corrigida no mesmo PR.
 | F1-15 | [Galeria de modelos](15-galeria-de-modelos.md) | catálogo, `galeria.*`, montagem determinística de `MapSpec` |
 | F1-16 | [Design system dark e animações](16-design-system-dark.md) | tokens, tipografia, motion amarrado a evento real |
 | F1-17 | [Persistência de conversas](17-persistencia-de-conversas.md) | `chats.sqlite`, sidebar, busca, ramificação |
+| — | [Melhoria do front do chat](melhoria-front-chat/README.md) | timeline, markdown, tools retráteis e anexos — executado |
 | — | [**Guia Windows M2→M11**](../GUIA_WINDOWS.md) | **passo a passo no PC com ArcMap** — comece aqui no Windows |
 
 ## Ordem de leitura
@@ -84,7 +85,7 @@ substitui nem antecede o desktop. Conta do app = **local** ([F1-14](14-auth-e-co
 | M2 — motor `.mxd` | **parcial** — **próximo** (Windows + ArcMap) |
 | M3–M8 | **fechados** + épico sem ArcMap esgotado |
 | M9–M11 | **não iniciados** |
-| Eventos NDJSON | **os 8 do vocabulário** emitidos (`job.progresso` … `aviso`) |
+| Eventos NDJSON | **os 10 do vocabulário** emitidos, incluindo `chat.pergunta` e `chat.raciocinio` |
 
 **O que falta na Fase 1:** só M2 → M9 → M10 → M11. Ver
 [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
