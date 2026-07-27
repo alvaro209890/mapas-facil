@@ -1335,7 +1335,11 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
         "props": {},
     },
     "gerar_mapa": {
-        "descricao": "Executa o job e devolve artefatos + validação. Valide antes.",
+        "descricao": (
+            "Executa o job e devolve artefatos + validação. Valide antes. "
+            "Com elementos_layout.minimapa e ArcMap (T1), aplica definition query IBGE, "
+            "rótulo, retângulo vermelho e linha-guia L a partir de imovel.municipio."
+        ),
         "props": {
             "saidas": {
                 "type": "array",
@@ -1348,7 +1352,9 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
     "analisar_referencia": {
         "descricao": (
             "Print, PDF, .mxd ou .zip de referência → proposta com mapa da série, camadas "
-            "reconhecidas e MapSpec candidato (ou perguntas quando a confiança é baixa)."
+            "reconhecidas e MapSpec candidato (ou perguntas quando a confiança é baixa). "
+            "Em .mxd detecta minimapa Harmonia (elementos/queries) e sugere "
+            "elementos_layout.minimapa + município."
         ),
         "props": {"arquivo": {**_STR, "description": "caminho relativo à pasta do projeto"}},
         "obrig": ["arquivo"],

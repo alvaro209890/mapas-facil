@@ -1,7 +1,103 @@
 {
+  "manifest_version": 1,
+  "perfil": "harmonia",
+  "contract_version": 2,
+  "nota": "dinamica_retrato está parcial: sha256 atualizado após remoção Planet + GUI save; Dinamica_retrato.mxd em shared/templates/; offsets vazios até concluir B1. Demais templates a_preparar (sha256 null). Baseline: Referencias_IMAP/Mapas/01/.",
   "templates": [
     {
-      "status": "parcial", 
-      "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd", 
-      "crs_data_frame": "EPSG:31982", 
-      "nome": 
+      "id": "dinamica_retrato",
+      "nome": "Dinâmica de uso do solo — A4 retrato (IMAP/Harmonia)",
+      "arquivo": "Dinamica_retrato.mxd",
+      "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd",
+      "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026.pdf",
+      "sha256": "adbbfd879283799e64d24adb4e0eb7e06e727d688c3bae4981bf9c7c3c25ace8",
+      "versao_arcmap": "10.6",
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "retrato",
+        "mm": [
+          210,
+          297
+        ]
+      },
+      "crs_data_frame": "EPSG:31982",
+      "status": "parcial",
+      "patch": {
+        "suportado": true,
+        "offsets": {}
+      }
+    },
+    {
+      "id": "dinamica_quantitativos_retrato",
+      "nome": "Dinâmica 2026 com tabela de quantitativos",
+      "arquivo": null,
+      "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026_quantitativos.mxd",
+      "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026_quantitativos.pdf",
+      "sha256": null,
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "retrato",
+        "mm": [
+          210,
+          297
+        ]
+      },
+      "crs_data_frame": "EPSG:31982",
+      "status": "a_preparar"
+    },
+    {
+      "id": "tipologia_paisagem",
+      "nome": "Tipologia vegetal — A4 paisagem",
+      "arquivo": null,
+      "fonte_acervo": "Referencias_IMAP/MXD/Tipologia.mxd",
+      "baseline_pdf": "Referencias_IMAP/Mapas/01/Tipologia.pdf",
+      "sha256": null,
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
+      "crs_data_frame": "EPSG:3857",
+      "status": "a_preparar"
+    },
+    {
+      "id": "terras_indigenas_paisagem",
+      "nome": "Terras Indígenas — A4 paisagem",
+      "arquivo": null,
+      "fonte_acervo": "Referencias_IMAP/MXD/Terras_Indigenas.mxd",
+      "baseline_pdf": "Referencias_IMAP/Mapas/01/Terras_Indigenas.pdf",
+      "sha256": null,
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
+      "crs_data_frame": "EPSG:3857",
+      "status": "a_preparar"
+    },
+    {
+      "id": "uc_paisagem",
+      "nome": "Unidade de Conservação — A4 paisagem",
+      "arquivo": null,
+      "fonte_acervo": "Referencias_IMAP/MXD/Unidade_de_Conservação.mxd",
+      "baseline_pdf": "Referencias_IMAP/Mapas/01/Unidade_de_Conservação.pdf",
+      "sha256": null,
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "paisagem",
+        "mm": [
+          297,
+          210
+        ]
+      },
+      "crs_data_frame": "EPSG:3857",
+      "status": "a_preparar"
+    }
+  ]
+}

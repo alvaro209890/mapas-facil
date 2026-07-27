@@ -25,6 +25,79 @@ def _u(s):
     return unicode(s, "utf-8")  # noqa: F821
 
 
+def _dq(campo, valor):
+    v = _u(valor).replace(u"'", u"''")
+    return u'"%s" = \'%s\'' % (_u(campo), v)
+
+
+def _aplicar_queries(mxd, e):
+    municipio = e.get(u"municipio")
+    uf_extenso = e.get(u"uf_extenso")
+    campo_m = e.get(u"campo_municipio") or u"nome"
+    campo_u = e.get(u"campo_uf") or u"nome"
+    camadas_visiveis = set(e.get(u"camadas_visiveis") or [])
+    for df in arcpy.mapping.ListDataFrames(mxd):
+        for lyr in arcpy.mapping.ListLayers(mxd, u"", df):
+            nome = lyr.name or u""
+            if not lyr.supports(u"DEFINITIONQUERY"):
+                if nome in camadas_visiveis:
+                    lyr.visible = True
+                continue
+            if nome == u"MUNICIPIOS" or nome == u"Limite municipal":
+                if municipio:
+                    lyr.definitionQuery = _dq(campo_m, municipio)
+            elif nome == u"MUNICIPIOS_ENTORNO":
+                lyr.definitionQuery = u""
+            elif nome in (u"UF", u"Limite estadual"):
+                if uf_extenso:
+                    lyr.definitionQuery = _dq(campo_u, uf_extenso)
+            elif nome in camadas_visiveis:
+                lyr.visible = True
+
+
+def _zoom_minimapa(mxd, e):
+    """Enquadra o municipio no DF MINIMAPA (extent do job ou getExtent da camada)."""
+    dfs = arcpy.mapping.ListDataFrames(mxd, u"MINIMAPA")
+    if not dfs:
+        return
+    df = dfs[0]
+    ext_job = e.get(u"extent_minimapa")
+    if ext_job and len(ext_job) == 4:
+        df.extent = arcpy.Extent(*[float(v) for v in ext_job])
+        return
+    layers = arcpy.mapping.ListLayers(mxd, u"MUNICIPIOS", df)
+    if not layers:
+        return
+    try:
+        ext = layers[0].getExtent()
+        if ext is None or ext.XMin is None:
+            return
+        pad = float(e.get(u"padding_minimapa") or 1.25)
+        cx = (float(ext.XMin) + float(ext.XMax)) / 2.0
+        cy = (float(ext.YMin) + float(ext.YMax)) / 2.0
+        hw = (float(ext.XMax) - float(ext.XMin)) / 2.0 * pad
+        hh = (float(ext.YMax) - float(ext.YMin)) / 2.0 * pad
+        df.extent = arcpy.Extent(cx - hw, cy - hh, cx + hw, cy + hh)
+    except Exception:
+        pass
+
+
+def _aplicar_graficos(mxd, e):
+    graficos = e.get(u"graficos") or {}
+    for g in arcpy.mapping.ListLayoutElements(mxd, u"GRAPHIC_ELEMENT"):
+        graf = graficos.get(g.name)
+        if not graf:
+            continue
+        if u"x" in graf:
+            g.elementPositionX = float(graf[u"x"])
+        if u"y" in graf:
+            g.elementPositionY = float(graf[u"y"])
+        if u"width_cm" in graf:
+            g.elementWidth = float(graf[u"width_cm"])
+        if u"height_cm" in graf:
+            g.elementHeight = float(graf[u"height_cm"])
+
+
 def main():
     job_path = os.environ.get("MAPASFACIL_JOB_JSON")
     if not job_path:
@@ -35,7 +108,6 @@ def main():
         e = json.load(fh)
 
     arcpy.env.overwriteOutput = True
-    # Trabalhar sobre copia — MapDocument mantem lock no arquivo aberto.
     trabalho = os.path.join(_u(e[u"tmp"]), u"trabalho.mxd")
     shutil.copy2(_u(e[u"template"]), trabalho)
 
@@ -47,32 +119,43 @@ def main():
 
     try:
         mxd.relativePaths = True
-        df = arcpy.mapping.ListDataFrames(mxd, u"MAPA")[0]
+        dfs_mapa = arcpy.mapping.ListDataFrames(mxd, u"MAPA")
+        if not dfs_mapa:
+            raise RuntimeError("data frame MAPA ausente no template")
+        df = dfs_mapa[0]
 
-        mxd.findAndReplaceWorkspacePaths(
-            _u(e[u"pasta_template_shp"]),
-            _u(e[u"pasta_saida_shp"]),
-            False,
-        )
+        if e.get(u"pasta_template_shp") and e.get(u"pasta_saida_shp"):
+            mxd.findAndReplaceWorkspacePaths(
+                _u(e[u"pasta_template_shp"]),
+                _u(e[u"pasta_saida_shp"]),
+                False,
+            )
 
-        camadas_visiveis = set(e.get(u"camadas_visiveis") or [])
-        for lyr in arcpy.mapping.ListLayers(mxd, u"", df):
-            if lyr.name == u"MUNICIPIOS":
-                lyr.definitionQuery = u'"%s" = \'%s\'' % (
-                    e[u"campo_municipio"],
-                    e[u"municipio"],
-                )
-            elif lyr.name == u"UF":
-                lyr.definitionQuery = u'"%s" = \'%s\'' % (
-                    e[u"campo_uf"],
-                    e[u"uf_extenso"],
-                )
-            elif lyr.name in camadas_visiveis:
-                lyr.visible = True
+        # IBGE do repo: reponta MUNICIPIOS/UF se o job informar pasta
+        pasta_ibge = e.get(u"pasta_ibge")
+        if pasta_ibge:
+            for dframe in arcpy.mapping.ListDataFrames(mxd):
+                for lyr in arcpy.mapping.ListLayers(mxd, u"", dframe):
+                    nome = lyr.name or u""
+                    try:
+                        if nome in (u"MUNICIPIOS", u"MUNICIPIOS_ENTORNO", u"Limite municipal"):
+                            lyr.replaceDataSource(
+                                _u(pasta_ibge), u"SHAPEFILE_WORKSPACE", u"lml_municipio_a", True
+                            )
+                        elif nome in (u"UF", u"Limite estadual"):
+                            lyr.replaceDataSource(
+                                _u(pasta_ibge), u"SHAPEFILE_WORKSPACE", u"lml_uf_a", True
+                            )
+                    except Exception:
+                        pass
+
+        _aplicar_queries(mxd, e)
+        _zoom_minimapa(mxd, e)
 
         bbox = e[u"bbox_no_crs_do_data_frame"]
         df.extent = arcpy.Extent(*bbox)
-        df.scale = e[u"escala"]
+        if e.get(u"escala"):
+            df.scale = e[u"escala"]
 
         textos = dict(
             (t.name, t) for t in arcpy.mapping.ListLayoutElements(mxd, u"TEXT_ELEMENT")
@@ -85,11 +168,7 @@ def main():
             if fig.name in (e.get(u"imagens") or {}):
                 fig.sourceImage = _u(e[u"imagens"][fig.name])
 
-        for g in arcpy.mapping.ListLayoutElements(mxd, u"GRAPHIC_ELEMENT"):
-            graf = (e.get(u"graficos") or {}).get(g.name)
-            if graf:
-                g.elementPositionX = graf[u"x"]
-                g.elementPositionY = graf[u"y"]
+        _aplicar_graficos(mxd, e)
 
         legenda_nomes = set(e.get(u"legenda") or [])
         for leg in arcpy.mapping.ListLayoutElements(mxd, u"LEGEND_ELEMENT", u"LEGENDA"):
@@ -119,7 +198,7 @@ def main():
             )
         if u"png" in saidas and e.get(u"saida_png"):
             arcpy.mapping.ExportToPNG(mxd, _u(e[u"saida_png"]), resolution=96)
-    except Exception as exc:  # noqa: BLE001 — relatorio para o nucleo 3.12
+    except Exception as exc:  # noqa: BLE001
         erro = unicode(exc)  # noqa: F821
     finally:
         relatorio = {
@@ -127,6 +206,7 @@ def main():
             u"escala": escala_final,
             u"crs": crs_code,
             u"erro": erro,
+            u"minimapa": bool(e.get(u"municipio")),
         }
         rel_path = e.get(u"relatorio")
         if rel_path:

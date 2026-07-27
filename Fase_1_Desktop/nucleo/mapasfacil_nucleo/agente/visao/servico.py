@@ -91,11 +91,29 @@ def _analisar_mxd(caminho: Path) -> dict[str, Any]:
     resultado = mxd_strings.extrair(caminho)
     resultado["perguntas"] = []
     resultado["mapspec_candidato"] = None
-    resultado["proximos_passos"] = [
+    passos = [
         "Sem ArcMap não dá para montar um MapSpec automático a partir do .mxd — use "
         "usar_modelo_da_galeria/criar_mapa como base e adicionar_camada/editar_camada "
         "com os candidatos_camada encontrados.",
     ]
+    if resultado.get("minimapa_detectado"):
+        munis = (resultado.get("queries_municipio_uf") or {}).get("municipios") or []
+        elems = resultado.get("candidatos_elementos_minimapa") or []
+        passos.insert(
+            0,
+            "Minimapa Harmonia detectado no .mxd"
+            + (f" (município nas queries: {', '.join(munis[:3])})" if munis else "")
+            + (f" · elementos: {', '.join(elems)}" if elems else "")
+            + ". Ao gerar o mapa, `gerar_mapa` aplica definition query + retângulo/linha L "
+            "via ArcMap (T1) usando `imovel.municipio` e a base `shared/bases/ibge`.",
+        )
+        if munis:
+            resultado["mapspec_candidato"] = {
+                "imovel": {"municipio": {"nome": munis[0]}},
+                "elementos_layout": {"minimapa": True},
+                "origem": "mxd_strings_minimapa",
+            }
+    resultado["proximos_passos"] = passos
     return resultado
 
 

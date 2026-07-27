@@ -40,6 +40,9 @@ def montar_payload(
     saida_pdf: str | None = None,
     saida_png: str | None = None,
     relatorio: str | None = None,
+    pasta_ibge: str | None = None,
+    extent_minimapa: list[float] | None = None,
+    padding_minimapa: float = 1.25,
 ) -> dict[str, Any]:
     return {
         "template": template,
@@ -62,6 +65,9 @@ def montar_payload(
         "saida_pdf": saida_pdf,
         "saida_png": saida_png,
         "relatorio": relatorio,
+        "pasta_ibge": pasta_ibge,
+        "extent_minimapa": extent_minimapa,
+        "padding_minimapa": padding_minimapa,
     }
 
 

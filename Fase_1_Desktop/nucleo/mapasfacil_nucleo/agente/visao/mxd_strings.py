@@ -29,11 +29,31 @@ MAX_CANDIDATOS_SHAPEFILE = 30
 MAX_CANDIDATOS_QUERY = 20
 MAX_TAMANHO_QUERY = 200
 
+# Elementos canônicos do minimapa Harmonia (docs/minimapa-ibge.md)
+ELEMENTOS_MINIMAPA = frozenset(
+    {
+        "MINIMAPA",
+        "MINIMAPA_RETANGULO",
+        "MINIMAPA_GUIA",
+        "MUNICIPIOS",
+        "MUNICIPIOS_ENTORNO",
+        "ROTULO_MUNICIPIO",
+        "UF_SELO",
+        "UF_INSET",
+        "UF",
+        "MAPA",
+    }
+)
+
 _RE_ASCII = re.compile(rb"[\x20-\x7e]{%d,}" % MIN_CARACTERES_STRING)
 _RE_UTF16LE = re.compile(rb"(?:[\x20-\x7e]\x00){%d,}" % MIN_CARACTERES_STRING)
 _RE_SHP = re.compile(r"\.shp$", re.IGNORECASE)
 _RE_QUERY = re.compile(r"['\"].*['\"]|=\s*['\"]")
 _RE_CAMINHO = re.compile(r"[\\/]|^[A-Za-z]:")
+_RE_DQ_NOME = re.compile(
+    r'''["']?nome["']?\s*=\s*['"]([^'"]+)['"]''',
+    re.IGNORECASE,
+)
 
 
 @lru_cache(maxsize=1)
@@ -98,6 +118,46 @@ def _candidatos_definition_query(strings: list[str]) -> list[str]:
     return list(vistos)
 
 
+def _candidatos_elementos_minimapa(strings: list[str]) -> list[str]:
+    """Nomes canônicos do inset Harmonia presentes no blob do .mxd."""
+    vistos: dict[str, None] = {}
+    for s in strings:
+        texto = s.strip().strip('"').strip("'")
+        if texto in ELEMENTOS_MINIMAPA and texto not in vistos:
+            vistos[texto] = None
+    return list(vistos)
+
+
+def _queries_municipio_uf(queries: list[str]) -> dict[str, list[str]]:
+    """Classifica definition queries `"nome" = '…'` como município ou UF."""
+    municipios: list[str] = []
+    ufs: list[str] = []
+    ufs_conhecidas = {
+        "mato grosso",
+        "mato grosso do sul",
+        "goiás",
+        "goias",
+        "pará",
+        "para",
+        "rondônia",
+        "rondonia",
+        "tocantins",
+        "amazonas",
+    }
+    for q in queries:
+        m = _RE_DQ_NOME.search(q)
+        if not m:
+            continue
+        valor = m.group(1).strip()
+        if valor.casefold() in ufs_conhecidas or len(valor) <= 2:
+            if valor not in ufs:
+                ufs.append(valor)
+        else:
+            if valor not in municipios:
+                municipios.append(valor)
+    return {"municipios": municipios, "ufs": ufs}
+
+
 def extrair(caminho: Path) -> dict[str, Any]:
     """Varredura de strings do `.mxd` bruto — nunca abre com `arcpy` (não existe aqui)."""
     if not caminho.is_file():
@@ -116,12 +176,20 @@ def extrair(caminho: Path) -> dict[str, Any]:
     strings = _extrair_strings_brutas(dados)
     camadas = _candidatos_camada(strings)
     queries = _candidatos_definition_query(strings)
+    elementos_minimapa = _candidatos_elementos_minimapa(strings)
+    queries_geo = _queries_municipio_uf(queries)
+    tem_minimapa = bool(
+        {"MINIMAPA", "MINIMAPA_RETANGULO", "MINIMAPA_GUIA"} & set(elementos_minimapa)
+    ) or any("lml_municipio" in c.lower() for c in camadas)
 
     return {
         "fonte": "mxd_strings",
         "estrutura_completa": False,
         "candidatos_camada": camadas,
         "candidatos_definition_query": queries,
+        "candidatos_elementos_minimapa": elementos_minimapa,
+        "queries_municipio_uf": queries_geo,
+        "minimapa_detectado": tem_minimapa,
         "total_strings_lidas": len(strings),
         "avisos": [
             "Leitura por varredura de strings (sem ArcMap) — não é parsing estrutural. "
