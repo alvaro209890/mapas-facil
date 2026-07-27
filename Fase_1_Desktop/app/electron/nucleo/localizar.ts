@@ -13,8 +13,14 @@ export interface ComandoNucleo {
 export function localizarNucleo(raizApp: string, empacotado: boolean): ComandoNucleo {
   if (empacotado) {
     const pasta = join(process.resourcesPath, "nucleo");
-    const executavel = process.platform === "win32" ? "mapasfacil-nucleo.exe" : "mapasfacil-nucleo";
-    return { comando: join(pasta, executavel), args: ["stdio"], cwd: pasta };
+    // O empacotamento já saiu com os dois nomes (`nucleo.exe` na 0.5.0);
+    // errar o nome deixa o app abrir sem núcleo e travar em "iniciando".
+    const nomes =
+      process.platform === "win32"
+        ? ["mapasfacil-nucleo.exe", "nucleo.exe"]
+        : ["mapasfacil-nucleo", "nucleo"];
+    const achado = nomes.map((n) => join(pasta, n)).find((c) => existsSync(c));
+    return { comando: achado ?? join(pasta, nomes[0]), args: ["stdio"], cwd: pasta };
   }
 
   const pastaNucleo = resolve(raizApp, "..", "nucleo");
