@@ -131,7 +131,8 @@ O modelo está em [`web/.env.example`](web/.env.example).
 
 | Variável | Uso |
 |---|---|
-| `NEXT_PUBLIC_DOWNLOAD_URL` | URL do instalador Windows |
+| `NEXT_PUBLIC_DOWNLOAD_URL` | URL do instalador Windows (`.exe` no GitHub Releases) |
+| `NEXT_PUBLIC_DOWNLOAD_MANIFEST_URL` | Manifesto JSON da release (`download-manifest.json`) |
 | `NEXT_PUBLIC_DEVELOPER_NAME` | nome do desenvolvedor |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | e-mail público |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | WhatsApp internacional somente com números |

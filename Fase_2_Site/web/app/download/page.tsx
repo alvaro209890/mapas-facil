@@ -2,14 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "../../components/SiteFooter";
 import { SiteHeader } from "../../components/SiteHeader";
+import { formatBytes, resolveDownloadInfo } from "../../lib/download";
 
 export const metadata: Metadata = {
   title: "Download",
-  description: "Baixe o Mapas Fácil para Windows quando o instalador estiver disponível.",
+  description:
+    "Baixe o instalador Windows do Mapas Fácil (versão estável no GitHub Releases).",
 };
 
-export default function DownloadPage() {
-  const downloadUrl = process.env.NEXT_PUBLIC_DOWNLOAD_URL?.trim();
+export default async function DownloadPage() {
+  const info = await resolveDownloadInfo();
+  const tamanho = formatBytes(info.tamanhoBytes);
+  const downloadUrl = info.url?.trim() || "";
 
   return (
     <main className="subpage download-page">
@@ -18,8 +22,17 @@ export default function DownloadPage() {
         <div className="shell subpage__hero-content">
           <p className="eyebrow">Mapas Fácil para Windows</p>
           <h1>
-            O instalador está
-            <span>a caminho.</span>
+            {downloadUrl ? (
+              <>
+                Instalador
+                <span>pronto.</span>
+              </>
+            ) : (
+              <>
+                O instalador está
+                <span>a caminho.</span>
+              </>
+            )}
           </h1>
         </div>
       </div>
@@ -35,15 +48,23 @@ export default function DownloadPage() {
             <span>MF</span>
           </div>
           <div className="download__content">
-            <p className="eyebrow">Versão para Windows</p>
+            <p className="eyebrow">
+              {downloadUrl
+                ? `Versão ${info.versao} · Windows x64`
+                : "Versão para Windows"}
+            </p>
             <h2>{downloadUrl ? "Pronto para instalar." : "Instalador em breve."}</h2>
             <p>
               {downloadUrl
-                ? "Baixe a versão atual do Mapas Fácil e siga as instruções do instalador."
+                ? "Baixe o Mapas Fácil, crie sua conta local no app e configure sua chave DeepSeek nas Preferências. O ArcMap é opcional."
                 : "A primeira versão pública está em preparação. Esta página será atualizada assim que o pacote estiver pronto para uso."}
             </p>
             {downloadUrl ? (
-              <a className="button button--primary" href={downloadUrl}>
+              <a
+                className="button button--primary"
+                href={downloadUrl}
+                rel="noopener noreferrer"
+              >
                 Baixar para Windows <span aria-hidden="true">↓</span>
               </a>
             ) : (
@@ -52,9 +73,32 @@ export default function DownloadPage() {
                 Preparando a primeira versão
               </div>
             )}
+            {downloadUrl ? (
+              <ul className="download__meta">
+                <li>
+                  <span>Arquivo</span>
+                  <code>{info.nome}</code>
+                </li>
+                {tamanho ? (
+                  <li>
+                    <span>Tamanho</span>
+                    <code>{tamanho}</code>
+                  </li>
+                ) : null}
+                {info.sha256 ? (
+                  <li>
+                    <span>SHA-256</span>
+                    <code>{info.sha256}</code>
+                  </li>
+                ) : null}
+              </ul>
+            ) : null}
             <small>
-              Windows 10/11 · O arquivo do instalador não é hospedado no
-              repositório do projeto.
+              {downloadUrl
+                ? info.notas ||
+                  "Windows 10/11 · Instalador hospedado no GitHub Releases."
+                : "Windows 10/11 · O arquivo do instalador não é hospedado no repositório do projeto."}{" "}
+              Conta e chave DeepSeek ficam só no PC — não neste site.
             </small>
           </div>
         </div>

@@ -37,7 +37,8 @@ Copie `.env.example` para `.env.local` quando precisar configurar os canais púb
 
 | Variável | Uso |
 |---|---|
-| `NEXT_PUBLIC_DOWNLOAD_URL` | URL do instalador Windows; vazia mantém “Instalador em breve” |
+| `NEXT_PUBLIC_DOWNLOAD_URL` | URL direta do `.exe` (prioridade). Se vazia, usa o manifesto |
+| `NEXT_PUBLIC_DOWNLOAD_MANIFEST_URL` | JSON da release (`download-manifest.json`); default = GitHub `latest` |
 | `NEXT_PUBLIC_DEVELOPER_NAME` | Nome público do desenvolvedor |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | E-mail mostrado em `/contato` e no rodapé |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | WhatsApp no formato internacional, somente números |
