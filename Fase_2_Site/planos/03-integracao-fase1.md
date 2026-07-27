@@ -59,8 +59,8 @@ Até lá a regra permanece:
 ## Tarefas agentáveis
 
 - [x] Reduzir este plano ao vínculo download (D21)
-- [ ] Na implementação do `web/`: ligar CTA a `NEXT_PUBLIC_DOWNLOAD_URL`
-- [ ] Após M10: publicar URL do instalador no env do PC servidor
+- [x] Na implementação do `web/`: ligar CTA a `NEXT_PUBLIC_DOWNLOAD_URL`
+- [x] Após M10: publicar URL do instalador no env do PC servidor (`desktop-v0.5.0`)
 
 ## Critérios de aceite
 
