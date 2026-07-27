@@ -1,0 +1,1289 @@
+{
+  "resultados": [
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 10796, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_MAPBIOMAS_2.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.052,1.815)", 
+        "MINIMAPA_GUIA L (1.38,2.21)->(0.73,4.11)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3250, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.056,1.815)", 
+        "MINIMAPA_GUIA L (1.38,2.21)->(0.73,4.11)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3452, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES_VF.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.056,1.815)", 
+        "MINIMAPA_GUIA L (1.38,2.21)->(0.73,4.11)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4213, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3605, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis_VF.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 2856, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2000.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.189,1.732)", 
+        "MINIMAPA_GUIA L (1.52,2.17)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3928, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_LANDSAT.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3486, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_SPOT.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3660, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2013.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.189,1.732)", 
+        "MINIMAPA_GUIA L (1.52,2.17)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3976, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2017.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.189,1.732)", 
+        "MINIMAPA_GUIA L (1.52,2.17)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3643, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2019.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3513, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2023.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3490, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3933, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_cultivo.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3595, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_quantitativos.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.189,1.732)", 
+        "MINIMAPA_GUIA L (1.52,2.17)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3719, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\DLA.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.189,1.732)", 
+        "MINIMAPA_GUIA L (1.52,2.17)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3566, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_IBAMA.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.056,1.815)", 
+        "MINIMAPA_GUIA L (1.38,2.21)->(0.73,4.25)"
+      ], 
+      "textos": [
+        "UF_SELO=MT", 
+        "ROTULO_MUNICIPIO=Vila Rica"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3658, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_SEMA_SIGA_Poligono.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.130,2.039)", 
+        "MINIMAPA_GUIA L (1.50,2.49)->(0.73,4.79)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4500, 
+      "queries": [
+        "Layers/MUNICIPIOS", 
+        "Layers/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual", 
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\PEF.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.88,6.35)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3381, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\TCR.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3557, 
+      "queries": [
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Terras_Indigenas.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.383,2.800)", 
+        "MINIMAPA_GUIA L (1.79,3.24)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3708, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Tipologia.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.056,1.815)", 
+        "MINIMAPA_GUIA L (1.38,2.21)->(0.73,4.11)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3758, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Unidade_de_Conservação.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.337,2.875)", 
+        "MINIMAPA_GUIA L (1.75,3.32)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "zoom MINIMAPA falhou / sem extent", 
+        "sem geometria/minimapa para mover retangulo"
+      ], 
+      "ok": true, 
+      "ms": 910, 
+      "queries": [], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Untitled.mxd", 
+      "graficos": [], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 2907, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2003_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 3123, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2004_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 3187, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2005_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 3875, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2006_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 3486, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2007_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA ausente — retangulo movido sozinho"
+      ], 
+      "ok": true, 
+      "ms": 3575, 
+      "queries": [
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2008_L5.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (8.051,1.414)"
+      ], 
+      "textos": [], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3884, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Analise_Area_UCs_e_TIs.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 6277, 
+      "queries": [
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual", 
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "Layers/MUNICIPIOS", 
+        "Layers/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2005-2025.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(15.04,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3951, 
+      "queries": [
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual", 
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "Layers/MUNICIPIOS", 
+        "Layers/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(15.04,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3724, 
+      "queries": [
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual", 
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "Layers/MUNICIPIOS", 
+        "Layers/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025_AC.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(15.04,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3354, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2000_v2.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.726)", 
+        "MINIMAPA_GUIA L (1.61,3.08)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3982, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2002.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4141, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2004.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3789, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2005.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3386, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2006.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3898, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2008.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3753, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2010.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3980, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2012.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3634, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2014.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3821, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2016.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3861, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2018.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3989, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2020.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3920, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2023.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4301, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2025.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3650, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2000_LANDSAT.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3931, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3668, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT_AC.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.235,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.91)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4361, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3854, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT_AC.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4380, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Distancia_de_uso_restrito.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4802, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SEMA_IBAMA.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4511, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual", 
+        "Layers/MUNICIPIOS"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SIGA.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4322, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\EMBARGO_SAO_SEBASTIAO.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3976, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Mapa_de_uso_consolidado.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.241,2.689)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3665, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/Limite estadual"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Tipologia_Vegetal.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.236,2.690)", 
+        "MINIMAPA_GUIA L (1.61,3.04)->(0.68,5.87)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 3937, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "MINIMAPA/MUNICIPIOS", 
+        "MINIMAPA/UF", 
+        "UF_INSET/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\05\\MXD\\MAPA_AEP.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.301,3.110)", 
+        "MINIMAPA_GUIA L (1.55,3.37)->(0.64,6.29)"
+      ], 
+      "textos": [
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [
+        "zoom MINIMAPA falhou / sem extent"
+      ], 
+      "ok": true, 
+      "ms": 3671, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/Limite estadual", 
+        "UF_INSET/MUNICIPIOS", 
+        "UF_INSET/MUNICIPIOS", 
+        "MINIMAPA/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\06\\MXD\\Divisao_de_talhoes.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.564,0.984)", 
+        "MINIMAPA_GUIA L (1.99,1.29)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "UF_SELO=MT", 
+        "ROTULO_MUNICIPIO=Vila Rica"
+      ], 
+      "municipio": "Vila Rica"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "ms": 4035, 
+      "queries": [
+        "MAPA/MUNICIPIOS", 
+        "MAPA/UF", 
+        "MINIMAPA/MUNICIPIOS", 
+        "UF_INSET/UF"
+      ], 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\shared\\templates\\Dinamica_retrato.mxd", 
+      "graficos": [
+        "MINIMAPA_RETANGULO -> (1.193,1.731)", 
+        "MINIMAPA_GUIA L (1.53,2.16)->(0.75,3.99)"
+      ], 
+      "textos": [
+        "ROTULO_MUNICIPIO=Vila Rica", 
+        "UF_SELO=MT"
+      ], 
+      "municipio": "Vila Rica"
+    }
+  ], 
+  "falhas": 0, 
+  "total": 62, 
+  "ok": 62
+}
