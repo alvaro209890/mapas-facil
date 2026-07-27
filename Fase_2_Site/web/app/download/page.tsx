@@ -56,7 +56,7 @@ export default async function DownloadPage() {
             <h2>{downloadUrl ? "Pronto para instalar." : "Instalador em breve."}</h2>
             <p>
               {downloadUrl
-                ? "Baixe o Mapas Fácil, crie sua conta local no app e configure sua chave DeepSeek nas Preferências. O ArcMap é opcional."
+                ? "Baixe o Mapas Fácil, crie sua conta local e use o chat com a DeepSeek já liberada no login. O ArcMap é opcional."
                 : "A primeira versão pública está em preparação. Esta página será atualizada assim que o pacote estiver pronto para uso."}
             </p>
             {downloadUrl ? (

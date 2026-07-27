@@ -12,7 +12,7 @@ em qualquer coisa.
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
 | **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap; paridade &lt;0,3% **não** atingida (~81% Dinâmica). Próximo: ajuste cartográfico / templates restantes → **M10 → M11** |
-| **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
+| **Com Windows (sem ArcMap)** | **M10 parcial** — instalador `desktop-v0.5.0` no GitHub + botão em https://mapasfacil.cursar.space/download; DeepSeek no login + dados em `Documentos/database/MapasFacil/<user>/`. Falta Authenticode + piloto **M11** |
 
 Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
 Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
@@ -35,13 +35,15 @@ print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do Ma
 
 ### Fase 2 — site
 
-**Planos reescritos (2026-07-27, D21):** site = **só distribuição** (landing + download), com
-**hero cinematográfico** (mapa em motion/vídeo — [F2-04](Fase_2_Site/planos/04-frontend-site.md)).
-Sem login no site, sem mapa funcional no browser, sem backend na v1. Código `web/`
-**implementado e validado** (home + requisitos + download + contato, com mapa demonstrativo
-inteiramente fictício). Conta e mapas = desktop
-([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)). [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)
-permanece **adiado**.
+**No ar (2026-07-27):** https://mapasfacil.cursar.space — landing + requisitos + **download**
+do `MapasFacil-Setup-0.5.0.exe` (GitHub Releases) + contato. Tunnel Cloudflare neste PC Acer
+(`mapas-facil-site` + `mapas-facil-tunnel`). Operação e checklist:
+[`docs/site-download-cloudflare.md`](docs/site-download-cloudflare.md).
+
+Sem login no site, sem mapa funcional no browser, sem backend na v1 (D21). Conta, DeepSeek e
+mapas = desktop ([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md); provisão no login —
+[`docs/provisao-deepseek-instalador.md`](docs/provisao-deepseek-instalador.md)).
+[F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) permanece **adiado**.
 
 Índice: [`Fase_2_Site/planos/README.md`](Fase_2_Site/planos/README.md).
 

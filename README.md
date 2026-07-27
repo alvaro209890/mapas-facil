@@ -15,7 +15,7 @@ cartografia: **você aponta uma pasta e conversa.**
 | Fase | O quê | Prioridade |
 |---|---|---|
 | **1 — App desktop Windows** | chat + pasta do PC → `.mxd` + `.pdf` + `.xlsx` | **principal** — é onde o `.mxd` nasce |
-| 2 — Site de distribuição | landing + download do instalador (sem login, sem mapa) | D21 — planos reescritos; código `web/` ainda não |
+| 2 — Site de distribuição | landing + download do instalador (sem login, sem mapa) | **no ar** — https://mapasfacil.cursar.space |
 
 Detalhes em [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md).
 
@@ -36,7 +36,8 @@ Fase 1 (Windows)                    Fase 2 (distribuição)
 | [`AGENT_BRIEF.md`](AGENT_BRIEF.md) | **entrada para agentes**: o que falta, estado real, gap analysis, anti-padrões |
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** (`app/` + `nucleo/`) |
-| [`Fase_2_Site/`](Fase_2_Site/README.md) | site de distribuição — planos D21; código `web/` não iniciado |
+| [`Fase_2_Site/`](Fase_2_Site/README.md) | site de distribuição — https://mapasfacil.cursar.space |
+| [`docs/site-download-cloudflare.md`](docs/site-download-cloudflare.md) | download no ar, tunnel, dados locais, DeepSeek no login |
 | [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
 | [`Referencias_IMAP/`](Referencias_IMAP/README.md) | acervos reais (PDFs-modelo + `.mxd`) — gabarito visual |
 | [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2, smoke DeepSeek |

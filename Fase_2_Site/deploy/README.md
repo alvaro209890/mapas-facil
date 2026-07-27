@@ -42,4 +42,6 @@ curl -I https://mapasfacil.cursar.space/
 
 Após `git pull` com mudanças no front: `npm run build` em `web/` e `systemctl --user restart mapas-facil-site.service`.
 
+Download do instalador: ver [`docs/site-download-cloudflare.md`](../../docs/site-download-cloudflare.md).
+
 Regra F2-06: **não** editar tunnels de outros sistemas.
