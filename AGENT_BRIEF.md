@@ -17,6 +17,7 @@ em qualquer coisa.
 Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
 Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
 Entrega M9 (infra + medição): [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.
+**Roteiro paridade visual &lt; 0,3%:** [`docs/paridade-visual-harmonia.md`](docs/paridade-visual-harmonia.md).
 
 ### Handoff operacional (amanhã / outro PC)
 

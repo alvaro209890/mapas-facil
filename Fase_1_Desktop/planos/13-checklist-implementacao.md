@@ -67,7 +67,7 @@ Fase 2 começa após M11.
 | Q6 | Overlay PNG da tabela no PDF nativo | [x] | posição Harmonia retrato; checks H14/S10 |
 | V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% |
 | V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST |
-| V3 | Smoke Harmonia vs `Mapas/01` | [~] | `smoke_m9_harmonia.py` + `fechar_m9_windows.ps1`; diff ArcMap ~81% (não passa 0,3%) — ver `docs/m9-conformidade-harmonia.md` |
+| V3 | Smoke Harmonia vs `Mapas/01` | [~] | `smoke_m9_harmonia.py`; diff ~81% — roteiro: [`docs/paridade-visual-harmonia.md`](../../docs/paridade-visual-harmonia.md) |
 
 ## Bloco B — Motor `.mxd` (M2)
 

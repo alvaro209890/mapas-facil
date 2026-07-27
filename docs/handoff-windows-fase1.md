@@ -114,7 +114,7 @@ Com ArcMap: motor `arcpy` (T1) + minimapa IBGE. Sem ArcMap no PATH do job: T2 pa
 | Marco | O quê | Exige você? |
 |---|---|---|
 | **M2 fechar** | Critérios do `GUIA_WINDOWS.md` §1.5 + checklist B + `AGENT_BRIEF` | **feito** (2026-07-27, script) |
-| **M9** | Pipeline checks + smoke + diff (parcial) | **parcial** (2026-07-27) — ver `docs/m9-conformidade-harmonia.md`; diff ~81% |
+| **M9** | Pipeline checks + smoke + diff (parcial) | **parcial** — roteiro: [`docs/paridade-visual-harmonia.md`](../paridade-visual-harmonia.md) |
 | **M10** | Instalador NSIS / PyInstaller | sim (Windows) |
 | **M11** | Piloto com usuário real | sim |
 

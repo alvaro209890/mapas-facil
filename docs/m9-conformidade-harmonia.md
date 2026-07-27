@@ -66,9 +66,8 @@ Fase_1_Desktop\nucleo\.venv\Scripts\python.exe ferramentas\smoke_m9_harmonia.py 
 | F1-13 I1–I3 (Bloco I) | `[ ]` / `[~]` — diff e série bloqueiam |
 | Roadmap M9 | **parcial** — pipeline pronto, paridade cartográfica pendente |
 
-Próximo passo técnico para reduzir o diff: alinhar basemap (Planet/WMS), tabela de quantitativos no
-layout ArcMap, textos `METADADOS`/`TITULO` e extent/escala ao acervo `Mapas/01` — trabalho de template
-(M2 estendido), não só de comparador.
+Próximo passo técnico para reduzir o diff: seguir o roteiro fase a fase em
+[`paridade-visual-harmonia.md`](paridade-visual-harmonia.md) (basemap, metadados, tabela no layout ArcMap).
 
 ## Arquivos tocados
 
