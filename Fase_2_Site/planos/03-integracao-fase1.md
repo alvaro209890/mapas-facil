@@ -1,54 +1,83 @@
 # F2-03 — Integração com a Fase 1
 
-Como o site reusa o que a Fase 1 já resolveu, e o que só o desktop consegue fazer.
+## Objetivo
 
-## O que se reusa direto
+Definir o único vínculo da v1 entre site e desktop: o site **distribui** o instalador (ou
+aponta para ele). Sem reuso runtime do núcleo, sem ponte de jobs de `.mxd`, sem MapSpec no
+browser (D21).
 
-| Artefato | Origem | Uso na Fase 2 |
+## Estado atual vs alvo
+
+| Item | Atual (legado/rascunho antigo) | Alvo v1 |
 |---|---|---|
-| `MapSpec` | [`../../planos/02-mapspec-contrato.md`](../../planos/02-mapspec-contrato.md) | contrato único; o backend valida o mesmo schema |
-| Padrão Harmonia | [`../../planos/01-padrao-imap-harmonia.md`](../../planos/01-padrao-imap-harmonia.md) | checks HARD/SOFT nos PDFs do site |
-| Catálogo WFS | [`../../planos/03-wfs-e-servicos-geo.md`](../../planos/03-wfs-e-servicos-geo.md) | backend neste PC baixa as camadas |
-| Núcleo Python (módulos geo) | `Fase_1_Desktop/nucleo/` | importado ou empacotado no FastAPI — **sem** Electron |
-| Parser do recibo / xlsx | linhagem NexoGeo | mesmos parsers no backend |
+| Reuso de núcleo / MapSpec no site | previsto | **fora** |
+| Ponte site → desktop para `.mxd` | rascunho | **adiada** |
+| Download do app | implícito | **único contrato** da v1 |
 
-## O que só o desktop faz
+## Dependências
+
+| Precisa de | Plano |
+|---|---|
+| Escopo distribuição | [F2-00](00-visao-e-escopo.md) |
+| Página de download | [F2-04](04-frontend-site.md) |
+| Instalador | [F1-11](../../Fase_1_Desktop/planos/11-empacotamento-instalador.md) (M10) |
+| Conta | [F1-14](../../Fase_1_Desktop/planos/14-auth-e-conta.md) — só no app |
+
+## O que a v1 integra
+
+| Do desktop | No site |
+|---|---|
+| Instalador Windows (quando M10 existir) | `NEXT_PUBLIC_DOWNLOAD_URL` / botão Baixar |
+| Nome e proposta do produto | copy da landing |
+| Requisitos (Windows, ArcMap opcional, BYOK) | página `/requisitos` |
+
+## O que só o desktop faz (não passa pelo site)
 
 | Capacidade | Por quê |
 |---|---|
-| Gerar `.mxd` | exige ArcMap/`arcpy` ou patch OLE no Windows do usuário |
-| Abrir pasta local do cliente | dados nunca sobem sem consentimento |
-| Credential Manager BYOK | chave DeepSeek fica no PC do usuário na Fase 1 |
+| Login / criar conta | D10 / D21 |
+| Gerar `.mxd`, PDF, PNG, xlsx | produto = app |
+| Ler pasta, WFS, MapSpec, chat | núcleo Electron + Python |
+| Credential Manager / BYOK | nunca no site |
 
-## Ponte desktop ↔ site (rascunho)
+## Ponte desktop ↔ servidor (adiada)
 
-Fluxo desejado quando o usuário no site precisa do `.mxd`:
+O rascunho antigo (site pede `.mxd` → backend → app Windows) **não** faz parte da v1 do site.
+Se o produto pedir no futuro, vira revisão explícita deste plano + [F2-02](02-backend-api.md).
 
-```
-Site                         Backend (este PC)              App desktop (Windows)
-  │  "quero o .mxd"                │                              │
-  ├────────────────────────────────▶│  cria job tipo mxd_remoto    │
-  │                                ├─────────────────────────────▶│  recebe MapSpec
-  │                                │                              │  gera .mxd local
-  │                                │◀─────────────────────────────┤  confirma / path
-  │◀───────────────────────────────┤  status + link de download   │  (ou só confirma)
-```
+Até lá a regra permanece:
 
-Detalhes de autenticação da ponte, fila e timeouts entram na reescrita de
-[`02-backend-api.md`](02-backend-api.md). Até lá, este documento só fixa a regra:
+> O site **nunca** promete mapa. Ele promete o **instalador** (ou “em breve”).
 
-> **O servidor nunca promete `.mxd`.** Ele promete PDF/PNG e, opcionalmente, um job
-> delegado ao desktop.
-
-## BYOK vs chave no backend
+## BYOK
 
 | Contexto | Chave DeepSeek |
 |---|---|
-| Fase 1 | do usuário (BYOK), Credential Manager |
-| Fase 2 (mapa por CAR no site) | chave do serviço neste PC, ou BYOK web se implementado |
+| Desktop | do usuário (BYOK) |
+| Site v1 | **não usa** chave de IA |
 
-Não misturar: um usuário do site não deve herdar a chave do desktop de outro PC.
+## Tarefas agentáveis
 
-## Estado
+- [x] Reduzir este plano ao vínculo download (D21)
+- [ ] Na implementação do `web/`: ligar CTA a `NEXT_PUBLIC_DOWNLOAD_URL`
+- [ ] Após M10: publicar URL do instalador no env do PC servidor
 
-Rascunho alinhado a D1/D7. A implementação depende da reescrita dos planos legado.
+## Critérios de aceite
+
+- [ ] Planos F2 v1 não exigem import do `mapasfacil_nucleo` no Next.js
+- [ ] Nenhuma rota do site dispara geração de mapa
+- [ ] Texto de requisitos manda criar conta **no app**, não no site
+
+## Fora de escopo
+
+- Sync de conversas / memória de projeto ([F2-05](05-auth-e-memoria.md))
+- Validar MapSpec no servidor
+- Upload de shapefile pelo browser
+
+## Anti-padrões
+
+| Não faça | Por quê |
+|---|---|
+| “Reusar o núcleo no FastAPI do site” na v1 | sem backend; D21 |
+| Prometer PDF por CAR na landing | mapa só no desktop |
+| OAuth no site para “já deixar a ponte” | login é F1-14 |

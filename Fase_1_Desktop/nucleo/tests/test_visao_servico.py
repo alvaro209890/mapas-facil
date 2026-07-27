@@ -114,7 +114,13 @@ def test_mxd_nao_chama_modelo_de_visao(pasta_harmonia: Path, guard: WorkspaceGua
     resultado = visao_servico.analisar_referencia("referencia.mxd", guard=guard)
     assert resultado["fonte"] == "mxd_strings"
     assert resultado["estrutura_completa"] is False
-    assert resultado["mapspec_candidato"] is None
+    if resultado.get("minimapa_detectado"):
+        cand = resultado["mapspec_candidato"]
+        assert cand is not None
+        assert cand.get("origem") == "mxd_strings_minimapa"
+        assert cand["elementos_layout"]["minimapa"] is True
+    else:
+        assert resultado["mapspec_candidato"] is None
     assert resultado["proximos_passos"]
 
 

@@ -184,6 +184,19 @@ def montar_mapspec(
         "geometria": fonte_geo,
     }
     # ibge só entra se conhecido — o schema não aceita null.
+    try:
+        from mapasfacil_nucleo.camadas import ibge as ibge_mod
+
+        resolvido = ibge_mod.resolver_municipio(nome=imovel["municipio"]["nome"])
+    except Exception:  # noqa: BLE001 — base ausente não impede montar
+        resolvido = None
+    if resolvido:
+        if resolvido.get("nome"):
+            imovel["municipio"]["nome"] = resolvido["nome"]
+        if resolvido.get("sigla_uf"):
+            imovel["municipio"]["uf"] = resolvido["sigla_uf"][:2]
+        if resolvido.get("cod_ibge"):
+            imovel["municipio"]["ibge"] = resolvido["cod_ibge"]
 
     # 6. camadas_catalogo
     for cat in modelo.get("camadas_catalogo") or []:

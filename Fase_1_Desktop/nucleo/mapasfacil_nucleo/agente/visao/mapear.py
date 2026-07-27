@@ -111,6 +111,7 @@ def sanitizar_resposta(bruto: dict[str, Any]) -> tuple[dict[str, Any], list[str]
         "camadas": camadas_ok,
         "metadados_lidos": metadados_ok,
         "tabela_presente": bool(bruto.get("tabela_presente")),
+        "minimapa_presente": bool(bruto.get("minimapa_presente")),
         "observacoes": observacoes,
     }
     return analise, avisos
@@ -155,6 +156,7 @@ def montar_proposta(
             "camadas": [],
             "metadados_lidos": [],
             "tabela_presente": False,
+            "minimapa_presente": False,
             "observacoes": [],
             "perguntas": [],
             "avisos": avisos,
@@ -192,6 +194,9 @@ def montar_proposta(
                 mapspec_candidato = pacote["mapspec"]
                 modelo_usado = modelo_id
                 avisos.extend(pacote.get("avisos") or [])
+                if analise.get("minimapa_presente"):
+                    elems = mapspec_candidato.setdefault("elementos_layout", {})
+                    elems["minimapa"] = True
 
     for camada in analise["camadas"]:
         if camada["confianca"] < LIMIAR_CONFIANCA:

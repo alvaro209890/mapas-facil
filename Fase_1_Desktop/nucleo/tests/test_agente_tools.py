@@ -17,6 +17,7 @@ from mapasfacil_nucleo.agente.tools import (
     schemas_openai,
 )
 from mapasfacil_nucleo.galeria.montar import montar_mapspec
+from mapasfacil_nucleo.protocolo import Emissor
 from mapasfacil_nucleo.workspace import servico as workspace_servico
 from tests.helpers_fixtures import escrever_recibo_car_pdf, escrever_shapefile_quadrado_utm
 
@@ -190,6 +191,52 @@ def test_criar_mapa_do_zero_valida(pasta: Path):
     assert executar("validar_mapspec", {}, ctx)["valido"] is True
     ruim = executar("criar_mapa", {"template": "dinamica_retratoo"}, {})
     assert ruim["sugestao"] == "dinamica_retrato"
+
+
+def test_criar_mapa_sem_atp_reconhecido_pergunta_ao_usuario(tmp_path: Path):
+    """Shapefile presente mas com nome fora do catálogo de papéis: pergunta, não trava.
+
+    Espelha o caso real de pasta de cliente com nomes de arquivo que não seguem o
+    padrão SIMCAR/Harmonia (ex.: `Perimetro_Estranho.shp`) — o agente não deve
+    escolher sozinho nem devolver um NU-233 seco; ele tem de emitir `chat.pergunta`
+    com as opções disponíveis para o usuário decidir.
+    """
+    shp = tmp_path / "SHP"
+    escrever_shapefile_quadrado_utm(shp / "Perimetro_Estranho.shp", nome="Estranho", lado_m=6000)
+    workspace_servico.abrir(str(tmp_path))
+    try:
+        eventos: list[dict[str, Any]] = []
+        emissor = Emissor("teste", sink=eventos.append)
+        ctx: dict[str, Any] = {"mapspec": None, "emissor": emissor}
+        r = executar("criar_mapa", {"template": "dinamica_retrato"}, ctx)
+        assert r["ok"] is False
+        assert r["codigo"] == "NU-233"
+        assert r["opcoes"] == [{"id": "PERIMETRO_ESTRANHO", "rotulo": "Perimetro_Estranho.shp"}]
+
+        perguntas = [e["dados"] for e in eventos if e["evento"] == "chat.pergunta"]
+        assert len(perguntas) == 1
+        assert perguntas[0]["opcoes"] == r["opcoes"]
+        assert perguntas[0]["permite_texto_livre"] is True
+        assert "ATP" in perguntas[0]["pergunta"]
+    finally:
+        workspace_servico.fechar()
+
+
+def test_criar_mapa_sem_nenhum_shapefile_nao_pergunta(tmp_path: Path):
+    """Pasta vazia: nada para escolher — continua erro seco, não pergunta oca."""
+    (tmp_path / "SHP").mkdir()
+    workspace_servico.abrir(str(tmp_path))
+    try:
+        eventos: list[dict[str, Any]] = []
+        emissor = Emissor("teste", sink=eventos.append)
+        ctx: dict[str, Any] = {"mapspec": None, "emissor": emissor}
+        r = executar("criar_mapa", {"template": "dinamica_retrato"}, ctx)
+        assert r["ok"] is False
+        assert r["codigo"] == "NU-233"
+        assert "opcoes" not in r
+        assert not any(e["evento"] == "chat.pergunta" for e in eventos)
+    finally:
+        workspace_servico.fechar()
 
 
 # --------------------------------------------------------------------------- fluxo

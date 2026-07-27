@@ -135,10 +135,17 @@ def test_gerar_mapa_com_mxd_e_pdf(projeto: Path, repo_root: Path) -> None:
     assert (projeto / resultado["pdf"]).exists()
     assert (projeto / "SHP" / "ATP.shp").exists()
     patch_info = resultado["artefatos"]["mxd"]
-    assert patch_info["motor"] in ("copia_template", "patch")
+    assert patch_info["motor"] in ("copia_template", "patch", "arcpy")
     assert "validacao" in resultado
     assert (projeto / resultado["validacao"]).exists()
-    assert resultado["validacao_dados"]["tier"] in ("T2", "copia_template", "nativo", "patch")
+    assert resultado["validacao_dados"]["tier"] in (
+        "T1",
+        "T2",
+        "copia_template",
+        "nativo",
+        "patch",
+        "arcpy",
+    )
 
 
 def test_arcpy_ponte_monta_payload_e_script_existe() -> None:

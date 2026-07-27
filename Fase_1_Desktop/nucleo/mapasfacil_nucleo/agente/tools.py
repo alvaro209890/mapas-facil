@@ -358,6 +358,34 @@ def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
 # --------------------------------------------------------------------------- edição
 
 
+def _emitir_pergunta(
+    ctx: dict[str, Any],
+    *,
+    pergunta: str,
+    opcoes: list[dict[str, str]],
+    permite_texto_livre: bool = True,
+) -> None:
+    """`chat.pergunta` (F1-06) — o agente não sabe decidir sozinho e pede ao usuário.
+
+    Payload fechado: `{pergunta, opcoes: [{id, rotulo}], permite_texto_livre}`. Sem
+    `Emissor` no ctx, não-op (mesma regra de `_emitir_mapspec_atualizado`). A
+    resposta do usuário (clique num chip ou texto livre) volta como mensagem
+    normal do próximo turno — não precisa de estado de "aguardando resposta"
+    no backend, o histórico da conversa já carrega a pergunta e a resposta.
+    """
+    emissor = ctx.get("emissor")
+    if emissor is None:
+        return
+    emissor.emitir(
+        "chat.pergunta",
+        {
+            "pergunta": pergunta,
+            "opcoes": opcoes,
+            "permite_texto_livre": permite_texto_livre,
+        },
+    )
+
+
 def _emitir_mapspec_atualizado(
     ctx: dict[str, Any], mapspec: dict[str, Any], diff: dict[str, Any]
 ) -> None:
@@ -421,14 +449,33 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     indice = _indice()
     if indice is None:
         return _erro("NU-040", "Nenhuma pasta conectada.")
-    perimetro = next(
-        (s for s in indice.get("shapefiles") or [] if s.get("papel") == "ATP"),
-        None,
-    )
+    shapefiles = indice.get("shapefiles") or []
+    perimetro = next((s for s in shapefiles if s.get("papel") == "ATP"), None)
     if perimetro is None:
+        if not shapefiles:
+            return _erro(
+                "NU-233",
+                "A pasta não tem shapefile com papel ATP (perímetro) — sem ele não dá para criar o mapa.",
+            )
+        # Nome não bate com nenhum alias/heurística conhecido (workspace/papeis.py):
+        # em vez de travar ou chutar, pergunta ao usuário qual arquivo é o perímetro.
+        candidatos = [
+            {"id": s["id_local"], "rotulo": Path(s["caminho"]).name} for s in shapefiles
+        ]
+        _emitir_pergunta(
+            ctx,
+            pergunta=(
+                "Não reconheci automaticamente qual shapefile é o perímetro do imóvel "
+                "(papel ATP). Qual desses arquivos é ele?"
+            ),
+            opcoes=candidatos,
+        )
         return _erro(
             "NU-233",
-            "A pasta não tem shapefile com papel ATP (perímetro) — sem ele não dá para criar o mapa.",
+            "Não encontrei o perímetro (ATP) automaticamente. Já perguntei ao usuário pelas "
+            "opções no chat — não escolha por conta própria, espere a resposta dele antes de "
+            "tentar de novo.",
+            opcoes=candidatos,
         )
 
     recibo = _recibo() or {}
@@ -1335,7 +1382,11 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
         "props": {},
     },
     "gerar_mapa": {
-        "descricao": "Executa o job e devolve artefatos + validação. Valide antes.",
+        "descricao": (
+            "Executa o job e devolve artefatos + validação. Valide antes. "
+            "Com elementos_layout.minimapa e ArcMap (T1), aplica definition query IBGE, "
+            "rótulo, retângulo vermelho e linha-guia L a partir de imovel.municipio."
+        ),
         "props": {
             "saidas": {
                 "type": "array",
@@ -1348,7 +1399,9 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
     "analisar_referencia": {
         "descricao": (
             "Print, PDF, .mxd ou .zip de referência → proposta com mapa da série, camadas "
-            "reconhecidas e MapSpec candidato (ou perguntas quando a confiança é baixa)."
+            "reconhecidas e MapSpec candidato (ou perguntas quando a confiança é baixa). "
+            "Em .mxd detecta minimapa Harmonia (elementos/queries) e sugere "
+            "elementos_layout.minimapa + município."
         ),
         "props": {"arquivo": {**_STR, "description": "caminho relativo à pasta do projeto"}},
         "obrig": ["arquivo"],

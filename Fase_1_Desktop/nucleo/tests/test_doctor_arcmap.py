@@ -32,7 +32,10 @@ def test_doctor_sem_arcmap(mock_detectar) -> None:
         "nota": "Detecção completa disponível apenas no Windows.",
     }
     dados = rodar(sondar_arcpy=False)
-    assert dados["motor_preferido"] == "nativo"
+    # Com dinamica_retrato pronto (offsets no MANIFEST), preferência sem ArcMap = patch.
+    assert dados["motor_preferido"] in ("patch", "nativo")
+    if any(t.get("patch_ok") for t in dados.get("templates") or []):
+        assert dados["motor_preferido"] == "patch"
     assert dados["arcmap"]["encontrado"] is False
     assert "templates" in dados
     assert dados["nucleo"] == __version__

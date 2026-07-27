@@ -473,9 +473,23 @@ def loop_ndjson(
         workspace_servico.fechar()
 
 
+def _forcar_utf8_stdio() -> None:
+    """Windows abre stdio no codepage do console (cp1252/cp850), não UTF-8.
+
+    NDJSON é UTF-8 por contrato (F1-01) — sem isto, qualquer texto não-ASCII que
+    chega pelo stdin (ex.: `workspace.abrir` numa pasta "Área...") já corrompe
+    antes do JSON ser parseado, e o núcleo devolve `NU-010` achando que a pasta
+    não existe. `reconfigure` existe desde o Python 3.7.
+    """
+    for fluxo in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(fluxo, "reconfigure"):
+            fluxo.reconfigure(encoding="utf-8")
+
+
 def main_cli() -> None:
     import argparse
 
+    _forcar_utf8_stdio()
     parser = argparse.ArgumentParser(description="Sidecar Mapas Fácil")
     sub = parser.add_subparsers(dest="comando")
 

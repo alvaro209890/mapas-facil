@@ -20,6 +20,7 @@ from mapasfacil_nucleo.agente.provedor import DeltaStream, MensagemLLM
 from mapasfacil_nucleo.conversas import servico as conversas_servico
 from mapasfacil_nucleo.conversas.repositorio import RepositorioConversas
 from mapasfacil_nucleo.erros import ErroNucleo
+from mapasfacil_nucleo.protocolo import Emissor
 from mapasfacil_nucleo.workspace import servico as workspace_servico
 from tests.helpers_fixtures import escrever_recibo_car_pdf, escrever_shapefile_quadrado_utm
 
@@ -124,6 +125,38 @@ def test_texto_de_rodadas_intermediarias_nao_some(pasta_chats: Path, pasta_harmo
     resultado = executar_turno(conversation_id=cid, mensagem="o que tem na pasta?")
     assert "Vou olhar a pasta primeiro." in resultado["texto"]
     assert "Encontrei 2 shapefiles." in resultado["texto"]
+
+
+class ProvedorComRaciocinio:
+    def enviar_stream(
+        self,
+        mensagens: list[MensagemLLM],
+        *,
+        tools: list[dict[str, Any]] | None = None,
+        max_tokens: int = 8000,
+        modelo: str | None = None,
+    ) -> Iterator[DeltaStream]:
+        del mensagens, tools, max_tokens, modelo
+        yield DeltaStream(raciocinio="Comparando as camadas.")
+        yield DeltaStream(texto="A análise terminou.", finish_reason="stop")
+
+    def cancelar(self) -> None:
+        return None
+
+
+def test_raciocinio_do_provedor_vira_evento_sem_entrar_na_resposta(pasta_chats: Path):
+    configurar_provedor(ProvedorComRaciocinio())
+    cid = _nova_conversa(pasta_chats)
+    eventos: list[dict[str, Any]] = []
+    resultado = executar_turno(
+        conversation_id=cid,
+        mensagem="analise",
+        emissor=Emissor("01TESTE", eventos.append),
+    )
+
+    assert resultado["texto"] == "A análise terminou."
+    assert [evento["evento"] for evento in eventos] == ["chat.raciocinio", "chat.delta"]
+    assert eventos[0]["dados"]["texto"] == "Comparando as camadas."
 
 
 # --------------------------------------------------------------------------- cancelamento

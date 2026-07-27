@@ -15,17 +15,17 @@ cartografia: **você aponta uma pasta e conversa.**
 | Fase | O quê | Prioridade |
 |---|---|---|
 | **1 — App desktop Windows** | chat + pasta do PC → `.mxd` + `.pdf` + `.xlsx` | **principal** — é onde o `.mxd` nasce |
-| 2 — Site e backend | projetos persistentes, mapa por CAR, vitrine pública | **depois do M11** |
+| 2 — Site de distribuição | landing + download do instalador (sem login, sem mapa) | D21 — planos reescritos; código `web/` ainda não |
 
 Detalhes em [`planos/00-visao-e-duas-fases.md`](planos/00-visao-e-duas-fases.md).
 
 ```
-Fase 1 (Windows)                    Fase 2 (depois do M11)
+Fase 1 (Windows)                    Fase 2 (distribuição)
 ┌─────────────────────────┐         ┌─────────────────────────┐
-│ Electron + React        │         │ Next.js (site)          │
-│ sidecar Python          │  reuso  │ FastAPI (neste PC)      │
-│ arcpy → .mxd → .pdf     │ ──────▶ │ tunnel Cloudflare       │
-│ pasta local do usuário  │ MapSpec │ PDF/PNG (sem .mxd)      │
+│ Electron + React        │         │ Next.js (landing)       │
+│ sidecar Python          │         │ download do instalador  │
+│ arcpy → .mxd → .pdf     │         │ mapasfacil.cursar.space │
+│ conta local + pasta     │         │ sem login / sem mapa    │
 └─────────────────────────┘         └─────────────────────────┘
 ```
 
@@ -36,7 +36,7 @@ Fase 1 (Windows)                    Fase 2 (depois do M11)
 | [`AGENT_BRIEF.md`](AGENT_BRIEF.md) | **entrada para agentes**: o que falta, estado real, gap analysis, anti-padrões |
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** (`app/` + `nucleo/`) |
-| [`Fase_2_Site/`](Fase_2_Site/README.md) | site + backend — **código não iniciado** |
+| [`Fase_2_Site/`](Fase_2_Site/README.md) | site de distribuição — planos D21; código `web/` não iniciado |
 | [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
 | [`Referencias_IMAP/`](Referencias_IMAP/README.md) | acervos reais (PDFs-modelo + `.mxd`) — gabarito visual |
 | [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2, smoke DeepSeek |
@@ -65,8 +65,10 @@ Fase 1 (Windows)                    Fase 2 (depois do M11)
 | M2 — Motor `.mxd` | **parcial** — próximo grande passo (Windows + ArcMap) |
 | M3–M8 — shell, galeria, auth, chats, agente, motion | **fechados** (+ épico sem ArcMap: F1-07, 41/41 camadas, eventos, UI) |
 | M10 — instalador / release CI | **infra feita** — tag `desktop-v*` → `.exe` ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)); Authenticode/smoke pendentes |
-| M9 / M11 — Harmonia / piloto | **não iniciados** |
-| Fase 2 | stub `/download` + planos; pós-M11 para o resto |
+| M9 — Harmonia | **parcial** — pipeline + smoke; paridade &lt;0,3% ainda não |
+| M11 — piloto | **não iniciado** |
+| Fase 2 | site de distribuição **implementado** (`web/`); download via GitHub Releases |
+
 
 **Backlog desktop sem ArcMap: esgotado.** No Linux Mint deste projeto só sobra polish opcional;
 o eixo que falta no mapa é **M2 → M9 → validar M10 → M11** em PC Windows.

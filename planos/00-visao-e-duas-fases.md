@@ -68,25 +68,24 @@ calcula quantitativos e conversa com o usuário.
 | IA | **DeepSeek V4 Pro**, chave do próprio usuário (BYOK), guardada no Windows Credential Manager |
 | Conta | **login obrigatório** com **e-mail + senha local** (SQLite neste PC); depois de autenticado, **sem limite de uso** (D10 revisada, D18). Sem Google |
 | Funciona offline? | **Sim, por completo** com sessão local: gera mapa com shapes locais e cache. Sem login → modo leitura (D11). Sem chave DeepSeek: galeria/modo determinístico |
-| Depende da Fase 2? | **Não** na v1. [F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) é memória/conta nuvem **depois do M11**, não bloqueia o desktop |
+| Depende da Fase 2? | **Não**. Site = só distribuição (D21). Conta nuvem ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)) adiada |
 | Motor de `.mxd` | ArcPy quando há ArcMap; **patch de template** quando não há |
 
-### Fase 2 — Site de engenharia florestal e mapas
+### Fase 2 — Site de distribuição do produto
 
 [`../Fase_2_Site/`](../Fase_2_Site/README.md)
 
-Site com backend rodando **neste PC** (Linux, Cuiabá-MT), exposto por Cloudflare Tunnel
-dedicado. Dá ao produto o que o desktop não tem: espaço de trabalho persistente com memória,
-histórico de projetos entre máquinas, mapas por número de CAR sem instalar nada, e uma vitrine
-pública.
+Site **público** só para **distribuir** o Mapas Fácil: vitrine, requisitos e download do
+instalador Windows. **Não** tem login, **não** cria conta e **não** gera mapa. Conta e mapas
+ficam no [app desktop](../Fase_1_Desktop/README.md) (D10, D21).
 
 | Aspecto | Decisão |
 |---|---|
-| Stack | Next.js (site) + FastAPI (backend) + Postgres |
-| Onde roda | backend neste PC + tunnel `mapasfacil-api.cursar.space`; site em `mapasfacil.cursar.space` |
-| Por que neste PC e não em nuvem | `sema.mt.gov.br` **bloqueia IP fora do Brasil**. Render/Vercel nem conseguem fazer GetFeature. Este PC está em MT |
-| Depende da Fase 1? | Reusa o núcleo Python e o `MapSpec`, mas roda independente |
-| Gera `.mxd`? | Não. Sem ArcMap no servidor, o site entrega PDF/PNG e **delega o `.mxd` ao desktop** |
+| Stack v1 | Next.js (landing/marketing) em `Fase_2_Site/web/` |
+| Backend v1 | **ausente** — sem FastAPI/Postgres para distribuição |
+| Onde publica | `mapasfacil.cursar.space` no PC servidor (tunnel/host dedicado; sem tocar tunnels existentes) |
+| Depende da Fase 1? | Aponta para o instalador (M10); não reusa núcleo geo no site |
+| Gera mapa / `.mxd` / PDF? | **Não** — só o desktop |
 
 ### Por que nessa ordem
 
@@ -148,11 +147,17 @@ Nada aqui nasce do zero. Três sistemas do mesmo dono já resolveram partes do p
 
 ### Dentro (Fase 2)
 
-- Site com login, projetos persistentes e histórico entre máquinas.
-- "Mapa por número do CAR": digita `MT102042/2017`, recebe o PDF sem instalar nada.
-- Espaço de trabalho no backend com memória do projeto e dos imóveis do usuário.
-- Ponte com o app desktop, para o `.mxd` ser gerado na máquina certa.
-- Backend neste PC via Cloudflare Tunnel dedicado, **sem tocar nos tunnels existentes**.
+- Site público de **distribuição**: landing, requisitos, download do instalador (ou “em breve”
+  até o M10), contato/links ([F2-00](../Fase_2_Site/planos/00-visao-e-escopo.md)).
+- Publicação em `mapasfacil.cursar.space` no PC servidor, **sem** alterar tunnels de outros
+  sistemas ([F2-06](../Fase_2_Site/planos/06-deploy-tunnel-neste-pc.md)).
+
+### Fora da Fase 2 v1 (continua só no desktop ou adiado)
+
+- Login / criar conta no site — conta é local no app ([F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md)).
+- Gerar mapa, PDF, `.mxd` ou “mapa por CAR” no browser.
+- Chat web, projetos na nuvem, memória entre máquinas, ponte de jobs ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md) adiado).
+- FastAPI + Postgres + consultas WFS no site.
 
 ### Fora da v1, e por quê (tabela vinculante)
 
@@ -164,7 +169,8 @@ no mesmo commit.
 |---|---|
 | **Cobrança, planos, trial** | a v1 valida o produto, não o modelo de negócio |
 | **Quota, rate limit de produto, feature flag de cobrança** | D18: autenticado = ilimitado. Rate limit de *abuso* nos endpoints de auth não conta |
-| **Sync de conversas para a nuvem** | D20: local-only; espelho é Fase 2 e opt-in |
+| **Sync de conversas para a nuvem** | D20: local-only; espelho nuvem **adiado** e opt-in — **não** é a v1 do site (D21 = só distribuição) |
+| **Login / mapa / chat no site** | D21: site = distribuição; produto = desktop |
 | **Marketplace/compartilhamento de modelos de galeria** | modelo novo exige template preparado no ArcMap |
 | **Multi-conta simultânea, times, organizações** | uma conta por instalação |
 | Agente/app em Linux ou macOS | `arcpy` é Windows-only; o núcleo Python roda em Linux, mas sem `.mxd` |
@@ -219,7 +225,8 @@ no mesmo commit.
 | D4 | Suportar **com e sem ArcMap** | 2026-07-25 | exigir ArcMap (limita mercado); nunca usar ArcMap (perde fidelidade) |
 | D5 | Perfil visual **Harmonia** como fonte da verdade | 2026-07-25 | perfil Trevisol; suportar os dois |
 | D6 | `MapSpec` JSON validado por schema como contrato único | herdada | IA gerando código Python |
-| D7 | Backend da Fase 2 **neste PC** + tunnel dedicado | 2026-07-25 | Render/Vercel (geo-block da SEMA); reusar tunnel existente (risco aos outros sistemas) |
+| D7 | Publicar Fase 2 no PC servidor + tunnel/host **dedicado** (`mapasfacil.cursar.space`); sem reusar tunnels existentes. API geo neste PC **não** é requisito da v1 do site (D21) *(recontextualizada 2026-07-27)* | 2026-07-25 | Render/Vercel como primário; reusar tunnel existente |
+| D21 | Fase 2 v1 = **site de distribuição** (landing + download). Sem login no site; sem gerar mapa no site | 2026-07-27 | site com chat, mapa por CAR, conta nuvem e backend geo na v1 |
 | D8 | Acesso à SEMA só por WFS/WMS + recibo PDF | 2026-07-25 | API técnica do SIMCAR (sessão única); scraping do portal público (frágil) |
 | D9 | Repositório público, chaves fora dos `.mxd` | 2026-07-25 | privar o repo; reescrever o histórico |
 
@@ -240,7 +247,8 @@ alternativa descartada registrada, para que nenhum agente reabra a discussão so
 | D17 | **Compressão de contexto obrigatória**: memória de trabalho + últimos 8 turnos verbatim + resumo por `deepseek-v4-flash`; `MapSpec` por diff | mandar índice e spec completos a cada turno (estoura contexto e custo) | [F1-06](../Fase_1_Desktop/planos/06-agente-eng-florestal.md) |
 | D18 | **v1 autenticada é ilimitada**: sem quota, paywall, rate limit de produto ou feature flag de cobrança | trial/limite "só para começar" | [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md) |
 | D19 | Eventos de construção parcial (`job.artefato_parcial`) são **contrato novo a implementar** no núcleo (M8). Até lá, a animação usa só `job.progresso` — **nunca** loader falso | simular progresso na UI enquanto o núcleo não reporta | [F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md) |
-| D20 | Conversas **local-only** na v1; espelho na conta é Fase 2 e opt-in | sync automático para a conta | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
+| D20 | Conversas **local-only** na v1; espelho na conta é **adiado** e opt-in (não é a v1 do site) | sync automático para a conta | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
+| D21 | Site Fase 2 v1 = **distribuição** (landing + download); sem login e sem mapa no site | chat/mapa/conta nuvem no site na v1 | [F2-00](../Fase_2_Site/planos/00-visao-e-escopo.md) |
 
 ### Como um agente lê estas decisões
 

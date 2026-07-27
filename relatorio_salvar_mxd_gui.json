@@ -1,0 +1,505 @@
+{
+    "gerado_em":  "2026-07-27T00:51:05.3605936-03:00",
+    "total":  62,
+    "ok":  62,
+    "com_dialogo":  55,
+    "falhas":  0,
+    "resultados":  [
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_MAPBIOMAS_2.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  36575,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  34295,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES_VF.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  34706,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  31375,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis_VF.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  30985,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2000.mxd",
+                           "ok":  true,
+                           "dialogos":  17,
+                           "salvou":  true,
+                           "ms":  46179,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_LANDSAT.mxd",
+                           "ok":  true,
+                           "dialogos":  14,
+                           "salvou":  true,
+                           "ms":  40473,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_SPOT.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  22744,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2013.mxd",
+                           "ok":  true,
+                           "dialogos":  3,
+                           "salvou":  true,
+                           "ms":  26465,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2017.mxd",
+                           "ok":  true,
+                           "dialogos":  17,
+                           "salvou":  true,
+                           "ms":  46221,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2019.mxd",
+                           "ok":  true,
+                           "dialogos":  9,
+                           "salvou":  true,
+                           "ms":  31792,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2023.mxd",
+                           "ok":  true,
+                           "dialogos":  13,
+                           "salvou":  true,
+                           "ms":  39640,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026.mxd",
+                           "ok":  true,
+                           "dialogos":  11,
+                           "salvou":  true,
+                           "ms":  35943,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_cultivo.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  30959,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_quantitativos.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  31372,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\DLA.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  30523,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_IBAMA.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  28106,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_SEMA_SIGA_Poligono.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  27673,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\PEF.mxd",
+                           "ok":  true,
+                           "dialogos":  16,
+                           "salvou":  true,
+                           "ms":  42919,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\TCR.mxd",
+                           "ok":  true,
+                           "dialogos":  8,
+                           "salvou":  true,
+                           "ms":  30979,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Terras_Indigenas.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  22728,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Tipologia.mxd",
+                           "ok":  true,
+                           "dialogos":  5,
+                           "salvou":  true,
+                           "ms":  34651,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Unidade_de_Conservação.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23134,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Untitled.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  23951,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2003_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  19023,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2004_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  19425,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2005_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  18991,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2006_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  21468,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2007_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  19435,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2008_L5.mxd",
+                           "ok":  true,
+                           "dialogos":  0,
+                           "salvou":  true,
+                           "ms":  19010,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Analise_Area_UCs_e_TIs.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23129,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2005-2025.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  26828,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  26408,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025_AC.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  26836,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2000_v2.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  22738,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2002.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23133,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2004.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23084,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2005.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23952,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2006.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  22713,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2008.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  25604,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2010.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23586,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2012.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23085,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2014.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23579,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2016.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23088,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2018.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23517,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2020.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23574,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2023.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23535,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2025.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  28060,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2000_LANDSAT.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  25208,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  22699,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT_AC.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23102,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  24345,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT_AC.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  25163,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Distancia_de_uso_restrito.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23934,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SEMA_IBAMA.mxd",
+                           "ok":  true,
+                           "dialogos":  4,
+                           "salvou":  true,
+                           "ms":  28896,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SIGA.mxd",
+                           "ok":  true,
+                           "dialogos":  6,
+                           "salvou":  true,
+                           "ms":  31405,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\EMBARGO_SAO_SEBASTIAO.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23525,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Mapa_de_uso_consolidado.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23102,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Tipologia_Vegetal.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  23510,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\05\\MXD\\MAPA_AEP.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  21866,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\06\\MXD\\Divisao_de_talhoes.mxd",
+                           "ok":  true,
+                           "dialogos":  2,
+                           "salvou":  true,
+                           "ms":  22703,
+                           "aviso":  ""
+                       },
+                       {
+                           "arquivo":  "C:\\Users\\alvar\\Documents\\mapas-facil\\shared\\templates\\Dinamica_retrato.mxd",
+                           "ok":  true,
+                           "dialogos":  11,
+                           "salvou":  true,
+                           "ms":  35462,
+                           "aviso":  ""
+                       }
+                   ]
+}

@@ -20,6 +20,7 @@ class DeltaStream:
     """Pedacinho do stream: texto e/ou tool_calls acumulados no fim do turno."""
 
     texto: str = ""
+    raciocinio: str = ""
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     finish_reason: str | None = None
     truncado: bool = False  # finish_reason == length → IA-050

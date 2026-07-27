@@ -108,6 +108,7 @@ class DeepSeekProvedor:
                 delta = escolha.get("delta") or {}
                 finish = escolha.get("finish_reason") or finish
                 texto = delta.get("content") or ""
+                raciocinio = delta.get("reasoning_content") or ""
                 for tc in delta.get("tool_calls") or []:
                     idx = int(tc.get("index", 0))
                     atual = tool_acc.setdefault(
@@ -121,7 +122,7 @@ class DeepSeekProvedor:
                         atual["function"]["name"] = fn["name"]
                     if fn.get("arguments"):
                         atual["function"]["arguments"] += fn["arguments"]
-                yield DeltaStream(texto=texto)
+                yield DeltaStream(texto=texto, raciocinio=raciocinio)
         finally:
             try:
                 self._resposta.close()

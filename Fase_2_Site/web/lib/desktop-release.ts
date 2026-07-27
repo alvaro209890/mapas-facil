@@ -1,6 +1,6 @@
 /**
  * Cliente do manifesto de download do desktop (GitHub Releases).
- * Cole no site (Next.js /download) — ver shared/releases/README.md.
+ * Usado por `/download` — ver shared/releases/README.md.
  */
 
 export const DESKTOP_MANIFEST_URL =
@@ -28,11 +28,11 @@ export async function carregarDesktopRelease(
 ): Promise<DesktopDownloadManifest> {
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
-    // Next.js: revalidate a cada 5 min se usado em Server Component
+    // Atualiza a página de download a cada 5 min sem rebuild
     next: { revalidate: 300 },
   } as RequestInit);
   if (!res.ok) {
-    throw new Error(`Falha ao ler manifesto do desktop (${res.status})`);
+    throw new Error(`Manifesto indisponível (${res.status})`);
   }
   return (await res.json()) as DesktopDownloadManifest;
 }

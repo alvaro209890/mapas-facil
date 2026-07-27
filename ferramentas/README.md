@@ -13,11 +13,29 @@ Scripts presentes:
 | `chaves_mxd.py` | remove/reinjeta chaves de API nos `.mxd` versionados |
 | `deepseek_smoke.py` | smoke manual da chave DeepSeek (dev local; **não** roda no CI) |
 | `inspecionar_mxd_arcpy.py` | diagnóstico de layout (requer ArcMap) |
+| `corrigir_template_b1_arcpy.py` | Reaplica LOGO + `MINIMAPA_RETANGULO`/`GUIA` no template |
 | `normalizar_mxd_arcpy.py` | B1 automatizado parcial (renomear elementos) |
-| `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala para offsets |
+| `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala (+ sidecar `.sentinelas.json`) |
 | `inspecionar_mxd_offsets.py` | lê offsets/sentinelas do `.mxd` |
 | `registrar_template.py` | grava sha256/offsets no MANIFEST |
 | `recuperar_zip_truncado.py` | recupera ZIP sem diretório central |
+| `remover_planet_mxd_arcpy.py` | remove camadas Planet/WMTS quebradas dos `.mxd` (ArcMap 10.8) |
+| `fechar_dialogs_gis.ps1` | cancela o diálogo *GIS Server Connection* automaticamente |
+| `salvar_mxd_gui.ps1` | abre cada `.mxd`, fecha diálogos, salva na GUI do ArcMap |
+| `materializar_malhas_ibge.py` | baixa API IBGE e gera `shared/bases/ibge/*.shp` |
+| `conectar_minimapa_ibge_arcpy.py` | reconecta minimapas dos MXDs à base IBGE do repo |
+| `mudar_municipio_minimapa_arcpy.py` | troca município (query + rótulo + retângulo/linha L) |
+| `fechar_m2_template_arcpy.py` | fecha template M2: SHP/, AC, IBGE, LOGO (ArcPy 2.7) |
+| `fechar_m2_windows.ps1` | orquestra fechamento M2: template + B2 + smoke + pytest |
+| `smoke_m2_harmonia.py` | smoke reproducível T1/T2 na pasta Harmonia real |
+| `fechar_m9_windows.ps1` | orquestra M9: smoke checks + diff raster + pytest |
+| `smoke_m9_harmonia.py` | smoke M9 com `comparar_baseline` e relatório JSON |
+
+Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):
+[`../docs/remocao-planet-mxd.md`](../docs/remocao-planet-mxd.md).
+
+Minimapa / IBGE:
+[`../docs/minimapa-ibge.md`](../docs/minimapa-ibge.md).
 
 ## `chaves_mxd.py`
 

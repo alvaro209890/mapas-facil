@@ -282,11 +282,26 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
             retangulos = [i for i in info if id(i) not in linhas_ids]
 
             if len(linhas) == 1:
-                linhas[0]["el"].name = "MINIMAPA_GUIA"
-                aplicados.append(
-                    u"graphic_element fino (w={0:.2f} h={1:.2f}) -> MINIMAPA_GUIA "
-                    u"(heuristica geometrica, confirmar visualmente)".format(linhas[0]["w"], linhas[0]["h"])
-                )
+                alvo = linhas[0]["el"]
+                nome_atual = _safe(lambda: alvo.name) or ""
+                if nome_atual in ("MINIMAPA_GUIA", "MINIMAPA_RETANGULO"):
+                    # nao sobrescrever nome canonico ja correto
+                    if nome_atual != "MINIMAPA_GUIA":
+                        pendencias.append(
+                            u"candidato a linha-guia ja se chama '{0}' — nao renomeado.".format(
+                                nome_atual
+                            )
+                        )
+                    else:
+                        aplicados.append(u"MINIMAPA_GUIA ja nomeado — mantido")
+                else:
+                    alvo.name = "MINIMAPA_GUIA"
+                    aplicados.append(
+                        u"graphic_element fino (w={0:.2f} h={1:.2f}) -> MINIMAPA_GUIA "
+                        u"(heuristica geometrica, confirmar visualmente)".format(
+                            linhas[0]["w"], linhas[0]["h"]
+                        )
+                    )
             else:
                 pendencias.append(
                     u"{0} candidato(s) a linha-guia (heuristica geometrica ambigua) — "
@@ -302,13 +317,23 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
                     candidatos_retangulo = dentro
 
             if len(candidatos_retangulo) == 1:
-                candidatos_retangulo[0]["el"].name = "MINIMAPA_RETANGULO"
-                aplicados.append(
-                    u"graphic_element dentro/perto do MINIMAPA (w={0:.2f} h={1:.2f}) -> "
-                    u"MINIMAPA_RETANGULO (heuristica posicional, confirmar visualmente)".format(
-                        candidatos_retangulo[0]["w"], candidatos_retangulo[0]["h"]
+                alvo = candidatos_retangulo[0]["el"]
+                nome_atual = _safe(lambda: alvo.name) or ""
+                if nome_atual == "MINIMAPA_RETANGULO":
+                    aplicados.append(u"MINIMAPA_RETANGULO ja nomeado — mantido")
+                elif nome_atual == "MINIMAPA_GUIA":
+                    pendencias.append(
+                        u"candidato a retangulo ja se chama MINIMAPA_GUIA — nao renomeado "
+                        u"(confirmar visualmente)."
                     )
-                )
+                else:
+                    alvo.name = "MINIMAPA_RETANGULO"
+                    aplicados.append(
+                        u"graphic_element dentro/perto do MINIMAPA (w={0:.2f} h={1:.2f}) -> "
+                        u"MINIMAPA_RETANGULO (heuristica posicional, confirmar visualmente)".format(
+                            candidatos_retangulo[0]["w"], candidatos_retangulo[0]["h"]
+                        )
+                    )
             else:
                 pendencias.append(
                     u"{0} candidato(s) a retangulo indicador — MINIMAPA_RETANGULO nao atribuido "

@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import argparse
+import os
 import shutil
 import sys
 
@@ -17,7 +18,8 @@ ESCALA_SENTINELA = 987654.0
 
 
 def aplicar(mxd_entrada, mxd_saida, df_nome="MAPA"):
-    shutil.copy2(mxd_entrada, mxd_saida)
+    if os.path.abspath(mxd_entrada) != os.path.abspath(mxd_saida):
+        shutil.copy2(mxd_entrada, mxd_saida)
     mxd = arcpy.mapping.MapDocument(mxd_saida)
     try:
         mxd.relativePaths = True
@@ -27,16 +29,43 @@ def aplicar(mxd_entrada, mxd_saida, df_nome="MAPA"):
         df = dfs[0]
         df.extent = arcpy.Extent(*EXTENT_SENTINELA)
         df.scale = ESCALA_SENTINELA
+        # ArcMap ajusta o extent pela proporcao do data frame — as sentinelas
+        # reais no binario sao as que o arcpy devolve depois do save.
+        e = df.extent
+        extent_real = (float(e.XMin), float(e.YMin), float(e.XMax), float(e.YMax))
+        escala_real = float(df.scale)
         mxd.save()
     finally:
         del mxd
     print("Salvo:", mxd_saida)
-    print("Extent:", EXTENT_SENTINELA)
-    print("Escala:", ESCALA_SENTINELA)
+    print("Extent pedido:", EXTENT_SENTINELA)
+    print("Extent real (pos-aspecto):", extent_real)
+    print("Escala:", escala_real)
+    sidecar = mxd_saida + ".sentinelas.json"
+    try:
+        import json
+
+        with open(sidecar, "w") as fh:
+            json.dump(
+                {
+                    "extent_pedido": list(EXTENT_SENTINELA),
+                    "extent": list(extent_real),
+                    "escala": escala_real,
+                },
+                fh,
+                indent=2,
+            )
+        print("Sidecar:", sidecar)
+    except Exception as exc:
+        print("Nao gravou sidecar:", exc)
     print("Proximo passo:")
     print(
         "  python ferramentas/inspecionar_mxd_offsets.py \"{0}\"".format(mxd_saida)
     )
+    print(
+        "  python ferramentas/registrar_template.py dinamica_retrato \"{0}\"".format(mxd_saida)
+    )
+    return extent_real, escala_real
 
 
 def main():

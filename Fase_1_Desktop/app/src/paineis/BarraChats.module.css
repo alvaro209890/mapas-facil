@@ -20,16 +20,16 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--mf-borda);
-  background: var(--mf-superficie);
+  background: var(--mf-superficie-2);
   color: var(--mf-texto);
-  border-radius: var(--mf-raio);
+  border-radius: var(--mf-raio-1);
   padding: 4px 8px;
   font: var(--mf-fs-micro) var(--mf-fonte-ui);
   cursor: pointer;
 }
 
 .botao:hover {
-  background: var(--mf-superficie-2, var(--mf-superficie));
+  background: var(--mf-superficie-2);
 }
 
 .botaoAtivo {
@@ -40,9 +40,9 @@
 .busca {
   width: 100%;
   border: 1px solid var(--mf-borda);
-  background: var(--mf-fundo);
+  background: var(--mf-bg);
   color: var(--mf-texto);
-  border-radius: var(--mf-raio);
+  border-radius: var(--mf-raio-1);
   padding: 6px 8px;
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
 }
@@ -79,18 +79,18 @@
   border: 1px solid transparent;
   background: transparent;
   color: var(--mf-texto);
-  border-radius: var(--mf-raio);
+  border-radius: var(--mf-raio-1);
   padding: 6px 8px;
   cursor: pointer;
 }
 
 .item:hover {
-  background: var(--mf-superficie);
+  background: var(--mf-superficie-2);
 }
 
 .itemAtivo {
   border-color: var(--mf-borda);
-  background: var(--mf-superficie);
+  background: var(--mf-superficie-2);
 }
 
 .titulo {

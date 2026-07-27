@@ -12,19 +12,20 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 |---|---|---|
 | A — fundação do núcleo | M1 | **fechado** — A1–A13 |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3 — depende de motor bom / M9) |
-| B — motor `.mxd` | M2 | **parcial** — **próximo eixo** (exige ArcMap/Windows); B1 estendido, não testado aqui |
+| B — motor `.mxd` | M2 | **fechado** (2026-07-27) — template sem `!`, smoke T1/T2 Harmonia, B2 recalibrado (`ferramentas/fechar_m2_windows.ps1`) |
 | C — shell + design system | M3 | **fechado** — C1–C11 + menus/tray + banner offline + Esc≠job |
 | D — galeria | M4 | **fechado** |
 | E — conta local (e-mail + senha) | M5 | **fechado** |
 | F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
-| I — conformidade / instalador / piloto | M9–M11 | **M10 infra feita**; M9 e M11 + Authenticode/smoke Windows pendentes |
+| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** + **M10 infra feita**; Authenticode/smoke/M11 pendentes |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → validar M10 no Windows → M11**.
-Guia de build: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md). Fase 2 começa após M11.
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **fechar M9 → validar M10 → M11**.
+Guia de build: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md). Fase 2 (site) já tem front de distribuição.
 
-**Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md).
+
+**Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) · handoff: [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md).
 
 ## Pré-voo
 
@@ -67,7 +68,7 @@ Guia de build: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md). Fase 2 começa apó
 | Q6 | Overlay PNG da tabela no PDF nativo | [x] | posição Harmonia retrato; checks H14/S10 |
 | V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% |
 | V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST |
-| V3 | Smoke Harmonia vs `Mapas/01` | [ ] | infra pronta; baseline real ainda não passa (PDF nativo é estrutural) |
+| V3 | Smoke Harmonia vs `Mapas/01` | [~] | `smoke_m9_harmonia.py` + `fechar_m9_windows.ps1`; diff ArcMap ~81% (não passa 0,3%) — ver `docs/m9-conformidade-harmonia.md` |
 
 ## Bloco B — Motor `.mxd` (M2)
 
@@ -76,15 +77,15 @@ Detalhe histórico sem ArcMap: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucle
 
 | # | Tarefa | Feito | Nota |
 |---|---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] | `normalizar_mxd_arcpy.py` estendido para reaproveitar elemento existente (`TITULO` ← caixa "Ano: NNNN", `ROTULO_IMOVEL` ← rótulo solto, `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` por heurística, `LOGO` com arquivo real); **não testado** — sem arcpy/Windows neste ambiente. GUI só para o que sobrar no relatório |
-| B2 | MANIFEST `sha256` + offsets | [~] | `dinamica_retrato` com `sha256` e `status: parcial`; offsets dependem de B1 |
-| B3 | `arcpy_job.py` + ponte | [x] | esqueleto |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [x] | **Fechado 2026-07-27**: script (`normalizar_mxd_arcpy` + `corrigir_template_b1_arcpy`) + GUI — `ROTULO_IMOVEL` criado à mão (arcpy não cria TextElement) e posicionado sobre o perímetro. `inspecionar_mxd_arcpy` confirma `pronto_b1: true` |
+| B2 | MANIFEST `sha256` + offsets | [x] | `dinamica_retrato` **`status: pronto`** com offsets extent+escala (sentinelas pós-aspecto do ArcMap). **Recalibrado 2026-07-27** após o save da GUI do B1 — `sha256_ok`/`patch_ok` verdes no doctor. Backup: `Dinamica_retrato.pre_b2.bak` |
+| B3 | `arcpy_job.py` + ponte | [x] | + minimapa IBGE (T1) |
 | B4 | Materializar `SHP/` | [~] | cópia + `ogr2ogr` opcional |
 | B5 | Extent bbox `.shp` | [~] | via metadados |
-| B6 | Textos / definition query | [~] | infra UTF-16LE; falta MANIFEST |
-| B7 | Minimapa retângulo + guia | [~] | candidatos por heurística; confirmar rodando no ArcMap |
-| B8 | Patch T2 sem ArcMap | [~] | cópia do template preparado (`resolver_caminho_preparado`) |
-| B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke manual pendente |
+| B6 | Textos / definition query | [~] | T2 patch extent/escala ativo; textos UTF-16LE ainda sem slots no MANIFEST |
+| B7 | Minimapa retângulo + guia | [x] | nomes canônicos + job T1 (`minimapa_job` / `mudar_municipio`) |
+| B8 | Patch T2 sem ArcMap | [x] | offsets no MANIFEST; gera `.mxd` com extent/escala patchados |
+| B9 | Diff raster vs `Mapas/01` | [~] | `comparar_pdf` + smoke M9; baseline no PDF ArcMap; Dinâmica ~81% |
 
 ---
 
@@ -159,6 +160,7 @@ Plano: [F1-17](17-persistencia-de-conversas.md).
 | F5 | Os 9 métodos `chat.*` de histórico (+ `chat.gravar_mensagem` para modo determinístico) | [x] | `nucleo/.../conversas/servico.py` + `__main__.py` |
 | F6 | `barra-chats` + busca + filtro por pasta + menu de contexto | [x] | `app/src/paineis/BarraChats.tsx`, `app/src/estado/conversas.ts`; menu R14 completo (renomear/arquivar/ramificar/apagar) em `app/tests/barra-chats-menu.test.tsx` |
 | F7 | Testes: ciclo completo, escala, CPF ausente do arquivo, FTS, ramificar | [x] | `nucleo/tests/test_conversas.py`, `test_conversas_redator.py`, `app/tests/barra-chats.test.tsx` |
+| F8 | Anexos no chat: 20 MB, cópia local, vínculo e histórico | [x] | `agente/anexos.py`, `conversas/repositorio.py`, `componentes/CampoEntrada.tsx`, `test_agente_anexos.py`, `campo-entrada.test.tsx` |
 
 ## Bloco G — Agente (M7)
 
@@ -172,11 +174,12 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G4 | `compact_summary` com flash / heurística | [x] | `agente/resumo.py` (heurística no CI; LLM opcional) |
 | G5 | Tools tipadas com schema de parâmetros (27 registradas) | [x] | 27/27 reais — `consultar_sema`/`distancia_ate` ligadas a `camada.resolver` (A13); `analisar_referencia` ligada a `agente/visao/` (F1-07, 2026-07-26) |
 | G6 | System prompt versionado + teste de teto | [x] | `agente/prompt.py` |
-| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”) |
+| G7 | `chat.enviar` / `chat.cancelar` + eventos `chat.delta`/`chat.tool`/`chat.raciocinio` | [x] | `agente/orquestrador.py`, `servico.py`, `PainelChat.tsx` (botão “Parar”); reasoning só aparece se vier do provedor |
 | G8 | Cassetes VCR + fixture de 120 turnos | [x] | `agente/vcr.py` + `tests/agente/cassetes/`; compressão 120 turnos em `test_agente.py` |
 | G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
 | G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
 | G11 | Testes do loop: 12/13 rodadas, cancelamento com parcial, traces reais, passo do resumo | [x] | `tests/test_agente_orquestrador.py`, `tests/test_agente_tools.py`, `test_agente_vcr.py`, `app/tests/painel-chat.test.tsx` |
+| G12 | `chat.pergunta` — agente pede escolha ao usuário em vez de chutar | [x] | **2026-07-27**, 9º evento do vocabulário. Shapefile sem papel canônico reconhecido vira pergunta com chips + campo livre, não `NU-233` seco. Resposta volta como mensagem do turno seguinte (sem estado de espera no backend). `protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx`, `PainelChat.tsx`. Ver [`../../docs/sessao-2026-07-27-pergunta-e-ui.md`](../../docs/sessao-2026-07-27-pergunta-e-ui.md) |
 
 ## Bloco H — Motion e preview de construção (M8)
 
@@ -192,6 +195,7 @@ Plano: [F1-16](16-design-system-dark.md).
 | H5 | A5 fase 2 — rasterização real com crossfade | [x] | `paineis/Preview.tsx` + `estado/artefatos.ts` |
 | H6 | A6 microinterações | [x] | seleção na galeria (`CartaoModelo`), abas do painel direito, realce de arquivo novo (`workspace.mudou`) e **troca de versão** — `mapspec.atualizado` emitido em `agente/tools.py` (`_editar`/`criar_mapa`/`usar_modelo_da_galeria`) + `linha-versoes` (`estado/mapspecVersoes.ts`, `componentes/LinhaVersoes.tsx`) |
 | H7 | Testes com evento injetado (≥ 3 animações) | [x] | `app/tests/visual/motion-eventos.test.tsx` (9), reduced-motion e axe estendidos, `nucleo/tests/test_artefato_parcial.py` (20) |
+| H8 | Chat estilo Claude: timeline, markdown, tools/raciocínio retráteis e scrollbar dark | [x] | [`melhoria-front-chat/`](melhoria-front-chat/README.md), `app/src/chat/timeline.ts`, `BolhaMarkdown.tsx`, `GrupoTools.tsx`, `BlocoRaciocinio.tsx`, `scrollbar.css` |
 
 ## Bloco I — Conformidade, instalador, piloto (M9–M11)
 
@@ -199,9 +203,9 @@ Plano: [F1-16](16-design-system-dark.md).
 
 | # | Tarefa | Feito |
 |---|---|---|
-| I1 | Série completa da Harmonia com 14 HARD verdes | [ ] |
-| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] |
-| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] |
+| I1 | Série completa da Harmonia com 14 HARD verdes | [~] — 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador |
+| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] — medido ~81% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json` |
+| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] — paths relativos no T1; teste manual em outro PC pendente |
 | I4 | PyInstaller onedir + `electron-builder` + NSIS + CI `desktop-v*` | [x] — ver [`EMPACOTAMENTO.md`](../EMPACOTAMENTO.md); falta smoke em Windows limpo |
 | I5 | Assinatura Authenticode + `sha256.txt` na release | [~] — `sha256.txt` + manifesto na release; Authenticode sem certificado |
 | I6 | Auto-update N → N+1 | [~] — `electron-updater` + `latest.yml`; validar N→N+1 no Windows |

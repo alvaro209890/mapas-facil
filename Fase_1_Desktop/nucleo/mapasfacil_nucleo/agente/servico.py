@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from mapasfacil_nucleo.agente.anexos import validar_anexos
 from mapasfacil_nucleo.agente.orquestrador import executar_turno, pedir_cancelamento
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.protocolo import Emissor
@@ -24,9 +25,7 @@ def enviar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
         raise ErroNucleo("NU-001", "Parâmetro 'conversation_id' é obrigatório.")
     if not isinstance(mensagem, str) or not mensagem.strip():
         raise ErroNucleo("NU-001", "Parâmetro 'mensagem' é obrigatório.")
-    anexos = params.get("anexos")
-    if anexos is not None and not isinstance(anexos, list):
-        raise ErroNucleo("NU-001", "Parâmetro 'anexos' inválido.")
+    anexos = validar_anexos(params.get("anexos"))
     gate_sessao(params)
     return executar_turno(
         conversation_id=cid,

@@ -59,6 +59,10 @@ export function TopoApp({
           aria-label="verificar ambiente"
           title="Doctor (F1)"
         >
+          {/* Ponto de estado: pulsa só enquanto o núcleo sobe. Não é enfeite —
+              espelha `EstadoPonte`, e o rótulo ao lado diz o mesmo em texto
+              (estado nunca é comunicado só por cor, F1-16 §Acessibilidade). */}
+          <span className={estilos.ponto} data-estado={nucleo} aria-hidden="true" />
           <Activity size={14} aria-hidden="true" />
           {ROTULO_NUCLEO[nucleo]}
         </button>

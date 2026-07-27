@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import mimetypes
+import re
 import shutil
 import sqlite3
 from dataclasses import dataclass
@@ -174,6 +177,7 @@ class RepositorioConversas:
         ).fetchall()
         message_ids = [r["message_id"] for r in rows]
         traces_por_msg: dict[str, list[dict[str, Any]]] = {mid: [] for mid in message_ids}
+        anexos_por_msg: dict[str, list[dict[str, Any]]] = {mid: [] for mid in message_ids}
         if message_ids:
             placeholders = ",".join("?" * len(message_ids))
             for tr in self._conn.execute(
@@ -185,10 +189,20 @@ class RepositorioConversas:
                 (conversation_id, *message_ids),
             ):
                 traces_por_msg[tr["message_id"]].append(_trace_dict(tr))
+            for anexo in self._conn.execute(
+                f"""
+                SELECT * FROM anexos
+                WHERE conversation_id = ? AND message_id IN ({placeholders})
+                ORDER BY caminho_local ASC
+                """,
+                (conversation_id, *message_ids),
+            ):
+                anexos_por_msg[anexo["message_id"]].append(_anexo_dict(anexo))
         mensagens = []
         for r in rows:
             item = _mensagem_dict(r)
             item["tool_traces"] = traces_por_msg.get(r["message_id"], [])
+            item["anexos"] = anexos_por_msg.get(r["message_id"], [])
             mensagens.append(item)
         mapspecs = [
             {
@@ -229,7 +243,11 @@ class RepositorioConversas:
         """
         aberto = self.abrir_conversa(conversation_id, limite=limite)
         mensagens = [
-            {"seq": int(m["seq"]), "papel": m["papel"], "conteudo": m["conteudo"] or ""}
+            {
+                "seq": int(m["seq"]),
+                "papel": m["papel"],
+                "conteudo": _conteudo_com_anexos(m),
+            }
             for m in aberto["mensagens"]
         ]
         conversa = aberto["conversa"]
@@ -388,6 +406,72 @@ class RepositorioConversas:
             ),
         )
         return {"trace_id": tid, "criado_em": ts}
+
+    def adicionar_anexo(
+        self,
+        conversation_id: str,
+        *,
+        message_id: str,
+        indice: int,
+        nome_original: str,
+        mime: str,
+        dados: bytes,
+    ) -> dict[str, Any]:
+        """Copia um anexo validado para a pasta local e registra o vínculo."""
+        self._obter_ou_404(conversation_id)
+        mensagem = self._conn.execute(
+            """
+            SELECT message_id FROM mensagens
+            WHERE conversation_id = ? AND message_id = ?
+            """,
+            (conversation_id, message_id),
+        ).fetchone()
+        if mensagem is None:
+            raise ErroNucleo("CH-003", "Mensagem do anexo não encontrada.")
+
+        nome_redigido = truncar(redigir(nome_original), 255) or "anexo"
+        sufixo = Path(nome_redigido).suffix.lower()
+        if not re.fullmatch(r"\.[a-z0-9]{1,10}", sufixo):
+            sufixo = ".bin"
+        pasta = caminho_anexos(self.diretorio) / conversation_id
+        pasta.mkdir(parents=True, exist_ok=True)
+        nome_arquivo = f"{message_id}-{max(1, int(indice))}{sufixo}"
+        alvo = pasta / nome_arquivo
+        alvo.write_bytes(dados)
+
+        anexo_id = novo_id()
+        relativo = (Path(conversation_id) / nome_arquivo).as_posix()
+        digest = hashlib.sha256(dados).hexdigest()
+        try:
+            self._conn.execute(
+                """
+                INSERT INTO anexos (
+                  anexo_id, conversation_id, message_id, caminho_local,
+                  nome_original, bytes, sha256
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    anexo_id,
+                    conversation_id,
+                    message_id,
+                    relativo,
+                    nome_redigido,
+                    len(dados),
+                    digest,
+                ),
+            )
+        except Exception:
+            alvo.unlink(missing_ok=True)
+            raise
+        return {
+            "anexo_id": anexo_id,
+            "message_id": message_id,
+            "caminho_local": relativo,
+            "nome_original": nome_redigido,
+            "mime": mime,
+            "bytes": len(dados),
+            "sha256": digest,
+        }
 
     def renomear(self, conversation_id: str, title: str) -> dict[str, Any]:
         self._obter_ou_404(conversation_id)
@@ -669,3 +753,34 @@ def _trace_dict(row: sqlite3.Row) -> dict[str, Any]:
         "erro_codigo": row["erro_codigo"],
         "criado_em": row["criado_em"],
     }
+
+
+def _anexo_dict(row: sqlite3.Row) -> dict[str, Any]:
+    nome = row["nome_original"]
+    mime = mimetypes.guess_type(nome)[0] or "application/octet-stream"
+    return {
+        "anexo_id": row["anexo_id"],
+        "message_id": row["message_id"],
+        "caminho_local": row["caminho_local"],
+        "nome_original": nome,
+        "nome": nome,
+        "mime": mime,
+        "bytes": int(row["bytes"]),
+        "sha256": row["sha256"],
+    }
+
+
+def _conteudo_com_anexos(mensagem: dict[str, Any]) -> str:
+    conteudo = mensagem.get("conteudo") or ""
+    anexos = mensagem.get("anexos")
+    if not isinstance(anexos, list) or not anexos:
+        return conteudo
+    itens = "; ".join(
+        f"{anexo.get('nome_original') or 'anexo'} "
+        f"({anexo.get('mime') or 'application/octet-stream'}, {int(anexo.get('bytes') or 0)} bytes)"
+        for anexo in anexos
+    )
+    return (
+        f"{conteudo}\n\n[Anexos guardados localmente: {itens}. "
+        "O modelo atual é somente texto; o conteúdo binário não foi enviado nem analisado.]"
+    )

@@ -59,6 +59,16 @@ tmp/
 temp/
 .cache/
 *.tmp
+*.bak
+*.pre_sentinela.bak
+*.mxd.sentinelas.json
+inspecao_*.json
+normalizacao_relatorio.json
+relatorio_planet_falhas.json
+inspecao_dinamica_2026.json
+inspecao_template.json
+output/
+
 
 # Dados locais de desenvolvimento (shapefiles de teste grandes)
 **/fixtures_large/
@@ -68,6 +78,10 @@ temp/
 # Artefatos gerados por jobs locais
 **/Resultados/
 **/MapasFacil_out/
+
+# Brutos da API IBGE (shapefiles materializados em shared/bases/ibge/ vão no git)
+shared/bases/ibge/_raw/
+shared/bases/_preview*.png
 
 # Coverage / Playwright
 playwright-report/

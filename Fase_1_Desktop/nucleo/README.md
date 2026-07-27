@@ -122,7 +122,7 @@ Registrados em `criar_roteador()` — **45 métodos** (`grep -c "roteador.regist
 | `chat.criar_conversa` / `listar_conversas` / `abrir_conversa` / `carregar_anteriores` | M6 — histórico local |
 | `chat.renomear` / `arquivar` / `apagar` / `ramificar` / `buscar` | M6 — gestão e FTS |
 | `chat.gravar_mensagem` | M6 — gravação determinística (sem LLM) |
-| `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool` |
+| `chat.enviar` / `chat.cancelar` | M7 — orquestrador + stream `chat.delta`/`chat.tool`/`chat.raciocinio`; anexos opcionais persistidos localmente |
 
 **Nenhuma tool do agente responde `IA-022` hoje** (`TOOLS_COM_DEPENDENCIA_PENDENTE` vazio):
 `consultar_sema`/`distancia_ate` saíram em A13 (`camada.resolver`); `analisar_referencia` saiu em
@@ -140,6 +140,7 @@ feições nem área). `NU-140` virou salvaguarda de tipo desconhecido, não "ain
 | `job.progresso` | `{etapa, pct, item?}` | durante `mapa.gerar`, ao concluir cada etapa |
 | `job.artefato_parcial` | `{tipo, caminho, etapa, camada_id?, ordem?, pct?}` | M8 — artefato intermediário pronto (`camada`, `tabela_png`, `preview_png`, `pdf`) |
 | `chat.delta` / `chat.tool` | ver [F1-06](../planos/06-agente-eng-florestal.md) | M7 — durante `chat.enviar` |
+| `chat.raciocinio` | `{texto}` | somente quando o provedor entrega `reasoning_content`; nunca sintetizado |
 | `mapspec.atualizado` | `{id, versao, diff}` | H6 — toda tool que cria/edita o MapSpec do turno (`agente/tools.py`) |
 | `job.log` | `{linha, job_id?}` | linha técnica de `mapa.gerar` — teto de 500 linhas, com aviso de corte |
 | `aviso` | `{codigo, mensagem, job_id?}` | não-fatal durante o job; o mesmo aviso vai para o `validacao.json` |
@@ -162,17 +163,17 @@ são geradas quando há canal de eventos. Para os bytes, o renderer chama `artef
 o disco direto (F1-01, fronteira 1).
 
 O vocabulário de eventos é fechado em `protocolo.EVENTOS`: emitir nome fora da lista levanta erro.
-Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.tool`, `workspace.mudou`
+Emitidos: `job.progresso`, `job.artefato_parcial`, `chat.delta`, `chat.raciocinio`, `chat.tool`, `chat.pergunta`, `workspace.mudou`
 (A12 — watcher com debounce 500 ms; eventos fora de req saem pelo `configurar_sink_assincrono`),
 **`mapspec.atualizado`** (H6 — `agente/tools.py::_emitir_mapspec_atualizado`, via `ctx["emissor"]`
 do turno; `diff` combina as operações de `mapspec.diff` com o resumo em português de
 `agente/edicao.py::descrever_diff`), **`job.log`** e **`aviso`** (`motores/gerar.py` via
-`RastreadorProgresso`). O vocabulário está 8/8 com emissor — nenhum evento órfão.
+`RastreadorProgresso`). O vocabulário está 10/10 com emissor — nenhum evento órfão.
 
 ### Limites conhecidos (honestos)
 
 - Doctor não detecta ArcMap/GDAL versão/rede fora do Windows.
-- `dinamica_retrato` está `parcial` (sha256 ok; offsets `{}`). Os outros 4 templates estão `a_preparar` (`sha256: null`). `pronto_para_mxd` exige **todos** com sha256 e (patch `pronto` ou ArcMap sondado) — hoje fica `false`.
+- `dinamica_retrato` está **`pronto`** (sha256 + offsets extent/escala). Falta TextElement `ROTULO_IMOVEL` na GUI — ver [`docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md). Os outros 4 templates estão `a_preparar`. `pronto_para_mxd` do doctor exige **todos** com sha256 — hoje fica `false` (só o primeiro está pronto).
 - PDF nativo é estrutural (não paridade visual Harmonia); já sobrepõe a tabela PNG quando `elementos_layout.tabela` (ou equivalente). Ordem de camadas: menor `ordem` por cima.
 - Materialização B4: cópia + **ogr2ogr opcional** (fallback cópia se GDAL ausente).
 - Sem agente: o núcleo só executa MapSpec / workspace / motores — não gera MapSpec por linguagem natural.
@@ -199,6 +200,7 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~Conversas (M6)~~ **fechada** — `chats.sqlite` e os métodos `chat.*` de histórico
 - ~~Agente (M7)~~ **fechado** — `agente/`, ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
 - ~~UI Electron (M3–M8)~~ **fechado** — ver o [README do app](../app/README.md) para o que falta lá
-- B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
-- Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
+- B1/B2: template Dinâmica com offsets **pronto**; falta GUI `ROTULO_IMOVEL` → [`docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md)
+- Smoke Harmonia / M9: PDF vs `Mapas/01` (paridade visual)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
+- M10 instalador → M11 piloto

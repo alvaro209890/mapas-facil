@@ -1,8 +1,7 @@
 // C11 — tema default, fundo e tipografia embarcada (F1-16 DoD visual).
 
-import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { cleanup, render, waitFor } from "@testing-library/react";
@@ -18,6 +17,16 @@ import "../../src/estilos/reset.css";
 
 const DIR = dirname(fileURLToPath(import.meta.url));
 const RELATORIO = doctorFixture as unknown as RelatorioDoctor;
+
+function listarArquivos(raiz: string): string[] {
+  const out: string[] = [];
+  for (const nome of readdirSync(raiz)) {
+    const caminho = join(raiz, nome);
+    if (statSync(caminho).isDirectory()) out.push(...listarArquivos(caminho));
+    else out.push(caminho);
+  }
+  return out;
+}
 
 afterEach(() => {
   cleanup();
@@ -54,10 +63,13 @@ describe("tema e tipografia (C11)", () => {
   });
 
   it("nenhuma fonte vem de CDN no src/", () => {
-    const saida = execSync('grep -rnE "https://fonts\\.|cdn\\." src/ || true', {
-      cwd: resolve(DIR, "../.."),
-      encoding: "utf8",
-    });
-    expect(saida.trim()).toBe("");
+    const raiz = resolve(DIR, "../../src");
+    const re = /https:\/\/fonts\.|cdn\./i;
+    const ofensores: string[] = [];
+    for (const arquivo of listarArquivos(raiz)) {
+      const texto = readFileSync(arquivo, "utf8");
+      if (re.test(texto)) ofensores.push(arquivo);
+    }
+    expect(ofensores).toEqual([]);
   });
 });

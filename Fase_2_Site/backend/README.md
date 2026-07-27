@@ -1,23 +1,11 @@
 # backend/
 
-API da Fase 2 — previsto: FastAPI + Postgres neste PC (Cuiabá-MT), Cloudflare Tunnel
-(`mapasfacil-api.cursar.space`).
+**Fora da v1** do site (D21 / [F2-02](../planos/02-backend-api.md)).
 
-**Status:** pasta só com este README. Nenhum `pyproject.toml` nem código de aplicação.
-Planos em [`../planos/README.md`](../planos/README.md).
+A Fase 2 v1 é só distribuição via Next.js em [`../web/`](../web/). Não há FastAPI, Postgres,
+auth nem jobs geo nesta pasta.
 
-> `02-backend-api.md` e `06-deploy-tunnel-neste-pc.md` ainda descrevem o modelo legado
-> (Render + hub WS de agentes). Destino D7: sem hub de agente na nuvem; `.mxd` só via ponte
-> com o desktop.
+**Status:** só este README. Não criar `pyproject.toml` nem `app/` até o produto reabrir
+[F2-05](../planos/05-auth-e-memoria.md) (conta nuvem) ou pedir API explicitamente.
 
-## Quando existir código (ainda não)
-
-```
-backend/
-  app/
-  tests/
-  alembic/
-  pyproject.toml
-```
-
-Deploy: systemd + cloudflared neste PC — ver plano F2-06 (após reescrita).
+Domínio `mapasfacil-api.cursar.space`: **não** provisionar na v1.

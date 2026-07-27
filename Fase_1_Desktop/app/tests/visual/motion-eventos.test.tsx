@@ -93,6 +93,7 @@ describe("A1/A3 — pensando e cartão de tool (chat.tool)", () => {
       dados: { trace_id: "t1", tool: "usar_modelo_da_galeria", fase: "inicio", args_resumo: "{}" },
     });
     await waitFor(() => expect(screen.queryByText("pensando")).toBeNull());
+    await userEvent.click(screen.getByRole("button", { name: /1 ferramenta/ }));
     expect(screen.getByText("usar_modelo_da_galeria")).toBeTruthy();
     expect(screen.getByText("executando…")).toBeTruthy();
 
@@ -100,7 +101,7 @@ describe("A1/A3 — pensando e cartão de tool (chat.tool)", () => {
       evento: "chat.tool",
       dados: { trace_id: "t1", tool: "usar_modelo_da_galeria", fase: "fim", ok: true, ms: 1240 },
     });
-    await waitFor(() => expect(screen.getByText("1,2 s")).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText("1,2 s").length).toBeGreaterThan(0));
     liberar?.();
   });
 

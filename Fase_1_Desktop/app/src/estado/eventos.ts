@@ -1,8 +1,9 @@
 // Assinatura dos eventos NDJSON que o núcleo emite (F1-01 §Eventos).
 //
-// Os **8** eventos do vocabulário têm emissor: `job.progresso` (A9),
+// Os **9** eventos do vocabulário têm emissor: `job.progresso` (A9),
 // `job.artefato_parcial` (M8), `chat.delta`/`chat.tool` (M7), `workspace.mudou`
-// (A12), `mapspec.atualizado` (H6) e — os últimos a fechar — `job.log` e `aviso`.
+// (A12), `mapspec.atualizado` (H6), `job.log`, `aviso` e `chat.pergunta`
+// (F1-06 §Pergunta ao usuário — agente pede escolha estruturada em vez de só texto).
 // Nenhum é simulado pela UI: sem evento, o componente correspondente não existe
 // (AP-07).
 
@@ -96,6 +97,10 @@ export interface MudancaWorkspace {
 export interface DadosChatDelta {
   texto: string;
 }
+/** Raciocínio dedicado do provedor; nunca é sintetizado a partir da resposta visível. */
+export interface DadosChatRaciocinio {
+  texto: string;
+}
 export interface DadosChatTool {
   trace_id: string;
   tool: string;
@@ -138,13 +143,34 @@ export interface DadosAviso {
   job_id?: string;
 }
 
+/** Uma opção clicável de `chat.pergunta`. */
+export interface OpcaoPergunta {
+  id: string;
+  rotulo: string;
+}
+
+/**
+ * `chat.pergunta` (F1-06 §Pergunta ao usuário) — o agente não sabe decidir
+ * sozinho (ex.: shapefile sem papel canônico reconhecido) e pede uma escolha
+ * estruturada em vez de só reformular em texto livre. A resposta do usuário
+ * (clique num chip ou texto do campo livre) volta como mensagem normal do
+ * próximo turno — não há estado de "aguardando resposta" no backend.
+ */
+export interface DadosChatPergunta {
+  pergunta: string;
+  opcoes: OpcaoPergunta[];
+  permite_texto_livre: boolean;
+}
+
 export type EventoNucleo =
   | (EnvelopeEvento<DadosJobProgresso> & { evento: "job.progresso" })
   | (EnvelopeEvento<DadosJobLog> & { evento: "job.log" })
   | (EnvelopeEvento<DadosJobArtefatoParcial> & { evento: "job.artefato_parcial" })
   | (EnvelopeEvento<DadosWorkspaceMudou> & { evento: "workspace.mudou" })
   | (EnvelopeEvento<DadosChatDelta> & { evento: "chat.delta" })
+  | (EnvelopeEvento<DadosChatRaciocinio> & { evento: "chat.raciocinio" })
   | (EnvelopeEvento<DadosChatTool> & { evento: "chat.tool" })
+  | (EnvelopeEvento<DadosChatPergunta> & { evento: "chat.pergunta" })
   | (EnvelopeEvento<DadosMapspecAtualizado> & { evento: "mapspec.atualizado" })
   | (EnvelopeEvento<DadosAviso> & { evento: "aviso" });
 
@@ -241,6 +267,26 @@ export function ehJobLog(
   if (evento.evento !== "job.log") return false;
   const { linha } = evento.dados;
   return typeof linha === "string" && linha !== "";
+}
+
+/** `chat.pergunta` estreitado (F1-06). */
+export type EventoChatPergunta = EnvelopeEvento<Record<string, unknown> & DadosChatPergunta> & {
+  evento: "chat.pergunta";
+};
+
+export function ehChatPergunta(
+  evento: EnvelopeEvento<Record<string, unknown>>,
+): evento is EventoChatPergunta {
+  if (evento.evento !== "chat.pergunta") return false;
+  const { pergunta, opcoes, permite_texto_livre } = evento.dados;
+  if (typeof pergunta !== "string" || pergunta === "") return false;
+  if (typeof permite_texto_livre !== "boolean") return false;
+  if (!Array.isArray(opcoes)) return false;
+  return opcoes.every((item) => {
+    if (typeof item !== "object" || item === null) return false;
+    const o = item as Partial<OpcaoPergunta>;
+    return typeof o.id === "string" && o.id !== "" && typeof o.rotulo === "string" && o.rotulo !== "";
+  });
 }
 
 /** `aviso` estreitado — não-fatal, o job continua. */

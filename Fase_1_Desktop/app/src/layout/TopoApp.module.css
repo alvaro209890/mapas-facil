@@ -8,6 +8,32 @@
   border-bottom: 1px solid var(--mf-borda);
 }
 
+/* Ponto de estado do núcleo. Cor + rótulo textual ao lado; a cor sozinha
+   nunca carrega a informação. */
+.ponto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+/* Só "iniciando" pulsa: é o único estado transitório. Pronto/caído são
+   estáveis e um pulso permanente viraria ruído. */
+.ponto[data-estado="iniciando"] {
+  animation: mf-pulsar 1200ms var(--mf-ease-ambos) infinite;
+}
+
+.ponto[data-estado="pronto"] {
+  box-shadow: 0 0 8px var(--mf-acento);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ponto[data-estado="iniciando"] {
+    animation: none;
+  }
+}
+
 /* A marca em `--mf-fs-hero` é só na primeira viewport do login (F1-16 §Tipografia). */
 .marca {
   font-family: var(--mf-fonte-display);

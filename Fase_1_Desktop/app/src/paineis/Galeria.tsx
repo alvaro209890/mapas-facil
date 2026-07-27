@@ -20,7 +20,23 @@ export function Galeria({ modelos, situacao, erro, aoAbrir, selecionado = null }
         <span className={estilos.titulo}>Galeria de modelos</span>
         <span className={estilos.meta}>{modelos.length} modelos</span>
       </div>
-      {situacao === "carregando" && <p className={estilos.estado}>carregando catálogo…</p>}
+      {situacao === "carregando" && (
+        // Esqueleto na forma da grade real: a lista não "salta" quando chega.
+        <div className={estilos.grade} aria-hidden="true">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              className={estilos.esqueleto}
+              style={{ animationDelay: `${i * 90}ms` }}
+            />
+          ))}
+        </div>
+      )}
+      {situacao === "carregando" && (
+        <p className={estilos.estado} role="status">
+          carregando catálogo…
+        </p>
+      )}
       {erro !== null && (
         <p className={estilos.estado} role="alert">
           <span className="mf-num">{erro.codigo}</span> · {erro.mensagem}
@@ -28,12 +44,13 @@ export function Galeria({ modelos, situacao, erro, aoAbrir, selecionado = null }
       )}
       {situacao === "pronta" && (
         <div className={estilos.grade}>
-          {modelos.map((modelo) => (
+          {modelos.map((modelo, i) => (
             <CartaoModelo
               key={modelo.id}
               modelo={modelo}
               aoAbrir={aoAbrir}
               selecionado={modelo.id === selecionado}
+              indice={i}
             />
           ))}
         </div>

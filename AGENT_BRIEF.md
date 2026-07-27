@@ -11,19 +11,23 @@ em qualquer coisa.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Instalador / release (M10 infra)** | **feito** — PyInstaller onedir + electron-builder NSIS + `electron-updater` + workflow `desktop-v*` + `download-manifest.json` para o site ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)). Falta Authenticode + smoke em Windows limpo. |
-| **Com Windows + ArcMap** | **falta** — **M2** (motor `.mxd`) → **M9** (conformidade Harmonia) |
-| **Piloto** | **falta** — **M11** (depois de validar o instalador no Windows) |
+| **Instalador / release (M10 infra)** | **feito** — PyInstaller onedir + electron-builder NSIS + `electron-updater` + workflow `desktop-v*` + `download-manifest.json` ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)). Falta Authenticode + smoke em Windows limpo. |
+| **Com Windows + ArcMap** | **M2 fechado** · **M9 parcial** (2026-07-27) — pipeline de checks + smoke; paridade &lt;0,3% **não** atingida (~81% Dinâmica). Próximo: ajuste cartográfico → validar M10 → **M11** |
+| **Piloto** | **falta** — **M11** |
 
-Ordem do que resta para fechar a Fase 1 de ponta a ponta: **M2 → M9 → validar M10 no Windows → M11**.
+Ordem do que resta: **fechar M9 (Harmonia) → validar M10 no Windows → M11**.
+Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
+Entrega M9: [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.
 
-> M10 (empacotamento) foi adiantado para o site ter `.exe` baixável; a qualidade Harmonia do mapa ainda depende de M2/M9 no PC com ArcMap.
+### Handoff operacional (Windows)
+
+**→ [`docs/handoff-windows-fase1.md`](docs/handoff-windows-fase1.md)** — o que já rodou, GUI pendente, o que **não** refazer.
+**Publicar `.exe`:** [`Fase_1_Desktop/EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md) (tag `desktop-v*`).
 
 ### Guia passo a passo no Windows
 
 **→ [`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md)** — checklist detalhado
-(preparar máquina → B1/B2/T1 → Harmonia → instalador → piloto), com comandos PowerShell e
-critérios de saída. **Comece por esse arquivo no PC com ArcMap.**
+(preparar máquina → B1/B2/T1 → Harmonia → instalador → piloto).
 
 Limites conhecidos (não são “falta de feature”): API DeepSeek V4 **sem** visão (`IA-060` no
 print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do MapSpec inexistente
@@ -31,8 +35,15 @@ print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do Ma
 
 ### Fase 2 — site
 
-**Não iniciada** (só planos; 01/02/04/06 legado). Começa **depois do M11**. Login do desktop já é
-local ([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)) — F2-05 **não** bloqueia.
+**Planos reescritos (2026-07-27, D21):** site = **só distribuição** (landing + download), com
+**hero cinematográfico** (mapa em motion/vídeo — [F2-04](Fase_2_Site/planos/04-frontend-site.md)).
+Sem login no site, sem mapa funcional no browser, sem backend na v1. Código `web/`
+**implementado e validado** (home + requisitos + download + contato, com mapa demonstrativo
+inteiramente fictício). Conta e mapas = desktop
+([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)). [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)
+permanece **adiado**.
+
+Índice: [`Fase_2_Site/planos/README.md`](Fase_2_Site/planos/README.md).
 
 ## Chave DeepSeek para desenvolvimento e testes (M7)
 
@@ -91,7 +102,7 @@ ls Fase_1_Desktop/app                      # M3 fechado: C1–C11 (shell, worksp
 ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
-#   → definição + chamadores: os 8 eventos do vocabulário têm emissor
+#   → definição + chamadores: os 10 eventos do vocabulário têm emissor
 cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~457)
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~124)
 ```
@@ -107,7 +118,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
 | Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
-| Eventos NDJSON com emissor | **os 8 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), **`job.log` e `aviso`** | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
+| Eventos NDJSON com emissor | **os 10 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool`/`chat.raciocinio` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), `job.log`, `aviso` e `chat.pergunta` (G12) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
 | App Electron | **M3–M8 + épico sem ArcMap** — menus/tray, offline, Esc≠job, R14 completo | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
@@ -140,9 +151,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
   para quando existir id multimodal (`MAPASFACIL_MODELO_VISAO`).
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
   +40 MB (F1-07 P2); sem modelo de visão na API, o print fica só na análise determinística.
-- Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
+- Conta na nuvem / login no site (F2-05) — **adiado**; site v1 **sem** login (D21).
 - Assinatura Authenticode do instalador (M10 dívida) — beta unsigned com SHA-256 na release.
-- Qualquer código da Fase 2 (site/backend/nuvem) além do stub `/download` — F2-05 é pós-M11 e **não** é exigido pelo M5.
+- Backend da Fase 2 — **fora da v1**. O frontend público em `web/` já está implementado.
 
 ## Ordem de implementação (dependências, nunca calendário)
 
@@ -216,7 +227,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 
 | # | Requisito | Plano que manda | Estado do código | Arquivo/pasta a criar ou editar |
 |---|---|---|---|---|
-| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **feito** — M3+M4+M6+M7+M8: shell, workspace, galeria, chats, chat e `painel-preview` com abas | `app/src/paineis/` |
+| R01 | App Electron + React com 4 painéis nomeados | [F1-02](Fase_1_Desktop/planos/02-ui-chat-e-workspace.md) | **feito** — shell, workspace, galeria, chats, preview e chat com timeline/markdown/tools retráteis | `app/src/paineis/`, `app/src/componentes/`, `app/src/chat/` |
 | R02 | Ponte NDJSON Electron ↔ sidecar | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** | `app/electron/nucleo/ponte.ts` |
 | R02 | Dark theme default + tokens CSS | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C3) — `data-tema="escuro"` vem do `index.html` e é reafirmado em `main.tsx` | `app/src/estilos/tokens.css`, `app/src/estado/tema.ts` |
 | R03 | Tipografia embarcada (Space Grotesk / IBM Plex) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (C4) — woff2 + OFL versionados, zero CDN | `app/src/estilos/fontes/` |
@@ -226,10 +237,10 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
 | R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — Argon2id, `tela-login`, sem Google | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
-| R10 | Conta na nuvem / site (Fase 2) | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **adiado** — **não** bloqueia M5 | `Fase_2_Site/` (pós-M11) |
+| R10 | Conta na nuvem (adiado); site v1 = distribuição sem login (D21) | [F2-00](Fase_2_Site/planos/00-visao-e-escopo.md), [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **frontend feito** — landing, requisitos, download e contato; sem login/chat/backend; mapa demo fictício | `Fase_2_Site/web/` |
 | R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **feito** (A11) — `keyring` (CM/Secret Service); Preferências grava; `secrets.local.json` ainda vale em dev | `nucleo/.../cofre.py`, `app/src/componentes/Preferencias.tsx` |
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — também `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx` | `nucleo/.../sessao.py` |
-| R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
+| R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator, traces e anexos de até 20 MB vinculados à mensagem | `nucleo/.../conversas/`, `nucleo/.../agente/anexos.py` |
 | R14 | Sidebar de chats: buscar/renomear/arquivar/apagar/ramificar | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** — lista + busca + filtro pasta + **menu de contexto completo** (renomear/arquivar/desarquivar/ramificar/apagar) + filtro de arquivadas | `app/src/paineis/BarraChats.tsx` |
 | R15 | Cliente DeepSeek streaming + tool calling | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (G1) — DeepSeek + FakeProvedor | `nucleo/.../agente/deepseek.py` |
 | R15b | Tools tipadas do agente (G5) | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) §Catálogo | **feito** — 27/27 reais; A13 fechou `consultar_sema`/`distancia_ate`, F1-07 fechou `analisar_referencia` | `nucleo/.../agente/tools.py`, `agente/edicao.py` |
@@ -240,9 +251,10 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (clientes em runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** — A13 abriu com `wms_wfs`; o épico seguinte fechou `arcgis_rest`, `wfs_gml` e `wms_raster`. **41/41 camadas com cliente** | `nucleo/.../camadas/` |
-| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
-| R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
-| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
+| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
+| R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
+| R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
+| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf` | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py` |
 | R25 | Instalador Windows + release CI | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — NSIS + PyInstaller + workflow `desktop-v*` + manifesto do site; **sem** Authenticode | [`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md), `app/electron-builder.yml`, `.github/workflows/release-desktop.yml` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 

@@ -1,61 +1,41 @@
-# Fase 2 — Site de engenharia florestal e mapas
+# Fase 2 — Site de distribuição do Mapas Fácil
 
-Site com backend rodando **neste PC** (Linux, Cuiabá-MT), exposto por **Cloudflare Tunnel**
-dedicado. Dá ao Mapas Fácil o que o desktop não tem sozinho: espaço de trabalho persistente com
-memória, histórico de projetos entre máquinas, mapa por número do CAR sem instalar nada, e uma
-vitrine pública.
+Site público: vitrine, requisitos e **download** do instalador Windows. **Não** tem login,
+**não** cria conta e **não** gera mapa. Isso fica no [app desktop](../Fase_1_Desktop/README.md)
+([F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md), D21).
 
-Esta fase começa **depois** da [Fase 1](../Fase_1_Desktop/README.md) validada. Reusa o núcleo
-Python e o `MapSpec` do desktop, mas roda de forma independente.
+## Stack (v1)
 
-> **Login do desktop não depende desta fase.** D10 revisada (2026-07-26): o app usa **conta
-> local** (e-mail + senha em SQLite) — [F1-14](../Fase_1_Desktop/planos/14-auth-e-conta.md).
-> [F2-05](planos/05-auth-e-memoria.md) (conta nuvem / memória) é **pós-M11** e **não** bloqueia
-> o M5.
-
-## Stack
-
-| Camada | Tecnologia | Onde roda |
+| Camada | Tecnologia | Onde |
 |---|---|---|
-| Site | Next.js | `mapasfacil.cursar.space` |
-| API | FastAPI + Postgres | **neste PC**, exposto por tunnel |
-| Exposição | Cloudflare Tunnel | `mapasfacil-api.cursar.space` |
-| Geo | núcleo Python da Fase 1 | consultas WFS/WMS locais (IP em MT) |
+| Site | Next.js | `mapasfacil.cursar.space` (prod); `localhost` (dev) |
+| Backend | **ausente** na v1 | pasta `backend/` só documental |
+| Conta / mapa | App desktop | Windows do usuário |
 
-## Por que neste PC e não na nuvem
-
-`sema.mt.gov.br` **bloqueia IP fora do Brasil**. Render, Vercel e outros provedores internacionais
-não conseguem fazer `GetFeature`. Este PC está em Mato Grosso — a decisão **D7** fixa o backend
-aqui, com tunnel dedicado que **não toca nos tunnels existentes** dos outros sistemas.
-
-## O que o site não faz
-
-- **Não gera `.mxd`.** Sem ArcMap no servidor, o `.mxd` continua sendo entregável exclusivo do
-  [app desktop](../Fase_1_Desktop/README.md).
-- **Não substitui o desktop.** É complemento: memória, histórico, acesso sem instalação.
-
-## Estrutura desta pasta
+## Estrutura
 
 | Pasta | O que é |
 |---|---|
-| [`planos/`](planos/README.md) | plano de desenvolvimento da Fase 2 |
-| [`web/`](web/) | site Next.js — **só README** (código não iniciado) |
-| [`backend/`](backend/) | API FastAPI — **só README** (código não iniciado) |
+| [`planos/`](planos/README.md) | planos F2-00…F2-06 (reescritos 2026-07-27) |
+| [`web/`](web/) | site Next.js/vinext implementado — landing + requisitos + download + contato |
+| [`backend/`](backend/) | **fora da v1** — só README |
 
-## Leitura recomendada
+## Leitura
 
-1. [Visão e as duas fases](../planos/00-visao-e-duas-fases.md) — contexto e decisão D7
-2. [Índice dos planos](planos/README.md) — estado atual (rascunhos D7 + legado)
-3. [Fase 1 — App desktop](../Fase_1_Desktop/planos/README.md) — o que o site reusa
+1. [Documentação completa da implementação](DOCUMENTACAO_FASE_2.md)
+2. [Visão comum + D21](../planos/00-visao-e-duas-fases.md)
+3. [F2-00 — escopo](planos/00-visao-e-escopo.md)
+4. [Índice dos planos](planos/README.md)
 
 ## Status
 
 | Marco | Status |
 |---|---|
-| **F2-05 — conta nuvem / memória** | reescrito: **adiado pós-M11**; **não** bloqueia M5 (login = F1-14 local) |
-| Planos | F2-00…F2-06 presentes; 01/02/04/06 ainda legado (a reescrever) |
-| Código | **stub de download** — `web/lib/desktop-release.ts` + `web/app/download/README.md` (consome GitHub Releases) |
-| Desktop `.exe` | manifesto em [`../shared/releases/`](../shared/releases/); build via tag `desktop-v*` ([`../Fase_1_Desktop/EMPACOTAMENTO.md`](../Fase_1_Desktop/EMPACOTAMENTO.md)) |
+| Planos | **reescritos** (site = distribuição) |
+| Código | **implementado** — hero, requisitos, download, contato |
+| Conta nuvem (F2-05) | **adiado** |
+| Desktop `.exe` | manifesto [`../shared/releases/`](../shared/releases/); build tag `desktop-v*` ([`../Fase_1_Desktop/EMPACOTAMENTO.md`](../Fase_1_Desktop/EMPACOTAMENTO.md)) |
 
-**Pré-requisito completo do produto:** Fase 1 até **M11**. O download do instalador pode ir ao ar
-antes (M10 infra). Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md).
+Fluxo: desenvolver neste PC → publicar no PC servidor ([F2-06](planos/06-deploy-tunnel-neste-pc.md)).
+O download do instalador pode ir ao ar antes do M11. Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md).
+

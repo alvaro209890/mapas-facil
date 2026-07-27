@@ -251,7 +251,12 @@ padrão visual [`planos/01-padrao-imap-harmonia.md`](../planos/01-padrao-imap-ha
 
 ### Passo 2.4 — Fechar M9 na doc
 
-Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R22–R24 no `AGENT_BRIEF`, push `main`.
+Entrega 2026-07-27: [`docs/m9-conformidade-harmonia.md`](../../docs/m9-conformidade-harmonia.md) ·
+`ferramentas/fechar_m9_windows.ps1`. Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R24 no
+`AGENT_BRIEF`, push `main`.
+
+**Honestidade:** não marque I2 como `[x]` enquanto o diff raster na Dinâmica 2026 estiver acima de
+0,3% (medido ~81% no PDF ArcMap em jul/2026).
 
 ---
 
@@ -368,4 +373,7 @@ Isto **já fechou no Linux** — no Windows você só valida/empacota, não reim
 4. `chaves_mxd.py verificar` se tocou `.mxd`  
 5. `git push origin main` (convenção do repo: commits diretos em `main`)
 
-**Comece pelo Passo 0 e 1.2 (normalizar template).** É o caminho crítico do M2.
+**Comece pelo Passo 0 e 1.2 (normalizar template).**  
+**Estado 2026-07-27:** normalização + B2 offsets já rodaram neste acervo — veja
+[`../docs/handoff-windows-fase1.md`](../docs/handoff-windows-fase1.md) (próximo passo = GUI
+`ROTULO_IMOVEL` + recalibrar).

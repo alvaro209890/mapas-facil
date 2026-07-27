@@ -48,6 +48,10 @@ def envelope_erro(id_req: str, erro: ErroNucleo | dict[str, Any]) -> dict[str, A
 # Vocabulário fechado de eventos (F1-01 §Eventos). Emitir nome fora desta lista é
 # erro de programação: a UI só sabe consumir o que está no contrato, e evento
 # inventado vira animação órfã (AP-07). Nome novo entra aqui **e** no plano.
+#
+# `chat.pergunta` (F1-06 §Pergunta ao usuário): o agente pede uma escolha
+# estruturada em vez de reformular tudo em texto livre — ver
+# Fase_1_Desktop/planos/06-agente-eng-florestal.md.
 EVENTOS: frozenset[str] = frozenset(
     {
         "job.progresso",
@@ -55,7 +59,9 @@ EVENTOS: frozenset[str] = frozenset(
         "job.artefato_parcial",
         "workspace.mudou",
         "chat.delta",
+        "chat.raciocinio",
         "chat.tool",
+        "chat.pergunta",
         "mapspec.atualizado",
         "aviso",
     }

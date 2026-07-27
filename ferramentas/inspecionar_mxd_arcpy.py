@@ -137,6 +137,16 @@ def inspecionar(caminho_mxd):
         rel["mapsurrounds"].append({"name": nome})
 
     rel["broken"] = []
+    try:
+        for lyr in arcpy.mapping.ListBrokenDataSources(mxd):
+            rel["broken"].append(
+                {
+                    "df": _safe(lambda: lyr.dataFrame.name),
+                    "name": _safe(lambda: lyr.name),
+                }
+            )
+    except Exception:
+        pass
 
     faltam_df = sorted(ELEMENTOS_OBRIGATORIOS["DATAFRAME"] - nomes_df)
     faltam_text = sorted(ELEMENTOS_OBRIGATORIOS["TEXT"] - nomes_text)
@@ -161,6 +171,9 @@ def inspecionar(caminho_mxd):
         "camadas_canonicas_presentes": sorted(CAMADAS_CANONICAS & nomes_camada),
         "camadas_canonicas_faltando": sorted(CAMADAS_CANONICAS - nomes_camada),
         "quebradas": len(rel["broken"]),
+        "nomes_quebrados": sorted(
+            {b.get("name") for b in rel["broken"] if b.get("name")}
+        ),
         "pronto_b1": not any(
             [
                 faltam_df,

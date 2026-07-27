@@ -1,22 +1,41 @@
-/* Cartão de modelo da galeria — preview + chip de status + motivo. */
+/* Cartão de modelo da galeria — preview + chip de status + motivo.
+   O cartão inteiro é o alvo de clique, então o afeto visual (elevar, aproximar
+   o preview, acender a borda) acontece no `:hover` do botão, não em cada peça. */
 
 .cartao {
+  position: relative;
   display: flex;
   flex-direction: column;
+  /* Legendas de tamanhos diferentes não devem desalinhar a linha: o corpo
+     cresce, a moldura não encolhe, e o topo de todos os cartões coincide. */
+  justify-content: flex-start;
   gap: var(--mf-e2);
   padding: 0;
   text-align: left;
-  background: var(--mf-superficie-2);
+  background: var(--mf-gradiente-superficie);
   border: 1px solid var(--mf-borda);
   border-radius: var(--mf-raio-2);
   overflow: hidden;
   color: var(--mf-texto);
-  transition: border-color var(--mf-dur-1) var(--mf-ease-saida),
-    transform var(--mf-dur-1) var(--mf-ease-saida);
+  box-shadow: var(--mf-sombra);
+  animation: mf-surgir var(--mf-dur-3) var(--mf-ease-saida) both;
+  transition:
+    border-color var(--mf-dur-1) var(--mf-ease-saida),
+    transform var(--mf-dur-2) var(--mf-ease-saida),
+    box-shadow var(--mf-dur-2) var(--mf-ease-saida);
 }
 
 .cartao:hover:not(:disabled) {
   border-color: var(--mf-acento);
+  transform: translateY(-3px);
+  box-shadow: var(--mf-sombra-alta);
+}
+
+/* Teclado tem de ver o mesmo destaque que o mouse (F1-16 §Acessibilidade). */
+.cartao:focus-visible {
+  outline: none;
+  border-color: var(--mf-acento);
+  box-shadow: var(--mf-brilho-acento);
 }
 
 /* A6 — seleção: cresce 2% e ganha borda de acento. É clique, não evento do
@@ -24,6 +43,7 @@
 .cartao[data-selecionado="sim"] {
   border-color: var(--mf-acento);
   transform: scale(1.02);
+  box-shadow: var(--mf-brilho-acento);
 }
 
 .cartao:disabled {
@@ -31,12 +51,77 @@
   opacity: 0.85;
 }
 
+/* Modelo indisponível não promete nada: o preview fica dessaturado. */
+.cartao:disabled .preview {
+  filter: grayscale(0.75) brightness(0.82);
+}
+
+.moldura {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* Altura fixa, **não** `aspect-ratio`: numa grade de linhas automáticas o
+     aspecto depende da largura e a linha depende do conteúdo — a dependência
+     circular fazia a faixa ser medida só pela imagem, e o corpo do cartão
+     vazava por cima da linha de baixo. Altura em px corta o ciclo. */
+  height: 168px;
+  overflow: hidden;
+  background: var(--mf-superficie-3);
+  flex-shrink: 0;
+}
+
+/* Enquanto a imagem não decodifica, a moldura varre — o cartão nunca pisca
+   um retângulo morto nem um ícone de imagem quebrada. */
+.moldura[data-preview="carregando"] {
+  background: var(--mf-brilho-esqueleto);
+  background-size: 200% 100%;
+  animation: mf-varredura 1400ms linear infinite;
+}
+
 .preview {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  height: 100%;
   object-fit: cover;
-  background: var(--mf-superficie-3);
+  opacity: 0;
+  transform: scale(1.01);
+  transition:
+    opacity var(--mf-dur-3) var(--mf-ease-saida),
+    transform var(--mf-dur-4) var(--mf-ease-saida),
+    filter var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.moldura[data-preview="pronto"] .preview {
+  opacity: 1;
+}
+
+/* Aproximação lenta no hover: dá vida sem tirar o mapa do lugar. */
+.cartao:hover:not(:disabled) .preview {
+  transform: scale(1.06);
+}
+
+/* Véu inferior — o nome do modelo encosta na imagem sem perder contraste. */
+.veu {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--mf-veu-imagem);
+  opacity: 0.9;
+}
+
+.semPreview {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mf-e1);
+  color: var(--mf-texto-3);
+}
+
+.semPreviewTexto {
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
 }
 
 .corpo {
@@ -46,9 +131,26 @@
   padding: var(--mf-e2) var(--mf-e3) var(--mf-e3);
 }
 
+/* Texto limitado a 2 linhas nos três campos.
+   A faixa da grade tem altura fixa (ver Galeria.module.css §grid-auto-rows), e
+   altura fixa com texto ilimitado sempre acaba cortando alguma legenda no meio
+   da palavra. Limitando as linhas, o pior caso do cartão é conhecido e a faixa
+   é dimensionada para ele. O texto inteiro continua acessível no `title` do
+   botão, que a UI já preenche com o nome ou o motivo. */
+.nome,
+.subtitulo,
+.motivo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
 .nome {
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
   font-weight: 600;
+  letter-spacing: var(--mf-tracking-display);
 }
 
 .subtitulo {
@@ -69,15 +171,17 @@
   align-items: center;
   gap: var(--mf-e1);
   padding: 1px var(--mf-e2);
-  border-radius: var(--mf-raio-1);
+  border-radius: 999px;
   border: 1px solid var(--mf-borda);
   font: var(--mf-fs-micro) var(--mf-fonte-ui);
   color: var(--mf-texto-2);
+  background: var(--mf-superficie-1);
 }
 
 .chip[data-status="pronto"] {
   color: var(--mf-ok);
   border-color: var(--mf-ok);
+  background: var(--mf-acento-fraco);
 }
 
 .chip[data-status="parcial"] {
@@ -97,4 +201,22 @@
 .motivo {
   font: var(--mf-fs-micro) var(--mf-fonte-ui);
   color: var(--mf-texto-3);
+}
+
+/* Sem movimento: o esqueleto vira cor chapada e nada translada/escala. */
+@media (prefers-reduced-motion: reduce) {
+  .moldura[data-preview="carregando"] {
+    background: var(--mf-superficie-3);
+    animation: none;
+  }
+
+  .cartao:hover:not(:disabled),
+  .cartao[data-selecionado="sim"] {
+    transform: none;
+  }
+
+  .cartao:hover:not(:disabled) .preview,
+  .preview {
+    transform: none;
+  }
 }
