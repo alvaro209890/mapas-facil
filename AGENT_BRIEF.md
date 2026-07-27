@@ -11,11 +11,12 @@ em qualquer coisa.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Com Windows + ArcMap** | **M2 fechado** (2026-07-27) — template sem `!`, smoke T1/T2 Harmonia com `quebradas: []`, B2 recalibrado. Próximo: **M9 → M10 → M11** |
+| **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap; paridade &lt;0,3% **não** atingida (~81% Dinâmica). Próximo: ajuste cartográfico / templates restantes → **M10 → M11** |
 | **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
 
-Ordem obrigatória do que resta: **M9 (Harmonia) → M10 (instalador) → M11 (piloto)**.
-Fechamento M2 documentado em [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md); script: `ferramentas/fechar_m2_windows.ps1`.
+Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
+Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
+Entrega M9 (infra + medição): [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.
 
 ### Handoff operacional (amanhã / outro PC)
 
@@ -251,7 +252,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
-| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
+| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf` | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 

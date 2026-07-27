@@ -251,7 +251,12 @@ padrão visual [`planos/01-padrao-imap-harmonia.md`](../planos/01-padrao-imap-ha
 
 ### Passo 2.4 — Fechar M9 na doc
 
-Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R22–R24 no `AGENT_BRIEF`, push `main`.
+Entrega 2026-07-27: [`docs/m9-conformidade-harmonia.md`](../../docs/m9-conformidade-harmonia.md) ·
+`ferramentas/fechar_m9_windows.ps1`. Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R24 no
+`AGENT_BRIEF`, push `main`.
+
+**Honestidade:** não marque I2 como `[x]` enquanto o diff raster na Dinâmica 2026 estiver acima de
+0,3% (medido ~81% no PDF ArcMap em jul/2026).
 
 ---
 

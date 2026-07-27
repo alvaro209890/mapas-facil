@@ -28,6 +28,8 @@ Scripts presentes:
 | `fechar_m2_template_arcpy.py` | fecha template M2: SHP/, AC, IBGE, LOGO (ArcPy 2.7) |
 | `fechar_m2_windows.ps1` | orquestra fechamento M2: template + B2 + smoke + pytest |
 | `smoke_m2_harmonia.py` | smoke reproducível T1/T2 na pasta Harmonia real |
+| `fechar_m9_windows.ps1` | orquestra M9: smoke checks + diff raster + pytest |
+| `smoke_m9_harmonia.py` | smoke M9 com `comparar_baseline` e relatório JSON |
 
 Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):
 [`../docs/remocao-planet-mxd.md`](../docs/remocao-planet-mxd.md).

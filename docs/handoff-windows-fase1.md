@@ -114,11 +114,11 @@ Com ArcMap: motor `arcpy` (T1) + minimapa IBGE. Sem ArcMap no PATH do job: T2 pa
 | Marco | O quê | Exige você? |
 |---|---|---|
 | **M2 fechar** | Critérios do `GUIA_WINDOWS.md` §1.5 + checklist B + `AGENT_BRIEF` | **feito** (2026-07-27, script) |
-| **M9** | Série Harmonia, diff &lt; 0,3%, S11 | sim (ArcMap + tempo) |
+| **M9** | Pipeline checks + smoke + diff (parcial) | **parcial** (2026-07-27) — ver `docs/m9-conformidade-harmonia.md`; diff ~81% |
 | **M10** | Instalador NSIS / PyInstaller | sim (Windows) |
 | **M11** | Piloto com usuário real | sim |
 
-M9–M11 **não** foram iniciados de propósito — o roadmap exige M2 completo antes.
+M10–M11 **não** iniciados. M9: infra entregue; paridade cartográfica e série completa pendentes.
 
 ---
 

@@ -19,7 +19,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
-| I — conformidade / instalador / piloto | M9–M11 | **não iniciado** — só falta isto na Fase 1 (depois do M2) |
+| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
 
 **Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M9 → M10 → M11**.
 Fase 2 começa após M11.
@@ -67,7 +67,7 @@ Fase 2 começa após M11.
 | Q6 | Overlay PNG da tabela no PDF nativo | [x] | posição Harmonia retrato; checks H14/S10 |
 | V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% |
 | V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST |
-| V3 | Smoke Harmonia vs `Mapas/01` | [ ] | infra pronta; baseline real ainda não passa (PDF nativo é estrutural) |
+| V3 | Smoke Harmonia vs `Mapas/01` | [~] | `smoke_m9_harmonia.py` + `fechar_m9_windows.ps1`; diff ArcMap ~81% (não passa 0,3%) — ver `docs/m9-conformidade-harmonia.md` |
 
 ## Bloco B — Motor `.mxd` (M2)
 
@@ -84,7 +84,7 @@ Detalhe histórico sem ArcMap: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucle
 | B6 | Textos / definition query | [~] | T2 patch extent/escala ativo; textos UTF-16LE ainda sem slots no MANIFEST |
 | B7 | Minimapa retângulo + guia | [x] | nomes canônicos + job T1 (`minimapa_job` / `mudar_municipio`) |
 | B8 | Patch T2 sem ArcMap | [x] | offsets no MANIFEST; gera `.mxd` com extent/escala patchados |
-| B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke manual pendente (M9) |
+| B9 | Diff raster vs `Mapas/01` | [~] | `comparar_pdf` + smoke M9; baseline no PDF ArcMap; Dinâmica ~81% |
 
 ---
 
@@ -202,9 +202,9 @@ Plano: [F1-16](16-design-system-dark.md).
 
 | # | Tarefa | Feito |
 |---|---|---|
-| I1 | Série completa da Harmonia com 14 HARD verdes | [ ] |
-| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] |
-| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] |
+| I1 | Série completa da Harmonia com 14 HARD verdes | [~] | 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador |
+| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] | medido ~81% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json` |
+| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] | paths relativos no T1; teste manual em outro PC pendente |
 | I4 | PyInstaller onedir + `electron-builder` + NSIS | [ ] |
 | I5 | Assinatura Authenticode + `sha256.txt` na release | [ ] |
 | I6 | Auto-update N → N+1 | [ ] |

@@ -22,6 +22,7 @@ from mapasfacil_nucleo.quantitativos.xlsx import exportar_xlsx
 from mapasfacil_nucleo.validacao.comparar_pdf import comparar_pdf, resolver_baseline_template
 from mapasfacil_nucleo.validacao.relatorio import gerar as gerar_validacao
 from mapasfacil_nucleo.validacao.relatorio import salvar as salvar_validacao
+from mapasfacil_nucleo.validacao.saida import executar_checks_saida
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
 
 
@@ -369,12 +370,56 @@ def _gerar_mapa_corpo(
         if pdf_artefatos.get("tabela_sobreposta"):
             resultado["tabela_sobreposta"] = True
 
+        mxd_info = artefatos.get("mxd") or {}
+        pdf_validacao = pdf_path
+        pdf_arcmap_rel = mxd_info.get("pdf_arcmap")
+        if isinstance(pdf_arcmap_rel, str) and pdf_arcmap_rel.strip():
+            arc_path = guard.resolver(pdf_arcmap_rel)
+            if arc_path.is_file():
+                pdf_validacao = arc_path
+                resultado["pdf_arcmap"] = pdf_arcmap_rel
+                artefatos["pdf_arcmap"] = pdf_arcmap_rel
+
+        template_meta: dict[str, Any] | None = None
+        template_id = mapspec.get("template")
+        if isinstance(template_id, str):
+            template_meta = obter_template(template_id)
+
+        rel_arcpy = mxd_info.get("relatorio_arcpy")
+        if isinstance(rel_arcpy, str) and rel_arcpy.strip():
+            rel_caminho = Path(rel_arcpy)
+            if not rel_caminho.is_absolute():
+                rel_caminho = guard.raiz / rel_arcpy
+            if rel_caminho.is_file():
+                import json
+
+                rel_arcpy = json.loads(rel_caminho.read_text(encoding="utf-8"))
+            else:
+                rel_arcpy = None
+        elif not isinstance(rel_arcpy, dict):
+            rel_arcpy = None
+
+        checks_saida = None
+        if pdf_validacao != pdf_path or mxd_info.get("motor") == "arcpy":
+            checks_saida = executar_checks_saida(
+                mapspec,
+                pdf_path=pdf_validacao,
+                template=template_meta,
+                relatorio_arcpy=rel_arcpy,
+                motor=str(mxd_info.get("motor") or "nativo"),
+            )
+            artefatos["validacao_saida"] = checks_saida
+            artefatos["validacao_dados"] = checks_saida
+        elif pdf_artefatos.get("validacao_dados"):
+            artefatos["validacao_dados"] = pdf_artefatos["validacao_dados"]
+
         if comparar_baseline or mapspec.get("validacao", {}).get("comparar_baseline"):
-            template_id = mapspec.get("template")
             if isinstance(template_id, str):
                 baseline = resolver_baseline_template(template_id)
                 if baseline is not None:
-                    comp = comparar_pdf(pdf_path, baseline)
+                    comp = comparar_pdf(pdf_validacao, baseline)
+                    comp["pdf_comparado"] = str(pdf_validacao)
+                    comp["tipo_pdf"] = "arcmap" if pdf_validacao != pdf_path else "nativo"
                     artefatos["comparacao_baseline"] = comp
                     resultado["comparacao_baseline"] = comp
                     if not comp["ok"]:
@@ -439,13 +484,14 @@ def _montar_validacao_job(
     hard = list((pdf_val.get("checks") or {}).get("hard") or [])
     soft = list((pdf_val.get("checks") or {}).get("soft") or [])
     if "mxd" in (mapspec.get("saidas") or []):
-        hard.append(
-            {
-                "id": "H01",
-                "ok": bool(mxd_info.get("mxd")),
-                "mensagem": f"MXD gerado ({mxd_info.get('motor', '?')})",
-            }
-        )
+        if not any(c.get("id") == "H01" for c in hard):
+            hard.append(
+                {
+                    "id": "H01",
+                    "ok": bool(mxd_info.get("mxd")),
+                    "mensagem": f"MXD gerado ({mxd_info.get('motor', '?')})",
+                }
+            )
     soft.append({"id": "A01", "ok": not avisos, "mensagem": "; ".join(avisos) or "sem avisos"})
     comp = artefatos.get("comparacao_baseline")
     if comp:
