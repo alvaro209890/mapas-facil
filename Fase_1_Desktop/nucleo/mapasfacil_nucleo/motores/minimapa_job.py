@@ -14,6 +14,7 @@ from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.motores import arcpy_ponte
 from mapasfacil_nucleo.motores import minimapa as minimapa_mod
 from mapasfacil_nucleo.motores.manifesto import obter_template
+from mapasfacil_nucleo.motores.patch_mxd import _textos_do_mapspec
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
 
 # Stems canônicos → nomes que o template Dinâmica ainda pode exigir (acervo).
@@ -188,6 +189,8 @@ def tentar_gerar_mxd_arcpy(
 
     imovel = mapspec.get("imovel") or {}
     textos = dict(ctx.get("textos") or {})
+    for nome, valor in _textos_do_mapspec(mapspec).items():
+        textos.setdefault(nome, valor)
     titulo = mapspec.get("titulo")
     if titulo:
         textos.setdefault("TITULO", str(titulo))

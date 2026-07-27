@@ -185,9 +185,9 @@ def arquivar_artefatos_do_job(
             continue
         if dest is not None:
             try:
-                copiados.append(str(dest.relative_to(pasta_usuario_destino)))
+                copiados.append(dest.relative_to(pasta_usuario_destino).as_posix())
             except ValueError:
-                copiados.append(str(dest))
+                copiados.append(dest.as_posix())
     return copiados
 
 
