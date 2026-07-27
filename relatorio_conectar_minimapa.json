@@ -1,0 +1,1539 @@
+{
+  "resultados": [
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 16220, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_MAPBIOMAS_2.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3437, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3260, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES_VF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3886, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4026, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis_VF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3963, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\DLA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2466, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2000.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4108, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3996, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_SPOT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4135, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2013.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4256, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2017.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3845, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2019.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3925, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2023.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4141, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4196, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_cultivo.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4103, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_quantitativos.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text MT -> UF_SELO", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3328, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_IBAMA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3385, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_SEMA_SIGA_Poligono.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "Layers/Limite estadual -> lml_uf_a", 
+        "Layers/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a"
+      ], 
+      "ms": 5923, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\PEF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4476, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\TCR.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 5017, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Terras_Indigenas.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3032, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Tipologia.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3334, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Unidade_de_Conservação.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_RETANGULO nao identificado", 
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA"
+      ], 
+      "ok": true, 
+      "reconectados": [], 
+      "ms": 700, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Untitled.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 2023, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2003_L5.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 1959, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2004_L5.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 1860, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2005_L5.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 3210, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2006_L5.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 2136, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2007_L5.mxd"
+    }, 
+    {
+      "avisos": [
+        "MINIMAPA_GUIA nao identificado"
+      ], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr Municipios -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Municipios -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 2296, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\03\\MXD\\Dinâmica_2008_L5.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4497, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Analise_Area_UCs_e_TIs.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2486, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2000_v2.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4052, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2002.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2850, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2004.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3487, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2005.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4099, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2006.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 5371, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2008.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2722, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2010.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3789, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2012.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2956, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2014.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3600, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2016.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3055, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2018.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3348, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2020.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3628, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2023.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4292, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2025.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4224, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2000_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2763, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3596, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT_AC.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4295, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3842, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT_AC.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "Layers/Limite estadual -> lml_uf_a", 
+        "Layers/Limite municipal -> lml_municipio_a"
+      ], 
+      "ms": 5095, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2005-2025.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "Layers/Limite estadual -> lml_uf_a", 
+        "Layers/Limite municipal -> lml_municipio_a"
+      ], 
+      "ms": 5327, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "Layers/Limite estadual -> lml_uf_a", 
+        "Layers/Limite municipal -> lml_municipio_a"
+      ], 
+      "ms": 5249, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025_AC.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 3654, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Distancia_de_uso_restrito.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 4040, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\EMBARGO_SAO_SEBASTIAO.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 5136, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SEMA_IBAMA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a", 
+        "Layers/lml_municipio_a -> lml_municipio_a"
+      ], 
+      "ms": 8549, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SIGA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 2930, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Mapa_de_uso_consolidado.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Ribeirão Cascalheira)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/Limite estadual -> lml_uf_a"
+      ], 
+      "ms": 5337, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Tipologia_Vegetal.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Layers -> MINIMAPA", 
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/lml_unidade_federacao_a -> lml_uf_a"
+      ], 
+      "ms": 4613, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\05\\MXD\\MAPA_AEP.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df Layers -> MAPA", 
+        "df Estado -> MINIMAPA", 
+        "df Municipio -> UF_INSET", 
+        "lyr Limite municipal -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr LIM_LIMITE_POLITICO_ADMINISTRATIVO_A -> MUNICIPIOS", 
+        "lyr lml_unidade_federacao_a -> UF", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text MT -> UF_SELO", 
+        "text -> ROTULO_MUNICIPIO (Querência)"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/Limite estadual -> lml_uf_a", 
+        "MAPA/Limite municipal -> lml_municipio_a", 
+        "UF_INSET/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/LIM_LIMITE_POLITICO_ADMINISTRATIVO_A -> lml_municipio_a", 
+        "MINIMAPA/lml_unidade_federacao_a -> lml_uf_a"
+      ], 
+      "ms": 5917, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\06\\MXD\\Divisao_de_talhoes.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "renomeados": [
+        "df New Data Frame 2 -> UF_INSET", 
+        "lyr lml_municipio_a -> MUNICIPIOS", 
+        "lyr lml_municipio_a -> MUNICIPIOS_ENTORNO", 
+        "graphic -> MINIMAPA_RETANGULO", 
+        "graphic -> MINIMAPA_GUIA", 
+        "text -> ROTULO_MUNICIPIO (Vila Rica)", 
+        "text MT -> UF_SELO"
+      ], 
+      "ok": true, 
+      "reconectados": [
+        "MAPA/UF -> lml_uf_a", 
+        "MAPA/MUNICIPIOS -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "MINIMAPA/lml_municipio_a -> lml_municipio_a", 
+        "UF_INSET/UF -> lml_uf_a"
+      ], 
+      "ms": 5018, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\shared\\templates\\Dinamica_retrato.mxd"
+    }
+  ], 
+  "falhas": 0, 
+  "total": 62, 
+  "ok": 62, 
+  "pasta_ibge": "C:\\Users\\alvar\\Documents\\mapas-facil\\shared\\bases\\ibge"
+}

@@ -21,9 +21,15 @@ Scripts presentes:
 | `remover_planet_mxd_arcpy.py` | remove camadas Planet/WMTS quebradas dos `.mxd` (ArcMap 10.8) |
 | `fechar_dialogs_gis.ps1` | cancela o diálogo *GIS Server Connection* automaticamente |
 | `salvar_mxd_gui.ps1` | abre cada `.mxd`, fecha diálogos, salva na GUI do ArcMap |
+| `materializar_malhas_ibge.py` | baixa API IBGE e gera `shared/bases/ibge/*.shp` |
+| `conectar_minimapa_ibge_arcpy.py` | reconecta minimapas dos MXDs à base IBGE do repo |
+| `mudar_municipio_minimapa_arcpy.py` | troca município (query + rótulo + retângulo/linha L) |
 
 Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):
 [`../docs/remocao-planet-mxd.md`](../docs/remocao-planet-mxd.md).
+
+Minimapa / IBGE:
+[`../docs/minimapa-ibge.md`](../docs/minimapa-ibge.md).
 
 ## `chaves_mxd.py`
 
