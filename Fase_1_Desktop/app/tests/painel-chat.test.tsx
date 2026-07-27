@@ -1,6 +1,6 @@
 // M7 — PainelChat: streaming, parar (chat.cancelar) e erros tipados do agente.
 
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -98,9 +98,99 @@ describe("PainelChat", () => {
       evento: "chat.tool",
       dados: { tool: "usar_modelo_da_galeria", fase: "inicio", trace_id: "t1" },
     });
+    const grupo = await screen.findByRole("button", { name: /1 ferramenta/ });
+    expect(screen.queryByText(/usar_modelo_da_galeria/)).toBeNull();
+    await userEvent.click(grupo);
+    expect(screen.getByText(/usar_modelo_da_galeria/)).toBeTruthy();
+  });
+
+  it("reabre tool_traces em grupo colapsado e renderiza markdown GFM", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "chat.abrir_conversa": {
+          ok: true,
+          resultado: {
+            mensagens: [
+              {
+                message_id: "m1",
+                papel: "assistente",
+                conteudo: "**Resumo**\n\n| Camada | Área |\n| --- | ---: |\n| ATP | 3.823,9033 ha |",
+                tool_traces: [
+                  {
+                    trace_id: "t1",
+                    tool: "inspecionar_shapefile",
+                    args_resumo: '{"papel":"ATP"}',
+                    resultado_resumo: '{"area_ha":3823.9033}',
+                    ms: 12,
+                    ok: true,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+    const { container } = render(<PainelChat conversationId="c1" semChaveIa={false} />);
+
+    expect(await screen.findByText("Resumo")).toHaveProperty("tagName", "STRONG");
+    expect(container.querySelector("table")).not.toBeNull();
+    const grupo = screen.getByRole("button", { name: /1 ferramenta/ });
+    expect(grupo).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("inspecionar_shapefile")).toBeNull();
+    await userEvent.click(grupo);
+    expect(screen.getByText("inspecionar_shapefile")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /inspecionar_shapefile/ }));
+    expect(screen.getByText('{"area_ha":3823.9033}')).toBeInTheDocument();
+    expect(ponte.chamadas.some((c) => c.metodo === "chat.abrir_conversa")).toBe(true);
+  });
+
+  it("mantém a ordem DOM tool → texto → tool → texto", async () => {
+    const ponte = ligarPonteFake({
+      respostas: { "chat.abrir_conversa": CONVERSA_VAZIA },
+    });
+    const { container } = render(<PainelChat conversationId="c1" semChaveIa={false} />);
+    ponte.emitir({
+      evento: "chat.tool",
+      dados: { trace_id: "t1", tool: "listar", fase: "inicio" },
+    });
+    ponte.emitir({ evento: "chat.delta", dados: { texto: "Primeiro trecho." } });
+    ponte.emitir({
+      evento: "chat.tool",
+      dados: { trace_id: "t2", tool: "inspecionar", fase: "inicio" },
+    });
+    ponte.emitir({ evento: "chat.delta", dados: { texto: "Segundo trecho." } });
+
+    await waitFor(() => expect(screen.getByText("Segundo trecho.")).toBeInTheDocument());
+    const ordem = Array.from(
+      container.querySelectorAll('[data-turno="ao-vivo"] > [data-bloco]'),
+    ).map((elemento) => elemento.getAttribute("data-bloco"));
+    expect(ordem).toEqual(["tools", "texto", "tools", "texto"]);
+  });
+
+  it("envia anexo serializado no contrato de chat.enviar", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "chat.abrir_conversa": CONVERSA_VAZIA,
+        "chat.enviar": { ok: true, resultado: { texto: "ok" } },
+      },
+    });
+    const { container } = render(<PainelChat conversationId="c1" semChaveIa={false} />);
+    const imagem = new File(["PNG"], "mapa.png", { type: "image/png" });
+    fireEvent.change(container.querySelector('input[type="file"]')!, {
+      target: { files: [imagem] },
+    });
+    await userEvent.type(screen.getByRole("textbox"), "guarde este print");
+    await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
+
     await waitFor(() =>
-      expect(screen.getByText(/usar_modelo_da_galeria/)).toBeTruthy(),
+      expect(ponte.chamadas.some((chamada) => chamada.metodo === "chat.enviar")).toBe(true),
     );
+    const chamada = ponte.chamadas.find((item) => item.metodo === "chat.enviar");
+    expect(chamada?.params).toMatchObject({
+      mensagem: "guarde este print",
+      anexos: [{ nome: "mapa.png", mime: "image/png", bytes: 3, base64: "UE5H" }],
+    });
   });
 
   it("chat.pergunta mostra chips e clicar num deles envia como mensagem normal", async () => {

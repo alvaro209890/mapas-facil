@@ -97,6 +97,10 @@ export interface MudancaWorkspace {
 export interface DadosChatDelta {
   texto: string;
 }
+/** Raciocínio dedicado do provedor; nunca é sintetizado a partir da resposta visível. */
+export interface DadosChatRaciocinio {
+  texto: string;
+}
 export interface DadosChatTool {
   trace_id: string;
   tool: string;
@@ -164,6 +168,7 @@ export type EventoNucleo =
   | (EnvelopeEvento<DadosJobArtefatoParcial> & { evento: "job.artefato_parcial" })
   | (EnvelopeEvento<DadosWorkspaceMudou> & { evento: "workspace.mudou" })
   | (EnvelopeEvento<DadosChatDelta> & { evento: "chat.delta" })
+  | (EnvelopeEvento<DadosChatRaciocinio> & { evento: "chat.raciocinio" })
   | (EnvelopeEvento<DadosChatTool> & { evento: "chat.tool" })
   | (EnvelopeEvento<DadosChatPergunta> & { evento: "chat.pergunta" })
   | (EnvelopeEvento<DadosMapspecAtualizado> & { evento: "mapspec.atualizado" })

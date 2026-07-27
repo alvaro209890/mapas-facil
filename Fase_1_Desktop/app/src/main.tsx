@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import "./estilos/fontes/fontes.css";
 import "./estilos/tokens.css";
 import "./estilos/reset.css";
+import "./estilos/scrollbar.css";
 
 import { App } from "./App.js";
 import { TEMA_PADRAO, aplicarTema } from "./estado/tema.js";

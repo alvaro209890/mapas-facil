@@ -4,7 +4,8 @@
 // `fase:"fim"`, mostrando duração e ✓/✕. Enquanto pendente o ícone gira; nada
 // aqui é temporizado por conta própria — o estado vem do evento (AP-07).
 
-import { Check, Wrench, X } from "lucide-react";
+import { Check, ChevronDown, CircleStop, Wrench, X } from "lucide-react";
+import { useState } from "react";
 
 import type { DadosChatTool } from "../estado/eventos.js";
 import estilos from "./CartaoTool.module.css";
@@ -58,8 +59,11 @@ function limitar(texto: string, max = 80): string {
 }
 
 export function CartaoTool({ estado }: { estado: EstadoTool }) {
+  const [expandido, setExpandido] = useState(false);
   const pendente = estado.fase === "inicio" && estado.cancelada !== true;
   const falhou = estado.fase === "fim" && estado.ok === false;
+  const temDetalhes = Boolean(estado.argsResumo || estado.resultadoResumo);
+  const detalhesId = `tool-detalhes-${estado.traceId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
 
   return (
     <article
@@ -68,22 +72,63 @@ export function CartaoTool({ estado }: { estado: EstadoTool }) {
       data-fase={estado.cancelada === true ? "cancelada" : estado.fase}
       data-ok={estado.ok === undefined ? undefined : String(estado.ok)}
     >
-      <span className={estilos.icone} data-pendente={pendente ? "sim" : "nao"} aria-hidden="true">
-        {falhou ? <X size={13} /> : estado.fase === "fim" ? <Check size={13} /> : <Wrench size={13} />}
-      </span>
-      <span className={estilos.nome}>{estado.tool}</span>
-      {estado.argsResumo !== undefined && estado.argsResumo !== "" && (
-        <span className={estilos.args}>{limitar(estado.argsResumo)}</span>
+      <button
+        type="button"
+        className={estilos.resumo}
+        onClick={() => temDetalhes && setExpandido((valor) => !valor)}
+        aria-expanded={temDetalhes ? expandido : undefined}
+        aria-controls={temDetalhes ? detalhesId : undefined}
+        disabled={!temDetalhes}
+      >
+        <span className={estilos.icone} data-pendente={pendente ? "sim" : "nao"} aria-hidden="true">
+          {estado.cancelada === true ? (
+            <CircleStop size={13} />
+          ) : falhou ? (
+            <X size={13} />
+          ) : estado.fase === "fim" ? (
+            <Check size={13} />
+          ) : (
+            <Wrench size={13} />
+          )}
+        </span>
+        <span className={estilos.nome}>{estado.tool}</span>
+        {estado.argsResumo !== undefined && estado.argsResumo !== "" && (
+          <span className={estilos.args}>{limitar(estado.argsResumo)}</span>
+        )}
+        <span className={estilos.status}>
+          {estado.cancelada === true
+            ? "cancelada"
+            : estado.fase === "inicio"
+              ? "executando…"
+              : estado.ms === undefined
+                ? "pronto"
+                : formatarDuracao(estado.ms)}
+        </span>
+        {temDetalhes && (
+          <ChevronDown
+            className={estilos.chevron}
+            data-expandido={expandido ? "sim" : "nao"}
+            size={14}
+            aria-hidden="true"
+          />
+        )}
+      </button>
+      {expandido && temDetalhes && (
+        <div id={detalhesId} className={estilos.detalhes}>
+          {estado.argsResumo && (
+            <div>
+              <span className={estilos.rotulo}>Argumentos</span>
+              <pre className={estilos.codigo}>{estado.argsResumo}</pre>
+            </div>
+          )}
+          {estado.resultadoResumo && (
+            <div>
+              <span className={estilos.rotulo}>Resultado</span>
+              <pre className={estilos.codigo}>{estado.resultadoResumo}</pre>
+            </div>
+          )}
+        </div>
       )}
-      <span className={estilos.status}>
-        {estado.cancelada === true
-          ? "cancelada"
-          : estado.fase === "inicio"
-            ? "executando…"
-            : estado.ms === undefined
-              ? "pronto"
-              : formatarDuracao(estado.ms)}
-      </span>
     </article>
   );
 }

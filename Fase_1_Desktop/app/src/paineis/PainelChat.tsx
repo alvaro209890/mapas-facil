@@ -1,18 +1,54 @@
-// Painel de chat do agente (M7) — consome chat.enviar + eventos chat.delta/tool.
+// Painel de chat do agente — timeline intercalada, markdown, tools e anexos.
 
-import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { Paperclip } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode, type UIEvent } from "react";
 
+import {
+  aplicarEventoTimeline,
+  cancelarPendentesTimeline,
+  type BlocoTurno,
+} from "../chat/timeline.js";
+import { BlocoRaciocinio } from "../componentes/BlocoRaciocinio.js";
+import { BolhaMarkdown } from "../componentes/BolhaMarkdown.js";
+import {
+  CampoEntrada,
+  serializarAnexos,
+  type AnexoRascunho,
+} from "../componentes/CampoEntrada.js";
 import { CartaoPergunta } from "../componentes/CartaoPergunta.js";
-import { EstadoVazio } from "../componentes/EstadoVazio.js";
-import { IndicadorPensando } from "../componentes/IndicadorPensando.js";
 import type { EstadoTool } from "../componentes/CartaoTool.js";
-import { ListaCartoesTool, aplicarEventoTool, cancelarPendentes } from "../componentes/CartaoTool.js";
-import { api } from "../estado/ponte.js";
+import { EstadoVazio } from "../componentes/EstadoVazio.js";
+import { GrupoTools } from "../componentes/GrupoTools.js";
+import { IndicadorPensando } from "../componentes/IndicadorPensando.js";
 import type { MapSpecEmUso } from "../estado/avisosSistema.js";
 import { useAvisosSistema } from "../estado/avisosSistema.js";
-import type { DadosChatPergunta, DadosChatTool, EnvelopeEvento } from "../estado/eventos.js";
+import type {
+  DadosChatRaciocinio,
+  DadosChatTool,
+  EnvelopeEvento,
+} from "../estado/eventos.js";
 import { ehChatPergunta } from "../estado/eventos.js";
+import { api } from "../estado/ponte.js";
 import estilos from "./PainelChat.module.css";
+
+export interface ToolTraceHistorico {
+  trace_id: string;
+  tool: string;
+  args_resumo?: string | null;
+  resultado_resumo?: string | null;
+  ms?: number | null;
+  ok?: boolean;
+  erro_codigo?: string | null;
+}
+
+export interface AnexoResumo {
+  anexo_id?: string;
+  nome?: string;
+  nome_original?: string;
+  mime?: string;
+  bytes: number;
+  caminho_local?: string;
+}
 
 export interface MensagemChat {
   message_id?: string;
@@ -20,6 +56,8 @@ export interface MensagemChat {
   conteudo: string;
   seq?: number;
   cancelada?: boolean;
+  tool_traces?: ToolTraceHistorico[];
+  anexos?: AnexoResumo[];
 }
 
 /** Erro do núcleo → frase acionável. Código estável na frente, sempre (F1-06). */
@@ -33,6 +71,7 @@ export function mensagemDeErro(erro?: { codigo?: string; mensagem?: string }): s
     "IA-040": "Ramifique a conversa para continuar a partir do resumo.",
     "IA-041": "Abra um chat novo; esta conversa atingiu o teto de tokens.",
     "IA-050": "Peça para continuar de onde parou.",
+    "CH-004": "Remova o anexo inválido e tente novamente.",
   };
   return acao[codigo] ? `${codigo}: ${base} ${acao[codigo]}` : `${codigo}: ${base}`;
 }
@@ -46,6 +85,44 @@ export interface PropsPainelChat {
   mapspecAtivo?: MapSpecEmUso | null;
 }
 
+function estadoDoTrace(trace: ToolTraceHistorico): EstadoTool {
+  return {
+    traceId: trace.trace_id,
+    tool: trace.tool,
+    fase: "fim",
+    ...(trace.args_resumo ? { argsResumo: trace.args_resumo } : {}),
+    ...(trace.resultado_resumo ? { resultadoResumo: trace.resultado_resumo } : {}),
+    ...(typeof trace.ms === "number" ? { ms: trace.ms } : {}),
+    ok: trace.ok !== false,
+  };
+}
+
+function formatarBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
+}
+
+function AnexosDaMensagem({ anexos }: { anexos?: AnexoResumo[] }) {
+  if (!anexos || anexos.length === 0) return null;
+  return (
+    <div className={estilos.anexosMensagem} aria-label={`${anexos.length} anexos`}>
+      {anexos.map((anexo, indice) => {
+        const nome = anexo.nome ?? anexo.nome_original ?? `anexo ${indice + 1}`;
+        return (
+          <span key={anexo.anexo_id ?? `${nome}-${indice}`} className={estilos.anexoMensagem}>
+            <Paperclip size={12} aria-hidden="true" />
+            <span title={nome}>{nome}</span>
+            <small>{formatarBytes(anexo.bytes)}</small>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export function PainelChat({
   conversationId,
   semChaveIa,
@@ -55,19 +132,21 @@ export function PainelChat({
 }: PropsPainelChat) {
   const { avisos: avisosSistema, dispensar } = useAvisosSistema(mapspecAtivo);
   const [mensagens, setMensagens] = useState<MensagemChat[]>([]);
-  const [rascunho, setRascunho] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [streaming, setStreaming] = useState("");
+  const [blocos, setBlocos] = useState<BlocoTurno[]>([]);
   const [erro, setErro] = useState<string | null>(null);
-  const [tools, setTools] = useState<EstadoTool[]>([]);
-  const [pergunta, setPergunta] = useState<DadosChatPergunta | null>(null);
   const [cancelando, setCancelando] = useState(false);
+  const conversaRef = useRef<HTMLDivElement | null>(null);
   const fimRef = useRef<HTMLDivElement | null>(null);
+  const pertoDoFimRef = useRef(true);
+  const conversaAtualRef = useRef(conversationId);
+  conversaAtualRef.current = conversationId;
 
   const carregar = useCallback(async (cid: string) => {
     const ponte = api();
     if (ponte === undefined) return;
     const resp = await ponte.chamar("chat.abrir_conversa", { conversation_id: cid, limite: 50 });
+    if (conversaAtualRef.current !== cid) return;
     if (!resp.ok || typeof resp.resultado !== "object" || resp.resultado === null) {
       setErro(resp.erro?.mensagem ?? "Falha ao abrir conversa.");
       return;
@@ -79,10 +158,11 @@ export function PainelChat({
 
   useEffect(() => {
     setMensagens([]);
-    setStreaming("");
-    setTools([]);
-    setPergunta(null);
+    setBlocos([]);
     setErro(null);
+    setEnviando(false);
+    setCancelando(false);
+    pertoDoFimRef.current = true;
     if (conversationId) void carregar(conversationId);
   }, [carregar, conversationId]);
 
@@ -92,38 +172,54 @@ export function PainelChat({
     return ponte.aoEvento((evento: EnvelopeEvento) => {
       if (evento.evento === "chat.delta") {
         const texto = String((evento.dados as { texto?: string }).texto ?? "");
-        setStreaming((s) => s + texto);
+        setBlocos((atuais) => aplicarEventoTimeline(atuais, { tipo: "texto", dados: { texto } }));
+      }
+      if (evento.evento === "chat.raciocinio") {
+        const texto = String((evento.dados as { texto?: string }).texto ?? "");
+        setBlocos((atuais) =>
+          aplicarEventoTimeline(atuais, {
+            tipo: "raciocinio",
+            dados: { texto } satisfies DadosChatRaciocinio,
+          }),
+        );
       }
       if (evento.evento === "chat.tool") {
         const dados = evento.dados as unknown as DadosChatTool;
         if (typeof dados.trace_id === "string" && typeof dados.tool === "string") {
-          setTools((anterior) => aplicarEventoTool(anterior, dados));
+          setBlocos((atuais) => aplicarEventoTimeline(atuais, { tipo: "tool", dados }));
         }
       }
       if (ehChatPergunta(evento)) {
-        setPergunta(evento.dados);
+        setBlocos((atuais) =>
+          aplicarEventoTimeline(atuais, { tipo: "pergunta", dados: evento.dados }),
+        );
       }
     });
   }, []);
 
   useEffect(() => {
+    if (!pertoDoFimRef.current) return;
     fimRef.current?.scrollIntoView?.({ block: "end" });
-  }, [mensagens, streaming]);
+  }, [mensagens, blocos, erro, avisosSistema.length]);
 
-  // A1: o turno foi despachado e ainda não veio texto nem tool. É estado real do
-  // turno, não timer — some no primeiro `chat.delta` (AP-07 / F1-16 §A1).
-  const pensando = enviando && streaming === "" && tools.length === 0;
+  function aoRolar(evento: UIEvent<HTMLDivElement>) {
+    const alvo = evento.currentTarget;
+    pertoDoFimRef.current = alvo.scrollHeight - alvo.scrollTop - alvo.clientHeight <= 48;
+  }
+
+  // A1: turno despachado sem evento visível. Não há texto de raciocínio inventado.
+  const pensando = enviando && blocos.length === 0;
 
   const cancelar = useCallback(async () => {
     if (!conversationId || !enviando) return;
     const ponte = api();
     if (ponte === undefined) return;
     setCancelando(true);
-    setTools(cancelarPendentes);
+    setBlocos(cancelarPendentesTimeline);
     await ponte.chamar("chat.cancelar", { conversation_id: conversationId });
   }, [conversationId, enviando]);
 
-  // F1-02: Esc cancela o **turno** do chat, nunca o job de mapa (esse tem botão próprio).
+  // F1-02: Esc cancela o turno do chat, nunca o job de mapa.
   useEffect(() => {
     if (!enviando) return;
     const ouvinte = (evento: globalThis.KeyboardEvent) => {
@@ -135,49 +231,85 @@ export function PainelChat({
     return () => window.removeEventListener("keydown", ouvinte);
   }, [cancelar, enviando]);
 
-  async function enviar(texto: string) {
-    if (!conversationId || !texto.trim() || enviando) return;
+  async function enviar(texto: string, anexos: AnexoRascunho[] = []) {
+    const mensagem = texto.trim() || (anexos.length > 0 ? "Anexo enviado para referência." : "");
+    if (!conversationId || !mensagem || enviando) return;
     const ponte = api();
     if (ponte === undefined) {
       setErro("Núcleo indisponível.");
       return;
     }
+
+    let anexosPayload;
+    try {
+      anexosPayload = await serializarAnexos(anexos);
+    } catch {
+      setErro("UI-004: não foi possível ler o anexo. Remova o arquivo e tente novamente.");
+      return;
+    }
+
     setEnviando(true);
     setCancelando(false);
-    setStreaming("");
-    setTools([]);
-    setPergunta(null);
+    setBlocos([]);
     setErro(null);
-    setMensagens((m) => [...m, { papel: "usuario", conteudo: texto.trim() }]);
-    setRascunho("");
+    setMensagens((atuais) => [
+      ...atuais,
+      {
+        papel: "usuario",
+        conteudo: mensagem,
+        anexos: anexos.map((anexo) => ({
+          nome: anexo.nome,
+          mime: anexo.mime,
+          bytes: anexo.bytes,
+        })),
+      },
+    ]);
     const resp = await ponte.chamar("chat.enviar", {
       conversation_id: conversationId,
-      mensagem: texto.trim(),
+      mensagem,
+      ...(anexosPayload.length > 0 ? { anexos: anexosPayload } : {}),
     });
+    if (conversaAtualRef.current !== conversationId) return;
     setEnviando(false);
     setCancelando(false);
-    setStreaming("");
     if (!resp.ok) {
-      // IA-030/IA-040/IA-050 já gravaram o parcial no transcript: recarregar
-      // mostra o que o agente chegou a produzir, em vez de perder o turno.
-      // O erro é setado DEPOIS: `carregar` limpa o erro quando dá certo.
       await carregar(conversationId);
+      setBlocos([]);
       setErro(mensagemDeErro(resp.erro));
       return;
     }
     await carregar(conversationId);
+    setBlocos([]);
   }
 
-  function aoSubmit(evento: FormEvent) {
-    evento.preventDefault();
-    void enviar(rascunho);
-  }
-
-  function aoTecla(evento: KeyboardEvent<HTMLTextAreaElement>) {
-    if (evento.key === "Enter" && !evento.shiftKey && (evento.ctrlKey || evento.metaKey)) {
-      evento.preventDefault();
-      void enviar(rascunho);
+  function renderizarBloco(bloco: BlocoTurno) {
+    let conteudo: ReactNode;
+    if (bloco.tipo === "texto") {
+      conteudo = <BolhaMarkdown markdown={bloco.markdown} streaming={bloco.streaming} />;
+    } else if (bloco.tipo === "tools") {
+      conteudo = <GrupoTools id={bloco.id} tools={bloco.tools} />;
+    } else if (bloco.tipo === "raciocinio") {
+      conteudo = (
+        <BlocoRaciocinio id={bloco.id} texto={bloco.texto} streaming={bloco.streaming} />
+      );
+    } else {
+      conteudo = (
+        <CartaoPergunta
+          dados={bloco.dados}
+          aoResponder={(resposta) => enviar(resposta)}
+        />
+      );
     }
+    return (
+      <div
+        key={bloco.id}
+        className={estilos.blocoTimeline}
+        data-bloco={bloco.tipo}
+        data-bloco-id={bloco.id}
+      >
+        {conteudo}
+      </div>
+    );
   }
 
   if (!conversationId) {
@@ -197,8 +329,14 @@ export function PainelChat({
 
   return (
     <div className={estilos.raiz}>
-      <div className={estilos.conversa} role="log" aria-live="polite">
-        {mensagens.length === 0 && !streaming && (
+      <div
+        ref={conversaRef}
+        className={estilos.conversa}
+        role="log"
+        aria-live="polite"
+        onScroll={aoRolar}
+      >
+        {mensagens.length === 0 && blocos.length === 0 && (
           <EstadoVazio
             titulo="Conversa pronta"
             descricao={
@@ -208,28 +346,47 @@ export function PainelChat({
             }
           />
         )}
-        {mensagens.map((m, i) => (
-          <div key={m.message_id ?? `${m.papel}-${i}`} className={estilos.bolha} data-papel={m.papel}>
-            <span className={estilos.papel}>{m.papel}</span>
-            <p className={estilos.texto}>{m.conteudo}</p>
-            {m.cancelada === true && (
-              <p className={estilos.tools}>resposta interrompida por você</p>
-            )}
-          </div>
-        ))}
-        {streaming && (
-          <div className={estilos.bolha} data-papel="assistente" data-streaming="sim">
-            <span className={estilos.papel}>assistente</span>
-            <p className={estilos.texto}>
-              {streaming}
-              <span className={estilos.cursor} aria-hidden="true" />
-            </p>
-          </div>
-        )}
-        <ListaCartoesTool tools={tools} />
-        {pergunta && <CartaoPergunta dados={pergunta} aoResponder={enviar} />}
-        {/* F1-02 §Watcher — aviso do SISTEMA: não é turno, não vai ao LLM, não
-            entra no transcript. Só existe se `workspace.mudou` chegou (AP-07). */}
+        {mensagens.map((mensagem, indice) => {
+          const chave = mensagem.message_id ?? `${mensagem.papel}-${mensagem.seq ?? indice}`;
+          if (mensagem.papel === "assistente") {
+            const traces = (mensagem.tool_traces ?? []).map(estadoDoTrace);
+            return (
+              <div key={chave} className={estilos.turnoHistorico} data-turno="historico">
+                {traces.length > 0 && (
+                  <div
+                    className={estilos.blocoTimeline}
+                    data-bloco="tools"
+                    data-bloco-id={`historico-tools-${chave}`}
+                  >
+                    <GrupoTools id={`historico-${chave}`} tools={traces} />
+                  </div>
+                )}
+                {mensagem.conteudo && (
+                  <div
+                    className={estilos.blocoTimeline}
+                    data-bloco="texto"
+                    data-bloco-id={`historico-texto-${chave}`}
+                  >
+                    <BolhaMarkdown
+                      markdown={mensagem.conteudo}
+                      cancelada={mensagem.cancelada === true}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return (
+            <article key={chave} className={estilos.bolhaUsuario} data-papel={mensagem.papel}>
+              <span className={estilos.papel}>{mensagem.papel}</span>
+              <p className={estilos.textoUsuario}>{mensagem.conteudo}</p>
+              <AnexosDaMensagem anexos={mensagem.anexos} />
+            </article>
+          );
+        })}
+        <div className={estilos.turnoAoVivo} data-turno="ao-vivo">
+          {blocos.map(renderizarBloco)}
+        </div>
         {avisosSistema.map((aviso) => (
           <p
             key={aviso.id}
@@ -259,36 +416,17 @@ export function PainelChat({
         {bannerArc}
         <div ref={fimRef} />
       </div>
-      <form className={estilos.entrada} onSubmit={aoSubmit}>
-        <textarea
-          id="campo-entrada"
-          className={estilos.textarea}
-          value={rascunho}
-          onChange={(e) => setRascunho(e.target.value)}
-          onKeyDown={aoTecla}
-          placeholder={semChaveIa ? "Configure a chave DeepSeek ou use a galeria…" : "Mensagem (Ctrl+Enter)"}
-          rows={2}
-          disabled={enviando || semChaveIa}
-        />
-        {enviando ? (
-          <button
-            type="button"
-            className={estilos.enviar}
-            onClick={() => void cancelar()}
-            disabled={cancelando}
-          >
-            {cancelando ? "Parando…" : "Parar"}
-          </button>
-        ) : (
-          <button
-            type="submit"
-            className={estilos.enviar}
-            disabled={semChaveIa || !rascunho.trim()}
-          >
-            Enviar
-          </button>
-        )}
-      </form>
+      <CampoEntrada
+        key={conversationId}
+        disabled={semChaveIa}
+        enviando={enviando}
+        cancelando={cancelando}
+        placeholder={
+          semChaveIa ? "Configure a chave DeepSeek ou use a galeria…" : "Mensagem (Ctrl+Enter)"
+        }
+        onEnviar={enviar}
+        onCancelar={cancelar}
+      />
     </div>
   );
 }
