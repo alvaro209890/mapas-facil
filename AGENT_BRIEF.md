@@ -11,10 +11,10 @@ em qualquer coisa.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Com Windows + ArcMap** | **M2 avançado** — template `dinamica_retrato` com B1 quase fechado + **B2 `status: pronto`** (offsets extent/escala). Falta **só GUI**: criar `ROTULO_IMOVEL` e recalibrar B2. Depois **M9 → M10 → M11** |
+| **Com Windows + ArcMap** | **B1+B2 fechados** (2026-07-27) — `ROTULO_IMOVEL` criado na GUI, B2 recalibrado, `pronto_b1: true`, `sha256_ok`/`patch_ok` verdes. Falta **fechar M2** (gerar a entrega real + critérios §1.5 do guia) → **M9 → M10 → M11** |
 | **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
 
-Ordem obrigatória do que resta: **fechar M2 (GUI ROTULO_IMOVEL) → M9 → M10 → M11**.
+Ordem obrigatória do que resta: **fechar M2 (entrega real + critérios §1.5) → M9 → M10 → M11**.
 
 ### Handoff operacional (amanhã / outro PC)
 
@@ -32,8 +32,15 @@ print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do Ma
 
 ### Fase 2 — site
 
-**Não iniciada** (só planos; 01/02/04/06 legado). Começa **depois do M11**. Login do desktop já é
-local ([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)) — F2-05 **não** bloqueia.
+**Planos reescritos (2026-07-27, D21):** site = **só distribuição** (landing + download), com
+**hero cinematográfico** (mapa em motion/vídeo — [F2-04](Fase_2_Site/planos/04-frontend-site.md)).
+Sem login no site, sem mapa funcional no browser, sem backend na v1. Código `web/`
+**implementado e validado** (home + requisitos + download + contato, com mapa demonstrativo
+inteiramente fictício). Conta e mapas = desktop
+([F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md)). [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md)
+permanece **adiado**.
+
+Índice: [`Fase_2_Site/planos/README.md`](Fase_2_Site/planos/README.md).
 
 ## Chave DeepSeek para desenvolvimento e testes (M7)
 
@@ -92,7 +99,7 @@ ls Fase_1_Desktop/app                      # M3 fechado: C1–C11 (shell, worksp
 ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
-#   → definição + chamadores: os 8 eventos do vocabulário têm emissor
+#   → definição + chamadores: os 9 eventos do vocabulário têm emissor
 cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~457)
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~124)
 ```
@@ -108,7 +115,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
 | Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
-| Eventos NDJSON com emissor | **os 8 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), **`job.log` e `aviso`** | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
+| Eventos NDJSON com emissor | **os 9 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), `job.log`, `aviso` e **`chat.pergunta`** (G12) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
 | App Electron | **M3–M8 + épico sem ArcMap** — menus/tray, offline, Esc≠job, R14 completo | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
 | Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
@@ -140,9 +147,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
   para quando existir id multimodal (`MAPASFACIL_MODELO_VISAO`).
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
   +40 MB (F1-07 P2); sem modelo de visão na API, o print fica só na análise determinística.
-- Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
+- Conta na nuvem / login no site (F2-05) — **adiado**; site v1 **sem** login (D21).
 - Instalador Windows (M10) — nada de empacotamento neste repositório ainda.
-- Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
+- Backend da Fase 2 — **fora da v1**. O frontend público em `web/` já está implementado.
 
 ## Ordem de implementação (dependências, nunca calendário)
 
@@ -226,7 +233,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
 | R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
 | R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — Argon2id, `tela-login`, sem Google | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
-| R10 | Conta na nuvem / site (Fase 2) | [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **adiado** — **não** bloqueia M5 | `Fase_2_Site/` (pós-M11) |
+| R10 | Conta na nuvem (adiado); site v1 = distribuição sem login (D21) | [F2-00](Fase_2_Site/planos/00-visao-e-escopo.md), [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **frontend feito** — landing, requisitos, download e contato; sem login/chat/backend; mapa demo fictício | `Fase_2_Site/web/` |
 | R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **feito** (A11) — `keyring` (CM/Secret Service); Preferências grava; `secrets.local.json` ainda vale em dev | `nucleo/.../cofre.py`, `app/src/componentes/Preferencias.tsx` |
 | R12 | Gate de sessão em `mapa.gerar` (`AUTH-030`) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — também `galeria.montar_mapspec`, `chat.enviar`, `quantitativos.exportar_xlsx` | `nucleo/.../sessao.py` |
 | R13 | Persistência local de conversas (SQLite) | [F1-17](Fase_1_Desktop/planos/17-persistencia-de-conversas.md) | **feito** (M6) — WAL+FTS5, redator na entrada, 10 `chat.*` | `nucleo/.../conversas/` |
@@ -241,7 +248,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (clientes em runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** — A13 abriu com `wms_wfs`; o épico seguinte fechou `arcgis_rest`, `wfs_gml` e `wms_raster`. **41/41 camadas com cliente** | `nucleo/.../camadas/` |
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
-| R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
+| R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
+| R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |

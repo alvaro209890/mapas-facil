@@ -102,4 +102,77 @@ describe("PainelChat", () => {
       expect(screen.getByText(/usar_modelo_da_galeria/)).toBeTruthy(),
     );
   });
+
+  it("chat.pergunta mostra chips e clicar num deles envia como mensagem normal", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "chat.abrir_conversa": CONVERSA_VAZIA,
+        "chat.enviar": { ok: true, resultado: { texto: "ok" } },
+      },
+    });
+    render(<PainelChat conversationId="c1" semChaveIa={false} />);
+    ponte.emitir({
+      evento: "chat.pergunta",
+      dados: {
+        pergunta: "Qual desses arquivos é o perímetro (ATP)?",
+        opcoes: [
+          { id: "A", rotulo: "Fazenda_Harmonia.shp" },
+          { id: "B", rotulo: "Area_do_PEF.shp" },
+        ],
+        permite_texto_livre: true,
+      },
+    });
+    await waitFor(() =>
+      expect(screen.getByText("Qual desses arquivos é o perímetro (ATP)?")).toBeTruthy(),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Fazenda_Harmonia.shp" }));
+
+    await waitFor(() =>
+      expect(
+        ponte.chamadas.some(
+          (c) =>
+            c.metodo === "chat.enviar" &&
+            (c.params as { mensagem?: string }).mensagem === "Fazenda_Harmonia.shp",
+        ),
+      ).toBe(true),
+    );
+    // novo turno começou: o cartão de pergunta some, não fica pendurado.
+    expect(screen.queryByText("Qual desses arquivos é o perímetro (ATP)?")).toBeNull();
+  });
+
+  it("chat.pergunta aceita resposta pelo campo de texto livre", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "chat.abrir_conversa": CONVERSA_VAZIA,
+        "chat.enviar": { ok: true, resultado: { texto: "ok" } },
+      },
+    });
+    render(<PainelChat conversationId="c1" semChaveIa={false} />);
+    ponte.emitir({
+      evento: "chat.pergunta",
+      dados: {
+        pergunta: "Qual é o perímetro?",
+        opcoes: [{ id: "A", rotulo: "Fazenda_Harmonia.shp" }],
+        permite_texto_livre: true,
+      },
+    });
+    await waitFor(() => expect(screen.getByText("Qual é o perímetro?")).toBeTruthy());
+
+    await userEvent.type(
+      screen.getByPlaceholderText("Ou digite sua resposta…"),
+      "É o SIEGEF.shp, não está na lista",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Responder" }));
+
+    await waitFor(() =>
+      expect(
+        ponte.chamadas.some(
+          (c) =>
+            c.metodo === "chat.enviar" &&
+            (c.params as { mensagem?: string }).mensagem === "É o SIEGEF.shp, não está na lista",
+        ),
+      ).toBe(true),
+    );
+  });
 });

@@ -9,7 +9,7 @@ mesmo commit.
 
 | # | Documento | Conteúdo |
 |---|---|---|
-| 00 | [Visão e as duas fases](00-visao-e-duas-fases.md) | problema real, proposta, escopo, riscos, decisões **D1–D20** |
+| 00 | [Visão e as duas fases](00-visao-e-duas-fases.md) | problema real, proposta, escopo, riscos, decisões **D1–D21** |
 | 01 | [Padrão IMAP — perfil Harmonia](01-padrao-imap-harmonia.md) | **fonte da verdade visual**: geometria medida, cores, checks HARD/SOFT |
 | 02 | [`MapSpec` — o contrato](02-mapspec-contrato.md) | o JSON que descreve um mapa, campo a campo |
 | 03 | [WFS e serviços geo](03-wfs-e-servicos-geo.md) | endpoints, receitas de request, gotchas de SEMA/IBAMA/FUNAI/INCRA |
@@ -21,7 +21,7 @@ mesmo commit.
 | Fase | Onde | Prioridade |
 |---|---|---|
 | **1 — App desktop Windows** | [`../Fase_1_Desktop/planos/`](../Fase_1_Desktop/planos/README.md) | **principal** — é onde o `.mxd` nasce |
-| 2 — Site e backend | [`../Fase_2_Site/planos/`](../Fase_2_Site/planos/README.md) | depois da Fase 1 validada |
+| 2 — Site de distribuição | [`../Fase_2_Site/planos/`](../Fase_2_Site/planos/README.md) | landing + download (D21); sem login/mapa no site |
 
 ## Dados versionados
 
@@ -50,5 +50,5 @@ O PR que muda tem de atualizar os planos de fase afetados junto.
 | M0 — Planos e contratos | **fechado**; reescritos para agentes em 2026-07-25 (D10–D20) |
 | Fase 1 — núcleo | **M1 bloco A fechado** · bloco B parcial (v0.4.0) — ver [checklist](../Fase_1_Desktop/planos/13-checklist-implementacao.md) |
 | Fase 1 — app Electron, galeria, auth local, conversas, agente, motion | M3–M4–M6–M8 fechados/parciais; **M5 conta local** ainda não iniciado |
-| Fase 2 — conta nuvem / memória ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)) | **adiada** (pós-M11); **não** bloqueia o M5 |
-| Fase 2 — restante | não iniciado; começa depois do M11 |
+| Fase 2 — site distribuição ([F2-00](../Fase_2_Site/planos/00-visao-e-escopo.md)) | planos **reescritos** (D21); código `web/` não iniciado |
+| Fase 2 — conta nuvem ([F2-05](../Fase_2_Site/planos/05-auth-e-memoria.md)) | **adiada**; **não** é a v1 do site |

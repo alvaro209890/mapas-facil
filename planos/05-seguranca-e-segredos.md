@@ -236,27 +236,31 @@ argumentos fixos e o payload num arquivo JSON no disco.
 
 ## Superfície da Fase 2
 
-- HTTPS obrigatório (o tunnel já termina TLS).
-- Autenticação em todas as rotas, exceto `/health`.
-- CORS restrito à origem do site.
-- Rate limit por conta e por IP.
+**v1 (D21 — só distribuição):** site público Next.js, sem login, sem upload, sem API.
+
+- HTTPS no domínio dedicado (`mapasfacil.cursar.space`).
 - Cabeçalhos: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`,
   `Strict-Transport-Security`.
-- Upload: tipo e tamanho validados, `.zip` inspecionado antes de extrair (anti *zip slip*).
-- Nada de `eval` sobre entrada, nada de template string em SQL — só query parametrizada.
+- Nenhum segredo no front; só `NEXT_PUBLIC_*` de download/contato.
+- Tunnel/host dedicado — configs de outros sistemas **intocadas**.
+
+**Se no futuro existir API/conta nuvem (F2-05 reaberto):** autenticação nas rotas (exceto
+health), CORS restrito, rate limit de abuso, upload com anti *zip slip*, SQL parametrizado —
+reabrir esta seção junto com [F2-02](../Fase_2_Site/planos/02-backend-api.md).
 
 ## Auditoria
 
-`audit_log` append-only na Fase 2, e log local rotacionado na Fase 1:
+Log local rotacionado na Fase 1. `audit_log` append-only na Fase 2 **só se** existir backend
+(hoje fora da v1):
 
 | Evento | Registrado |
 |---|---|
-| Pasta de trabalho autorizada/revogada | sempre |
-| Job de mapa criado / concluído / falhado | sempre, com `MapSpec` id e versão |
-| Chamada a serviço externo | endpoint, layer, bbox, contagem — **URL redigida** |
-| Prompt enviado à IA | tamanho e hash, não o conteúdo |
-| Chave lida do cofre | qual chave, nunca o valor |
-| Arquivo escrito em disco | caminho relativo à pasta do projeto |
+| Pasta de trabalho autorizada/revogada | Fase 1 — sempre |
+| Job de mapa criado / concluído / falhado | Fase 1 — sempre, com `MapSpec` id e versão |
+| Chamada a serviço externo | Fase 1 — endpoint, layer, bbox, contagem — **URL redigida** |
+| Prompt enviado à IA | Fase 1 — tamanho e hash, não o conteúdo |
+| Chave lida do cofre | Fase 1 — qual chave, nunca o valor |
+| Arquivo escrito em disco | Fase 1 — caminho relativo à pasta do projeto |
 
 ## Checklist de segurança pré-release
 
@@ -277,14 +281,14 @@ argumentos fixos e o payload num arquivo JSON no disco.
 - [ ] Redator de CPF aplicado **antes do INSERT** em `chats.sqlite`; `grep -a` do CPF no arquivo vazio
 - [ ] Nenhum caminho de rede em `nucleo/mapasfacil_nucleo/conversas/`
 
-### Fase 2 (pós-M11 — se/quando conta nuvem existir)
+### Fase 2 (v1 = site estático; API só se F2-05 reabrir)
 
-- [ ] Rotas autenticadas conforme o desenho **então** vigente (não copiar OAuth antigo às cegas)
+- [ ] Rotas autenticadas **só** se existir API — site v1 não tem login (D21)
 - [ ] Nenhuma tabela de quota/plano/cobrança (D18 / AP-05)
-- [ ] Tunnel dedicado; configs de outros sistemas **intocados**
-- [ ] Segredos só em env do serviço, permissão restrita
-- [ ] Upload de `.zip` com verificação anti *zip slip*
-- [ ] Backup do Postgres com segredo fora do dump
+- [ ] Tunnel/host dedicado; configs de outros sistemas **intocados**
+- [ ] Sem segredos no front; env só no servidor se houver API futura
+- [ ] Upload de `.zip` com anti *zip slip* — **N/A** na v1 (sem upload)
+- [ ] Backup do Postgres — **N/A** na v1 (sem Postgres)
 
 ### Repositório
 

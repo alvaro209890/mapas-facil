@@ -1,6 +1,7 @@
 # Catálogo compartilhado
 
-Arquivos machine-readable consumidos pelo **núcleo da Fase 1** e pelo **backend da Fase 2**.
+Arquivos machine-readable consumidos pelo **núcleo da Fase 1**. A Fase 2 v1 (landing) não lê
+este catálogo; um backend futuro reusaria os mesmos JSON.
 
 | Arquivo | Conteúdo |
 |---|---|
@@ -12,7 +13,7 @@ Arquivos machine-readable consumidos pelo **núcleo da Fase 1** e pelo **backend
 | [`wms_sondagem_2026-07-26.json`](wms_sondagem_2026-07-26.json) | Sonda GetCapabilities/GetMap no Windows **sem senha** |
 
 **Não contém credenciais.** O campo `auth` é o *nome* do segredo (`sema_authkey`), nunca o valor.
-Segredos vivem no Credential Manager do desktop (Fase 1) ou no cofre deste PC (Fase 2).
+Segredos vivem no Credential Manager do desktop (Fase 1). Site v1 não guarda chaves.
 
 Documentação operacional: [`../../planos/03-wfs-e-servicos-geo.md`](../../planos/03-wfs-e-servicos-geo.md)
 (seção **Sondagem WMS no Windows**).

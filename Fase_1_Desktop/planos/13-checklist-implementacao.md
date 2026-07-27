@@ -12,7 +12,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 |---|---|---|
 | A — fundação do núcleo | M1 | **fechado** — A1–A13 |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3 — depende de motor bom / M9) |
-| B — motor `.mxd` | M2 | **quase** — B1 scriptado + B2 `dinamica_retrato` **pronto**; falta GUI `ROTULO_IMOVEL` + recalibrar (ver [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md)) |
+| B — motor `.mxd` | M2 | **B1+B2 fechados** (2026-07-27) — `ROTULO_IMOVEL` criado na GUI, B2 recalibrado, `pronto_b1: true`. Falta o passo 1.4/1.5 do guia: gerar a entrega real e conferir os critérios de saída |
 | C — shell + design system | M3 | **fechado** — C1–C11 + menus/tray + banner offline + Esc≠job |
 | D — galeria | M4 | **fechado** |
 | E — conta local (e-mail + senha) | M5 | **fechado** |
@@ -76,8 +76,8 @@ Detalhe histórico sem ArcMap: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucle
 
 | # | Tarefa | Feito | Nota |
 |---|---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] | Rodado em 2026-07-27 no Acer: `normalizar_mxd_arcpy` + `corrigir_template_b1_arcpy` — TITULO/METADADOS/LEGENDA/NORTE/LOGO/MINIMAPA_* ok. **Falta só GUI:** criar TextElement `ROTULO_IMOVEL` (arcpy não cria elemento novo). Ver `docs/handoff-windows-fase1.md` |
-| B2 | MANIFEST `sha256` + offsets | [x] | `dinamica_retrato` **`status: pronto`** com offsets extent+escala (sentinelas pós-aspecto do ArcMap). **Recalibrar** depois de qualquer save na GUI |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [x] | **Fechado 2026-07-27**: script (`normalizar_mxd_arcpy` + `corrigir_template_b1_arcpy`) + GUI — `ROTULO_IMOVEL` criado à mão (arcpy não cria TextElement) e posicionado sobre o perímetro. `inspecionar_mxd_arcpy` confirma `pronto_b1: true` |
+| B2 | MANIFEST `sha256` + offsets | [x] | `dinamica_retrato` **`status: pronto`** com offsets extent+escala (sentinelas pós-aspecto do ArcMap). **Recalibrado 2026-07-27** após o save da GUI do B1 — `sha256_ok`/`patch_ok` verdes no doctor. Backup: `Dinamica_retrato.pre_b2.bak` |
 | B3 | `arcpy_job.py` + ponte | [x] | + minimapa IBGE (T1) |
 | B4 | Materializar `SHP/` | [~] | cópia + `ogr2ogr` opcional |
 | B5 | Extent bbox `.shp` | [~] | via metadados |
@@ -177,6 +177,7 @@ Plano: [F1-06](06-agente-eng-florestal.md).
 | G9 | Teste de vazamento (WKT, CPF, caminho, chave) | [x] | `tests/test_contexto_vazamento.py` |
 | G10 | Teste de paridade galeria ↔ chat | [x] | `tests/test_agente.py::test_galeria_antes_de_criar_mapa` |
 | G11 | Testes do loop: 12/13 rodadas, cancelamento com parcial, traces reais, passo do resumo | [x] | `tests/test_agente_orquestrador.py`, `tests/test_agente_tools.py`, `test_agente_vcr.py`, `app/tests/painel-chat.test.tsx` |
+| G12 | `chat.pergunta` — agente pede escolha ao usuário em vez de chutar | [x] | **2026-07-27**, 9º evento do vocabulário. Shapefile sem papel canônico reconhecido vira pergunta com chips + campo livre, não `NU-233` seco. Resposta volta como mensagem do turno seguinte (sem estado de espera no backend). `protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx`, `PainelChat.tsx`. Ver [`../../docs/sessao-2026-07-27-pergunta-e-ui.md`](../../docs/sessao-2026-07-27-pergunta-e-ui.md) |
 
 ## Bloco H — Motion e preview de construção (M8)
 

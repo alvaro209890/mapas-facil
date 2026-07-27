@@ -6,10 +6,12 @@
   align-items: flex-start;
   gap: var(--mf-e3);
   padding: var(--mf-e4);
-  background: var(--mf-superficie-2);
+  background: var(--mf-gradiente-superficie);
   border: 1px solid var(--mf-borda);
   border-left-width: 3px;
   border-radius: var(--mf-raio-2);
+  box-shadow: var(--mf-sombra);
+  animation: mf-surgir var(--mf-dur-3) var(--mf-ease-saida) both;
 }
 
 .bloco[data-tom="erro"] {
@@ -31,7 +33,21 @@
 .cabecalho {
   display: flex;
   align-items: center;
-  gap: var(--mf-e2);
+  gap: var(--mf-e3);
+}
+
+/* Ícone em medalhão: dá um ponto de entrada para o olho num painel vazio,
+   em vez de um glifo solto do tamanho do texto. */
+.icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: var(--mf-superficie-3);
 }
 
 .icone[data-tom="erro"] {
@@ -91,23 +107,42 @@
   display: inline-flex;
   align-items: center;
   gap: var(--mf-e1);
-  padding: var(--mf-e2) var(--mf-e3);
+  padding: var(--mf-e2) var(--mf-e4);
   border: 1px solid var(--mf-borda-forte);
   border-radius: var(--mf-raio-1);
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  font-weight: 600;
   color: var(--mf-texto);
-  transition: background-color var(--mf-dur-1) var(--mf-ease-saida);
+  transition:
+    background-color var(--mf-dur-1) var(--mf-ease-saida),
+    border-color var(--mf-dur-1) var(--mf-ease-saida),
+    transform var(--mf-dur-1) var(--mf-ease-saida),
+    box-shadow var(--mf-dur-2) var(--mf-ease-saida);
 }
 
 .acao:hover {
   background: var(--mf-superficie-3);
+  transform: translateY(-1px);
+}
+
+.acao:active {
+  transform: none;
 }
 
 .acao[data-primaria="true"] {
   border-color: var(--mf-acento);
   color: var(--mf-acento);
+  background: var(--mf-acento-fraco);
 }
 
 .acao[data-primaria="true"]:hover {
-  background: var(--mf-acento-fraco);
+  border-color: var(--mf-acento-forte);
+  color: var(--mf-acento-forte);
+  box-shadow: 0 6px 20px var(--mf-acento-fraco);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acao:hover {
+    transform: none;
+  }
 }

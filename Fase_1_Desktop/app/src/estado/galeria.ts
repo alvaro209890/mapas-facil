@@ -147,8 +147,13 @@ export function useGaleria(): EstadoGaleria & {
   return { ...estado, listar, detalhar, montar, limparDetalhe };
 }
 
-/** Caminho servido pelo Vite a partir de `app/public/galeria/`. */
+/** Caminho servido pelo Vite a partir de `app/public/galeria/`.
+ *
+ * **Relativo, nunca `/galeria/…`**: o renderer roda sob `file://` no app
+ * empacotado (`vite.config.ts` usa `base: "./"` pelo mesmo motivo), e um
+ * caminho absoluto resolveria para a raiz do disco — preview quebrado em
+ * produção e verde no dev server. */
 export function urlPreview(preview: string): string {
   const nome = preview.split("/").pop() ?? preview;
-  return `/galeria/${nome}`;
+  return `./galeria/${nome}`;
 }

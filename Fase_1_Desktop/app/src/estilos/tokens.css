@@ -34,6 +34,25 @@
   --mf-raio-2: 10px;
   --mf-raio-3: 14px;
   --mf-sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.24);
+  /* elevação de hover — o cartão sobe, não muda de cor de fundo */
+  --mf-sombra-alta: 0 2px 4px rgba(0, 0, 0, 0.45), 0 16px 40px rgba(0, 0, 0, 0.36);
+
+  /* superfícies compostas — profundidade sem inventar cor nova */
+  --mf-gradiente-superficie: linear-gradient(
+    180deg,
+    var(--mf-superficie-2) 0%,
+    var(--mf-superficie-1) 100%
+  );
+  /* véu sobre imagem: o texto por cima fica legível sem caixa opaca */
+  --mf-veu-imagem: linear-gradient(180deg, rgba(11, 14, 17, 0) 45%, rgba(11, 14, 17, 0.82) 100%);
+  --mf-brilho-acento: 0 0 0 1px var(--mf-acento), 0 8px 28px var(--mf-acento-fraco);
+  /* varredura do esqueleto de carregamento */
+  --mf-brilho-esqueleto: linear-gradient(
+    90deg,
+    var(--mf-superficie-3) 0%,
+    var(--mf-superficie-2) 50%,
+    var(--mf-superficie-3) 100%
+  );
 
   /* espaçamento — base 4 */
   --mf-e1: 4px;
@@ -92,6 +111,49 @@
   --mf-info: #1c6ba8;
 
   --mf-sombra: 0 1px 2px rgba(19, 25, 32, 0.12), 0 8px 24px rgba(19, 25, 32, 0.08);
+  --mf-sombra-alta: 0 2px 6px rgba(19, 25, 32, 0.16), 0 16px 40px rgba(19, 25, 32, 0.14);
+
+  /* No claro o véu escurece bem menos — a imagem já está sobre fundo claro. */
+  --mf-veu-imagem: linear-gradient(180deg, rgba(19, 25, 32, 0) 45%, rgba(19, 25, 32, 0.72) 100%);
+}
+
+/* Keyframes compartilhados. Ficam aqui porque `*.module.css` escopa nomes de
+   animação por arquivo — repetir a mesma varredura em cada módulo duplicaria
+   CSS e sairia do sistema. O bloco de reduced-motion abaixo corta todos. */
+
+/* Entrada de item de lista: sobe 6 px e aparece. */
+@keyframes mf-surgir {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Esqueleto de carregamento — varredura horizontal contínua. */
+@keyframes mf-varredura {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Halo pulsante de estado vivo (núcleo pronto, job em curso). */
+@keyframes mf-pulsar {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

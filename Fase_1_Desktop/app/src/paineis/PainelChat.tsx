@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 
+import { CartaoPergunta } from "../componentes/CartaoPergunta.js";
 import { EstadoVazio } from "../componentes/EstadoVazio.js";
 import { IndicadorPensando } from "../componentes/IndicadorPensando.js";
 import type { EstadoTool } from "../componentes/CartaoTool.js";
@@ -9,7 +10,8 @@ import { ListaCartoesTool, aplicarEventoTool, cancelarPendentes } from "../compo
 import { api } from "../estado/ponte.js";
 import type { MapSpecEmUso } from "../estado/avisosSistema.js";
 import { useAvisosSistema } from "../estado/avisosSistema.js";
-import type { DadosChatTool, EnvelopeEvento } from "../estado/eventos.js";
+import type { DadosChatPergunta, DadosChatTool, EnvelopeEvento } from "../estado/eventos.js";
+import { ehChatPergunta } from "../estado/eventos.js";
 import estilos from "./PainelChat.module.css";
 
 export interface MensagemChat {
@@ -58,6 +60,7 @@ export function PainelChat({
   const [streaming, setStreaming] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [tools, setTools] = useState<EstadoTool[]>([]);
+  const [pergunta, setPergunta] = useState<DadosChatPergunta | null>(null);
   const [cancelando, setCancelando] = useState(false);
   const fimRef = useRef<HTMLDivElement | null>(null);
 
@@ -78,6 +81,7 @@ export function PainelChat({
     setMensagens([]);
     setStreaming("");
     setTools([]);
+    setPergunta(null);
     setErro(null);
     if (conversationId) void carregar(conversationId);
   }, [carregar, conversationId]);
@@ -95,6 +99,9 @@ export function PainelChat({
         if (typeof dados.trace_id === "string" && typeof dados.tool === "string") {
           setTools((anterior) => aplicarEventoTool(anterior, dados));
         }
+      }
+      if (ehChatPergunta(evento)) {
+        setPergunta(evento.dados);
       }
     });
   }, []);
@@ -139,6 +146,7 @@ export function PainelChat({
     setCancelando(false);
     setStreaming("");
     setTools([]);
+    setPergunta(null);
     setErro(null);
     setMensagens((m) => [...m, { papel: "usuario", conteudo: texto.trim() }]);
     setRascunho("");
@@ -219,6 +227,7 @@ export function PainelChat({
           </div>
         )}
         <ListaCartoesTool tools={tools} />
+        {pergunta && <CartaoPergunta dados={pergunta} aoResponder={enviar} />}
         {/* F1-02 §Watcher — aviso do SISTEMA: não é turno, não vai ao LLM, não
             entra no transcript. Só existe se `workspace.mudou` chegou (AP-07). */}
         {avisosSistema.map((aviso) => (

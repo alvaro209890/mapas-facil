@@ -1,6 +1,8 @@
 # shared/
 
-Contratos versionados compartilhados pela **Fase 1** (desktop) e pela **Fase 2** (site/backend).
+Contratos versionados compartilhados pela **Fase 1** (desktop). A **Fase 2 v1** (site de
+distribuição) **não** consome estes artefatos em runtime; se no futuro houver API, ela reusa o
+mesmo `contract_version`.
 
 **Status (jul/2026):** catálogo geo versionado; schema `MapSpec` e `contract_version` **2**;
 manifesto de templates com `dinamica_retrato` **parcial** (sha256 registrado, offsets vazios);

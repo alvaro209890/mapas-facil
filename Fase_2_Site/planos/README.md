@@ -1,91 +1,50 @@
-# Planos da Fase 2 — Site e backend
+# Planos da Fase 2 — Site de distribuição
 
-Estes documentos descrevem o **site de engenharia florestal** e o backend que roda **neste PC**
-(Linux, Cuiabá-MT), exposto por **Cloudflare Tunnel** dedicado. A Fase 2 começa depois que a
-[Fase 1](../../Fase_1_Desktop/planos/README.md) estiver validada com usuário real.
+Site **público** para distribuir o Mapas Fácil (landing + download). Conta e mapas ficam no
+[app desktop](../../Fase_1_Desktop/planos/README.md). Decisão **D21** (2026-07-27): sem login no
+site, sem gerar mapa no browser. Publicação em `mapasfacil.cursar.space` no PC servidor —
+[F2-06](06-deploy-tunnel-neste-pc.md) — **sem** tocar tunnels de outros sistemas.
 
-Decisão **D7** ([`00-visao-e-duas-fases.md`](../../planos/00-visao-e-duas-fases.md)): o backend
-fica neste PC porque `sema.mt.gov.br` bloqueia IP fora do Brasil. **Render e Vercel não são o
-caminho primário** — o tunnel `mapasfacil-api.cursar.space` expõe a API; o site fica em
-`mapasfacil.cursar.space`.
-
-> ## Conta do desktop = local (não espere esta pasta)
+> ## Conta = só no desktop
 >
-> D10 revisada (2026-07-26): login do app é **e-mail + senha em SQLite** —
-> [F1-14](../../Fase_1_Desktop/planos/14-auth-e-conta.md). [`05-auth-e-memoria.md`](05-auth-e-memoria.md)
-> descreve conta **nuvem / memória** para **depois do M11** e **não** bloqueia o M5.
-> Quem implementar auth do app **não** trabalha em `Fase_2_Site/backend/` agora.
+> Login/criar conta: [F1-14](../../Fase_1_Desktop/planos/14-auth-e-conta.md).
+> [F2-05](05-auth-e-memoria.md) (conta nuvem) permanece **adiado** e **não** faz parte da v1 do site.
 
-## Índice desejado
+## Índice
 
 | # | Documento | Conteúdo | Status |
 |---|---|---|---|
-| F2-00 | [Visão e escopo](00-visao-e-escopo.md) | o que o site acrescenta, o que não faz, critérios de aceite | rascunho |
-| F2-01 | [Arquitetura](01-arquitetura.md) | Next.js + FastAPI neste PC; fronteiras; sem agente WS na nuvem | **LEGADO — reescrever** |
-| F2-02 | [Backend e API](02-backend-api.md) | FastAPI, Postgres, jobs, consultas geo locais | **LEGADO — reescrever** |
-| F2-03 | [Integração com a Fase 1](03-integracao-fase1.md) | reuso do núcleo/`MapSpec`; ponte desktop para `.mxd` | rascunho |
-| F2-04 | [Frontend e site](04-frontend-site.md) | Next.js, chat, projetos, mapa por número do CAR | **LEGADO — reescrever** |
-| F2-05 | [Identidade na nuvem e memória](05-auth-e-memoria.md) | conta nuvem / memória **pós-M11**; **não** bloqueia M5 (login desktop = F1-14 local) | **adiado** |
-| F2-06 | [Deploy e tunnel neste PC](06-deploy-tunnel-neste-pc.md) | Cloudflare Tunnel, systemd, domínios, sem tocar nos tunnels existentes | **LEGADO — reescrever** |
+| F2-00 | [Visão e escopo](00-visao-e-escopo.md) | distribuição only; critérios de aceite | **reescrito** (D21) |
+| F2-01 | [Arquitetura](01-arquitetura.md) | Next.js; sem API/agente WS | **reescrito** |
+| F2-02 | [Backend e API](02-backend-api.md) | backend **fora da v1** | **reescrito** |
+| F2-03 | [Integração com a Fase 1](03-integracao-fase1.md) | só download do instalador | **reescrito** |
+| F2-04 | [Frontend e site](04-frontend-site.md) | landing + **motion/vídeo de mapa**; download, contato | **reescrito** (+ motion) |
+| F2-05 | [Identidade nuvem / memória](05-auth-e-memoria.md) | adiado; sem login no site | **adiado** |
+| F2-06 | [Deploy](06-deploy-tunnel-neste-pc.md) | localhost → PC servidor → domínio | **reescrito** |
 
-### Sobre os arquivos LEGADO
-
-Os quatro arquivos existentes (`01`, `02`, `04`, `06`) foram escritos para o modelo antigo
-**nuvem + agente WebSocket** (Vercel + Render + `agent/` no PC do usuário). O corpo ainda descreve
-esse desenho. Mantêm-se no repositório como referência histórica até serem reescritos para o
-modelo **D7**: backend neste PC, tunnel dedicado, site estático ou SSR apontando para a API
-local, **sem gerar `.mxd` no servidor**.
-
-O que muda na reescrita:
-
-| Antes (legado) | Depois (D7) |
-|---|---|
-| `backend/` no Render | FastAPI neste PC, exposto por tunnel |
-| `web/` na Vercel como primário | site em `mapasfacil.cursar.space`, API em `mapasfacil-api.cursar.space` |
-| agente WS na nuvem orquestrando o PC | ponte opcional com o app desktop; `.mxd` só no Windows |
-| shapefiles sobem para a nuvem | dados sensíveis ficam no backend local ou no desktop |
-
-## Ordem de leitura (quando os planos estiverem prontos)
+## Ordem de leitura
 
 | # | Documento | Por quê |
 |---|---|---|
-| 00 | [Visão e escopo](00-visao-e-escopo.md) | o que a Fase 2 acrescenta e o que deliberadamente não faz |
-| 01 | [Arquitetura](01-arquitetura.md) | como site, API e tunnel se encaixam |
-| 03 | [Integração com a Fase 1](03-integracao-fase1.md) | o que reusa do desktop e o que delega |
-| 05 | [Auth e memória](05-auth-e-memoria.md) | projetos persistentes — o diferencial do site |
-| 02 | [Backend e API](02-backend-api.md) | implementação da API |
-| 04 | [Frontend e site](04-frontend-site.md) | implementação do site |
-| 06 | [Deploy e tunnel](06-deploy-tunnel-neste-pc.md) | como sobe e mantém neste PC |
+| 00 | [Visão](00-visao-e-escopo.md) | o que a v1 é e não é |
+| 01 | [Arquitetura](01-arquitetura.md) | fronteiras |
+| 04 | [Frontend](04-frontend-site.md) | páginas a implementar |
+| 03 | [Integração](03-integracao-fase1.md) | vínculo com o instalador |
+| 02 | [Backend](02-backend-api.md) | confirma que não há API |
+| 06 | [Deploy](06-deploy-tunnel-neste-pc.md) | como publicar |
+| 05 | [Auth nuvem](05-auth-e-memoria.md) | só se o produto pedir depois |
 
 ## Planos comuns
 
-Contratos compartilhados com a Fase 1: [`planos/`](../../planos/README.md).
-
-| # | Documento | O que traz para a Fase 2 |
-|---|---|---|
-| 02 | [`MapSpec` — contrato](../../planos/02-mapspec-contrato.md) | o JSON que descreve um mapa (reuso direto) |
-| 03 | [WFS e serviços geo](../../planos/03-wfs-e-servicos-geo.md) | consultas geo feitas pelo backend local |
-| 04 | [Dados, camadas e CAR](../../planos/04-dados-camadas-e-car.md) | mapa por número do CAR, cache |
-| 05 | [Segurança e segredos](../../planos/05-seguranca-e-segredos.md) | LGPD, cofre de chaves, dados de cliente |
-
-## Nota
-
-A Fase 2 **não gera `.mxd`**. Sem ArcMap no servidor Linux, o site entrega PDF/PNG (e delega o
-`.mxd` ao [app desktop](../../Fase_1_Desktop/README.md) quando o usuário precisar editar no ArcMap).
+Contratos do **mapa** continuam na Fase 1 / [`planos/`](../../planos/README.md). O site v1
+**não** consome MapSpec nem catálogo WFS em runtime.
 
 ## Estado
 
 | Marco | Status |
 |---|---|
-| **F2-05 — conta nuvem / memória** | **reescrito; adiado pós-M11; não bloqueia M5** (D10 revisada) |
-| F2-00, F2-03 | rascunhos alinhados a D7 |
-| F2-01, F2-02, F2-04, F2-06 | legado — corpo descreve modelo antigo (nuvem + agente WS) |
-| Código de produção | **não iniciado**; `backend/` e `web/` só têm `README.md` |
+| Planos F2-00…F2-06 | alinhados a D21 (distribuição) |
+| Código `web/` | **não iniciado** (só README) — motion especificado em F2-04; **não** implementar sem pedido |
+| Código `backend/` | **fora da v1** (só README) |
 
-Começa **depois do M11** da Fase 1. O que falta na Fase 1 (M2→M11):
-[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
-
-**Ao reescrever qualquer plano legado**, o modelo é o dos planos da Fase 1 reescritos em
-2026-07-25: Objetivo → Estado atual vs alvo → Dependências → Contratos → Tarefas agentáveis com
-caminho de arquivo → Critérios de aceite verificáveis → Fora de escopo → Anti-padrões. Ver
-[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#como-ler-um-plano).
+Desenvolver o site em qualquer PC (`pnpm dev`); publicar depois no PC servidor.

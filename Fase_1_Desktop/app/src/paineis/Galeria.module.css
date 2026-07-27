@@ -32,10 +32,38 @@
   gap: var(--mf-e3);
   overflow: auto;
   padding-bottom: var(--mf-e3);
+  /* Faixa de altura fixa, e não `auto`. O cartão é um `<button>`, e a altura
+     intrínseca que ele reporta como item de grade não conta o corpo inteiro:
+     com faixa automática a linha ficava curta e o nome/chip eram cortados pelo
+     `overflow: hidden` do cartão.
+
+     336 = moldura 168 + corpo no **pior caso**, e o pior caso é conhecido
+     porque nome, subtítulo e motivo têm `line-clamp: 2`
+     (CartaoModelo.module.css): 20 de padding + 35 nome + 31 subtítulo
+     + 24 chip + 31 motivo + 12 de gaps ≈ 153, com folga de arredondamento.
+     Mudou o corpo do cartão? Recalcule este número junto. */
+  grid-auto-rows: 336px;
 }
 
 .estado {
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
   color: var(--mf-texto-2);
-  padding: var(--mf-e4);
+  padding: 0 var(--mf-e4);
+}
+
+/* Placeholder ocupa a faixa inteira — mesma altura do cartão real. */
+.esqueleto {
+  height: 100%;
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  background: var(--mf-brilho-esqueleto);
+  background-size: 200% 100%;
+  animation: mf-varredura 1400ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto {
+    background: var(--mf-superficie-2);
+    animation: none;
+  }
 }
