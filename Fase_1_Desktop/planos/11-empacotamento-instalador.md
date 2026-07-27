@@ -28,6 +28,40 @@ O instalador entrega **um produto só**: Electron e núcleo sobem juntos, com `v
 conferida no boot (`UI-010` se incompatível). Não há matriz de compatibilidade entre versões
 do shell e do núcleo.
 
+## Estado atual vs alvo (2026-07-27)
+
+**Parcial — o pipeline agora existe e é reproduzível a partir do repositório.**
+
+A release `desktop-v0.5.0` foi montada **fora da árvore**: não havia spec do
+PyInstaller, config do electron-builder nem a devDependency versionada, então
+o `.exe` não podia ser reconstruído nem corrigido daqui. Além disso ele
+empacotou o sidecar como `nucleo.exe`, enquanto o app procurava
+`mapasfacil-nucleo.exe` — o núcleo nunca subia e a janela ficava presa em
+"núcleo iniciando".
+
+O que passou a existir:
+
+| Peça | Onde |
+|---|---|
+| Spec do PyInstaller (onedir) | `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
+| Extra do Python para empacotar | `pyproject.toml` → `[project.optional-dependencies] empacotar` |
+| Ponte build → PyInstaller | `Fase_1_Desktop/app/scripts/build-nucleo.mjs` |
+| Config NSIS/electron-builder | `Fase_1_Desktop/app/package.json` → `build` |
+| Comando único | `pnpm dist` (na pasta `app/`) |
+
+Para gerar o instalador:
+
+```powershell
+cd Fase_1_Desktop\nucleo
+.\.venv\Scripts\python.exe -m pip install -e ".[empacotar]"
+cd ..\app
+pnpm dist
+```
+
+Saída em `Fase_1_Desktop/app/release/` (gitignored — o artefato vai para a Release).
+
+**Falta:** assinatura Authenticode (sem ela o SmartScreen alerta) e auto-update.
+
 ## Stack de empacotamento
 
 | Componente | Ferramenta | Notas |

@@ -3,6 +3,8 @@ node_modules/
 .pnpm-store/
 dist/
 build/
+# Instalador gerado pelo electron-builder (o artefato vai para a Release)
+release/
 .next/
 out/
 *.egg-info/

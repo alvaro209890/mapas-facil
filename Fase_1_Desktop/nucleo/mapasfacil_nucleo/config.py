@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from mapasfacil_nucleo import __version__
@@ -53,7 +54,15 @@ LIMITE_COMPONENTE = 255
 
 
 def raiz_repositorio() -> Path:
-    """Raiz do monorepo (Mapas_Facil/)."""
+    """Raiz do monorepo (Mapas_Facil/).
+
+    Empacotado (PyInstaller), `__file__` aponta para dentro do bundle e a
+    contagem de `parents` deixa de valer. A âncora passa a ser `sys._MEIPASS`,
+    a pasta onde o PyInstaller põe os `datas` (`_internal/` no modo onedir).
+    """
+    if getattr(sys, "frozen", False):
+        base = getattr(sys, "_MEIPASS", None)
+        return Path(base) if base else Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parents[3]
 
 

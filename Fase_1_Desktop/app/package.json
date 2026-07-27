@@ -1,7 +1,8 @@
 {
-  "name": "app",
+  "name": "mapas-facil",
+  "productName": "Mapas Facil",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.5.1",
   "description": "Mapas Fácil — shell Electron + React (Fase 1). Ver Fase_1_Desktop/planos/02-ui-chat-e-workspace.md",
   "type": "module",
   "main": "dist/electron/main.cjs",
@@ -11,9 +12,43 @@
     "build:renderer": "vite build",
     "build:electron": "node scripts/build-electron.mjs",
     "build": "pnpm run build:renderer && pnpm run build:electron",
+    "build:nucleo": "node scripts/build-nucleo.mjs",
+    "dist": "pnpm run build && pnpm run build:nucleo && electron-builder --win --publish never",
     "typecheck": "tsc -b --force",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "build": {
+    "appId": "space.cursar.mapasfacil",
+    "productName": "Mapas Facil",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "../nucleo/dist/mapasfacil-nucleo",
+        "to": "nucleo"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "MapasFacil-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mapas Facil"
+    }
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -40,6 +75,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "axe-core": "^4.12.1",
     "electron": "^33.3.0",
+    "electron-builder": "^26.15.3",
     "esbuild": "^0.24.2",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",

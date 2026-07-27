@@ -29,6 +29,9 @@ dev = [
   "pytest>=8.0,<9",
   "pytest-cov>=5.0,<6",
 ]
+empacotar = [
+  "pyinstaller>=6.0,<7",
+]
 
 [project.scripts]
 mapasfacil-nucleo = "mapasfacil_nucleo.__main__:main_cli"
