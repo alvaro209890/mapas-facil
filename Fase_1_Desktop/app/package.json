@@ -2,7 +2,7 @@
   "name": "mapas-facil",
   "productName": "Mapas Facil",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Mapas Fácil — shell Electron + React (Fase 1). Ver Fase_1_Desktop/planos/02-ui-chat-e-workspace.md",
   "type": "module",
   "main": "dist/electron/main.cjs",
@@ -41,6 +41,13 @@
       ],
       "artifactName": "MapasFacil-Setup-${version}.${ext}"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "alvaro209890",
+        "repo": "mapas-facil"
+      }
+    ],
     "nsis": {
       "oneClick": false,
       "perMachine": false,
@@ -57,6 +64,7 @@
     ]
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

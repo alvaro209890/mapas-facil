@@ -3,6 +3,10 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 import {
+  CANAL_ATUALIZACAO,
+  CANAL_ATUALIZACAO_ATUAL,
+  CANAL_ATUALIZACAO_BAIXAR,
+  CANAL_ATUALIZACAO_INSTALAR,
   CANAL_CHAMAR,
   CANAL_COMANDO_MENU,
   CANAL_ESTADO,
@@ -47,6 +51,20 @@ const api = {
   /** Estado atual da ponte — o push do boot já passou quando o React assina. */
   estadoNucleoAtual(): Promise<{ estado: string; erro: null }> {
     return ipcRenderer.invoke(CANAL_ESTADO_ATUAL) as Promise<{ estado: string; erro: null }>;
+  },
+  aoAtualizacao(ouvinte: (estado: unknown) => void): () => void {
+    const alca = (_e: unknown, estado: unknown) => ouvinte(estado);
+    ipcRenderer.on(CANAL_ATUALIZACAO, alca);
+    return () => ipcRenderer.removeListener(CANAL_ATUALIZACAO, alca);
+  },
+  atualizacaoAtual(): Promise<unknown> {
+    return ipcRenderer.invoke(CANAL_ATUALIZACAO_ATUAL);
+  },
+  baixarAtualizacao(): Promise<void> {
+    return ipcRenderer.invoke(CANAL_ATUALIZACAO_BAIXAR) as Promise<void>;
+  },
+  instalarAtualizacao(): Promise<void> {
+    return ipcRenderer.invoke(CANAL_ATUALIZACAO_INSTALAR) as Promise<void>;
   },
   /** Abre o diálogo nativo de pasta e manda o núcleo indexar o que o usuário escolheu. */
   conectarPasta(): Promise<RespostaConectar> {

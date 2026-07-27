@@ -15,6 +15,15 @@ export interface EstadoNucleo {
   erro: { codigo: string; mensagem: string } | null;
 }
 
+/** Auto-update: espelha `EstadoAtualizacao` do processo main. */
+export type EstadoAtualizacao =
+  | { fase: "ocioso" }
+  | { fase: "verificando" }
+  | { fase: "disponivel"; versao: string; notas?: string }
+  | { fase: "baixando"; pct: number }
+  | { fase: "pronta"; versao: string }
+  | { fase: "erro"; mensagem: string };
+
 /** Conectar pasta: `cancelado` é o usuário fechando o diálogo nativo, não erro. */
 export interface RespostaConectar extends Partial<RespostaNucleo> {
   cancelado: boolean;
@@ -33,6 +42,11 @@ export interface ApiMapasFacil {
   aoEstadoNucleo(ouvinte: (estado: EstadoNucleo) => void): () => void;
   /** Opcional: builds antigos do preload não expõem. */
   estadoNucleoAtual?(): Promise<EstadoNucleo>;
+  /** Auto-update (F1-11 P2). Opcional: só existe no app empacotado recente. */
+  aoAtualizacao?(ouvinte: (estado: EstadoAtualizacao) => void): () => void;
+  atualizacaoAtual?(): Promise<EstadoAtualizacao>;
+  baixarAtualizacao?(): Promise<void>;
+  instalarAtualizacao?(): Promise<void>;
   /** Menu/tray do main → id de comando da paleta (`conectar-pasta`, …). */
   aoComandoMenu?(ouvinte: (id: string) => void): () => void;
   conectarPasta(): Promise<RespostaConectar>;

@@ -1,0 +1,70 @@
+.barra {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e3);
+  padding: var(--mf-e2) var(--mf-e4);
+  border-bottom: 1px solid var(--mf-borda);
+  background: var(--mf-superficie-2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+}
+
+.barra[data-tom="pronta"] {
+  border-bottom-color: var(--mf-acento);
+  background: var(--mf-acento-fraco);
+}
+
+.barra[data-tom="aviso"] {
+  color: var(--mf-texto-3);
+}
+
+.texto {
+  color: var(--mf-texto);
+}
+
+.detalhe {
+  font-family: var(--mf-fonte-mono);
+  font-size: 11px;
+  color: var(--mf-texto-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acao {
+  margin-left: auto;
+  flex: none;
+  padding: var(--mf-e1) var(--mf-e3);
+  border: 1px solid var(--mf-acento);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-acento);
+  color: var(--mf-bg);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  font-weight: 600;
+}
+
+.acao:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.acao:disabled {
+  opacity: 0.6;
+}
+
+/* Progresso real do download — largura vem do evento, não de animação. */
+.trilho {
+  margin-left: auto;
+  flex: none;
+  width: 160px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--mf-superficie-3);
+  overflow: hidden;
+}
+
+.trilho i {
+  display: block;
+  height: 100%;
+  background: var(--mf-acento);
+  transition: width var(--mf-dur-2) var(--mf-ease-saida);
+}

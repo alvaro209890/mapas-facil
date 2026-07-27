@@ -37,13 +37,13 @@ export const DEFAULT_MANIFEST_URL =
  * manifesto falhar (rede/GitHub). Atualizar junto com a próxima release.
  */
 export const FALLBACK_DOWNLOAD: DownloadInfo = {
-  url: "https://github.com/alvaro209890/mapas-facil/releases/download/desktop-v0.5.1/MapasFacil-Setup-0.5.1.exe",
-  versao: "0.5.1",
-  nome: "MapasFacil-Setup-0.5.1.exe",
-  sha256: "b9fa04029c6181ac6154618720f50b1906df4b96f5fc15c249d9db8dea0f55e9",
-  tamanhoBytes: 139250070,
+  url: "https://github.com/alvaro209890/mapas-facil/releases/download/v0.5.2/MapasFacil-Setup-0.5.2.exe",
+  versao: "0.5.2",
+  nome: "MapasFacil-Setup-0.5.2.exe",
+  sha256: "74258fe22014f5f7c09af87f243f7619eb50ae27afed1fa9b2f99d6031db6a9d",
+  tamanhoBytes: 139573231,
   notas:
-    "Corrige o app não abrir, o login pedido duas vezes e as camadas WMS/WMTS que exigiam configuração manual. Sem Authenticode — no SmartScreen use Mais informações → Executar mesmo assim.",
+    "Primeira versão com atualização automática. Instale por cima da anterior. Sem Authenticode — no SmartScreen use Mais informações → Executar mesmo assim.",
   fonte: "fallback",
 };
 

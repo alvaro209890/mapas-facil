@@ -20,6 +20,13 @@ export const CANAL_WORKSPACE_CONECTAR = "workspace:conectar";
 export const CANAL_WORKSPACE_RECENTES = "workspace:recentes";
 export const CANAL_WORKSPACE_ABRIR_RECENTE = "workspace:abrir-recente";
 
+// Auto-update (F1-11 P2). O main empurra o estado por `CANAL_ATUALIZACAO` e o
+// renderer pede as ações — nada baixa nem instala sem clique do usuário.
+export const CANAL_ATUALIZACAO = "atualizacao:estado";
+export const CANAL_ATUALIZACAO_ATUAL = "atualizacao:estado-atual";
+export const CANAL_ATUALIZACAO_BAIXAR = "atualizacao:baixar";
+export const CANAL_ATUALIZACAO_INSTALAR = "atualizacao:instalar";
+
 // Menu nativo e tray (main) → renderer. Carrega só o **id do comando** já
 // existente na paleta `Ctrl+K`, para menu e paleta nunca divergirem de
 // comportamento. Nenhum dado do disco trafega por aqui.

@@ -193,6 +193,37 @@ maioria dos técnicos desiste na instalação. Isso é S1 de adoção, não cosm
 
 ## P2 — Auto-update
 
+**Implementado em 2026-07-27 (a partir da `0.5.2`).**
+
+| Peça | Onde |
+|---|---|
+| Ciclo de update no main | `Fase_1_Desktop/app/electron/atualizador.ts` |
+| Canais IPC | `electron/ipc/canais.ts` → `atualizacao:*` |
+| Aviso na UI | `src/componentes/BarraAtualizacao.tsx` |
+| Feed | `publish` (provider `github`) no `package.json` → gera `resources/app-update.yml` |
+
+Como se comporta:
+
+- verifica no boot e a cada **4 h** (o app fica aberto o dia inteiro; só no boot
+  não bastaria);
+- **nada baixa sozinho** (`autoDownload = false`) e nada instala sem clique:
+  "Atualizar agora" baixa, "Reiniciar e instalar" aplica;
+- a barra só aparece quando há o que fazer — em `ocioso`/`verificando` ela some,
+  para não virar ruído fixo no topo;
+- falha de rede não derruba nada: vira aviso discreto e o app segue.
+
+**Tags da release importam.** O provider GitHub do `electron-updater` lê a tag
+da última release e tira a versão dela, então a tag precisa ser `vX.Y.Z`. As
+releases do desktop passaram de `desktop-vX.Y.Z` para **`vX.Y.Z`** por causa
+disso. Cada release precisa carregar `latest.yml` e o `.blockmap` junto do
+`.exe` — sem o `latest.yml` o app não enxerga a atualização.
+
+**Quem está na 0.5.0/0.5.1 não recebe update automático** — essas versões foram
+empacotadas sem o updater. A migração para a 0.5.2 é manual, uma vez; da 0.5.2
+em diante o ciclo é automático.
+
+Referência histórica da decisão:
+
 `electron-updater` com feed hospedado na release do GitHub (ou bucket próprio). O núcleo vai
 **dentro** do instalador — não há update separado do Python.
 

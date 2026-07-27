@@ -60,7 +60,7 @@ Até lá a regra permanece:
 
 - [x] Reduzir este plano ao vínculo download (D21)
 - [x] Na implementação do `web/`: ligar CTA a `NEXT_PUBLIC_DOWNLOAD_URL`
-- [x] Após M10: publicar URL do instalador no env do PC servidor (`desktop-v0.5.1`)
+- [x] Após M10: publicar URL do instalador no env do PC servidor (`v0.5.2`)
 
 ## Critérios de aceite
 

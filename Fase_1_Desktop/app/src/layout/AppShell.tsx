@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Map as MapaIcone, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { AvisoAtalho } from "../componentes/AvisoAtalho.js";
+import { BarraAtualizacao } from "../componentes/BarraAtualizacao.js";
 import { BarraProgressoJob } from "../componentes/BarraProgressoJob.js";
 import { DoctorResumoPuro } from "../componentes/DoctorResumo.js";
 import { EstadoVazio, SemArcMap, SemChaveDeepSeek, SemInternet } from "../componentes/EstadoVazio.js";
@@ -222,6 +223,7 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
         aoAbrirPaleta={abrirPaleta}
         aoAbrirDoctor={verificarAmbiente}
       />
+      <BarraAtualizacao />
       {banner}
       {!online ? (
         <div className={estilos.bannerOffline} role="status" data-testid="banner-offline">

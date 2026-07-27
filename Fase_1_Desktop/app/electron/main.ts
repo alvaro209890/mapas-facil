@@ -1,11 +1,20 @@
 // Processo main do Electron: janela, ponte com o núcleo, IPC tipado, diálogo
-// nativo de pasta (C7), menus e tray (F1-02). Auto-update fica para M10.
+// nativo de pasta (C7), menus e tray (F1-02) e auto-update (F1-11 P2).
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, type Tray } from "electron";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
 import {
+  baixar as baixarAtualizacao,
+  estadoAtualizacao,
+  iniciarAtualizador,
+  instalarEReiniciar,
+} from "./atualizador.js";
+import {
+  CANAL_ATUALIZACAO_ATUAL,
+  CANAL_ATUALIZACAO_BAIXAR,
+  CANAL_ATUALIZACAO_INSTALAR,
   CANAL_CHAMAR,
   CANAL_ESTADO,
   CANAL_EVENTO,
@@ -286,6 +295,12 @@ function registrarIpc(): void {
     erro: null,
   }));
 
+  ipcMain.handle(CANAL_ATUALIZACAO_ATUAL, () => estadoAtualizacao());
+  ipcMain.handle(CANAL_ATUALIZACAO_BAIXAR, () => baixarAtualizacao());
+  ipcMain.handle(CANAL_ATUALIZACAO_INSTALAR, () => {
+    instalarEReiniciar();
+  });
+
   ipcMain.handle(CANAL_REINICIAR, () => {
     ponte?.reiniciar();
     return { estado: ponte?.estado ?? "parado" };
@@ -303,6 +318,7 @@ void app.whenReady().then(() => {
   registrarIpc();
   janela = criarJanela();
   ponte = ligarPonte(janela);
+  iniciarAtualizador(janela, app.isPackaged);
   atualizarChrome();
   tray = criarTray(montarOpcoesMenu());
 
