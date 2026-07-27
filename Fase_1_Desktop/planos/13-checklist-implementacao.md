@@ -6,7 +6,7 @@ analysis em [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#gap-analysis--requisit
 
 Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
-## Estado em 2026-07-26
+## Estado em 2026-07-27
 
 | Bloco | Marco | Estado |
 |---|---|---|
@@ -19,10 +19,10 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
-| I — conformidade / instalador / piloto | M9–M11 | **não iniciado** — só falta isto na Fase 1 (depois do M2) |
+| I — conformidade / instalador / piloto | M9–M11 | **M10 infra feita**; M9 e M11 + Authenticode/smoke Windows pendentes |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → M10 → M11**.
-Fase 2 começa após M11.
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → validar M10 no Windows → M11**.
+Guia de build: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md). Fase 2 começa após M11.
 
 **Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md).
 
@@ -202,9 +202,9 @@ Plano: [F1-16](16-design-system-dark.md).
 | I1 | Série completa da Harmonia com 14 HARD verdes | [ ] |
 | I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] |
 | I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] |
-| I4 | PyInstaller onedir + `electron-builder` + NSIS | [ ] |
-| I5 | Assinatura Authenticode + `sha256.txt` na release | [ ] |
-| I6 | Auto-update N → N+1 | [ ] |
+| I4 | PyInstaller onedir + `electron-builder` + NSIS + CI `desktop-v*` | [x] — ver [`EMPACOTAMENTO.md`](../EMPACOTAMENTO.md); falta smoke em Windows limpo |
+| I5 | Assinatura Authenticode + `sha256.txt` na release | [~] — `sha256.txt` + manifesto na release; Authenticode sem certificado |
+| I6 | Auto-update N → N+1 | [~] — `electron-updater` + `latest.yml`; validar N→N+1 no Windows |
 | I7 | Login funcionando a partir da build instalada | [ ] |
 | I8 | Piloto instala, faz login e gera o primeiro mapa em < 15 min | [ ] |
 

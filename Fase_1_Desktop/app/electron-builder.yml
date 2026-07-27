@@ -1,0 +1,55 @@
+appId: app.mapasfacil.desktop
+productName: Mapas Facil
+copyright: Copyright © Mapas Fácil
+# Zip / genérico; NSIS sobrescreve abaixo.
+artifactName: MapasFacil-${version}-${os}-${arch}.${ext}
+
+directories:
+  output: release
+  buildResources: build-resources
+
+files:
+  - dist/electron/**/*
+  - dist/renderer/**/*
+  - package.json
+
+extraResources:
+  - from: resources-staging/nucleo
+    to: nucleo
+    filter:
+      - "**/*"
+      - "!arcpy_job.py"
+
+extraFiles:
+  - from: resources-staging/nucleo/arcpy_job.py
+    to: arcpy_job.py
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: zip
+      arch: [x64]
+  # Assinatura Authenticode: CSC_LINK / CSC_KEY_PASSWORD no CI quando houver certificado.
+  # Beta interno: sem assinatura (dívida F1-11 — SmartScreen "Executar mesmo assim").
+  verifyUpdateCodeSignature: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Mapas Facil
+  uninstallDisplayName: Mapas Fácil
+  deleteAppDataOnUninstall: false
+  artifactName: MapasFacil-Setup-${version}.${ext}
+
+publish:
+  provider: github
+  owner: alvaro209890
+  repo: mapas-facil
+  releaseType: release
+
+electronUpdaterCompatibility: ">= 2.16"

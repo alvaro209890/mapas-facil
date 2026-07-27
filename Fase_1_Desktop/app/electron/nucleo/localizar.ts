@@ -12,8 +12,9 @@ export interface ComandoNucleo {
 
 export function localizarNucleo(raizApp: string, empacotado: boolean): ComandoNucleo {
   if (empacotado) {
+    // resources/nucleo/nucleo.exe (+ shared/ e, no staging, arcpy_job.py)
     const pasta = join(process.resourcesPath, "nucleo");
-    const executavel = process.platform === "win32" ? "mapasfacil-nucleo.exe" : "mapasfacil-nucleo";
+    const executavel = process.platform === "win32" ? "nucleo.exe" : "nucleo";
     return { comando: join(pasta, executavel), args: ["stdio"], cwd: pasta };
   }
 
@@ -25,4 +26,11 @@ export function localizarNucleo(raizApp: string, empacotado: boolean): ComandoNu
   const python = candidatos.find((caminho) => existsSync(caminho)) ?? "python3";
 
   return { comando: python, args: ["-m", "mapasfacil_nucleo", "stdio"], cwd: pastaNucleo };
+}
+
+/** Caminho do `arcpy_job.py` na instalação (F1-11: ao lado do .exe do app). */
+export function localizarArcpyJob(empacotado: boolean): string | null {
+  if (!empacotado) return null;
+  const candidato = join(process.resourcesPath, "..", "arcpy_job.py");
+  return existsSync(candidato) ? candidato : null;
 }

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,27 @@ EXIT_TIMEOUT = 124
 
 
 def caminho_arcpy_job() -> Path:
+    """Localiza `arcpy_job.py` (Python 2.7 do ArcMap — fora do PyInstaller).
+
+    Ordem: `MAPASFACIL_ARCPY_JOB` → ao lado do `nucleo.exe` → raiz do instalador
+    (`resources/../arcpy_job.py`, F1-11) → árvore de desenvolvimento.
+    """
+    env = os.environ.get("MAPASFACIL_ARCPY_JOB")
+    if env:
+        return Path(env)
+
+    if getattr(sys, "frozen", False):
+        exe_dir = Path(sys.executable).resolve().parent
+        candidatos = (
+            exe_dir / "arcpy_job.py",
+            # resources/nucleo/nucleo.exe → <install>/arcpy_job.py
+            exe_dir.parent.parent / "arcpy_job.py",
+        )
+        for candidato in candidatos:
+            if candidato.is_file():
+                return candidato
+        return candidatos[-1]
+
     return Path(__file__).resolve().parents[1] / "scripts" / "arcpy_job.py"
 
 

@@ -9,19 +9,21 @@ grafo de dependências, não um calendário.
 A Fase 2 (site/backend geo) **não entra neste roadmap**. Conta do app = **local** ([F1-14](14-auth-e-conta.md));
 [F2-05](../../Fase_2_Site/planos/05-auth-e-memoria.md) é pós-M11 e **não** bloqueia o M5.
 
-## Snapshot (2026-07-26)
+## Snapshot (2026-07-27)
 
 | Faixa | Marcos | Estado |
 |---|---|---|
 | Fechado sem ArcMap | M0, M1A, M3, M4, M5, M6, M7, M8 (+ F1-07, A9–A13, polish) | **feito** |
+| Instalador (infra) | **M10** | **parcial** — código + CI prontos ([`EMPACOTAMENTO.md`](../EMPACOTAMENTO.md)); Authenticode/smoke Windows pendentes |
 | Parcial / próximo | **M2** (motor `.mxd`) | exige Windows + ArcMap |
-| Não iniciado | **M9** → **M10** → **M11** | Harmonia, instalador, piloto |
+| Não iniciado | **M9** → validar M10 → **M11** | Harmonia, smoke instalador, piloto |
 | Depois | Fase 2 | após M11 |
 
 Backlog desktop **sem** ArcMap: esgotado. Detalhe vivo:
-[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
+[`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-27).
 
-**No PC Windows:** execute [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) (M2 → M9 → M10 → M11).
+**No PC Windows:** execute [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) (M2 → M9 → validar M10 → M11).
+**Publicar `.exe`:** tag `desktop-vX.Y.Z` — ver [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md).
 
 ## Grafo
 
@@ -314,17 +316,23 @@ PDFs-modelo. É o marco que prova que o produto funciona de verdade.
 
 **Objetivo:** transformar o app em `.exe` instalável, assinado, com auto-update.
 
+**Estado (2026-07-27):** infra **no repositório** — PyInstaller onedir, electron-builder NSIS,
+`electron-updater`, workflow `release-desktop.yml` (tag `desktop-v*`), `download-manifest.json`
+para o site. Guia: [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md).
+
 **Critério de saída:**
 
 - [ ] Instalação limpa em Windows 11 sem Python pré-instalado
 - [ ] T2 completo passa após instalação (máquina sem ArcMap)
-- [ ] Login funciona a partir da build instalada (loopback + `mapasfacil://` de fallback registrado)
+- [ ] Login funciona a partir da build instalada
 - [ ] Instalador < 250 MB (P5) ou desvio justificado
 - [ ] Auto-update de N para N+1 funciona
 - [ ] Desinstalação limpa; `%APPDATA%\MapasFacil\` preservado ou removido conforme a escolha do usuário
-- [ ] Critérios de [`11-empacotamento-instalador.md`](11-empacotamento-instalador.md) atendidos
+- [x] Critérios de build de [`11-empacotamento-instalador.md`](11-empacotamento-instalador.md) (código + CI)
+- [ ] Assinatura Authenticode (release pública) ou dívida documentada no beta
 
-**Dependências:** M1–M9. M9 é bloqueante — não se empacota um gerador que não passa na Harmonia.
+**Dependências:** empacotar não exige M9 no CI; **qualidade do mapa** no piloto ainda depende de
+M2/M9. Não anunciar paridade Harmonia na página de download até M9.
 
 ---
 

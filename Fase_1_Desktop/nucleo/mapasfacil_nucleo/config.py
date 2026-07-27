@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from mapasfacil_nucleo import __version__
@@ -52,8 +53,19 @@ LIMITE_CAMINHO_WINDOWS = 260
 LIMITE_COMPONENTE = 255
 
 
+def empacotado() -> bool:
+    """True quando o sidecar roda como binário PyInstaller (F1-11 onedir)."""
+    return bool(getattr(sys, "frozen", False))
+
+
 def raiz_repositorio() -> Path:
-    """Raiz do monorepo (Mapas_Facil/)."""
+    """Raiz dos dados do produto.
+
+    Em desenvolvimento: raiz do monorepo (`shared/`, `Referencias_IMAP/`, …).
+    Empacotado (PyInstaller onedir): pasta do `nucleo.exe`, onde mora `shared/`.
+    """
+    if empacotado():
+        return Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parents[3]
 
 

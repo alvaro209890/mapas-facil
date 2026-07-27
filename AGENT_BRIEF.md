@@ -4,17 +4,20 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
-## Snapshot — o que falta (2026-07-26)
+## Snapshot — o que falta (2026-07-27)
 
 ### Fase 1 — desktop
 
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
+| **Instalador / release (M10 infra)** | **feito** — PyInstaller onedir + electron-builder NSIS + `electron-updater` + workflow `desktop-v*` + `download-manifest.json` para o site ([`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md)). Falta Authenticode + smoke em Windows limpo. |
 | **Com Windows + ArcMap** | **falta** — **M2** (motor `.mxd`) → **M9** (conformidade Harmonia) |
-| **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
+| **Piloto** | **falta** — **M11** (depois de validar o instalador no Windows) |
 
-Ordem obrigatória do que resta: **M2 → M9 → M10 → M11**.
+Ordem do que resta para fechar a Fase 1 de ponta a ponta: **M2 → M9 → validar M10 no Windows → M11**.
+
+> M10 (empacotamento) foi adiantado para o site ter `.exe` baixável; a qualidade Harmonia do mapa ainda depende de M2/M9 no PC com ArcMap.
 
 ### Guia passo a passo no Windows
 
@@ -126,8 +129,9 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - Tools do agente que respondem `IA-022`: **nenhuma hoje** — `TOOLS_COM_DEPENDENCIA_PENDENTE`
   está vazio. `consultar_sema`/`distancia_ate` saíram em A13; `analisar_referencia` saiu em F1-07.
 - **Backlog desktop sem ArcMap: esgotado** (F1-07, clientes 41/41, `job.log`/`aviso`, watcher→chat,
-  menu de chats R14, menus/tray Electron, banner offline, Esc≠job). O que falta é o eixo
-  **Windows+ArcMap (M2→M9)**, **instalador/piloto (M10–M11)** e **Fase 2**.
+  menu de chats R14, menus/tray Electron, banner offline, Esc≠job). **M10 infra** (instalador +
+  CI de release) está no repo — falta validar no Windows e Authenticode. O que falta de mapa é
+  o eixo **Windows+ArcMap (M2→M9)** + **M11** e **Fase 2**.
 - Modelo de visão na **API** DeepSeek V4 (P1 de F1-07, **fechada 2026-07-26**): teste live com
   a chave do projeto — `GET /models` só devolve `deepseek-v4-pro` e `deepseek-v4-flash`; ambos
   rejeitam payload com `image_url` (`400` "unknown variant image_url, expected text"). Chat no
@@ -137,8 +141,8 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 - OCR embarcado (Tesseract) para print sem chave de visão — decisão deliberada de não pagar os
   +40 MB (F1-07 P2); sem modelo de visão na API, o print fica só na análise determinística.
 - Conta na nuvem / site de login (F2-05) — **adiado pós-M11**; não bloqueia a Fase 1.
-- Instalador Windows (M10) — nada de empacotamento neste repositório ainda.
-- Qualquer código da Fase 2 (site/backend/nuvem) — F2-05 é pós-M11 e **não** é exigido pelo M5.
+- Assinatura Authenticode do instalador (M10 dívida) — beta unsigned com SHA-256 na release.
+- Qualquer código da Fase 2 (site/backend/nuvem) além do stub `/download` — F2-05 é pós-M11 e **não** é exigido pelo M5.
 
 ## Ordem de implementação (dependências, nunca calendário)
 
@@ -239,7 +243,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **parcial** | `shared/templates/MANIFEST.json` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |
-| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **ausente** | `Fase_1_Desktop/app/build/` |
+| R25 | Instalador Windows + release CI | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — NSIS + PyInstaller + workflow `desktop-v*` + manifesto do site; **sem** Authenticode | [`EMPACOTAMENTO.md`](Fase_1_Desktop/EMPACOTAMENTO.md), `app/electron-builder.yml`, `.github/workflows/release-desktop.yml` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 
 ## Anti-padrões — vinculantes para qualquer agente implementador

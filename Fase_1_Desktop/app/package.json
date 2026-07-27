@@ -1,10 +1,15 @@
 {
-  "name": "app",
+  "name": "mapasfacil",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "Mapas Fácil — shell Electron + React (Fase 1). Ver Fase_1_Desktop/planos/02-ui-chat-e-workspace.md",
+  "author": "Mapas Fácil",
   "type": "module",
   "main": "dist/electron/main.cjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alvaro209890/mapas-facil.git"
+  },
   "scripts": {
     "dev": "vite",
     "dev:electron": "pnpm run build:electron && electron .",
@@ -13,7 +18,12 @@
     "build": "pnpm run build:renderer && pnpm run build:electron",
     "typecheck": "tsc -b --force",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "pack:nucleo": "python3 ../nucleo/packaging/empacotar.py",
+    "pack:prepare": "node scripts/preparar-recursos.mjs",
+    "dist:win": "pnpm run build && pnpm run pack:prepare && electron-builder --win --x64 --config electron-builder.yml --publish never",
+    "dist:manifest": "node scripts/gerar-manifest-download.mjs",
+    "dist": "pnpm run dist:win"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -22,6 +32,7 @@
     ]
   },
   "dependencies": {
+    "electron-updater": "^6.3.9",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -38,6 +49,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "axe-core": "^4.12.1",
     "electron": "^33.3.0",
+    "electron-builder": "^25.1.8",
     "esbuild": "^0.24.2",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",

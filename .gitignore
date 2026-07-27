@@ -21,12 +21,18 @@ htmlcov/
 .turbo/
 .vercel/
 
-# Empacotamento do agente
+# Empacotamento do agente / desktop (M10)
 agent/dist/
 agent/build/
+Fase_1_Desktop/app/resources-staging/
+Fase_1_Desktop/app/release/
+Fase_1_Desktop/nucleo/dist/
+Fase_1_Desktop/nucleo/build/
 *.spec.bak
 *.exe
 *.msi
+!ferramentas/**/*.exe
+
 
 # Ambiente e segredos — NUNCA versionar
 .env

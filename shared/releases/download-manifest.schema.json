@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mapasfacil.local/schemas/download-manifest.schema.json",
+  "title": "Mapas Fácil — manifesto de download do desktop",
+  "description": "Publicado em cada GitHub Release (tag desktop-v*). O site lê este JSON para a página /download.",
+  "type": "object",
+  "required": ["schema", "canal", "versao", "tag", "publicado_em", "instalador"],
+  "properties": {
+    "schema": { "const": "mapasfacil.download_manifest/1" },
+    "canal": { "enum": ["stable", "beta"] },
+    "versao": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "tag": { "type": "string", "pattern": "^desktop-v" },
+    "publicado_em": { "type": "string", "format": "date-time" },
+    "repositorio": { "type": "string", "format": "uri" },
+    "requisitos": { "type": "array", "items": { "type": "string" } },
+    "instalador": {
+      "type": ["object", "null"],
+      "required": ["nome", "url", "sha256", "tamanho_bytes"],
+      "properties": {
+        "nome": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "tamanho_bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "latest_yml": { "type": "object" },
+    "sha256_txt": { "type": "object" },
+    "hashes": { "type": "object", "additionalProperties": { "type": "string" } },
+    "notas": { "type": "string" }
+  }
+}

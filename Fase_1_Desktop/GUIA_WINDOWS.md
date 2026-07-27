@@ -257,22 +257,27 @@ Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R22–R24 no `AGENT_BRIEF`, pu
 
 ## 3) M10 — Instalador
 
-**Só depois do M9.** Não empacote gerador que falha na Harmonia.  
+**Infra no repositório** (2026-07-27): siga [`EMPACOTAMENTO.md`](EMPACOTAMENTO.md) — tag
+`desktop-v*` dispara o build no GitHub Actions. No Windows local: `pnpm run dist:win`.
+
+**Só anuncie qualidade Harmonia depois do M9.** Não empacote como “mapa perfeito” se o baseline
+ainda falha.  
 **Plano:** [F1-11](planos/11-empacotamento-instalador.md).
 
 ### Passo 3.1 — Build
 
-- [ ] PyInstaller **onedir** do núcleo → `resources/nucleo/` (sem `arcpy` no bundle)
-- [ ] `arcpy_job.py` copiado ao lado (invocado pelo Python 2.7 do ArcMap do usuário)
-- [ ] `electron-builder` → NSIS `MapasFacil-Setup-<semver>.exe`
-- [ ] `shared/` (catálogo, schema, templates **prontos**) dentro do bundle
-- [ ] **Não** embutir `Referencias_IMAP/` inteiro nem `secrets.*`
+- [x] PyInstaller **onedir** do núcleo → `resources/nucleo/` (sem `arcpy` no bundle)
+- [x] `arcpy_job.py` copiado ao lado (invocado pelo Python 2.7 do ArcMap do usuário)
+- [x] `electron-builder` → NSIS `MapasFacil-Setup-<semver>.exe`
+- [x] `shared/` (catálogo, schema, templates) dentro do bundle
+- [x] **Não** embutir `Referencias_IMAP/` inteiro nem `secrets.*`
+- [ ] Smoke: instala limpo e sobe `doctor.rodar` (validar no Windows)
 
 ### Passo 3.2 — Assinatura e update
 
-- [ ] Authenticode (OV/EV) + `sha256.txt` na release
-- [ ] `electron-updater` + `latest.yml` (canal stable)
-- [ ] Instalador &lt; **250 MB** ou desvio justificado no plano
+- [ ] Authenticode (OV/EV) + `sha256.txt` na release (`sha256.txt` já sai do CI)
+- [x] `electron-updater` + `latest.yml` (canal stable)
+- [ ] Instalador &lt; **250 MB** ou desvio justificado no plano (medir no primeiro build CI)
 
 ### Passo 3.3 — Critério de saída
 
@@ -281,7 +286,8 @@ Atualize F1-13 Bloco I (I1–I3), roadmap M9, gap R22–R24 no `AGENT_BRIEF`, pu
 - [ ] Login local funciona na build instalada
 - [ ] Auto-update N → N+1
 - [ ] Desinstalação limpa; `%APPDATA%\MapasFacil\` conforme escolha do usuário
-- [ ] Doc + checklist I4–I7 + push
+- [x] Doc + checklist I4 parcial + push
+- [x] `download-manifest.json` para o site (`shared/releases/`)
 
 ---
 

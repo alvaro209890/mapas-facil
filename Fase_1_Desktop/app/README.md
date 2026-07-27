@@ -16,8 +16,9 @@ geração no preview. Watcher → aviso de sistema no chat; `job.log`/`aviso` na
 banner de offline; `linha-versoes` via `mapspec.atualizado`. `pnpm typecheck`, `test` e `build`
 verdes.
 
-O que ainda **não** existe neste app (de propósito): auto-update/instalador (M10), paridade
-visual Harmonia / motor ArcPy (M2–M9).
+O que ainda **não** fecha o produto no Windows: paridade visual Harmonia / motor ArcPy (M2–M9),
+smoke do instalador em máquina limpa e Authenticode. A **infra M10** (NSIS + CI + auto-update)
+já está no repo — ver [`../EMPACOTAMENTO.md`](../EMPACOTAMENTO.md).
 
 | # | Tarefa (F1-13 bloco C) | Estado | Onde |
 |---|---|---|---|

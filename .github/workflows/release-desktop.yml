@@ -1,0 +1,171 @@
+name: Release — desktop Windows (M10)
+
+# Gera MapasFacil-Setup-*.exe + latest.yml + sha256.txt + download-manifest.json
+# e publica na GitHub Release. O site consome o manifesto (shared/releases/README.md).
+#
+# Disparo:
+#   git tag desktop-v0.5.0 && git push origin desktop-v0.5.0
+#   ou Actions → Run workflow
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Semver do app (ex. 0.5.0). Vazio = package.json."
+        required: false
+        default: ""
+      publicar:
+        description: "Criar/atualizar GitHub Release"
+        type: boolean
+        default: true
+      prerelease:
+        description: "Marcar release como pré-release (beta)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolver versão e tag
+        id: meta
+        run: |
+          $inputVer = "${{ github.event.inputs.versao }}"
+          if ($env:GITHUB_REF_TYPE -eq "tag" -and $env:GITHUB_REF_NAME -match '^desktop-v(.+)$') {
+            $ver = $Matches[1]
+            $tag = $env:GITHUB_REF_NAME
+          } elseif ($inputVer -ne "") {
+            $ver = $inputVer
+            $tag = "desktop-v$ver"
+          } else {
+            $pkg = Get-Content Fase_1_Desktop/app/package.json -Raw | ConvertFrom-Json
+            $ver = $pkg.version
+            $tag = "desktop-v$ver"
+          }
+          $env:DESKTOP_VER = $ver
+          node -e "const fs=require('fs'); const p='Fase_1_Desktop/app/package.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); if(j.version!==process.env.DESKTOP_VER){ j.version=process.env.DESKTOP_VER; fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n'); }"
+          $pre = ($ver -match '-') -or ("${{ github.event.inputs.prerelease }}" -eq "true")
+          "versao=$ver" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "prerelease=$pre" >> $env:GITHUB_OUTPUT
+          Write-Host "versão=$ver tag=$tag prerelease=$pre"
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Fase_1_Desktop/nucleo/pyproject.toml
+
+      - name: Setup Node + pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable pnpm
+        run: |
+          npm install -g pnpm@9
+          pnpm --version
+
+      - name: Instalar núcleo + PyInstaller
+        working-directory: Fase_1_Desktop/nucleo
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[dev]"
+          pip install "pyinstaller>=6.3,<7"
+
+      - name: Empacotar núcleo (onedir)
+        working-directory: Fase_1_Desktop/nucleo
+        run: python packaging/empacotar.py
+
+      - name: Instalar app
+        working-directory: Fase_1_Desktop/app
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck + testes app
+        working-directory: Fase_1_Desktop/app
+        run: |
+          pnpm typecheck
+          pnpm test
+
+      - name: Build Electron + NSIS
+        working-directory: Fase_1_Desktop/app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sem certificado: build unsigned (beta). Quando houver OV/EV:
+          # CSC_LINK / CSC_KEY_PASSWORD como secrets do repositório.
+        run: |
+          pnpm run build
+          pnpm run pack:prepare
+          pnpm exec electron-builder --win --x64 --config electron-builder.yml --publish never
+
+      - name: Manifesto + SHA-256
+        working-directory: Fase_1_Desktop/app
+        run: |
+          node scripts/gerar-manifest-download.mjs `
+            --dir release `
+            --versao ${{ steps.meta.outputs.versao }} `
+            --tag ${{ steps.meta.outputs.tag }} `
+            --repo ${{ github.repository }}
+
+      - name: Upload artefatos (Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mapasfacil-desktop-${{ steps.meta.outputs.versao }}
+          path: |
+            Fase_1_Desktop/app/release/MapasFacil-Setup-*.exe
+            Fase_1_Desktop/app/release/MapasFacil-*.zip
+            Fase_1_Desktop/app/release/latest.yml
+            Fase_1_Desktop/app/release/*.blockmap
+            Fase_1_Desktop/app/release/sha256.txt
+            Fase_1_Desktop/app/release/download-manifest.json
+          if-no-files-found: error
+
+      - name: Publicar GitHub Release
+        if: ${{ github.event_name == 'push' || github.event.inputs.publicar == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Desktop ${{ steps.meta.outputs.versao }}
+          prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
+          generate_release_notes: true
+          body: |
+            Instalador Windows do **Mapas Fácil** (Electron + núcleo PyInstaller onedir).
+
+            ## Download
+            - Instalador: `MapasFacil-Setup-${{ steps.meta.outputs.versao }}.exe`
+            - Manifesto do site: `download-manifest.json`
+            - Hashes: `sha256.txt`
+
+            ## Site
+            Aponte `/download` para:
+            `https://github.com/${{ github.repository }}/releases/latest/download/download-manifest.json`
+
+            ## SmartScreen (beta sem Authenticode)
+            Se o Windows bloquear: **Mais informações → Executar mesmo assim**, e confira o SHA-256.
+          files: |
+            Fase_1_Desktop/app/release/MapasFacil-Setup-*.exe
+            Fase_1_Desktop/app/release/MapasFacil-*.zip
+            Fase_1_Desktop/app/release/latest.yml
+            Fase_1_Desktop/app/release/*.blockmap
+            Fase_1_Desktop/app/release/sha256.txt
+            Fase_1_Desktop/app/release/download-manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

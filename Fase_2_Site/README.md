@@ -48,13 +48,14 @@ aqui, com tunnel dedicado que **não toca nos tunnels existentes** dos outros si
 2. [Índice dos planos](planos/README.md) — estado atual (rascunhos D7 + legado)
 3. [Fase 1 — App desktop](../Fase_1_Desktop/planos/README.md) — o que o site reusa
 
-## Estado
+## Status
 
 | Marco | Status |
 |---|---|
 | **F2-05 — conta nuvem / memória** | reescrito: **adiado pós-M11**; **não** bloqueia M5 (login = F1-14 local) |
 | Planos | F2-00…F2-06 presentes; 01/02/04/06 ainda legado (a reescrever) |
-| Código | **não iniciado** — `backend/` e `web/` só têm `README.md` |
+| Código | **stub de download** — `web/lib/desktop-release.ts` + `web/app/download/README.md` (consome GitHub Releases) |
+| Desktop `.exe` | manifesto em [`../shared/releases/`](../shared/releases/); build via tag `desktop-v*` ([`../Fase_1_Desktop/EMPACOTAMENTO.md`](../Fase_1_Desktop/EMPACOTAMENTO.md)) |
 
-**Pré-requisito:** Fase 1 validada até **M11**. Enquanto isso, o desktop não depende desta pasta.
-Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md#snapshot--o-que-falta-2026-07-26).
+**Pré-requisito completo do produto:** Fase 1 até **M11**. O download do instalador pode ir ao ar
+antes (M10 infra). Snapshot: [`../AGENT_BRIEF.md`](../AGENT_BRIEF.md).

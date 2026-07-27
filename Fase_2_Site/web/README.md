@@ -2,22 +2,15 @@
 
 Site do Mapas Fácil — previsto: Next.js (App Router), TypeScript, Tailwind.
 
-**Status:** pasta só com este README. Nenhum `package.json` nem código de aplicação.
-Código de produção da Fase 2 começa depois da Fase 1 validada. Planos em
-[`../planos/README.md`](../planos/README.md).
+**Status:** ainda sem `package.json` de app. Stub de download do desktop:
 
-> Os planos `04-frontend-site.md` ainda estão em formato **legado** (assumiam Vercel + chat
-> acoplado a agente WS). Destino: site em `mapasfacil.cursar.space` consumindo a API neste PC.
+| Caminho | Uso |
+|---|---|
+| [`lib/desktop-release.ts`](lib/desktop-release.ts) | fetch do `download-manifest.json` na GitHub Release |
+| [`app/download/README.md`](app/download/README.md) | como montar `/download` |
 
-## Quando existir código (ainda não)
+Contrato: [`../../shared/releases/README.md`](../../shared/releases/README.md).  
+Build do `.exe`: [`../../Fase_1_Desktop/EMPACOTAMENTO.md`](../../Fase_1_Desktop/EMPACOTAMENTO.md).
 
-```
-web/
-  app/
-  components/
-  lib/
-  package.json
-```
-
-Deploy previsto: host apontando para `mapasfacil.cursar.space` (não Render/Vercel como
-caminho primário da API — ver D7).
+> Os planos `04-frontend-site.md` ainda estão em formato **legado**. Destino: site em
+> `mapasfacil.cursar.space` consumindo a API neste PC.

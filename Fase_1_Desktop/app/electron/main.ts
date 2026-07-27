@@ -1,8 +1,9 @@
 // Processo main do Electron: janela, ponte com o núcleo, IPC tipado, diálogo
-// nativo de pasta (C7), menus e tray (F1-02). Auto-update fica para M10.
+// nativo de pasta (C7), menus e tray (F1-02), auto-update e UI-010 (M10 / F1-11).
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, type Tray } from "electron";
 import { join } from "node:path";
 
+import { iniciarAtualizacao } from "./atualizacao.js";
 import {
   CANAL_CHAMAR,
   CANAL_ESTADO,
@@ -15,12 +16,21 @@ import {
   CANAL_WORKSPACE_RECENTES,
 } from "./ipc/canais.js";
 import { aplicarMenu, atualizarTray, criarTray, type OpcoesMenu } from "./menu.js";
-import { localizarNucleo } from "./nucleo/localizar.js";
+import { conferirVersaoNucleo, ErroVersaoNucleo } from "./nucleo/conferirVersao.js";
+import { localizarArcpyJob, localizarNucleo } from "./nucleo/localizar.js";
 import { ErroPonte, PonteNucleo } from "./nucleo/ponte.js";
 import type { EstadoPonte } from "./nucleo/ponte.js";
 import type { Evento } from "./nucleo/protocolo.js";
 import { ArquivoPreferencias } from "./preferencias.js";
 import { lerRecentes, registrar, visiveis } from "./projetos.js";
+
+// %APPDATA%\MapasFacil\ — F1-11 (não "Mapas Facil" com espaço).
+const PASTA_DADOS = "MapasFacil";
+try {
+  app.setPath("userData", join(app.getPath("appData"), PASTA_DADOS));
+} catch {
+  // Antes de ready em alguns hosts o appData ainda não resolve — whenReady cobre.
+}
 
 const URL_DEV = process.env.VITE_DEV_SERVER_URL;
 
@@ -61,12 +71,16 @@ function criarJanela(): BrowserWindow {
 }
 
 function ligarPonte(destino: BrowserWindow): PonteNucleo {
-  const { comando, args, cwd } = localizarNucleo(app.getAppPath(), app.isPackaged);
-  const env = {
+  const empacotado = app.isPackaged;
+  const { comando, args, cwd } = localizarNucleo(app.getAppPath(), empacotado);
+  const arcpyJob = localizarArcpyJob(empacotado);
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
     // D13: chats.sqlite sob userData/chats (mesmo root do config.json)
     MAPASFACIL_DADOS: app.getPath("userData"),
   };
+  if (arcpyJob) env.MAPASFACIL_ARCPY_JOB = arcpyJob;
+
   const nova = new PonteNucleo({ comando, args, cwd, env });
 
   nova.on("evt", (evento: Evento) => {
@@ -91,6 +105,27 @@ function ligarPonte(destino: BrowserWindow): PonteNucleo {
   });
 
   nova.iniciar();
+
+  if (empacotado) {
+    void conferirVersaoNucleo(nova).catch((causa: unknown) => {
+      const erro =
+        causa instanceof ErroVersaoNucleo
+          ? causa
+          : new ErroPonte("UI-001", String(causa));
+      if (!destino.isDestroyed()) {
+        destino.webContents.send(CANAL_ESTADO, {
+          estado: "caido",
+          erro: { codigo: erro.codigo, mensagem: erro.message },
+        });
+        void dialog.showMessageBox(destino, {
+          type: "error",
+          title: "Núcleo incompatível",
+          message: erro.message,
+        });
+      }
+    });
+  }
+
   return nova;
 }
 
@@ -202,12 +237,18 @@ function registrarIpc(): void {
 }
 
 void app.whenReady().then(() => {
+  try {
+    app.setPath("userData", join(app.getPath("appData"), PASTA_DADOS));
+  } catch {
+    /* ignore */
+  }
   preferencias = new ArquivoPreferencias(app.getPath("userData"));
   registrarIpc();
   janela = criarJanela();
   ponte = ligarPonte(janela);
   atualizarChrome();
   tray = criarTray(montarOpcoesMenu());
+  iniciarAtualizacao(() => janela);
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
