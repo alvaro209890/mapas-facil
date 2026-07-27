@@ -12,9 +12,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Smoke de paridade visual: aqui (e so aqui) o basemap Planet real e desejado.
+os.environ.setdefault("MAPASFACIL_BASEMAP_PLANET", "1")
 
 ROOT = Path(__file__).resolve().parents[1]
 NUCLEO = ROOT / "Fase_1_Desktop" / "nucleo"

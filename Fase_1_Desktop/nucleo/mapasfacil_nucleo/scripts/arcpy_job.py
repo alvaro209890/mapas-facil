@@ -82,6 +82,28 @@ def _zoom_minimapa(mxd, e):
         pass
 
 
+def _aplicar_basemap(df, e):
+    """Insere o raster de basemap (Fase 3 Harmonia) como camada mais baixa do DF."""
+    caminho = e.get(u"basemap_raster")
+    if not caminho:
+        return
+    caminho = _u(caminho)
+    if not os.path.isfile(caminho):
+        return
+    try:
+        # Sem piramides o ArcMap redesenha/exporta o raster inteiro em
+        # resolucao total a cada draw -> estoura o timeout do subprocesso.
+        try:
+            arcpy.BuildPyramids_management(caminho)
+        except Exception:
+            pass
+        resultado = arcpy.MakeRasterLayer_management(caminho, u"BASEMAP_PLANET")
+        nova = resultado.getOutput(0)
+        arcpy.mapping.AddLayer(df, nova, u"BOTTOM")
+    except Exception:
+        pass
+
+
 def _aplicar_graficos(mxd, e):
     graficos = e.get(u"graficos") or {}
     for g in arcpy.mapping.ListLayoutElements(mxd, u"GRAPHIC_ELEMENT"):
@@ -201,6 +223,7 @@ def main():
             e.get(u"pasta_ibge"),
         )
 
+        _aplicar_basemap(df, e)
         _aplicar_queries(mxd, e)
         _zoom_minimapa(mxd, e)
 
@@ -223,11 +246,14 @@ def main():
         _aplicar_graficos(mxd, e)
 
         legenda_nomes = set(e.get(u"legenda") or [])
-        for leg in arcpy.mapping.ListLayoutElements(mxd, u"LEGEND_ELEMENT", u"LEGENDA"):
-            leg.autoAdd = False
-            for item in leg.listLegendItemLayers():
-                if item.name not in legenda_nomes:
-                    leg.removeItem(item)
+        if legenda_nomes:
+            # So filtra quando uma lista explicita vem no payload — lista vazia
+            # (caminho T1 ainda nao a preenche) nao deve esvaziar a legenda inteira.
+            for leg in arcpy.mapping.ListLayoutElements(mxd, u"LEGEND_ELEMENT", u"LEGENDA"):
+                leg.autoAdd = False
+                for item in leg.listLegendItemLayers():
+                    if item.name not in legenda_nomes:
+                        leg.removeItem(item)
 
         quebradas = [l.name for l in arcpy.mapping.ListBrokenDataSources(mxd)]
         escala_final = df.scale

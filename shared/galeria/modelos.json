@@ -81,7 +81,11 @@
         { "rotulo": "Fonte", "valor": "WMS-SEMA" },
         { "rotulo": "Datum", "valor": "auto" },
         { "rotulo": "Escala", "valor": "auto" }
-      ]
+      ],
+      "basemap_padrao": {
+        "tipo": "planet_mensal",
+        "mosaico": "planet_medres_normalized_analytic_2026-03_mosaic"
+      }
     },
     {
       "id": "dinamica_2026_quantitativos",

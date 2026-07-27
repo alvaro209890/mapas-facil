@@ -10,7 +10,9 @@ from typing import Any
 from mapasfacil_nucleo.erros import ErroNucleo
 
 TIMEOUT_ADAPTAR_S = 150
-TIMEOUT_EXPORTAR_S = 200
+# 300s (era 200) — basemap raster (Fase 3 Harmonia) some tempo real de
+# BuildPyramids + export a 300dpi sobre a imagem de fundo.
+TIMEOUT_EXPORTAR_S = 300
 EXIT_TIMEOUT = 124
 
 
@@ -35,6 +37,7 @@ def montar_payload(
     graficos: dict[str, Any] | None = None,
     camadas_visiveis: list[str] | None = None,
     legenda: list[str] | None = None,
+    basemap_raster: str | None = None,
     saidas: list[str] | None = None,
     saida_mxd: str | None = None,
     saida_pdf: str | None = None,
@@ -60,6 +63,7 @@ def montar_payload(
         "graficos": graficos or {},
         "camadas_visiveis": camadas_visiveis or [],
         "legenda": legenda or [],
+        "basemap_raster": basemap_raster,
         "saidas": saidas or [],
         "saida_mxd": saida_mxd,
         "saida_pdf": saida_pdf,
