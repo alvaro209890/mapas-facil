@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "perfil": "harmonia",
   "contract_version": 2,
-  "nota": "dinamica_retrato está parcial: sha256 atualizado após remoção Planet + GUI save; Dinamica_retrato.mxd em shared/templates/; offsets vazios até concluir B1. Demais templates a_preparar (sha256 null). Baseline: Referencias_IMAP/Mapas/01/.",
+  "nota": "dinamica_retrato status pronto (2026-07-27): sha256 + offsets extent/escala (sentinelas pós-aspecto ArcMap). LOGO em recursos/logo_imap_tom_escuro.png. Falta ROTULO_IMOVEL via GUI — ver docs/handoff-windows-fase1.md. Demais templates a_preparar.",
   "templates": [
     {
       "id": "dinamica_retrato",
@@ -10,7 +10,7 @@
       "arquivo": "Dinamica_retrato.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026.pdf",
-      "sha256": "adbbfd879283799e64d24adb4e0eb7e06e727d688c3bae4981bf9c7c3c25ace8",
+      "sha256": "194ff71875d1e6ac68093f73d512f1577f5515c5be50e220b07f8424b8c9a678",
       "versao_arcmap": "10.6",
       "formato_pagina": {
         "papel": "A4",
@@ -21,10 +21,27 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "parcial",
+      "status": "pronto",
       "patch": {
         "suportado": true,
-        "offsets": {}
+        "offsets": {
+          "extent": {
+            "offset": 1948613,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 1948859,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {

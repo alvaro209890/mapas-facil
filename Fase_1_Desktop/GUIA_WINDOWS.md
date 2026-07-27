@@ -362,4 +362,7 @@ Isto **já fechou no Linux** — no Windows você só valida/empacota, não reim
 4. `chaves_mxd.py verificar` se tocou `.mxd`  
 5. `git push origin main` (convenção do repo: commits diretos em `main`)
 
-**Comece pelo Passo 0 e 1.2 (normalizar template).** É o caminho crítico do M2.
+**Comece pelo Passo 0 e 1.2 (normalizar template).**  
+**Estado 2026-07-27:** normalização + B2 offsets já rodaram neste acervo — veja
+[`../docs/handoff-windows-fase1.md`](../docs/handoff-windows-fase1.md) (próximo passo = GUI
+`ROTULO_IMOVEL` + recalibrar).

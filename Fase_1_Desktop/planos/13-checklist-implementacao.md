@@ -6,13 +6,13 @@ analysis em [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#gap-analysis--requisit
 
 Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
-## Estado em 2026-07-26
+## Estado em 2026-07-27
 
 | Bloco | Marco | Estado |
 |---|---|---|
 | A — fundação do núcleo | M1 | **fechado** — A1–A13 |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3 — depende de motor bom / M9) |
-| B — motor `.mxd` | M2 | **parcial** — **próximo eixo** (exige ArcMap/Windows); B1 estendido, não testado aqui |
+| B — motor `.mxd` | M2 | **quase** — B1 scriptado + B2 `dinamica_retrato` **pronto**; falta GUI `ROTULO_IMOVEL` + recalibrar (ver [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md)) |
 | C — shell + design system | M3 | **fechado** — C1–C11 + menus/tray + banner offline + Esc≠job |
 | D — galeria | M4 | **fechado** |
 | E — conta local (e-mail + senha) | M5 | **fechado** |
@@ -21,10 +21,10 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** — só falta isto na Fase 1 (depois do M2) |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M2 → M9 → M10 → M11**.
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **fechar M2 (GUI) → M9 → M10 → M11**.
 Fase 2 começa após M11.
 
-**Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md).
+**Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) · handoff: [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md).
 
 ## Pré-voo
 
@@ -76,15 +76,15 @@ Detalhe histórico sem ArcMap: [`../nucleo/docs/bloco-b-sem-arcmap.md`](../nucle
 
 | # | Tarefa | Feito | Nota |
 |---|---|---|---|
-| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] | `normalizar_mxd_arcpy.py` estendido para reaproveitar elemento existente (`TITULO` ← caixa "Ano: NNNN", `ROTULO_IMOVEL` ← rótulo solto, `MINIMAPA_RETANGULO`/`MINIMAPA_GUIA` por heurística, `LOGO` com arquivo real); **não testado** — sem arcpy/Windows neste ambiente. GUI só para o que sobrar no relatório |
-| B2 | MANIFEST `sha256` + offsets | [~] | `dinamica_retrato` com `sha256` e `status: parcial`; offsets dependem de B1 |
-| B3 | `arcpy_job.py` + ponte | [x] | esqueleto |
+| B1 | Preparar template Dinâmica 2026 no ArcMap | [~] | Rodado em 2026-07-27 no Acer: `normalizar_mxd_arcpy` + `corrigir_template_b1_arcpy` — TITULO/METADADOS/LEGENDA/NORTE/LOGO/MINIMAPA_* ok. **Falta só GUI:** criar TextElement `ROTULO_IMOVEL` (arcpy não cria elemento novo). Ver `docs/handoff-windows-fase1.md` |
+| B2 | MANIFEST `sha256` + offsets | [x] | `dinamica_retrato` **`status: pronto`** com offsets extent+escala (sentinelas pós-aspecto do ArcMap). **Recalibrar** depois de qualquer save na GUI |
+| B3 | `arcpy_job.py` + ponte | [x] | + minimapa IBGE (T1) |
 | B4 | Materializar `SHP/` | [~] | cópia + `ogr2ogr` opcional |
 | B5 | Extent bbox `.shp` | [~] | via metadados |
-| B6 | Textos / definition query | [~] | infra UTF-16LE; falta MANIFEST |
-| B7 | Minimapa retângulo + guia | [~] | candidatos por heurística; confirmar rodando no ArcMap |
-| B8 | Patch T2 sem ArcMap | [~] | cópia do template preparado (`resolver_caminho_preparado`) |
-| B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke manual pendente |
+| B6 | Textos / definition query | [~] | T2 patch extent/escala ativo; textos UTF-16LE ainda sem slots no MANIFEST |
+| B7 | Minimapa retângulo + guia | [x] | nomes canônicos + job T1 (`minimapa_job` / `mudar_municipio`) |
+| B8 | Patch T2 sem ArcMap | [x] | offsets no MANIFEST; gera `.mxd` com extent/escala patchados |
+| B9 | Diff raster vs `Mapas/01` | [~] | `validacao/comparar_pdf.py` + testes; smoke manual pendente (M9) |
 
 ---
 

@@ -41,9 +41,23 @@ def buscar_float64(caminho: Path, valor: float) -> list[int]:
     return offsets
 
 
-def descobrir_offsets(caminho: Path) -> dict:
-    extent_vals = SENTINELAS["extent"]
-    escala_vals = SENTINELAS["escala"]
+def descobrir_offsets(caminho: Path, *, extent_vals: list[float] | None = None, escala_val: float | None = None) -> dict:
+    if extent_vals is None:
+        extent_vals = list(SENTINELAS["extent"])
+    if escala_val is None:
+        escala_val = float(SENTINELAS["escala"][0])
+    # Sidecar gravado por preparar_sentinelas_arcpy.py (extent real pos-aspecto).
+    sidecar = Path(str(caminho) + ".sentinelas.json")
+    if sidecar.is_file():
+        try:
+            dados_sc = json.loads(sidecar.read_text(encoding="utf-8-sig"))
+            if dados_sc.get("extent"):
+                extent_vals = [float(x) for x in dados_sc["extent"]]
+            if dados_sc.get("escala") is not None:
+                escala_val = float(dados_sc["escala"])
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            pass
+
     dados = caminho.read_bytes()
 
     extent_offset = None
@@ -54,7 +68,7 @@ def descobrir_offsets(caminho: Path) -> dict:
         ok = True
         for i, valor in enumerate(extent_vals):
             lido = struct.unpack("<d", dados[off + i * 8 : off + i * 8 + 8])[0]
-            if abs(lido - valor) > 1e-6:
+            if abs(lido - valor) > 1e-4:
                 ok = False
                 break
         if ok:
@@ -62,7 +76,7 @@ def descobrir_offsets(caminho: Path) -> dict:
             break
 
     escala_offset = None
-    escala_hits = buscar_float64(caminho, escala_vals[0])
+    escala_hits = buscar_float64(caminho, escala_val)
     if escala_hits:
         escala_offset = escala_hits[0]
 
@@ -78,7 +92,7 @@ def descobrir_offsets(caminho: Path) -> dict:
         patch["offsets"]["escala"] = {
             "offset": escala_offset,
             "formato": "float64 LE",
-            "sentinela": escala_vals[0],
+            "sentinela": escala_val,
         }
     return patch
 

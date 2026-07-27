@@ -48,8 +48,8 @@ def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
     resultado = listar({"workspace": str(pasta_harmonia)})
     assert len(resultado["modelos"]) == 5
     por_id = {m["id"]: m for m in resultado["modelos"]}
-    assert por_id["dinamica_2026_retrato"]["status"] == "parcial"
-    assert por_id["dinamica_2026_retrato"]["motivo"]
+    assert por_id["dinamica_2026_retrato"]["status"] == "pronto"
+    assert not por_id["dinamica_2026_retrato"].get("requisitos_faltando")
     for mid in (
         "dinamica_2026_quantitativos",
         "tipologia_paisagem",

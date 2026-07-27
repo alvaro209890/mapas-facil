@@ -13,8 +13,9 @@ Scripts presentes:
 | `chaves_mxd.py` | remove/reinjeta chaves de API nos `.mxd` versionados |
 | `deepseek_smoke.py` | smoke manual da chave DeepSeek (dev local; **não** roda no CI) |
 | `inspecionar_mxd_arcpy.py` | diagnóstico de layout (requer ArcMap) |
+| `corrigir_template_b1_arcpy.py` | Reaplica LOGO + `MINIMAPA_RETANGULO`/`GUIA` no template |
 | `normalizar_mxd_arcpy.py` | B1 automatizado parcial (renomear elementos) |
-| `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala para offsets |
+| `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala (+ sidecar `.sentinelas.json`) |
 | `inspecionar_mxd_offsets.py` | lê offsets/sentinelas do `.mxd` |
 | `registrar_template.py` | grava sha256/offsets no MANIFEST |
 | `recuperar_zip_truncado.py` | recupera ZIP sem diretório central |

@@ -172,7 +172,7 @@ do turno; `diff` combina as operações de `mapspec.diff` com o resumo em portug
 ### Limites conhecidos (honestos)
 
 - Doctor não detecta ArcMap/GDAL versão/rede fora do Windows.
-- `dinamica_retrato` está `parcial` (sha256 ok; offsets `{}`). Os outros 4 templates estão `a_preparar` (`sha256: null`). `pronto_para_mxd` exige **todos** com sha256 e (patch `pronto` ou ArcMap sondado) — hoje fica `false`.
+- `dinamica_retrato` está **`pronto`** (sha256 + offsets extent/escala). Falta TextElement `ROTULO_IMOVEL` na GUI — ver [`docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md). Os outros 4 templates estão `a_preparar`. `pronto_para_mxd` do doctor exige **todos** com sha256 — hoje fica `false` (só o primeiro está pronto).
 - PDF nativo é estrutural (não paridade visual Harmonia); já sobrepõe a tabela PNG quando `elementos_layout.tabela` (ou equivalente). Ordem de camadas: menor `ordem` por cima.
 - Materialização B4: cópia + **ogr2ogr opcional** (fallback cópia se GDAL ausente).
 - Sem agente: o núcleo só executa MapSpec / workspace / motores — não gera MapSpec por linguagem natural.
@@ -199,6 +199,7 @@ Numeração de marcos conforme [`../planos/12-roadmap.md`](../planos/12-roadmap.
 - ~~Conversas (M6)~~ **fechada** — `chats.sqlite` e os métodos `chat.*` de histórico
 - ~~Agente (M7)~~ **fechado** — `agente/`, ver [`../planos/06-agente-eng-florestal.md`](../planos/06-agente-eng-florestal.md)
 - ~~UI Electron (M3–M8)~~ **fechado** — ver o [README do app](../app/README.md) para o que falta lá
-- B1 manual no ArcMap: `TITULO`, `ROTULO_IMOVEL`, minimapa, logo → depois calibrar offsets (B2)
-- Smoke Harmonia: PDF nativo vs `Mapas/01` ainda não passa (motor estrutural)
+- B1/B2: template Dinâmica com offsets **pronto**; falta GUI `ROTULO_IMOVEL` → [`docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md)
+- Smoke Harmonia / M9: PDF vs `Mapas/01` (paridade visual)
 - Evoluir PDF nativo (F1-05): grade DMS, rosa, metadados, minimapa, logo
+- M10 instalador → M11 piloto

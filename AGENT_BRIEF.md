@@ -4,23 +4,27 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
-## Snapshot — o que falta (2026-07-26)
+## Snapshot — o que falta (2026-07-27)
 
 ### Fase 1 — desktop
 
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Com Windows + ArcMap** | **falta** — **M2** (motor `.mxd`) → **M9** (conformidade Harmonia) |
+| **Com Windows + ArcMap** | **M2 avançado** — template `dinamica_retrato` com B1 quase fechado + **B2 `status: pronto`** (offsets extent/escala). Falta **só GUI**: criar `ROTULO_IMOVEL` e recalibrar B2. Depois **M9 → M10 → M11** |
 | **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
 
-Ordem obrigatória do que resta: **M2 → M9 → M10 → M11**.
+Ordem obrigatória do que resta: **fechar M2 (GUI ROTULO_IMOVEL) → M9 → M10 → M11**.
+
+### Handoff operacional (amanhã / outro PC)
+
+**→ [`docs/handoff-windows-fase1.md`](docs/handoff-windows-fase1.md)** — o que já rodou neste Windows,
+comandos exatos da GUI pendente, e o que **não** refazer.
 
 ### Guia passo a passo no Windows
 
 **→ [`Fase_1_Desktop/GUIA_WINDOWS.md`](Fase_1_Desktop/GUIA_WINDOWS.md)** — checklist detalhado
-(preparar máquina → B1/B2/T1 → Harmonia → instalador → piloto), com comandos PowerShell e
-critérios de saída. **Comece por esse arquivo no PC com ArcMap.**
+(preparar máquina → B1/B2/T1 → Harmonia → instalador → piloto).
 
 Limites conhecidos (não são “falta de feature”): API DeepSeek V4 **sem** visão (`IA-060` no
 print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do MapSpec inexistente

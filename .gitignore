@@ -53,6 +53,15 @@ tmp/
 temp/
 .cache/
 *.tmp
+*.bak
+*.pre_sentinela.bak
+*.mxd.sentinelas.json
+inspecao_*.json
+normalizacao_relatorio.json
+relatorio_planet_falhas.json
+inspecao_dinamica_2026.json
+inspecao_template.json
+
 
 # Dados locais de desenvolvimento (shapefiles de teste grandes)
 **/fixtures_large/
