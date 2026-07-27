@@ -466,6 +466,27 @@ def _gerar_mapa_corpo(
     resultado["validacao"] = str(json_path.relative_to(guard.raiz))
     resultado["validacao_dados"] = relatorio
     prog.log(f"job concluído · {len(avisos)} aviso(s) · {resultado['validacao']}")
+
+    # Espelho na pasta do usuário logado (Documentos/database/MapasFacil/<user>/).
+    try:
+        from mapasfacil_nucleo.contas import servico as contas_servico
+        from mapasfacil_nucleo.dados import arquivar_artefatos_do_job
+
+        ativo = contas_servico.usuario_ativo()
+        pasta_u = Path(ativo["pasta"]) if ativo and ativo.get("pasta") else None
+        copiados = arquivar_artefatos_do_job(
+            artefatos,
+            raiz_workspace=guard.raiz,
+            pasta_usuario_destino=pasta_u,
+        )
+        if copiados:
+            artefatos["arquivo_usuario"] = copiados
+            resultado["arquivo_usuario"] = copiados
+            prog.log(f"arquivado na pasta do usuário · {len(copiados)} arquivo(s)")
+    except Exception:
+        # Arquivar é best-effort — não derruba o job.
+        pass
+
     prog.concluir("validando_saida")
 
     return resultado

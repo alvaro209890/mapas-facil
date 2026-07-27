@@ -27,8 +27,8 @@ const requisitos = [
   },
   {
     number: "04",
-    title: "Sua própria chave DeepSeek",
-    text: "A chave é guardada pelo Credential Manager do Windows e usada somente pelo aplicativo. Ela nunca é informada neste site.",
+    title: "DeepSeek já liberado no login",
+    text: "Ao criar ou entrar na conta, o app ativa a chave do projeto automaticamente. Não é preciso colar chave nas Preferências para começar a usar o chat.",
   },
 ];
 

@@ -55,7 +55,14 @@ def criar_conversa(params: dict[str, Any]) -> dict[str, Any]:
     if title is not None and not isinstance(title, str):
         raise ErroNucleo("NU-001", "Parâmetro 'title' inválido.")
     workspace = _workspace_param(params)
-    return repositorio().criar_conversa(workspace=workspace, title=title)
+    from mapasfacil_nucleo import sessao
+
+    conta_id = sessao.estado_atual().get("conta_id")
+    if conta_id is not None and not isinstance(conta_id, str):
+        conta_id = None
+    return repositorio().criar_conversa(
+        workspace=workspace, title=title, conta_id=conta_id
+    )
 
 
 def listar_conversas(params: dict[str, Any]) -> dict[str, Any]:

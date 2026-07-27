@@ -33,10 +33,15 @@ agent/build/
 .env.*
 !.env.example
 secrets.local.json
+provisao.local.json
+**/provisao.local.json
 *.pem
 *.key
 credentials.json
 service-account*.json
+
+# Dados locais por usuário (Documentos/database/MapasFacil)
+**/database/MapasFacil/
 
 # IDE / SO
 .idea/
