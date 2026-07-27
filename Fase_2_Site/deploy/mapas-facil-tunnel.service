@@ -1,0 +1,17 @@
+[Unit]
+Description=Mapas Fácil Cloudflare Tunnel (dedicado) — mapasfacil.cursar.space
+After=network-online.target mapas-facil-site.service
+Wants=network-online.target
+Requires=mapas-facil-site.service
+
+[Service]
+Type=simple
+# Config PRÓPRIA. Nunca apontar para saldopro/codingpro nem /etc/cloudflared/config.yml.
+ExecStart=/usr/local/bin/cloudflared tunnel --config /home/acer/.cloudflared/mapasfacil-config.yml run 1d0a92d1-7b3b-439b-a7f0-07c4e4b77011
+Restart=on-failure
+RestartSec=5
+MemoryMax=512M
+CPUWeight=50
+
+[Install]
+WantedBy=default.target

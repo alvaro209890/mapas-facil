@@ -1,0 +1,9 @@
+# Copie para ~/.cloudflared/mapasfacil-config.yml após criar o tunnel dedicado.
+# NUNCA editar configs de outros produtos (saldopro, codingpro, /etc/cloudflared).
+tunnel: SUBSTITUA_PELO_UUID_DO_TUNNEL
+credentials-file: /home/acer/.cloudflared/SUBSTITUA_PELO_UUID_DO_TUNNEL.json
+
+ingress:
+  - hostname: mapasfacil.cursar.space
+    service: http://127.0.0.1:3080
+  - service: http_status:404
