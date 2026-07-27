@@ -290,13 +290,41 @@ def _gerar_mapa_corpo(
             raise ErroNucleo("NU-205", "MapSpec pede .mxd mas não informa template.")
         bbox = _resolver_bbox_utm(mapspec, guard=guard, fontes_idx=fontes_idx)
         escala = _escala_numerica(mapspec.get("escala"))
-        mxd_info = gerar_mxd_t2(
-            mapspec,
-            guard=guard,
-            bbox=bbox,
-            escala=escala,
-            ao_etapa=prog.concluir,
-        )
+
+        # T1 (ArcMap): minimapa IBGE + queries + retângulo/L. Fallback T2 (patch).
+        mxd_info = None
+        try:
+            from mapasfacil_nucleo.motores.minimapa_job import tentar_gerar_mxd_arcpy
+
+            mxd_info = tentar_gerar_mxd_arcpy(
+                mapspec,
+                guard=guard,
+                fontes_idx=fontes_idx,
+                bbox=bbox,
+                escala=escala,
+                pasta_shp=pasta_shp,
+            )
+        except ErroNucleo as exc:
+            _avisar("NU-127", f"ArcPy/minimapa indisponível ({exc.codigo}): {exc.mensagem}")
+            mxd_info = None
+        except Exception as exc:  # noqa: BLE001 — fallback T2
+            _avisar("NU-127", f"ArcPy/minimapa falhou: {exc}")
+            mxd_info = None
+
+        if mxd_info is None:
+            mxd_info = gerar_mxd_t2(
+                mapspec,
+                guard=guard,
+                bbox=bbox,
+                escala=escala,
+                ao_etapa=prog.concluir,
+            )
+            if (mapspec.get("elementos_layout") or {}).get("minimapa"):
+                _avisar(
+                    "NU-128",
+                    "Minimapa IBGE (query/retângulo/linha L) exige ArcMap — "
+                    "MXD gerado por patch T2 sem reposicionar o inset.",
+                )
         artefatos["mxd"] = mxd_info
         resultado["mxd"] = mxd_info["mxd"]
         prog.log(
@@ -304,6 +332,11 @@ def _gerar_mapa_corpo(
             f"(confiança {mxd_info.get('confianca')}) · {mxd_info['mxd']}"
         )
         _avisar("NU-124", mxd_info.get("patch", {}).get("avisos", []))
+        if mxd_info.get("minimapa"):
+            prog.log(
+                f"minimapa · município={mxd_info['minimapa'].get('municipio')} "
+                f"· graficos={mxd_info['minimapa'].get('graficos')}"
+            )
     prog.concluir_se_pendente("preparando_template")
     prog.concluir_se_pendente("aplicando_layout")
     prog.concluir_se_pendente("salvando_mxd")

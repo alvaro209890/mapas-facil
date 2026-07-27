@@ -23,6 +23,22 @@ têm de se mover juntos — senão o PDF fica como o incidente Harmonia (retâng
 - `lml_uf_a.shp` — UFs
 - regenerar: `python ferramentas/materializar_malhas_ibge.py --baixar`
 
+## Fluxo no app desktop (agente)
+
+1. **`analisar_referencia`** (imagem/PDF/.mxd/.zip):
+   - Visão: campo `minimapa_presente` no JSON; se true, o MapSpec candidato liga
+     `elementos_layout.minimapa`.
+   - `.mxd` sem ArcMap: `mxd_strings` detecta `MINIMAPA` / `MINIMAPA_RETANGULO` /
+     `MINIMAPA_GUIA` e queries `"nome" = '…'`; sugere município + minimapa.
+2. **`galeria.montar_mapspec`**: resolve `imovel.municipio.ibge` na base local a partir
+   do nome do recibo (ex.: Vila Rica → código IBGE).
+3. **`gerar_mapa`**:
+   - **T1** (ArcMap 10.8 em `C:\Python27\ArcGIS10.8\python.exe`): aplica definition
+     query, zoom do inset, rótulo, retângulo e linha L (`motores/minimapa_job.py` +
+     `scripts/arcpy_job.py`).
+   - **T2** (patch sem ArcMap): gera o `.mxd` estrutural e emite aviso `NU-128` se o
+     minimapa estava ligado — o inset não é reposicionado.
+
 ## Scripts
 
 | Script | Função |
@@ -30,8 +46,9 @@ têm de se mover juntos — senão o PDF fica como o incidente Harmonia (retâng
 | `ferramentas/materializar_malhas_ibge.py` | Baixa API IBGE → shapefiles |
 | `ferramentas/conectar_minimapa_ibge_arcpy.py` | Reconecta todos os MXDs à base + nomeia elementos |
 | `ferramentas/mudar_municipio_minimapa_arcpy.py` | Definition query + zoom + rótulo + retângulo/L |
-| `mapasfacil_nucleo/camadas/ibge.py` | Cliente API + cache (motor) |
+| `mapasfacil_nucleo/camadas/ibge.py` | Cliente API + resolução local + extent |
 | `mapasfacil_nucleo/motores/minimapa.py` | Cálculo página do retângulo/linha L |
+| `mapasfacil_nucleo/motores/minimapa_job.py` | Contexto T1 a partir do MapSpec |
 
 ### Trocar município de um MXD
 

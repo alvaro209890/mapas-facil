@@ -29,11 +29,14 @@ Responda SÓ com um objeto JSON válido, sem markdown, sem texto fora do JSON, n
   ],
   "metadados_lidos": [{"rotulo": "<texto>", "valor": "<texto>"}],
   "tabela_presente": <true ou false>,
+  "minimapa_presente": <true ou false — inset de município no canto, retângulo vermelho, linha-guia>,
   "observacoes": ["<texto livre, o que fugiu do padrão>"]
 }
 
 Seja honesto com a confiança — abaixo de 0.7 é normal e esperado quando o print é ruim ou a
-legenda é ambígua. Nunca invente `estilo_sugerido` ou `mapa_da_serie` fora das listas acima."""
+legenda é ambígua. Nunca invente `estilo_sugerido` ou `mapa_da_serie` fora das listas acima.
+No minimapa Harmonia: município laranja com nome, quadradinho vermelho no imóvel e linha em L
+vermelha até o quadro do mapa; selo da UF (ex. MT) no canto do inset."""
 
 
 def montar_prompt(
