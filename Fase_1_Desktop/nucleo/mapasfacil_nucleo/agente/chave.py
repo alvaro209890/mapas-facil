@@ -1,23 +1,26 @@
-# Leitura da chave DeepSeek (BYOK) — nunca loga o valor.
+# Leitura da chave DeepSeek — nunca loga o valor.
+#
+# Produto (piloto Acer): após login a chave do projeto é sincronizada no cofre
+# (`agente.provisao`). Leitura: override → env → cofre → provisão/secrets.
 
 from __future__ import annotations
 
-import json
-import os
 from pathlib import Path
 
 from mapasfacil_nucleo.config import raiz_repositorio
 
 
 def ler_chave_deepseek(*, override: str | None = None) -> str | None:
-    """Ordem: argumento → ``DEEPSEEK_API_KEY`` → cofre (A11) → ``secrets.local.json``.
+    """Ordem: argumento → ``DEEPSEEK_API_KEY`` → cofre → provisão do projeto.
 
-    Em produção a chave vive no cofre do SO. Em dev, ``secrets.local.json``
-    (gitignored) continua válido.
+    A provisão cobre ``provisao.local.json`` e ``secrets.local.json`` (dev).
     """
     if override is not None:
         chave = override.strip()
         return chave or None
+
+    import os
+
     env = (os.environ.get("DEEPSEEK_API_KEY") or "").strip()
     if env:
         return env
@@ -29,21 +32,12 @@ def ler_chave_deepseek(*, override: str | None = None) -> str | None:
         if do_cofre:
             return do_cofre
     except Exception:
-        # Cofre indisponível (sem keyring) — cai no arquivo local.
+        # Cofre indisponível (sem keyring) — cai na provisão.
         pass
 
-    for nome in ("secrets.local.json", "secrets.json"):
-        caminho = raiz_repositorio() / nome
-        if not caminho.is_file():
-            continue
-        try:
-            dados = json.loads(caminho.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        chave = (dados.get("deepseek_api_key") or "").strip()
-        if chave:
-            return chave
-    return None
+    from mapasfacil_nucleo.agente.provisao import ler_chave_projeto
+
+    return ler_chave_projeto()
 
 
 def caminho_secrets() -> Path:

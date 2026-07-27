@@ -12,22 +12,30 @@ _MIGRACOES = _PACOTE / "migracoes"
 
 
 def diretorio_contas(override: str | Path | None = None) -> Path:
-    """Pasta `%APPDATA%/MapasFacil/contas` (ou XDG / env em Linux/dev).
+    """Pasta de contas — padrão: ``Documentos/database/MapasFacil/contas``.
 
     Prioridade:
     1. argumento ``override``
     2. ``MAPASFACIL_CONTAS_DIR``
-    3. ``MAPASFACIL_DADOS``/contas
-    4. ``%APPDATA%/MapasFacil/contas`` ou ``$XDG_DATA_HOME/MapasFacil/contas``
+    3. ``MAPASFACIL_DATABASE_ROOT``/contas ou ``MAPASFACIL_DADOS``/contas
+    4. ``Documentos/database/MapasFacil/contas`` (produto)
+    5. legado APPDATA / XDG
     """
     if override is not None:
         return Path(override).expanduser().resolve()
     env_contas = os.environ.get("MAPASFACIL_CONTAS_DIR")
     if env_contas:
         return Path(env_contas).expanduser().resolve()
-    env_dados = os.environ.get("MAPASFACIL_DADOS")
-    if env_dados:
-        return Path(env_dados).expanduser().resolve() / "contas"
+    from mapasfacil_nucleo.dados import pasta_contas, raiz_sistema
+
+    # Se o caller setou MAPASFACIL_DADOS / DATABASE_ROOT, raiz_sistema já respeita.
+    if os.environ.get("MAPASFACIL_DATABASE_ROOT") or os.environ.get("MAPASFACIL_DADOS"):
+        return raiz_sistema() / "contas"
+    # Produto: Documentos/database/MapasFacil/contas
+    try:
+        return pasta_contas()
+    except Exception:
+        pass
     appdata = os.environ.get("APPDATA")
     if appdata:
         return Path(appdata) / "MapasFacil" / "contas"

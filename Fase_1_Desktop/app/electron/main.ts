@@ -1,6 +1,8 @@
 // Processo main do Electron: janela, ponte com o núcleo, IPC tipado, diálogo
 // nativo de pasta (C7), menus e tray (F1-02). Auto-update fica para M10.
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, type Tray } from "electron";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 import {
@@ -23,11 +25,72 @@ import { ArquivoPreferencias } from "./preferencias.js";
 import { lerRecentes, registrar, visiveis } from "./projetos.js";
 
 const URL_DEV = process.env.VITE_DEV_SERVER_URL;
+const NOME_SISTEMA = "MapasFacil";
 
 let janela: BrowserWindow | null = null;
 let ponte: PonteNucleo | null = null;
 let preferencias: ArquivoPreferencias | null = null;
 let tray: Tray | null = null;
+
+/** Documentos/Documents do usuário (Acer Linux: Documentos). */
+function pastaDocumentos(): string {
+  const home = homedir();
+  for (const nome of ["Documentos", "Documents"] as const) {
+    const candidata = join(home, nome);
+    if (existsSync(candidata)) return candidata;
+  }
+  const docs = join(home, "Documents");
+  mkdirSync(docs, { recursive: true });
+  return docs;
+}
+
+/** ``Documentos/database/MapasFacil`` — contas + pastas por usuário. */
+function raizDatabase(): string {
+  if (process.env.MAPASFACIL_DATABASE_ROOT?.trim()) {
+    return process.env.MAPASFACIL_DATABASE_ROOT.trim();
+  }
+  const raiz = join(pastaDocumentos(), "database", NOME_SISTEMA);
+  mkdirSync(join(raiz, "contas"), { recursive: true });
+  return raiz;
+}
+
+/**
+ * Espelha secrets.local.json → provisao.local.json (sem logar o valor).
+ * Assim o núcleo encontra a chave do projeto após o login.
+ */
+function espelharProvisao(raiz: string, appPath: string, packaged: boolean): string | undefined {
+  const destino = join(raiz, "provisao.local.json");
+  const candidatos: string[] = [];
+  if (process.env.MAPASFACIL_PROVISAO_PATH?.trim()) {
+    candidatos.push(process.env.MAPASFACIL_PROVISAO_PATH.trim());
+  }
+  if (packaged) {
+    candidatos.push(join(process.resourcesPath, "provisao.local.json"));
+  }
+  // Dev: monorepo/secrets.local.json (appPath ≈ Fase_1_Desktop/app)
+  candidatos.push(join(appPath, "..", "..", "secrets.local.json"));
+  candidatos.push(join(appPath, "..", "..", "..", "secrets.local.json"));
+
+  for (const origem of candidatos) {
+    if (!existsSync(origem)) continue;
+    try {
+      const bruto = JSON.parse(readFileSync(origem, "utf8")) as Record<string, unknown>;
+      const deepseek =
+        typeof bruto.deepseek_api_key === "string" ? bruto.deepseek_api_key.trim() : "";
+      if (!deepseek) continue;
+      const payload: Record<string, string> = { deepseek_api_key: deepseek };
+      for (const k of ["sema_authkey", "planet_api_key"] as const) {
+        const v = bruto[k];
+        if (typeof v === "string" && v.trim()) payload[k] = v.trim();
+      }
+      writeFileSync(destino, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+      return destino;
+    } catch {
+      // tenta o próximo candidato
+    }
+  }
+  return existsSync(destino) ? destino : undefined;
+}
 
 function criarJanela(): BrowserWindow {
   // D15/AP-08: escuro é o default do produto, não o do sistema.
@@ -62,11 +125,18 @@ function criarJanela(): BrowserWindow {
 
 function ligarPonte(destino: BrowserWindow): PonteNucleo {
   const { comando, args, cwd } = localizarNucleo(app.getAppPath(), app.isPackaged);
-  const env = {
+  const raiz = raizDatabase();
+  const provisao = espelharProvisao(raiz, app.getAppPath(), app.isPackaged);
+
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
-    // D13: chats.sqlite sob userData/chats (mesmo root do config.json)
-    MAPASFACIL_DADOS: app.getPath("userData"),
+    MAPASFACIL_DADOS: raiz,
+    MAPASFACIL_DATABASE_ROOT: raiz,
   };
+  if (provisao) {
+    env.MAPASFACIL_PROVISAO_PATH = provisao;
+  }
+
   const nova = new PonteNucleo({ comando, args, cwd, env });
 
   nova.on("evt", (evento: Evento) => {
@@ -126,6 +196,19 @@ async function abrirWorkspace(caminho: string): Promise<RespostaIpc> {
   return resposta;
 }
 
+/**
+ * Após login/criar conta: abre o workspace padrão do usuário
+ * (Documentos/database/MapasFacil/<user>/workspace).
+ */
+async function talvezAbrirWorkspacePadrao(resultado: unknown): Promise<void> {
+  if (!resultado || typeof resultado !== "object") return;
+  const dados = (resultado as { dados?: { workspace_padrao?: string } }).dados;
+  const caminho = dados?.workspace_padrao?.trim();
+  if (!caminho) return;
+  mkdirSync(caminho, { recursive: true });
+  await abrirWorkspace(caminho);
+}
+
 /** Opções frescas a cada aplicação — recentes e `janela` não podem ficar stale. */
 function montarOpcoesMenu(): OpcoesMenu {
   return {
@@ -153,9 +236,16 @@ function atualizarChrome(): void {
 }
 
 function registrarIpc(): void {
-  ipcMain.handle(CANAL_CHAMAR, (_evento, metodo: string, params: Record<string, unknown>) =>
-    chamarNucleo(metodo, params ?? {}),
-  );
+  ipcMain.handle(CANAL_CHAMAR, async (_evento, metodo: string, params: Record<string, unknown>) => {
+    const resposta = await chamarNucleo(metodo, params ?? {});
+    if (
+      resposta.ok &&
+      (metodo === "conta.criar" || metodo === "conta.entrar" || metodo === "conta.estado")
+    ) {
+      void talvezAbrirWorkspacePadrao(resposta.resultado);
+    }
+    return resposta;
+  });
 
   // C7 — diálogo nativo de pasta. Só o main abre o diálogo e só ele vê o caminho
   // absoluto; o renderer recebe o índice do núcleo, não um handle de disco.
@@ -202,7 +292,8 @@ function registrarIpc(): void {
 }
 
 void app.whenReady().then(() => {
-  preferencias = new ArquivoPreferencias(app.getPath("userData"));
+  const raiz = raizDatabase();
+  preferencias = new ArquivoPreferencias(raiz);
   registrarIpc();
   janela = criarJanela();
   ponte = ligarPonte(janela);

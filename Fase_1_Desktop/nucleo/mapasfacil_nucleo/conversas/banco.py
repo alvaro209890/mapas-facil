@@ -12,13 +12,14 @@ _MIGRACOES = _PACOTE / "migracoes"
 
 
 def diretorio_chats(override: str | Path | None = None) -> Path:
-    """Pasta `%APPDATA%/MapasFacil/chats` (ou XDG / env em Linux/dev).
+    """Pasta de chats — por usuário sob ``Documentos/database/MapasFacil/<user>/chats``.
 
     Prioridade:
-    1. argumento ``override``
+    1. argumento ``override`` (login ativa a pasta do usuário)
     2. ``MAPASFACIL_CHATS_DIR``
-    3. ``MAPASFACIL_DADOS``/chats
-    4. ``%APPDATA%/MapasFacil/chats`` (Windows) ou ``$XDG_DATA_HOME/MapasFacil/chats``
+    3. ``MAPASFACIL_DADOS``/chats (legado / boot antes do login)
+    4. ``Documentos/database/MapasFacil/_sem_usuario/chats`` (boot frio)
+    5. legado APPDATA / XDG
     """
     if override is not None:
         return Path(override).expanduser().resolve()
@@ -28,6 +29,12 @@ def diretorio_chats(override: str | Path | None = None) -> Path:
     env_dados = os.environ.get("MAPASFACIL_DADOS")
     if env_dados:
         return Path(env_dados).expanduser().resolve() / "chats"
+    try:
+        from mapasfacil_nucleo.dados import raiz_sistema
+
+        return raiz_sistema() / "_sem_usuario" / "chats"
+    except Exception:
+        pass
     appdata = os.environ.get("APPDATA")
     if appdata:
         return Path(appdata) / "MapasFacil" / "chats"
