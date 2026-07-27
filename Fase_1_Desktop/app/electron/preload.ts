@@ -6,6 +6,7 @@ import {
   CANAL_CHAMAR,
   CANAL_COMANDO_MENU,
   CANAL_ESTADO,
+  CANAL_ESTADO_ATUAL,
   CANAL_EVENTO,
   CANAL_PREFERENCIAS_GRAVAR,
   CANAL_PREFERENCIAS_LER,
@@ -42,6 +43,10 @@ const api = {
     const alca = (_e: unknown, estado: unknown) => ouvinte(estado);
     ipcRenderer.on(CANAL_ESTADO, alca);
     return () => ipcRenderer.removeListener(CANAL_ESTADO, alca);
+  },
+  /** Estado atual da ponte — o push do boot já passou quando o React assina. */
+  estadoNucleoAtual(): Promise<{ estado: string; erro: null }> {
+    return ipcRenderer.invoke(CANAL_ESTADO_ATUAL) as Promise<{ estado: string; erro: null }>;
   },
   /** Abre o diálogo nativo de pasta e manda o núcleo indexar o que o usuário escolheu. */
   conectarPasta(): Promise<RespostaConectar> {

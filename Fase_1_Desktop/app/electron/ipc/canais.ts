@@ -3,6 +3,10 @@
 // renderer fala com o núcleo só por método NDJSON (fronteira 1 de F1-01).
 export const CANAL_CHAMAR = "nucleo:chamar";
 export const CANAL_ESTADO = "nucleo:estado";
+// Pull do estado atual. O push de `CANAL_ESTADO` acontece em `did-finish-load`,
+// que é **antes** de o React assinar no `useEffect` — sozinho ele se perde e a
+// tela fica presa em "núcleo iniciando" (e a guarda de login nunca roda).
+export const CANAL_ESTADO_ATUAL = "nucleo:estado-atual";
 export const CANAL_REINICIAR = "nucleo:reiniciar";
 export const CANAL_EVENTO = "nucleo:evt";
 export const CANAL_PREFERENCIAS_LER = "preferencias:ler";

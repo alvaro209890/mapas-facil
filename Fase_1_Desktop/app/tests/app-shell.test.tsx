@@ -48,7 +48,8 @@ describe("AppShell", () => {
     });
     render(<App />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Conectar pasta" }));
+    // A guarda de sessão é assíncrona: o shell só monta depois dela.
+    await userEvent.click(await screen.findByRole("button", { name: "Conectar pasta" }));
 
     await waitFor(() =>
       expect(document.querySelector('[data-arquivo="SHP/ATP.shp"]')).toBeInTheDocument(),

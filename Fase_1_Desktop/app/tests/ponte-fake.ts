@@ -26,6 +26,9 @@ export interface OpcoesPonteFake {
   abrirRecente?: RespostaConectar;
   recentes?: ProjetoRecente[];
   preferencias?: Record<string, unknown>;
+  /** Estado que o pull inicial devolve. Na produção a ponte sobe para
+   *  `pronto` logo no spawn, então é esse o default. */
+  estadoNucleo?: EstadoNucleo;
 }
 
 export interface PonteFake {
@@ -144,6 +147,8 @@ export function ligarPonteFake(opcoes: OpcoesPonteFake = {}): PonteFake {
         ouvintesEstado.delete(ouvinte);
       };
     },
+    estadoNucleoAtual: () =>
+      Promise.resolve(opcoes.estadoNucleo ?? { estado: "pronto", erro: null }),
     aoComandoMenu(ouvinte) {
       ouvintesMenu.add(ouvinte);
       return () => {

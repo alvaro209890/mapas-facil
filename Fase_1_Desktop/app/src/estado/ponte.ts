@@ -31,6 +31,8 @@ export interface ApiMapasFacil {
   reiniciarNucleo(): Promise<{ estado: string }>;
   aoEvento(ouvinte: (evento: EnvelopeEvento) => void): () => void;
   aoEstadoNucleo(ouvinte: (estado: EstadoNucleo) => void): () => void;
+  /** Opcional: builds antigos do preload não expõem. */
+  estadoNucleoAtual?(): Promise<EstadoNucleo>;
   /** Menu/tray do main → id de comando da paleta (`conectar-pasta`, …). */
   aoComandoMenu?(ouvinte: (id: string) => void): () => void;
   conectarPasta(): Promise<RespostaConectar>;
@@ -55,5 +57,22 @@ export function assinarEventos(ouvinte: (evento: EnvelopeEvento) => void): () =>
 }
 
 export function assinarEstadoNucleo(ouvinte: (estado: EstadoNucleo) => void): () => void {
-  return api()?.aoEstadoNucleo(ouvinte) ?? (() => undefined);
+  const ponte = api();
+  if (!ponte) return () => undefined;
+  let vivo = true;
+  let recebeuPush = false;
+  const cancelar = ponte.aoEstadoNucleo((estado) => {
+    recebeuPush = true;
+    ouvinte(estado);
+  });
+  // O push do main sai em `did-finish-load`, antes deste `useEffect` — sem o
+  // pull inicial a tela ficaria presa em "iniciando" e o login nunca apareceria.
+  // Um push que chegue antes da resposta vence: ele é mais novo.
+  void ponte.estadoNucleoAtual?.().then((atual) => {
+    if (vivo && atual && !recebeuPush) ouvinte(atual);
+  });
+  return () => {
+    vivo = false;
+    cancelar();
+  };
 }

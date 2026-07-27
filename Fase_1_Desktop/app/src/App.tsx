@@ -61,17 +61,24 @@ export function App() {
       </div>
     ) : undefined;
 
-  if (nucleo.estado === "pronto" && auth.estado !== "conectado" && auth.estado !== "carregando") {
+  // O shell só aparece com sessão confirmada. Mostrá-lo enquanto o núcleo sobe
+  // fazia o app "abrir" e só depois jogar o usuário no login — o passo
+  // redundante que o fluxo cadastro → login → app não deve ter.
+  if (auth.estado === "conectado") {
+    return <AppShell nucleo={nucleo} banner={banner} />;
+  }
+
+  if (nucleo.estado === "caido") {
+    return <AppShell nucleo={nucleo} banner={banner} />;
+  }
+
+  if (nucleo.estado === "pronto" && auth.estado !== "carregando") {
     return <Login />;
   }
 
-  if (nucleo.estado === "pronto" && auth.estado === "carregando") {
-    return (
-      <div className={estilos.banner} role="status">
-        Verificando conta neste PC…
-      </div>
-    );
-  }
-
-  return <AppShell nucleo={nucleo} banner={banner} />;
+  return (
+    <div className={estilos.banner} role="status">
+      {nucleo.estado === "pronto" ? "Verificando conta neste PC…" : "Iniciando o Mapas Fácil…"}
+    </div>
+  );
 }
