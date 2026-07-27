@@ -1,0 +1,20 @@
+[Unit]
+Description=Mapas Fácil site (Fase 2) — 127.0.0.1:3080
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Documentos/Mapas_Facil/Fase_2_Site/web
+ExecStart=%h/.config/systemd/user/run-mapas-facil-site.sh
+Restart=always
+RestartSec=3
+MemoryMax=1G
+CPUWeight=50
+
+# Garante PATH do nvm mesmo sem login interativo
+Environment=NVM_DIR=%h/.nvm
+Environment=HOME=%h
+
+[Install]
+WantedBy=default.target

@@ -35,4 +35,6 @@ Site público: vitrine, requisitos e **download** do instalador Windows. **Não*
 | Código | **implementado e validado localmente** — hero cinematográfico, mapa fictício, animação completa e contatos do desenvolvedor |
 | Conta nuvem (F2-05) | **adiado** |
 
-Fluxo: desenvolver neste PC → enviar/publicar no PC servidor ([F2-06](planos/06-deploy-tunnel-neste-pc.md)).
+Fluxo: desenvolver neste PC → publicar com systemd + tunnel dedicado ([deploy/](deploy/README.md), [F2-06](planos/06-deploy-tunnel-neste-pc.md)).
+
+Produção neste PC: `https://mapasfacil.cursar.space` (`mapas-facil-site` + `mapas-facil-tunnel`, sobem no boot).
