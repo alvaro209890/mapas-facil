@@ -147,7 +147,7 @@ export function BarraChats(props: PropsBarraChats) {
           icone={<MessageSquarePlus size={18} aria-hidden="true" />}
         />
       ) : (
-        <div className={estilos.lista} aria-label="lista de conversas">
+        <div className={estilos.lista} role="group" aria-label="lista de conversas">
           {grupos.map((grupo) => (
             <div key={grupo.rotulo} className={estilos.grupo}>
               <div className={estilos.rotuloGrupo}>{grupo.rotulo}</div>
