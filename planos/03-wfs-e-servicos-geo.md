@@ -55,6 +55,31 @@ renomear o layer, muda só o campo `layer` — o `id` permanece (caso real:
 | WMS local GeoForest (ref.) | `https://wms.cursar.space/geoserver/cbers/wms` | WMS | — | CBERS/Landsat próprios — **fora da v1** do Mapas Fácil |
 | SCCON AUAS (ref.) | `https://geoserver-dashboard-mt.sccon.com.br/.../wfs` | WFS | Bearer | alertas AUAS — **fora da v1** |
 
+## Sondagem WMS no Windows (2026-07-26)
+
+Rodada **neste PC Windows** (IP BR), **sem** `authkey`/senha. Critério operacional:
+**GetMap devolve PNG/JPEG** (magic bytes). GetCapabilities público **não** implica GetMap
+liberado.
+
+Arquivo bruto: [`../shared/catalog/wms_sondagem_2026-07-26.json`](../shared/catalog/wms_sondagem_2026-07-26.json).
+
+| Catálogo / endpoint | Auth | GetCapabilities | GetMap (sem senha) | Veredito |
+|---|---|---|---|---|
+| `terras_indigenas_funai` · FUNAI | — | OK | **PNG OK** | **funciona** |
+| `alertas_mapbiomas` · MapBiomas | — | OK | **PNG OK** | **funciona** |
+| `alertas_mapbiomas_simpl` · MapBiomas | — | OK | **PNG OK** | **funciona** |
+| `prodes_inpe` · TerraBrasilis | — | OK | **PNG OK** | **funciona** |
+| `prodes_yearly` · TerraBrasilis | — | OK | **PNG OK** | **funciona** |
+| SEMA OWS (CAR/SIMCAR/embargos/mosaicos) | `sema_authkey` | OK (público) | **falha** (`ServiceException` / `LayerNotDefined`) | **não funciona sem chave** |
+| `mosaico_spot_2008` + todo `mosaicos_sema.json` | `sema_authkey` | — | **falha** sem chave | **não funciona sem chave** |
+| `embargos_ibama_siscom` · SISCOM | — | **403** | **403** | **bloqueado** (Cloudflare/WAF) |
+| `wms.cursar.space` CBERS (ref.) | — | OK | GetMap não validado | fora da v1 |
+
+**Resumo:** WMS usable **sem senha** neste ambiente = **FUNAI + MapBiomas + PRODES**.
+Tudo SEMA (incluindo mosaicos) e SISCOM **não** entram no caminho feliz até existir
+`sema_authkey` no Credential Manager / `secrets.local.json`. Embargos federais: preferir
+`embargos_ibama` (PAMGIA REST), não o WMS SISCOM.
+
 ## Camadas SEMA prioritárias para a série IMAP
 
 ### CAR validado (`Geoportal:CAR_*`)

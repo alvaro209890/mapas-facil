@@ -1,0 +1,787 @@
+{
+  "resultados": [
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 7765, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_MAPBIOMAS_2.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 878, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 733, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Alertas_PRODES_VF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 522, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 329, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Areas_Cultivaveis_VF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 300, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\DLA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 309, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2000.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 421, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2008_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 296, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2013.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 492, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2017.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 294, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2019.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 331, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2023.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 499, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 362, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_cultivo.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 322, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Dinamica_2026_quantitativos.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 507, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_IBAMA.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 523, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Embargos_SEMA_SIGA_Poligono.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 401, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\PEF.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 310, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\TCR.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 313, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Terras_Indigenas.mxd"
+    }, 
+    {
+      "avisos": [], 
+      "ok": true, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 525, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Tipologia.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc7 in position 19: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4256, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Unidade_de_Conservação.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 10 Mosaic (df=Layers)", 
+        "Global Monthly 2026 05 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [], 
+      "ms": 12445, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\MXD\\Untitled.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "Unidades de conservação -> BASEMAP"
+      ], 
+      "ms": 4530, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Analise_Area_UCs_e_TIs.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2000' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2000", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2000' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2000", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2000' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2000"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:LANDSAT_5_2000", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L5_224069_20000730_C543.TIF -> BASEMAP"
+      ], 
+      "ms": 4846, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2000_v2.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:LANDSAT_7_2002' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_7_2002", 
+        "SEMA WMS 'Mosaicos:LANDSAT_7_2002' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_7_2002", 
+        "SEMA WMS 'Mosaicos:LANDSAT_7_2002' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_7_2002"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:LANDSAT_7_2002", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L7_ETM_224069_20020712_C543.tif -> BASEMAP"
+      ], 
+      "ms": 5072, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2002.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L5_TM_224069_20040623_C543.tif -> BASEMAP"
+      ], 
+      "ms": 4566, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2004.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2005' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2005", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2005' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2005", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2005' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2005"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:LANDSAT_5_2005", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "LT05_224069_20051016.tif -> BASEMAP"
+      ], 
+      "ms": 4519, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2005.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2006' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2006", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2006' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2006", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2006' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2006"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:LANDSAT_5_2006", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "LANDSAT_5_TM_20060613_224_069_L2_BAND5_4_3.tif -> BASEMAP"
+      ], 
+      "ms": 4475, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2006.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2008' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2008", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2008' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2008", 
+        "SEMA WMS 'Mosaicos:LANDSAT_5_2008' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:LANDSAT_5_2008"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:LANDSAT_5_2008", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SPOT\\MosaicSpot2008 -> BASEMAP"
+      ], 
+      "ms": 6161, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2008.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "LANDSAT_5_20100726_224_069_GEO.tif -> BASEMAP"
+      ], 
+      "ms": 4315, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2010.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:RESOURCESAT_2012' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:RESOURCESAT_2012", 
+        "SEMA WMS 'Mosaicos:RESOURCESAT_2012' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:RESOURCESAT_2012", 
+        "SEMA WMS 'Mosaicos:RESOURCESAT_2012' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:RESOURCESAT_2012"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:RESOURCESAT_2012", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SERVIÇO DE WEBMAPS SEMA-MT -> BASEMAP"
+      ], 
+      "ms": 4398, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2012.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L8_22469_20140822_C654.TIF -> BASEMAP"
+      ], 
+      "ms": 4354, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2014.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2016' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2016", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2016' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2016", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2016' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2016"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2016", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L8_OLI_224069_20160811_C654.TIF -> BASEMAP"
+      ], 
+      "ms": 4697, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2016.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2018' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2018", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2018' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2018", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2018' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2018"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2018", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L8_OLI_224.069_20180902_C654.TIF -> BASEMAP"
+      ], 
+      "ms": 4535, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2018.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2020' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2020", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2020' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2020", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2020' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2020"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2020", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L9_OLI_L2SP_224069_20230722_C654_v2.TIF -> BASEMAP"
+      ], 
+      "ms": 4700, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2020.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2023' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2023", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2023' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2023", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2023' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2023"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2023", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "L9_OLI_L2SP_224069_20230722_C654_v2.TIF -> BASEMAP"
+      ], 
+      "ms": 4493, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2023.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SPOT\\MosaicSpot2008 -> BASEMAP"
+      ], 
+      "ms": 8413, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINAMICA_2025.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc2 in position 3: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4350, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2000_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc2 in position 3: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4061, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc2 in position 3: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4321, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_LANDSAT_AC.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc2 in position 3: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4450, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT.mxd"
+    }, 
+    {
+      "avisos": [
+        "ERRO: 'ascii' codec can't decode byte 0xc2 in position 3: ordinal not in range(128)"
+      ], 
+      "ok": false, 
+      "planet_removidas": [], 
+      "renomeados_basemap": [], 
+      "ms": 4442, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\DINÂMINCA_2008_SPOT_AC.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SPOT\\MosaicSpot2008 -> BASEMAP"
+      ], 
+      "ms": 8506, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2005-2025.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SPOT\\MosaicSpot2008 -> BASEMAP"
+      ], 
+      "ms": 8549, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SPOT\\MosaicSpot2008 -> BASEMAP"
+      ], 
+      "ms": 8638, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Dinamica 2008-2025_AC.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "Unidades de conservação -> BASEMAP"
+      ], 
+      "ms": 4763, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Distancia_de_uso_restrito.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "Unidades de conservação -> BASEMAP"
+      ], 
+      "ms": 4571, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\EMBARGO_SAO_SEBASTIAO.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "Embargos_SEMA -> BASEMAP"
+      ], 
+      "ms": 8904, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SEMA_IBAMA.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)", 
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "Embargos SEMA/SIGA -> BASEMAP", 
+        "Embargos SEMA/SIGA -> BASEMAP"
+      ], 
+      "ms": 12112, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Embargos_SIGA.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [], 
+      "ms": 4823, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Mapa_de_uso_consolidado.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2025 04 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [
+        "SERVIÇO DE WEBMAPS SEMA-MT -> BASEMAP"
+      ], 
+      "ms": 4572, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\04\\MXD\\Tipologia_Vegetal.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2024 10 Mosaic (df=Layers)"
+      ], 
+      "renomeados_basemap": [], 
+      "ms": 4437, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\Referencias_IMAP\\Mapas\\05\\MXD\\MAPA_AEP.mxd"
+    }, 
+    {
+      "avisos": [
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024", 
+        "SEMA WMS 'Mosaicos:SENTINEL_2_2024' nao adicionado com authkey (env vazia). Planet removido; use Esri World Imagery ou rode com SEMA_WMS_AUTHKEY.", 
+        "Basemap Esri: conexao .ags criada em temp; AddLayer automatico de MapServer e limitado no ArcMap 10.8 via arcpy - confirme BASEMAP na GUI se faltar fundo. Layer SEMA alvo: Mosaicos:SENTINEL_2_2024"
+      ], 
+      "ok": true, 
+      "basemap_desejado": "Mosaicos:SENTINEL_2_2024", 
+      "planet_removidas": [
+        "Global Monthly 2026 03 Mosaic (df=MAPA)", 
+        "Global Monthly 2026 04 Mosaic (df=MAPA)", 
+        "Global Monthly 2026 01 Mosaic (df=MAPA)", 
+        "Global Monthly 2026 04 Mosaic (df=MAPA)", 
+        "Global Monthly 2024 07 Mosaic (df=MAPA)"
+      ], 
+      "renomeados_basemap": [
+        "SERVIÇO DE WEBMAPS SEMA-MT -> BASEMAP"
+      ], 
+      "ms": 24445, 
+      "arquivo": "C:\\Users\\alvar\\Documents\\mapas-facil\\shared\\templates\\Dinamica_retrato.mxd"
+    }
+  ], 
+  "falhas": 6, 
+  "total": 54, 
+  "ok": 48, 
+  "com_remocao": 27
+}

@@ -18,6 +18,12 @@ Scripts presentes:
 | `inspecionar_mxd_offsets.py` | lê offsets/sentinelas do `.mxd` |
 | `registrar_template.py` | grava sha256/offsets no MANIFEST |
 | `recuperar_zip_truncado.py` | recupera ZIP sem diretório central |
+| `remover_planet_mxd_arcpy.py` | remove camadas Planet/WMTS quebradas dos `.mxd` (ArcMap 10.8) |
+| `fechar_dialogs_gis.ps1` | cancela o diálogo *GIS Server Connection* automaticamente |
+| `salvar_mxd_gui.ps1` | abre cada `.mxd`, fecha diálogos, salva na GUI do ArcMap |
+
+Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):
+[`../docs/remocao-planet-mxd.md`](../docs/remocao-planet-mxd.md).
 
 ## `chaves_mxd.py`
 
