@@ -42,9 +42,11 @@ test("site não cria rotas de autenticação ou chat", () => {
   assert.doesNotMatch(page, /href=["']\/(?:login|signup|chat)/);
 });
 
-test("download não inventa um instalador ausente", () => {
-  assert.match(download, /NEXT_PUBLIC_DOWNLOAD_URL/);
+test("download resolve o instalador via manifesto/env com fallback", () => {
+  assert.match(download, /resolveDownloadInfo/);
   assert.match(download, /Instalador em breve/);
+  assert.match(download, /Pronto para instalar/);
+  assert.match(download, /Baixar para Windows/);
 });
 
 test("a demonstração usa somente o mapa fictício", () => {

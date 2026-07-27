@@ -2019,6 +2019,36 @@ select {
   line-height: 1.6;
 }
 
+.download__meta {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.download__meta li {
+  display: grid;
+  gap: 4px;
+}
+
+.download__meta span {
+  color: rgba(214, 245, 111, 0.55);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.download__meta code {
+  overflow-wrap: anywhere;
+  color: rgba(249, 250, 245, 0.78);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
 .download__pending {
   display: inline-flex;
   align-items: center;
