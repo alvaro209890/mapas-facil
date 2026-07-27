@@ -47,9 +47,8 @@ a = Analysis(
     excludes=[
         "arcpy",
         "tkinter",
-        "test",
-        "unittest",
         "pytest",
+        # NÃO excluir unittest: pyparsing/matplotlib importam em runtime no Windows.
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
