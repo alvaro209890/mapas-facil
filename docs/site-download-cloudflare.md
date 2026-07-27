@@ -8,9 +8,9 @@ Estado operacional neste PC (2026-07-27).
 |---|---|
 | Site (Cloudflare Tunnel) | https://mapasfacil.cursar.space |
 | Download do instalador | https://mapasfacil.cursar.space/download |
-| Instalador `.exe` (GitHub Releases) | https://github.com/alvaro209890/mapas-facil/releases/download/desktop-v0.5.0/MapasFacil-Setup-0.5.0.exe |
+| Instalador `.exe` (GitHub Releases) | https://github.com/alvaro209890/mapas-facil/releases/download/desktop-v0.5.1/MapasFacil-Setup-0.5.1.exe |
 | Manifesto JSON | https://github.com/alvaro209890/mapas-facil/releases/latest/download/download-manifest.json |
-| Release | `desktop-v0.5.0` — tag no repositório `alvaro209890/mapas-facil` |
+| Release | `desktop-v0.5.1` — tag no repositório `alvaro209890/mapas-facil` |
 
 O site **não** hospeda o `.exe`. O botão em `/download` aponta para o asset da release no GitHub.
 
@@ -70,7 +70,7 @@ curl -sI https://mapasfacil.cursar.space/download | head -5
 curl -s https://mapasfacil.cursar.space/download | grep -o 'MapasFacil-Setup[^"]*'
 ```
 
-Esperado: serviços `active`, HTTP 200, link `MapasFacil-Setup-0.5.0.exe`.
+Esperado: serviços `active`, HTTP 200, link `MapasFacil-Setup-0.5.1.exe`.
 
 ## SmartScreen
 

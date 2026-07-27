@@ -12,7 +12,10 @@ em qualquer coisa.
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
 | **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap. H10 fechou; **5/5 HARD verdes**. Basemap Planet (WMTS) e legenda entram no MXD, mas a paridade **ainda não foi medida** com eles ativos — última medição sem basemap: ~81,6%. Próximo: medir → templates restantes → **M10 → M11** |
-| **Com Windows (sem ArcMap)** | **M10 parcial** — instalador `desktop-v0.5.0` no GitHub + botão em https://mapasfacil.cursar.space/download. Login e WMS/WMTS corrigidos (2026-07-27): cadastro leva direto ao app e as chaves DeepSeek/SEMA/Planet entram no cofre sozinhas. **Falta: config de empacotamento versionada** (o `.exe` publicado não é reproduzível do repo), Authenticode e piloto **M11** |
+| **Com Windows (sem ArcMap)** | **M10 quase** — instalador **`desktop-v0.5.1`** publicado e reproduzível do repo (`pnpm dist`); os 3 bugs que travavam o piloto (app não abria, login duplicado, WMS manual) estão corrigidos e verificados. **Falta: Authenticode** e instalar num PC limpo → **M11** |
+
+**Detalhe da rodada (causa raiz de cada bug + o que falta):**
+[`docs/estado-2026-07-27.md`](docs/estado-2026-07-27.md).
 
 Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
 Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
@@ -38,7 +41,7 @@ print LLM); OCR Tesseract fora de propósito; crossfade de PNG por versão do Ma
 ### Fase 2 — site
 
 **No ar (2026-07-27):** https://mapasfacil.cursar.space — landing + requisitos + **download**
-do `MapasFacil-Setup-0.5.0.exe` (GitHub Releases) + contato. Tunnel Cloudflare neste PC Acer
+do `MapasFacil-Setup-0.5.1.exe` (GitHub Releases) + contato. Tunnel Cloudflare neste PC Acer
 (`mapas-facil-site` + `mapas-facil-tunnel`). Operação e checklist:
 [`docs/site-download-cloudflare.md`](docs/site-download-cloudflare.md).
 
@@ -258,7 +261,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf` | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py` |
-| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **não reproduzível** — a release `desktop-v0.5.0` tem artefatos NSIS/electron-builder, mas **não há config nem devDependency no repo**: o `.exe` foi gerado fora da árvore e não dá para corrigi-lo daqui. Sem Authenticode | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/app/build/` |
+| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `desktop-v0.5.1` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). **Falta a assinatura Authenticode** (SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 
 ## Anti-padrões — vinculantes para qualquer agente implementador
