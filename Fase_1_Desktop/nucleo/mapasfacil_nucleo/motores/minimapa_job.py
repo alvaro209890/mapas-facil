@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,34 @@ from mapasfacil_nucleo.motores import arcpy_ponte
 from mapasfacil_nucleo.motores import minimapa as minimapa_mod
 from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
+
+# Stems canônicos → nomes que o template Dinâmica ainda pode exigir (acervo).
+_HOMONIMOS_SHAPE: dict[str, tuple[str, ...]] = {
+    "ATP": ("CAR_ATP", "Fazenda_Harmonia", "Fazenda_Santa_Clara"),
+    "AREA_CONSOLIDADA": ("AC", "AREA_CONSOLIDADA"),
+    "AVN": ("AVN",),
+    "AUAS": ("AUAS",),
+}
+
+_SUFIXOS_SHAPE = (".shp", ".shx", ".dbf", ".prj", ".cpg", ".sbn", ".sbx")
+
+
+def _garantir_homonimos_shp(pasta_shp: Path) -> None:
+    """Copia ATP.shp → CAR_ATP.shp etc. para findAndReplaceWorkspacePaths resolver."""
+    for canonico, aliases in _HOMONIMOS_SHAPE.items():
+        origem = pasta_shp / f"{canonico}.shp"
+        if not origem.is_file():
+            continue
+        for alias in aliases:
+            if alias == canonico:
+                continue
+            destino = pasta_shp / f"{alias}.shp"
+            if destino.is_file():
+                continue
+            for sufixo in _SUFIXOS_SHAPE:
+                src = origem.with_suffix(sufixo)
+                if src.is_file():
+                    shutil.copy2(src, pasta_shp / f"{alias}{sufixo}")
 
 
 def _centroide_wgs84(
@@ -129,6 +158,9 @@ def tentar_gerar_mxd_arcpy(
     saida_mxd = pasta_saida / f"{nome_base}.mxd"
     pasta_saida_shp = guard.resolver(pasta_shp, escrita=True)
 
+    # Homônimos que o template ainda espera (técnica F1-04) — sem replaceDataSource.
+    _garantir_homonimos_shp(pasta_saida_shp)
+
     ctx = montar_contexto_minimapa(mapspec, guard=guard, fontes_idx=fontes_idx)
     if not quer_minimapa:
         ctx["graficos"] = {}
@@ -147,6 +179,21 @@ def tentar_gerar_mxd_arcpy(
 
     tmp = Path(tempfile.mkdtemp(prefix="mf_arcpy_"))
     bbox_list = list(bbox) if bbox else [0.0, 0.0, 1.0, 1.0]
+    # PDF ArcMap ao lado do nativo (critério M2 §1.5): *_arcmap.pdf
+    saidas_job = ["mxd"]
+    saida_pdf_arc = None
+    if "pdf" in (mapspec.get("saidas") or []):
+        saidas_job.append("pdf")
+        saida_pdf_arc = str(pasta_saida / f"{nome_base}_arcmap.pdf")
+
+    imovel = mapspec.get("imovel") or {}
+    textos = dict(ctx.get("textos") or {})
+    titulo = mapspec.get("titulo")
+    if titulo:
+        textos.setdefault("TITULO", str(titulo))
+    if imovel.get("nome"):
+        textos.setdefault("ROTULO_IMOVEL", str(imovel["nome"]))
+
     payload = arcpy_ponte.montar_payload(
         template=str(template_path),
         tmp_dir=str(tmp),
@@ -156,16 +203,17 @@ def tentar_gerar_mxd_arcpy(
         escala=float(escala or 60000),
         municipio=ctx["municipio"],
         uf_extenso=ctx["uf_extenso"],
-        textos=ctx["textos"],
+        textos=textos,
         graficos=ctx["graficos"],
-        saidas=["mxd"],
+        saidas=saidas_job,
         saida_mxd=str(saida_mxd),
+        saida_pdf=saida_pdf_arc,
         pasta_ibge=ctx["pasta_ibge"] if Path(ctx["pasta_ibge"]).is_dir() else None,
         extent_minimapa=extent_job,
     )
     resultado = arcpy_ponte.executar(payload, python_exe=python_arc)
     rel_mxd = str(saida_mxd.relative_to(guard.raiz))
-    return {
+    info: dict[str, Any] = {
         "mxd": rel_mxd,
         "motor": "arcpy",
         "confianca": "cartografica" if ctx.get("graficos") else "estrutural",
@@ -179,3 +227,6 @@ def tentar_gerar_mxd_arcpy(
         "relatorio_arcpy": resultado.get("relatorio"),
         "patch": {"avisos": []},
     }
+    if saida_pdf_arc and Path(saida_pdf_arc).is_file():
+        info["pdf_arcmap"] = str(Path(saida_pdf_arc).relative_to(guard.raiz))
+    return info

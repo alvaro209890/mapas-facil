@@ -10,7 +10,7 @@
       "arquivo": "Dinamica_retrato.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026.pdf",
-      "sha256": "e26896291b8b51644fdf2c2235cef96ec4292901f70d99920aa424eeb355d64a",
+      "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
       "versao_arcmap": "10.6",
       "formato_pagina": {
         "papel": "A4",
@@ -26,7 +26,7 @@
         "suportado": true,
         "offsets": {
           "extent": {
-            "offset": 36065,
+            "offset": 35913,
             "formato": "4×float64 LE",
             "sentinela": 124719.31563899854,
             "sentinelas": [
@@ -37,7 +37,7 @@
             ]
           },
           "escala": {
-            "offset": 36311,
+            "offset": 36159,
             "formato": "float64 LE",
             "sentinela": 987654.0
           }

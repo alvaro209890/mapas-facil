@@ -11,10 +11,11 @@ em qualquer coisa.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
-| **Com Windows + ArcMap** | **B1+B2 fechados** (2026-07-27) — `ROTULO_IMOVEL` criado na GUI, B2 recalibrado, `pronto_b1: true`, `sha256_ok`/`patch_ok` verdes. Falta **fechar M2** (gerar a entrega real + critérios §1.5 do guia) → **M9 → M10 → M11** |
+| **Com Windows + ArcMap** | **M2 fechado** (2026-07-27) — template sem `!`, smoke T1/T2 Harmonia com `quebradas: []`, B2 recalibrado. Próximo: **M9 → M10 → M11** |
 | **Com Windows (sem ArcMap)** | **falta** — **M10** (instalador) → **M11** (piloto); mapa “de verdade” no piloto ainda puxa M2/M9 |
 
-Ordem obrigatória do que resta: **fechar M2 (entrega real + critérios §1.5) → M9 → M10 → M11**.
+Ordem obrigatória do que resta: **M9 (Harmonia) → M10 (instalador) → M11 (piloto)**.
+Fechamento M2 documentado em [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md); script: `ferramentas/fechar_m2_windows.ps1`.
 
 ### Handoff operacional (amanhã / outro PC)
 
@@ -247,7 +248,7 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (clientes em runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** — A13 abriu com `wms_wfs`; o épico seguinte fechou `arcgis_rest`, `wfs_gml` e `wms_raster`. **41/41 camadas com cliente** | `nucleo/.../camadas/` |
-| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **parcial** (esqueleto) | `nucleo/.../scripts/arcpy_job.py` |
+| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **ausente** (infra pronta, baseline não passa) | `nucleo/.../motores/nativo.py` |

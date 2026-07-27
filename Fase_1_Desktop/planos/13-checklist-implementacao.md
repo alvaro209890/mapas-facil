@@ -12,7 +12,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 |---|---|---|
 | A — fundação do núcleo | M1 | **fechado** — A1–A13 |
 | A+ — quantitativos e validação | M1 | **fechado** exceto smoke visual (V3 — depende de motor bom / M9) |
-| B — motor `.mxd` | M2 | **B1+B2 fechados** (2026-07-27) — `ROTULO_IMOVEL` criado na GUI, B2 recalibrado, `pronto_b1: true`. Falta o passo 1.4/1.5 do guia: gerar a entrega real e conferir os critérios de saída |
+| B — motor `.mxd` | M2 | **fechado** (2026-07-27) — template sem `!`, smoke T1/T2 Harmonia, B2 recalibrado (`ferramentas/fechar_m2_windows.ps1`) |
 | C — shell + design system | M3 | **fechado** — C1–C11 + menus/tray + banner offline + Esc≠job |
 | D — galeria | M4 | **fechado** |
 | E — conta local (e-mail + senha) | M5 | **fechado** |
@@ -21,7 +21,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **não iniciado** — só falta isto na Fase 1 (depois do M2) |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **fechar M2 (GUI) → M9 → M10 → M11**.
+**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M9 → M10 → M11**.
 Fase 2 começa após M11.
 
 **Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) · handoff: [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md).

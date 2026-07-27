@@ -98,6 +98,74 @@ def _aplicar_graficos(mxd, e):
             g.elementHeight = float(graf[u"height_cm"])
 
 
+def _workspaces_das_camadas(mxd):
+    """Pastas de workspace atuais (API estável — sem replaceDataSource/Describe)."""
+    pastas = []
+    vistos = set()
+    for df in arcpy.mapping.ListDataFrames(mxd):
+        for lyr in arcpy.mapping.ListLayers(mxd, u"", df):
+            if lyr.isGroupLayer:
+                continue
+            try:
+                if not lyr.supports(u"DATASOURCE"):
+                    continue
+                ds = lyr.dataSource
+            except Exception:
+                continue
+            if not ds:
+                continue
+            pasta = os.path.dirname(ds)
+            chave = pasta.lower()
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            pastas.append(pasta)
+    return pastas
+
+
+def _reponte_workspaces(mxd, pasta_template_shp, pasta_saida_shp, pasta_ibge=None):
+    """Troca workspaces via findAndReplaceWorkspacePaths (F1-04 — sem replaceDataSource).
+
+    - pastas de dados do projeto → pasta_saida_shp
+    - pastas IBGE → pasta_ibge (se informada)
+    """
+    destino_shp = _u(pasta_saida_shp)
+    destino_ibge = _u(pasta_ibge) if pasta_ibge else None
+    if not destino_shp and not destino_ibge:
+        return
+
+    candidatos = []
+    if pasta_template_shp:
+        candidatos.append(_u(pasta_template_shp))
+    candidatos.extend(_workspaces_das_camadas(mxd))
+
+    vistos = set()
+    for origem in candidatos:
+        if not origem:
+            continue
+        chave = origem.lower()
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+
+        eh_ibge = (u"ibge" in chave) or (u"lml_" in chave) or (
+            os.path.basename(origem).lower() in (u"ibge", u"bases")
+        )
+        if eh_ibge:
+            if destino_ibge and chave != destino_ibge.lower():
+                try:
+                    mxd.findAndReplaceWorkspacePaths(origem, destino_ibge, False)
+                except Exception:
+                    pass
+            continue
+
+        if destino_shp and chave != destino_shp.lower():
+            try:
+                mxd.findAndReplaceWorkspacePaths(origem, destino_shp, False)
+            except Exception:
+                pass
+
+
 def main():
     job_path = os.environ.get("MAPASFACIL_JOB_JSON")
     if not job_path:
@@ -124,30 +192,14 @@ def main():
             raise RuntimeError("data frame MAPA ausente no template")
         df = dfs_mapa[0]
 
-        if e.get(u"pasta_template_shp") and e.get(u"pasta_saida_shp"):
-            mxd.findAndReplaceWorkspacePaths(
-                _u(e[u"pasta_template_shp"]),
-                _u(e[u"pasta_saida_shp"]),
-                False,
-            )
-
-        # IBGE do repo: reponta MUNICIPIOS/UF se o job informar pasta
-        pasta_ibge = e.get(u"pasta_ibge")
-        if pasta_ibge:
-            for dframe in arcpy.mapping.ListDataFrames(mxd):
-                for lyr in arcpy.mapping.ListLayers(mxd, u"", dframe):
-                    nome = lyr.name or u""
-                    try:
-                        if nome in (u"MUNICIPIOS", u"MUNICIPIOS_ENTORNO", u"Limite municipal"):
-                            lyr.replaceDataSource(
-                                _u(pasta_ibge), u"SHAPEFILE_WORKSPACE", u"lml_municipio_a", True
-                            )
-                        elif nome in (u"UF", u"Limite estadual"):
-                            lyr.replaceDataSource(
-                                _u(pasta_ibge), u"SHAPEFILE_WORKSPACE", u"lml_uf_a", True
-                            )
-                    except Exception:
-                        pass
+        # Reponta workspaces (template + paths absolutos herdados).
+        # Sem replaceDataSource — trava neste ArcMap (F1-04).
+        _reponte_workspaces(
+            mxd,
+            e.get(u"pasta_template_shp"),
+            e.get(u"pasta_saida_shp"),
+            e.get(u"pasta_ibge"),
+        )
 
         _aplicar_queries(mxd, e)
         _zoom_minimapa(mxd, e)

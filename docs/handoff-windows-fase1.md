@@ -41,9 +41,16 @@ Leia junto: [`Fase_1_Desktop/GUIA_WINDOWS.md`](../Fase_1_Desktop/GUIA_WINDOWS.md
 
 ---
 
-## O que **só você** precisa fazer (GUI ArcMap) — ~15–30 min
+## O que **só você** precisa fazer (GUI ArcMap) — **feito / automatizado**
 
-### 1. Criar `ROTULO_IMOVEL` (única pendência B1 automática)
+O passo manual da `AC` foi automatizado em `ferramentas/fechar_m2_template_arcpy.py` (2026-07-27).
+Para repetir ou em outro PC:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ferramentas\fechar_m2_windows.ps1
+```
+
+### Histórico (referência — não refazer manualmente)
 
 `arcpy.mapping` **não cria** TextElement novo. Falta no diagnóstico (`pronto_b1: false` só por isto).
 
@@ -106,7 +113,7 @@ Com ArcMap: motor `arcpy` (T1) + minimapa IBGE. Sem ArcMap no PATH do job: T2 pa
 
 | Marco | O quê | Exige você? |
 |---|---|---|
-| **M2 fechar** | Critérios do `GUIA_WINDOWS.md` §1.5 + checklist B + `AGENT_BRIEF` | sim (após passo 1–4) |
+| **M2 fechar** | Critérios do `GUIA_WINDOWS.md` §1.5 + checklist B + `AGENT_BRIEF` | **feito** (2026-07-27, script) |
 | **M9** | Série Harmonia, diff &lt; 0,3%, S11 | sim (ArcMap + tempo) |
 | **M10** | Instalador NSIS / PyInstaller | sim (Windows) |
 | **M11** | Piloto com usuário real | sim |

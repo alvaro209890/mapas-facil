@@ -61,6 +61,7 @@ normalizacao_relatorio.json
 relatorio_planet_falhas.json
 inspecao_dinamica_2026.json
 inspecao_template.json
+output/
 
 
 # Dados locais de desenvolvimento (shapefiles de teste grandes)
