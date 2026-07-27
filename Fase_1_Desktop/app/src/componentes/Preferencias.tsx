@@ -115,8 +115,9 @@ export function Preferencias({ aberta, aoFechar }: PropsPreferencias) {
           Preferências
         </h2>
         <p className={estilos.texto}>
-          Opções locais deste computador. A chave DeepSeek vai para o cofre do sistema
-          (Credential Manager / Secret Service) — nunca para o chat nem para config.json.
+          Opções locais deste computador. A chave DeepSeek do projeto é ativada
+          automaticamente ao entrar na conta (cofre do sistema). Você só precisa
+          colar outra chave se quiser substituir a do projeto.
         </p>
         <div className={estilos.campo}>
           <span className={estilos.rotulo}>Tema</span>
@@ -146,7 +147,7 @@ export function Preferencias({ aberta, aoFechar }: PropsPreferencias) {
 
         <div className={estilos.campo}>
           <span className={estilos.rotulo}>
-            Chave DeepSeek {temChave ? "· configurada" : "· ausente"}
+            Chave DeepSeek {temChave ? "· ativa (projeto ou personalizada)" : "· aguardando login"}
           </span>
           <input
             type="password"
