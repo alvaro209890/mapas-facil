@@ -13,7 +13,9 @@ matplotlib (origem embaixo) é feita por `Caixa.fracao`.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from functools import lru_cache
 
 
 @dataclass(frozen=True)
@@ -69,6 +71,13 @@ class PerfilPagina:
     pt_metadados: float
     pt_legenda: float
     pt_grade: float
+    # Título do bloco de legenda: nos modelos ele é bem maior que os itens
+    # (9,1 pt contra 6,2 no retrato). 0 = derivar do tamanho dos itens.
+    pt_legenda_titulo: float = 0.0
+    # Título do bloco de metadados: quase todo modelo escreve "METADADOS
+    # IMAGEM", mas o de Terras Indígenas escreve só "METADADOS" — e a diferença
+    # de largura desloca a âncora do bloco inteiro.
+    titulo_metadados: str = "METADADOS IMAGEM"
 
     @property
     def figsize_pol(self) -> tuple[float, float]:
@@ -126,6 +135,86 @@ PAISAGEM = PerfilPagina(
 )
 
 PERFIS: dict[str, PerfilPagina] = {"retrato": RETRATO, "paisagem": PAISAGEM}
+
+PREFIXO_SERIE = "serie_"
+"""Template da série `Análise de área`: o layout vem do modelo medido, não do MXD."""
+
+
+@lru_cache(maxsize=1)
+def _anatomia_serie() -> dict[str, dict]:
+    """Anatomia medida dos PDFs-modelo (`shared/padrao-imap/anatomia_serie.json`).
+
+    Ausente = sem série instalada; o chamador cai no perfil por orientação.
+    """
+    from mapasfacil_nucleo.config import raiz_repositorio
+
+    caminho = raiz_repositorio() / "shared" / "padrao-imap" / "anatomia_serie.json"
+    if not caminho.is_file():
+        return {}
+    try:
+        dados = json.loads(caminho.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    mapas = dados.get("mapas")
+    return mapas if isinstance(mapas, dict) else {}
+
+
+def _caixa_de_lista(valor: object, padrao: Caixa) -> Caixa:
+    if isinstance(valor, (list, tuple)) and len(valor) == 4 and all(v is not None for v in valor):
+        return Caixa(float(valor[0]), float(valor[1]), float(valor[2]), float(valor[3]))
+    return padrao
+
+
+def por_anatomia(mapa_id: str | None) -> PerfilPagina | None:
+    """Perfil de um mapa da série, com os retângulos **medidos do modelo dele**.
+
+    Não existe "o" layout paisagem: entre os modelos do acervo a base do quadro
+    varia de 151 mm (Terras Indígenas, que abre espaço para uma legenda alta) a
+    169 mm (Tipologia). Média erra os dois; o modelo de cada mapa acerta o seu.
+    """
+    if not mapa_id:
+        return None
+    registro = _anatomia_serie().get(str(mapa_id))
+    if not isinstance(registro, dict):
+        return None
+
+    base = PERFIS.get(str(registro.get("orientacao") or "retrato"), RETRATO)
+    pagina = registro.get("pagina_mm") or [base.largura_mm, base.altura_mm]
+    meta = registro.get("metadados") or {}
+    legenda = registro.get("legenda") or {}
+
+    return PerfilPagina(
+        id=f"{base.id}:{mapa_id}",
+        orientacao=base.orientacao,
+        largura_mm=float(pagina[0]),
+        altura_mm=float(pagina[1]),
+        mapa=_caixa_de_lista(registro.get("mapa"), base.mapa),
+        titulo=_caixa_de_lista(registro.get("titulo"), base.titulo),
+        rosa=base.rosa,
+        minimapa=base.minimapa,
+        metadados=_caixa_de_lista(meta.get("caixa"), base.metadados),
+        legenda=_caixa_de_lista(legenda.get("caixa"), base.legenda),
+        logo=base.logo,
+        tabela=base.tabela,
+        crs_padrao=base.crs_padrao,
+        titulo_legenda=str(legenda.get("titulo") or base.titulo_legenda),
+        pt_titulo=base.pt_titulo,
+        pt_metadados=float(meta.get("pt") or base.pt_metadados),
+        pt_legenda=float(legenda.get("pt") or base.pt_legenda),
+        pt_grade=base.pt_grade,
+        pt_legenda_titulo=float(legenda.get("pt_titulo") or 0.0),
+        titulo_metadados=str(meta.get("titulo") or "METADADOS IMAGEM"),
+    )
+
+
+def por_template(template_id: str | None) -> PerfilPagina | None:
+    """`serie_tipologia` → perfil medido do `Tipologia.pdf`."""
+    if not template_id:
+        return None
+    texto = str(template_id)
+    if not texto.startswith(PREFIXO_SERIE):
+        return None
+    return por_anatomia(texto[len(PREFIXO_SERIE) :])
 
 
 def obter(orientacao: str | None) -> PerfilPagina:

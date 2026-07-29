@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import shapefile
-from shapely.geometry import shape
+from shapely.geometry import Point, shape
 from shapely.ops import unary_union
 
 from mapasfacil_nucleo.camadas.cache import TTL_POR_TEMA, diretorio_cache
@@ -186,6 +186,44 @@ def resolver_municipio(
         hit = indice.get(str(nome).casefold().strip())
         if hit:
             return dict(hit)
+    return None
+
+
+def municipio_do_ponto(
+    lon: float,
+    lat: float,
+    *,
+    root: Path | None = None,
+) -> dict[str, str] | None:
+    """Município que contém o ponto (WGS84/SIRGAS), pela base local do repo.
+
+    É assim que o sistema descobre o município **sem perguntar e sem rede**:
+    o usuário entrega só o polígono, e o centroide cai dentro de um município.
+    """
+    shp = shapefile_municipios(root)
+    if not shp.is_file():
+        return None
+    reader = shapefile.Reader(str(shp))
+    fields = [f[0] for f in reader.fields[1:]]
+    ponto = Point(lon, lat)
+    for sr in reader.iterShapeRecords():
+        caixa = sr.shape.bbox
+        if not (caixa[0] <= lon <= caixa[2] and caixa[1] <= lat <= caixa[3]):
+            continue
+        try:
+            geom = shape(sr.shape.__geo_interface__)
+        except Exception:  # noqa: BLE001 — feição quebrada não derruba a busca
+            continue
+        if not geom.is_valid:
+            geom = geom.buffer(0)
+        if geom.contains(ponto):
+            row = {fields[i]: str(sr.record[i] or "") for i in range(len(fields))}
+            return {
+                "nome": row.get("nome", ""),
+                "cod_ibge": row.get("cod_ibge", ""),
+                "sigla_uf": row.get("sigla_uf", ""),
+                "uf": row.get("uf", ""),
+            }
     return None
 
 

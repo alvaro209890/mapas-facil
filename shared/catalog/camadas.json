@@ -426,6 +426,28 @@
       "auth": "sema_authkey",
       "descricao": "Basemap historico 2.5m — marco Codigo Florestal. Preferir em Dinamica 2008.",
       "data_verificacao": "2026-07-25"
+    },
+    {
+      "id": "autorizacao_desmate_sema",
+      "nome": "Autorização de desmate (PEF/SEMA)",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AUTORIZACAO_DESMATE_SEMA",
+      "auth": "sema_authkey",
+      "descricao": "Desmate licenciado pela SEMA-MT. Camada do mapa PEF da serie Analise de area; estava no WFS vivo e faltava no catalogo (lacuna C1 do GOAL).",
+      "data_verificacao": "2026-07-29"
+    },
+    {
+      "id": "autorizacao_exploracao_sema",
+      "nome": "Autorização de exploração florestal (SEMA)",
+      "tema": "uso_solo",
+      "tipo": "wms_wfs",
+      "endpoint": "https://geo.sema.mt.gov.br/geoserver/ows",
+      "layer": "Geoportal:AUTORIZACAO_EXPLORACAO_SEMA",
+      "auth": "sema_authkey",
+      "descricao": "Exploracao florestal autorizada (manejo). Complementa o PEF quando o desmate e por manejo.",
+      "data_verificacao": "2026-07-29"
     }
   ]
 }

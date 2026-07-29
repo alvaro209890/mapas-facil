@@ -241,11 +241,52 @@ def comparar(
             }
         )
 
+    def _check_centro(id_: str, chave: str, descricao: str) -> None:
+        """Bloco centralizado: compara o centro em x e a base em y."""
+        caixa_modelo = modelo.get(chave)
+        caixa_gerado = gerado.get(chave)
+        if not caixa_modelo or not caixa_gerado:
+            itens.append(
+                {
+                    "id": id_,
+                    "ok": False,
+                    "mensagem": f"{descricao}: ausente no modelo ou no gerado",
+                    "delta_mm": None,
+                }
+            )
+            return
+        centro_modelo = (caixa_modelo["x0"] + caixa_modelo["x1"]) / 2
+        centro_gerado = (caixa_gerado["x0"] + caixa_gerado["x1"]) / 2
+        delta = {
+            "centro_x": round(centro_gerado - centro_modelo, 2),
+            "y1": round(caixa_gerado["y1"] - caixa_modelo["y1"], 2),
+        }
+        pior = max(abs(v) for v in delta.values())
+        itens.append(
+            {
+                "id": id_,
+                "ok": pior <= tolerancia_mm,
+                "mensagem": (
+                    f"{descricao}: maior desvio {pior:.1f} mm "
+                    f"(tolerância {tolerancia_mm:.1f} mm)"
+                ),
+                "delta_mm": delta,
+                "campos_comparados": ["centro_x", "y1"],
+            }
+        )
+
     _check("A01", "quadro_mapa", "Quadro do mapa")
     # Metadados e legenda são blocos de **conteúdo variável**: o nome do imóvel
     # e o número de classes mudam a largura e a altura legitimamente. O que o
-    # padrão fixa é a âncora — margem esquerda e base do bloco.
-    _check("A03", "metadados", "Bloco de metadados (âncora)", campos=("x0", "y1"))
+    # padrão fixa é a âncora — mas a âncora não é a mesma nos dois blocos.
+    #
+    # O bloco de metadados é **centralizado** (nos próprios modelos, o `x0` das
+    # suas linhas varia ~14 mm entre si); comparar a margem esquerda dele mede
+    # comprimento de texto, não posição: "Satélite/Sensor: SPOT" contra
+    # "Satélite/Sensor: SPOT HRV 2008" dava 8 mm de "desvio" com o bloco
+    # centrado no mesmo lugar, com erro simétrico dos dois lados. A âncora certa
+    # é o centro. Já a legenda é alinhada à esquerda, e ali `x0` é a âncora real.
+    _check_centro("A03", "metadados", "Bloco de metadados (âncora)")
     _check("A04", "legenda", "Legenda (âncora)", campos=("x0", "y1"))
 
     delta_titulo = _delta(

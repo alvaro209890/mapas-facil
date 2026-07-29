@@ -13,10 +13,13 @@ from mapasfacil_nucleo.protocolo import envelope_req
 from tests.helpers_fixtures import eventos_e_resposta
 
 
-def test_camadas_carrega_as_41_do_catalogo_real() -> None:
-    assert len(catalogo.camadas()) == 41
+def test_camadas_carrega_as_43_do_catalogo_real() -> None:
+    # 41 até 2026-07-28; a série Análise de área acrescentou as duas
+    # autorizações da SEMA (desmate/exploração) que faltavam para o mapa PEF.
+    assert len(catalogo.camadas()) == 43
     assert "embargos_siga" in catalogo.ids()
     assert "car_atp" in catalogo.ids()
+    assert "autorizacao_desmate_sema" in catalogo.ids()
 
 
 def test_buscar_aceita_prefixo_catalogo_ponto() -> None:
@@ -42,7 +45,7 @@ def test_listar_filtra_por_tema() -> None:
 
 def test_listar_sem_tema_devolve_tudo() -> None:
     resultado = catalogo.listar(None)
-    assert resultado["total"] == 41
+    assert resultado["total"] == 43
 
 
 def test_listar_marca_todos_os_tipos_como_suportados() -> None:

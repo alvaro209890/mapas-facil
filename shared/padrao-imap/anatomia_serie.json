@@ -1,0 +1,1310 @@
+{
+ "_descricao": "Anatomia medida dos PDFs-modelo da série Análise de área (perfil Harmonia). Gerado por ferramentas/medir_modelos_serie.py a partir do acervo em Testes/ (gitignored). Unidade: milímetros, origem no topo-esquerda da página. É o gabarito que o motor nativo segue por mapa.",
+ "perfil": "harmonia",
+ "mapas": {
+  "alertas_mapbiomas": {
+   "modelo_pdf": "Alertas_MAPBIOMAS_2.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.59,
+    4.83,
+    291.34,
+    168.91
+   ],
+   "titulo": [
+    95.09,
+    2.3,
+    186.32,
+    19.81
+   ],
+   "titulo_texto": "Alertas MAPBIOMAS",
+   "metadados": {
+    "caixa": [
+     71.46,
+     173.75,
+     161.38,
+     205.35
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite: PLANET",
+     "Data da imagem: OUTUBRO/2025",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     167.48,
+     174.53,
+     244.09,
+     202.78
+    ],
+    "linhas": [
+     "LEGENDA",
+     "Fazenda Harmonia"
+    ],
+    "pt": 12.0,
+    "pt_titulo": 16.8,
+    "titulo": "LEGENDA"
+   },
+   "rotulos_dms": {
+    "total": 36,
+    "por_borda": {
+     "superior": 11,
+     "inferior": 11,
+     "esquerda": 7,
+     "direita": 7
+    }
+   }
+  },
+  "alertas_prodes": {
+   "modelo_pdf": "Alertas_PRODES_VF.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.59,
+    4.83,
+    291.34,
+    168.91
+   ],
+   "titulo": [
+    110.41,
+    2.98,
+    181.67,
+    20.49
+   ],
+   "titulo_texto": "Alertas PRODES",
+   "metadados": {
+    "caixa": [
+     71.46,
+     173.75,
+     161.38,
+     205.35
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite: PLANET",
+     "Data da imagem: OUTUBRO/2025",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     172.39,
+     175.04,
+     244.8,
+     203.28
+    ],
+    "linhas": [
+     "LEGENDA",
+     "Fazenda Harmonia"
+    ],
+    "pt": 12.0,
+    "pt_titulo": 16.8,
+    "titulo": "LEGENDA"
+   },
+   "rotulos_dms": {
+    "total": 36,
+    "por_borda": {
+     "superior": 11,
+     "inferior": 11,
+     "esquerda": 7,
+     "direita": 7
+    }
+   }
+  },
+  "dla": {
+   "modelo_pdf": "DLA.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    25.73,
+    3.63,
+    170.71,
+    21.82
+   ],
+   "titulo_texto": "Declarações de limpeza de área",
+   "metadados": {
+    "caixa": [
+     65.01,
+     265.01,
+     119.79,
+     291.05
+    ],
+    "linhas": [
+     "Legenda",
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     127.64,
+     264.73,
+     175.33,
+     291.81
+    ],
+    "linhas": [
+     "Legenda",
+     "Declaração de Limpeza de Área - DLA",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "unidades_conservacao": {
+   "modelo_pdf": "Unidade_de_Conservação.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.08,
+    5.33,
+    292.35,
+    151.38
+   ],
+   "titulo": [
+    88.72,
+    3.65,
+    203.38,
+    21.32
+   ],
+   "titulo_texto": "Unidades de Conservação",
+   "metadados": {
+    "caixa": [
+     70.72,
+     165.51,
+     160.51,
+     196.77
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite: PLANET",
+     "Data da imagem: OUTUBRO/2025",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.6,
+    "pt_titulo": 15.6,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     168.97,
+     165.23,
+     250.95,
+     194.08
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "UNIDADES_CONSERVACAO"
+    ],
+    "pt": 10.2,
+    "pt_titulo": 12.0,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 10,
+    "por_borda": {
+     "superior": 3,
+     "inferior": 3,
+     "esquerda": 2,
+     "direita": 2
+    }
+   }
+  },
+  "tipologia": {
+   "modelo_pdf": "Tipologia.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.59,
+    4.83,
+    291.34,
+    168.91
+   ],
+   "titulo": [
+    107.2,
+    2.98,
+    185.02,
+    20.49
+   ],
+   "titulo_texto": "Tipologia Vegetal",
+   "metadados": {
+    "caixa": [
+     76.37,
+     173.75,
+     147.22,
+     205.35
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Base: Radam Brasil",
+     "Fonte: WMS SEMA",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     177.13,
+     172.0,
+     226.9,
+     208.19
+    ],
+    "linhas": [
+     "LEGENDA",
+     "Fazenda Harmonia",
+     "Tipologia: Floresta",
+     "Tipologia: Cerrado"
+    ],
+    "pt": 12.0,
+    "pt_titulo": 16.8,
+    "titulo": "LEGENDA"
+   },
+   "rotulos_dms": {
+    "total": 36,
+    "por_borda": {
+     "superior": 11,
+     "inferior": 11,
+     "esquerda": 7,
+     "direita": 7
+    }
+   }
+  },
+  "terras_indigenas": {
+   "modelo_pdf": "Terras_Indigenas.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.08,
+    5.33,
+    292.1,
+    151.38
+   ],
+   "titulo": [
+    108.13,
+    3.66,
+    184.1,
+    21.17
+   ],
+   "titulo_texto": "Terras Indígenas",
+   "metadados": {
+    "caixa": [
+     82.13,
+     165.63,
+     161.94,
+     197.22
+    ],
+    "linhas": [
+     "METADADOS",
+     "Fonte: WMS FUNAI"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS"
+   },
+   "legenda": {
+    "caixa": [
+     178.32,
+     167.16,
+     225.92,
+     193.44
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Terras Indígenas",
+     "Zona de amortecimento"
+    ],
+    "pt": 9.6,
+    "pt_titulo": 12.0,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 12,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 2,
+     "direita": 2
+    }
+   }
+  },
+  "tcr": {
+   "modelo_pdf": "TCR.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.71,
+    257.3
+   ],
+   "titulo": [
+    37.13,
+    3.63,
+    156.62,
+    32.92
+   ],
+   "titulo_texto": "Termo Área de Recuperação 4089/2023 de",
+   "metadados": {
+    "caixa": [
+     55.21,
+     265.6,
+     110.01,
+     291.64
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     114.82,
+     261.37,
+     180.43,
+     295.59
+    ],
+    "linhas": [
+     "Legenda",
+     "Pontos de TAC TCR 4089/2023",
+     "Área de Preservação permanente Degradada",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 7.7,
+    "pt_titulo": 11.0,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "pef": {
+   "modelo_pdf": "PEF.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.71,
+    257.3
+   ],
+   "titulo": [
+    13.93,
+    3.63,
+    182.49,
+    21.82
+   ],
+   "titulo_texto": "Área Desmatada Com Licenciamento",
+   "metadados": {
+    "caixa": [
+     64.95,
+     265.17,
+     119.75,
+     291.22
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.35,
+     265.4,
+     161.23,
+     289.64
+    ],
+    "linhas": [
+     "Legenda",
+     "Desmate Licenciado",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.5,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "embargos_sema_siga": {
+   "modelo_pdf": "Embargos_SEMA_SIGA_Poligono.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.59,
+    5.33,
+    291.34,
+    162.31
+   ],
+   "titulo": [
+    93.9,
+    3.61,
+    194.33,
+    21.29
+   ],
+   "titulo_texto": "Embargos SEMA/SIGA",
+   "metadados": {
+    "caixa": [
+     71.38,
+     173.82,
+     161.22,
+     205.35
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite: PLANET",
+     "Data da imagem: OUTUBRO/2025",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     169.6,
+     167.66,
+     249.69,
+     204.13
+    ],
+    "linhas": [
+     "LEGENDA",
+     "Áreas Embargadas - SEMA",
+     "Fazenda Harmonia"
+    ],
+    "pt": 12.0,
+    "pt_titulo": 16.8,
+    "titulo": "LEGENDA"
+   },
+   "rotulos_dms": {
+    "total": 28,
+    "por_borda": {
+     "superior": 9,
+     "inferior": 9,
+     "esquerda": 5,
+     "direita": 5
+    }
+   }
+  },
+  "embargos_ibama": {
+   "modelo_pdf": "Embargos_IBAMA.pdf",
+   "pagina_mm": [
+    296.9,
+    210.1
+   ],
+   "orientacao": "paisagem",
+   "mapa": [
+    5.59,
+    5.33,
+    291.34,
+    167.64
+   ],
+   "titulo": [
+    107.2,
+    3.66,
+    185.01,
+    21.17
+   ],
+   "titulo_texto": "Embargos IBAMA",
+   "metadados": {
+    "caixa": [
+     71.46,
+     173.75,
+     161.38,
+     205.35
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite: PLANET",
+     "Data da imagem: OUTUBRO/2025",
+     "Datum: SIRGAS 2000 UTM 22S"
+    ],
+    "pt": 15.8,
+    "pt_titulo": 15.8,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     170.53,
+     174.2,
+     242.47,
+     202.44
+    ],
+    "linhas": [
+     "LEGENDA",
+     "Fazenda Harmonia"
+    ],
+    "pt": 12.0,
+    "pt_titulo": 16.8,
+    "titulo": "LEGENDA"
+   },
+   "rotulos_dms": {
+    "total": 22,
+    "por_borda": {
+     "superior": 7,
+     "inferior": 7,
+     "esquerda": 4,
+     "direita": 4
+    }
+   }
+  },
+  "areas_cultivaveis": {
+   "modelo_pdf": "Areas_Cultivaveis_VF.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.71,
+    257.3
+   ],
+   "titulo": [
+    58.72,
+    3.63,
+    137.69,
+    21.82
+   ],
+   "titulo_texto": "Áreas Cultiváveis",
+   "metadados": {
+    "caixa": [
+     54.62,
+     265.68,
+     109.42,
+     291.73
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     113.64,
+     260.18,
+     168.08,
+     295.25
+    ],
+    "linhas": [
+     "Legenda",
+     "Área que Precisara de DLA",
+     "Área Cultivável Derivada de Desmate Após 2008",
+     "Área Cultivável Consolidada",
+     "Área de Vegetação Nativa",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.0,
+    "pt_titulo": 8.6,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_quantitativos": {
+   "modelo_pdf": "Dinamica_2026_quantitativos.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.71,
+    257.3
+   ],
+   "titulo": [
+    63.72,
+    3.63,
+    132.71,
+    21.82
+   ],
+   "titulo_texto": "Dinâmica 2026",
+   "metadados": {
+    "caixa": [
+     64.95,
+     265.17,
+     119.75,
+     291.22
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     124.05,
+     261.67,
+     171.81,
+     294.73
+    ],
+    "linhas": [
+     "Legenda",
+     "Área Derivada de Desmate Após 2008",
+     "Área consolidada",
+     "Área de vegetação nativa",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.5,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2026": {
+   "modelo_pdf": "Dinamica_2026.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2026",
+   "metadados": {
+    "caixa": [
+     65.01,
+     269.08,
+     119.79,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Março/2026",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     134.75,
+     275.23,
+     162.39,
+     294.86
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2023": {
+   "modelo_pdf": "Dinamica_2023.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2023",
+   "metadados": {
+    "caixa": [
+     63.65,
+     269.08,
+     120.77,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Outubro/2023",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2019": {
+   "modelo_pdf": "Dinamica_2019.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2019",
+   "metadados": {
+    "caixa": [
+     65.01,
+     269.08,
+     119.79,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Maio/2019",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 18,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 5,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2017": {
+   "modelo_pdf": "Dinamica_2017.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2017",
+   "metadados": {
+    "caixa": [
+     63.65,
+     269.08,
+     120.77,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: PLANET",
+     "Data da imagem: Outubro/2017",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 18,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 5,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2013": {
+   "modelo_pdf": "Dinamica_2013.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2013",
+   "metadados": {
+    "caixa": [
+     63.31,
+     265.01,
+     121.32,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: LANDSAT 5/TM",
+     "Data da imagem: 2013",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2008_spot": {
+   "modelo_pdf": "Dinamica_2008_SPOT.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2008",
+   "metadados": {
+    "caixa": [
+     65.01,
+     265.01,
+     119.79,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: SPOT",
+     "Data da imagem: 2007-2010",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2008_landsat": {
+   "modelo_pdf": "Dinamica_2008_LANDSAT.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2008",
+   "metadados": {
+    "caixa": [
+     62.97,
+     265.01,
+     120.98,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: LANDSAT 5/TM",
+     "Data da imagem: 2008",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     270.15,
+     160.19,
+     289.95
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  },
+  "dinamica_2000": {
+   "modelo_pdf": "Dinamica_2000.pdf",
+   "pagina_mm": [
+    210.1,
+    297.1
+   ],
+   "orientacao": "retrato",
+   "mapa": [
+    5.84,
+    6.1,
+    203.45,
+    257.3
+   ],
+   "titulo": [
+    74.66,
+    3.63,
+    121.79,
+    21.82
+   ],
+   "titulo_texto": "Ano: 2000",
+   "metadados": {
+    "caixa": [
+     63.31,
+     265.01,
+     121.32,
+     291.05
+    ],
+    "linhas": [
+     "METADADOS IMAGEM",
+     "Satélite/Sensor: LANDSAT 5/TM",
+     "Data da imagem: 2000",
+     "Fonte: WMS-SEMA",
+     "Datum: SIRGAS 2000 UTM 22 S",
+     "Escala: 1:60.000"
+    ],
+    "pt": 9.1,
+    "pt_titulo": 9.1,
+    "titulo": "METADADOS IMAGEM"
+   },
+   "legenda": {
+    "caixa": [
+     132.72,
+     267.44,
+     160.19,
+     287.07
+    ],
+    "linhas": [
+     "Legenda",
+     "Fazenda Harmonia",
+     "Limite municipal",
+     "Limite estadual"
+    ],
+    "pt": 6.2,
+    "pt_titulo": 9.1,
+    "titulo": "Legenda"
+   },
+   "rotulos_dms": {
+    "total": 17,
+    "por_borda": {
+     "superior": 4,
+     "inferior": 4,
+     "esquerda": 4,
+     "direita": 5
+    }
+   }
+  }
+ }
+}

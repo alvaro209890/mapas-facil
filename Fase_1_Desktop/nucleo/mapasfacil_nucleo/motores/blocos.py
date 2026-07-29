@@ -11,6 +11,7 @@ logo**.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -78,16 +79,21 @@ def caixa_titulo(fig: Figure, perfil: PerfilPagina, texto: str) -> None:
             linewidth=1.0,
         )
     )
+    # Só quebra título que **transborda de verdade**. `perfil.titulo` é o bbox do
+    # texto do modelo, não da moldura branca — usá-lo como limite exato fazia
+    # "Tipologia Vegetal" quebrar em duas linhas por 1 mm de diferença de fonte.
+    largura_util = perfil.titulo.largura * 1.6
     ax.text(
         0.5,
         0.5,
-        texto,
+        _quebrar(texto, largura_util, perfil.pt_titulo),
         ha="center",
         va="center",
         fontsize=perfil.pt_titulo,
         fontweight="bold",
         family="DejaVu Serif",
         color="black",
+        linespacing=1.0,
     )
 
 
@@ -309,13 +315,19 @@ def bloco_metadados(
     )
     y -= passo
 
+    largura_caixa_mm = max(perfil.metadados.largura, 1.0)
     for par in linhas:
         rotulo = str(par.get("rotulo") or "").strip()
         valor = str(par.get("valor") or "").strip()
-        # Rótulo em negrito + valor normal, com o par inteiro centralizado:
-        # dois `text` ancorados no meio, um à direita e outro à esquerda.
+        # O modelo centraliza a **linha inteira**, não os dois-pontos. Ancorar no
+        # meio da caixa deslocava o bloco em 19 mm quando rótulo e valor têm
+        # comprimentos muito diferentes ("Fonte: WMS FUNAI" × "Datum: SIRGAS
+        # 2000 UTM 22 S"), e a âncora do bloco saía fora da tolerância.
+        largura_rotulo = largura_texto_mm(f"{rotulo}: ", perfil.pt_metadados, negrito=True)
+        largura_valor = largura_texto_mm(f" {valor}", perfil.pt_metadados)
+        ancora = 0.5 + (largura_rotulo - largura_valor) / 2.0 / largura_caixa_mm
         ax.text(
-            0.5,
+            ancora,
             y,
             f"{rotulo}: ",
             ha="right",
@@ -325,7 +337,7 @@ def bloco_metadados(
             color="black",
         )
         ax.text(
-            0.5,
+            ancora,
             y,
             f" {valor}",
             ha="left",
@@ -338,12 +350,43 @@ def bloco_metadados(
     return len(linhas)
 
 
-LARGURA_CHAR_MM_POR_PT = 0.2
-"""Largura média de caractere da DejaVu Sans: ~0,55 em × 0,3528 mm/pt."""
+@lru_cache(maxsize=512)
+def largura_texto_mm(texto: str, pt: float, *, negrito: bool = False) -> float:
+    """Largura real do texto em mm, pela fonte que o motor vai usar de fato.
+
+    Estimar por "largura média de caractere" erra o suficiente para deslocar um
+    bloco centralizado: a mesma estimativa que centrava bem o bloco de Terras
+    Indígenas jogava o das Dinâmicas 8 mm para o lado. `TextPath` mede sem
+    rasterizar nada.
+    """
+    if not texto:
+        return 0.0
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.textpath import TextPath
+
+    props = FontProperties(size=pt, weight="bold" if negrito else "normal")
+    caminho = TextPath((0, 0), texto, prop=props)
+    largura_pt = caminho.get_extents().width
+    return float(largura_pt) * 25.4 / 72.0
+
+
+LARGURA_CHAR_MM_POR_PT = 0.175
+"""Largura média de caractere da Liberation Sans/Arial: ~0,50 em × 0,3528 mm/pt.
+
+Era 0,2 (DejaVu Sans, mais larga). Mudou junto com a fonte do motor — ver
+`nativo.FAMILIA_FONTE`: com o valor antigo o texto "cabia" com folga demais e a
+legenda quebrava linhas que o modelo não quebra."""
 
 
 def _quebrar(texto: str, largura_mm: float, pt: float) -> str:
-    """Quebra o rótulo para caber na largura da caixa, em linhas de palavras."""
+    """Quebra o rótulo para caber na largura da caixa, em linhas de palavras.
+
+    Mede o texto de verdade (`largura_texto_mm`) antes de decidir: a estimativa
+    por caractere quebrava "Tipologia: Floresta" em duas linhas num espaço onde
+    ele cabe inteiro no modelo.
+    """
+    if largura_texto_mm(texto, pt) <= largura_mm:
+        return texto
     max_chars = max(int(largura_mm / (pt * LARGURA_CHAR_MM_POR_PT)) or 1, 8)
     if len(texto) <= max_chars:
         return texto
@@ -392,7 +435,7 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
         perfil.titulo_legenda,
         ha="left",
         va="center",
-        fontsize=pt + 1,
+        fontsize=getattr(perfil, "pt_legenda_titulo", 0.0) or (pt + 1),
         fontweight="bold",
         color="black",
     )
@@ -400,7 +443,10 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
 
     for item, rotulo, n_linhas in zip(itens, rotulos, linhas_por_item):
         estilo = obter_estilo(item.get("estilo"))
-        face = estilo.get("cor_preenchimento")
+        # Limite municipal e estadual são **linha** no mapa e **quadrado
+        # preenchido** na legenda — é assim nos modelos, e pintar o polígono no
+        # mapa cobria a imagem de satélite inteira com laranja.
+        face = estilo.get("cor_preenchimento_legenda", estilo.get("cor_preenchimento"))
         centro = y - passo_linha * (n_linhas - 1) / 2.0
         altura_swatch = passo_linha * 0.6
         ax.add_patch(

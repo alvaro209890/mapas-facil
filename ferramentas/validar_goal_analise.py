@@ -129,6 +129,7 @@ CAMADAS_USADAS = [
     "lim_municipios_mt",
     "sigef_particular_mt",
     "mosaico_spot_2008",
+    "autorizacao_desmate_sema",
 ]
 
 # Mosaicos citados na matriz de imagem (§4).
@@ -268,10 +269,10 @@ def checar_catalogo(r: Resultado) -> None:
     camadas = _carregar_json(RAIZ / "shared" / "catalog" / "camadas.json")
     lista = camadas["camadas"] if isinstance(camadas, dict) else camadas
     ids = {c.get("id") for c in lista}
-    if len(lista) == 41:
-        r.ok("Catálogo de camadas", "41 camadas")
+    if len(lista) == 43:
+        r.ok("Catálogo de camadas", "43 camadas (41 + as 2 autorizações da SEMA)")
     else:
-        r.falha("Catálogo de camadas", f"{len(lista)} camadas (o GOAL diz 41)")
+        r.falha("Catálogo de camadas", f"{len(lista)} camadas (o GOAL diz 43)")
 
     faltando = [c for c in CAMADAS_USADAS if c not in ids]
     if faltando:
@@ -283,12 +284,12 @@ def checar_catalogo(r: Resultado) -> None:
     vivo = (RAIZ / "shared" / "catalog" / "sema_layers_live.json").read_text(encoding="utf-8")
     tem_no_vivo = "AUTORIZACAO_DESMATE_SEMA" in vivo.upper()
     tem_no_catalogo = "autorizacao_desmate_sema" in ids
-    if tem_no_catalogo:
-        r.ok("Lacuna C1 (PEF)", "resolvida — camada entrou no catálogo; atualize a §5 do GOAL")
-    elif tem_no_vivo:
-        r.ok("Lacuna C1 (PEF)", "confirmada — existe no WFS vivo, falta no catálogo")
+    if tem_no_catalogo and tem_no_vivo:
+        r.ok("Lacuna C1 (PEF)", "fechada — a camada está no catálogo e no WFS vivo")
+    elif tem_no_catalogo:
+        r.ok("Lacuna C1 (PEF)", "no catálogo; inventário vivo não confirma o nome")
     else:
-        r.falha("Lacuna C1 (PEF)", "AUTORIZACAO_DESMATE_SEMA não está nem no inventário vivo")
+        r.falha("Lacuna C1 (PEF)", "AUTORIZACAO_DESMATE_SEMA saiu do catálogo")
 
     mosaicos = _carregar_json(RAIZ / "shared" / "catalog" / "mosaicos_sema.json")
     layers = {m.get("layer") for m in mosaicos.get("mosaicos", [])}
@@ -304,6 +305,53 @@ def checar_catalogo(r: Resultado) -> None:
         r.ok("Cobertura temporal da SEMA", "vai até 2024 — 2025/2026 dependem de Planet ou STAC")
     else:
         r.falha("Cobertura temporal da SEMA", f"maior ano agora é {maior}; a §4 diz 2024")
+
+
+def checar_serie_implementada(r_: Resultado) -> None:
+    """A série existe em código, com anatomia medida e 20 templates.
+
+    Importa o núcleo, que tem dependências pesadas (shapely, pyproj): rodando
+    com o Python do sistema elas não existem, e aí o check se pula em vez de
+    reprovar — quem valida de verdade é o CI, que instala o pacote.
+    """
+    import sys
+
+    sys.path.insert(0, str(RAIZ / "Fase_1_Desktop" / "nucleo"))
+    try:
+        from mapasfacil_nucleo.analise import serie as serie_mod
+    except ModuleNotFoundError as exc:
+        if (exc.name or "").startswith("mapasfacil"):
+            r_.falha("Série Análise de área", f"módulo ausente: {exc.name}")
+        else:
+            r_.pular("Série Análise de área", f"dependência do núcleo ausente ({exc.name})")
+        return
+    except Exception as exc:  # noqa: BLE001
+        r_.falha("Série Análise de área", f"não importa: {exc}")
+        return
+
+    if len(serie_mod.RECEITAS) == 20:
+        r_.ok("Série Análise de área", "20 receitas, uma por PDF-modelo")
+    else:
+        r_.falha("Série Análise de área", f"{len(serie_mod.RECEITAS)} receitas (esperado 20)")
+
+    anat = RAIZ / "shared" / "padrao-imap" / "anatomia_serie.json"
+    if not anat.is_file():
+        r_.falha("Anatomia medida", "shared/padrao-imap/anatomia_serie.json ausente")
+        return
+    mapas = _carregar_json(anat).get("mapas") or {}
+    faltando = [rc.id for rc in serie_mod.RECEITAS if rc.id not in mapas]
+    if faltando:
+        r_.falha("Anatomia medida", f"sem medida: {', '.join(faltando)}")
+    else:
+        r_.ok("Anatomia medida", f"{len(mapas)} mapas medidos dos modelos")
+
+    manifest = _carregar_json(RAIZ / "shared" / "templates" / "MANIFEST.json")
+    ids = {t["id"] for t in manifest["templates"]}
+    sem_template = [rc.template for rc in serie_mod.RECEITAS if rc.template not in ids]
+    if sem_template:
+        r_.falha("Templates da série", f"fora do MANIFEST: {', '.join(sem_template)}")
+    else:
+        r_.ok("Templates da série", "20 templates serie_* registrados")
 
 
 def checar_galeria(r: Resultado) -> None:
@@ -359,6 +407,7 @@ def main() -> int:
     checar_serie(r)
     checar_atp(r)
     checar_catalogo(r)
+    checar_serie_implementada(r)
     checar_galeria(r)
     checar_gitignore(r)
 

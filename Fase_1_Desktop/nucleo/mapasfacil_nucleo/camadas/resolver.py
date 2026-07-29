@@ -64,6 +64,10 @@ class ResultadoResolucao:
     # (WMS não devolve feição — não dá para contar nem medir área a partir dele).
     tipo_saida: str = "vetor"
     geometrias: list[BaseGeometry] = field(default_factory=list, repr=False)
+    # Atributos das feições, alinhados a `geometrias`. Ficam **só em memória**:
+    # o shapefile gravado continua com o campo `ID` e nada mais, e
+    # `para_ndjson()` nunca os expõe (AP-06/AP-09 — há CPF em camada de embargo).
+    propriedades: list[dict[str, Any]] = field(default_factory=list, repr=False)
 
     def para_ndjson(self) -> dict[str, Any]:
         """Nunca inclui geometria/WKT (AP-06) — só o que a UI/agente precisam."""
@@ -109,17 +113,26 @@ def validar_bbox(bbox: Any) -> BBox:
     return (xmin, ymin, xmax, ymax)
 
 
-def _geometrias_do_geojson(features: list[dict[str, Any]]) -> list[BaseGeometry]:
-    geometrias: list[BaseGeometry] = []
+def _pares_do_geojson(
+    features: list[dict[str, Any]],
+) -> list[tuple[BaseGeometry, dict[str, Any]]]:
+    """(geometria, atributos) por feição — os atributos seguem só em memória."""
+    pares: list[tuple[BaseGeometry, dict[str, Any]]] = []
     for feat in features:
         geom = feat.get("geometry") if isinstance(feat, dict) else None
         if not geom:
             continue
         try:
-            geometrias.append(shape(geom))
+            forma = shape(geom)
         except (ValueError, AttributeError):
             continue
-    return geometrias
+        props = feat.get("properties") if isinstance(feat, dict) else None
+        pares.append((forma, dict(props) if isinstance(props, dict) else {}))
+    return pares
+
+
+def _geometrias_do_geojson(features: list[dict[str, Any]]) -> list[BaseGeometry]:
+    return [g for g, _ in _pares_do_geojson(features)]
 
 
 def _shape_type_para(geometrias: list[BaseGeometry]) -> int:
@@ -279,7 +292,13 @@ def _com_cache(
         if entrada is not None:
             return entrada.dados, "expirado"
         raise
-    cache_mod.salvar(camada["id"], bbox, chave_crs, dados, base=cache_base)
+    # Resposta vazia **não** entra no cache. Custou um mapa em branco: o REST do
+    # IBAMA devolveu `features: []` num soluço, isso ficou cacheado pelo TTL do
+    # tema e todo mapa seguinte saiu sem embargo — sem erro nenhum para
+    # investigar. Vazio pode ser verdade ou pode ser soluço; perguntar de novo
+    # custa uma requisição, e a alternativa é entregar mapa errado calado.
+    if dados.get("features"):
+        cache_mod.salvar(camada["id"], bbox, chave_crs, dados, base=cache_base)
     return dados, "miss"
 
 
@@ -310,14 +329,16 @@ def _resolver_vetor(
     else:
         dados, origem_cache = _buscar(), "miss"
 
-    geometrias_brutas = _geometrias_do_geojson(dados.get("features") or [])
+    pares_brutos = _pares_do_geojson(dados.get("features") or [])
     # Serviço com CRS nativo diferente do pedido (INCRA em 4326): reprojeta antes
     # do clip, senão o recorte compara graus com metros e some com tudo.
     if epsg_nativo != epsg:
-        geometrias_brutas = [
-            reprojetar(g, epsg_nativo, epsg) for g in geometrias_brutas if not g.is_empty
+        pares_brutos = [
+            (reprojetar(g, epsg_nativo, epsg), p) for g, p in pares_brutos if not g.is_empty
         ]
-    geometrias = clip_mod.clip_bbox(geometrias_brutas, bbox_expandido)
+    pares = clip_mod.clip_bbox_pares(pares_brutos, bbox_expandido)
+    geometrias = [g for g, _ in pares]
+    propriedades = [p for _, p in pares]
 
     avisos: list[dict[str, str]] = []
     if origem_cache == "expirado":
@@ -362,6 +383,7 @@ def _resolver_vetor(
         avisos=avisos,
         tipo_saida="vetor",
         geometrias=geometrias,
+        propriedades=propriedades,
     )
 
 

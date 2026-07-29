@@ -35,19 +35,31 @@ def bbox_geometria(geometria: BaseGeometry) -> BBox:
     return tuple(geometria.bounds)  # type: ignore[return-value]
 
 
-def clip_bbox(geometrias: list[BaseGeometry], bbox: BBox) -> list[BaseGeometry]:
-    """Recorte fino contra o retângulo do bbox — descarta o que ficou só na moldura."""
+def clip_bbox_pares(
+    pares: list[tuple[BaseGeometry, dict]], bbox: BBox
+) -> list[tuple[BaseGeometry, dict]]:
+    """Como `clip_bbox`, mas carregando os atributos junto.
+
+    Existe porque camada temática se pinta **por classe** (Floresta × Cerrado na
+    Tipologia, ano do desmate no PRODES): perder o atributo no recorte obriga a
+    ir à rede de novo só para saber de que cor é cada polígono.
+    """
     retangulo = box(*bbox)
-    recortadas: list[BaseGeometry] = []
-    for geom in geometrias:
+    recortados: list[tuple[BaseGeometry, dict]] = []
+    for geom, props in pares:
         if geom.is_empty:
             continue
         if not geom.is_valid:
             geom = geom.buffer(0)
         intersecao = geom.intersection(retangulo)
         if not intersecao.is_empty:
-            recortadas.append(intersecao)
-    return recortadas
+            recortados.append((intersecao, props))
+    return recortados
+
+
+def clip_bbox(geometrias: list[BaseGeometry], bbox: BBox) -> list[BaseGeometry]:
+    """Recorte fino contra o retângulo do bbox — descarta o que ficou só na moldura."""
+    return [g for g, _ in clip_bbox_pares([(g, {}) for g in geometrias], bbox)]
 
 
 def clip_poligono(geometrias: list[BaseGeometry], poligono: BaseGeometry) -> list[BaseGeometry]:

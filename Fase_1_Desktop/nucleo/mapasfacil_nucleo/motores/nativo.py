@@ -19,6 +19,19 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+
+FAMILIA_FONTE = ["Arial", "Liberation Sans", "Nimbus Sans", "DejaVu Sans"]
+"""O ArcMap compõe os modelos em **Arial**. A Liberation Sans tem as mesmas
+métricas e existe em qualquer Linux; a Nimbus Sans é o terceiro plano.
+
+Não é preciosismo tipográfico: com DejaVu Sans (mais larga) o bloco de
+metadados dos mapas paisagem saía ~9 mm mais largo que o do modelo, o bastante
+para estourar a tolerância de 6 mm da anatomia em 5 dos 20 mapas."""
+
+matplotlib.rcParams["font.family"] = "sans-serif"
+matplotlib.rcParams["font.sans-serif"] = FAMILIA_FONTE + list(
+    matplotlib.rcParams.get("font.sans-serif", [])
+)
 from matplotlib.image import imread  # noqa: E402
 from matplotlib.patches import Polygon as PolygonPatch  # noqa: E402
 from shapely.ops import transform  # noqa: E402
@@ -258,6 +271,11 @@ def _resolver_metadados(
                 valor = _formatar_escala(escala)
             elif chave.startswith(("satélite", "satelite", "base")) and basemap.get("ok"):
                 valor = str(basemap.get("fonte") or "")
+            elif chave.startswith("data") and basemap.get("ano"):
+                # A data é a da imagem que entrou, não a que se pediu: quando o
+                # ano não existe no acervo da SEMA o basemap cai no anterior, e
+                # repetir o ano pedido seria escrever uma data falsa no mapa.
+                valor = str(basemap.get("ano"))
             else:
                 valor = ""
         elif basemap.get("ok") and chave.startswith(("satélite", "satelite")):
@@ -359,7 +377,7 @@ def gerar_pdf_minimo(
     pasta = guard.resolver(pasta_nome, escrita=True)
     pdf_path = pasta / f"{nome_base}.pdf"
 
-    perfil = perfil_pagina.obter(_orientacao(mapspec))
+    perfil = _perfil_do_mapspec(mapspec)
     epsg = _epsg_do_mapspec(mapspec, perfil)
 
     camadas = _carregar_camadas(mapspec, fontes_idx, guard, epsg)
@@ -430,7 +448,9 @@ def gerar_pdf_minimo(
     metadados = _resolver_metadados(mapspec, epsg=epsg, escala=escala, basemap=info_basemap)
     linhas_meta = 0
     if _ligado(mapspec, "metadados"):
-        linhas_meta = blocos.bloco_metadados(fig, perfil, metadados)
+        linhas_meta = blocos.bloco_metadados(
+            fig, perfil, metadados, titulo=getattr(perfil, "titulo_metadados", "METADADOS IMAGEM")
+        )
 
     itens_legenda = _itens_legenda(camadas)
     n_legenda = 0
@@ -573,6 +593,19 @@ def gerar_pdf_minimo(
         },
         "minimapa": info_minimapa,
     }
+
+
+def _perfil_do_mapspec(mapspec: dict[str, Any]) -> perfil_pagina.PerfilPagina:
+    """Perfil da página: modelo medido primeiro, orientação depois.
+
+    Um mapa da série (`template: serie_*`) tem o layout do **seu** PDF-modelo
+    medido em `shared/padrao-imap/anatomia_serie.json`. Só quem não é da série
+    cai no perfil genérico por orientação.
+    """
+    medido = perfil_pagina.por_template(mapspec.get("template"))
+    if medido is not None:
+        return medido
+    return perfil_pagina.obter(_orientacao(mapspec))
 
 
 def _orientacao(mapspec: dict[str, Any]) -> str:

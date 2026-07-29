@@ -13,19 +13,24 @@ from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, PASTAS_ESCRITA, caminho
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import nome_base_ascii_valido
 
-ESTILOS_PERMITIDOS: frozenset[str] = frozenset(
-    {
-        "perimetro_imovel",
-        "avn",
-        "ac",
-        "auas",
-        "limite_municipal",
-        "tipologia",
-        "embargo",
-        "ti",
-        "uc",
-    }
-)
+# Nomes curtos que os primeiros MapSpecs usavam, antes de a paleta ter um
+# estilo por camada. Continuam válidos para não invalidar spec já gravado.
+ESTILOS_LEGADOS: frozenset[str] = frozenset({"tipologia", "embargo", "ti", "uc"})
+
+
+def _estilos_permitidos() -> frozenset[str]:
+    """A paleta oficial é `motores/estilos.py` — aqui só se **lê** de lá.
+
+    Manter a lista duplicada custou um bug real: a série ganhou 12 estilos novos
+    (medidos dos modelos) e o validador reprovava `limite_estadual` com `NU-211`,
+    porque tinha uma cópia de 9 nomes de 2026-07-25.
+    """
+    from mapasfacil_nucleo.motores.estilos import ESTILOS
+
+    return frozenset(ESTILOS) | ESTILOS_LEGADOS
+
+
+ESTILOS_PERMITIDOS: frozenset[str] = _estilos_permitidos()
 
 # Plano 02: =, <>, >, <, >=, <=, IN, LIKE — aceitamos != como sinônimo de <>
 OPERADORES_FILTRO = frozenset({"=", "<>", "!=", ">", "<", ">=", "<=", "IN", "LIKE"})

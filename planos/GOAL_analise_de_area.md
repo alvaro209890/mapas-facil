@@ -13,7 +13,7 @@ o agente executor para ele.
 | | |
 |---|---|
 | Estado do documento | **completo** — inventário, matriz de imagem, lacunas e plano Windows fechados |
-| Estado da implementação | **não iniciada** — nenhum código de "Análise de área" existe hoje |
+| Estado da implementação | **série em PDF nativo entregue** (2026-07-29): 20/20 mapas gerados na Aruanã, 19/20 aprovados na anatomia. Falta o card na galeria, o progresso no front e a Fase W. Detalhe: [`docs/analise-de-area-serie.md`](../docs/analise-de-area-serie.md) |
 | Validador | `python3 ferramentas/validar_goal_analise.py` (checa este arquivo contra o disco) |
 | Última validação | 2026-07-29 — ver [§15](#15-registro-de-validação) |
 
@@ -82,9 +82,10 @@ página por similaridade de texto (Jaccard 1,00 em todas as 20).
 | 19 | `Dinamica_2008_LANDSAT.pdf` | `Dinamica_2008_LANDSAT.mxd` | retrato | marco do Código Florestal | WMS-SEMA | LANDSAT 5/TM 2008 |
 | 20 | `Dinamica_2000.pdf` | `Dinamica_2000.mxd` | retrato | dinâmica do ano | WMS-SEMA | LANDSAT 5/TM 2000 |
 
-**Contagem de perfis:** 12 retrato (210×297 mm) e 8 paisagem (297×210 mm). O motor nativo hoje
-só tem o **retrato** exercitado — o paisagem existe em `perfil_pagina.PAISAGEM` mas nunca foi
-validado (§10, L2). **8 dos 20 mapas dependem disso.**
+**Contagem de perfis:** 12 retrato (210×297 mm) e 8 paisagem (297×210 mm). Os dois perfis estão
+exercitados desde 2026-07-29 — e o layout de cada mapa vem **medido do seu próprio modelo**
+(`shared/padrao-imap/anatomia_serie.json`), porque entre os paisagem a base do quadro varia
+17 mm de um mapa para outro.
 
 **Escala:** os 12 retratos declaram `Escala: 1:60.000` no bloco de metadados; os paisagem não
 declaram escala. Na Aruanã (7.408 ha, ~10 km × 21 km) 1:60.000 **não cabe** em A4 retrato —
@@ -165,13 +166,13 @@ O catálogo tem **41 camadas com cliente em runtime** (`shared/catalog/camadas.j
 
 **Falta (tarefa da meta):**
 
-| # | O que falta | Evidência | Encaminhamento |
-|---|---|---|---|
-| C1 | `autorizacao_desmate_sema` (mapa PEF) | `PEF.mxd` usa `Geoportal:AUTORIZACAO_DESMATE_SEMA`; a camada existe em `shared/catalog/sema_layers_live.json` mas **não** em `camadas.json` | acrescentar ao catálogo (`wms_wfs`, authkey SEMA) |
-| C2 | Mosaicos SEMA por ano como basemap selecionável | `motores/basemap.py` só conhece `wms_sema → mosaico_spot_2008`; os 43 mosaicos vivem num JSON que **ninguém lê** | resolver `basemap.ano`/`basemap.sensor` contra `mosaicos_sema.json` |
-| C3 | Camadas derivadas de "Áreas Cultiváveis" (cultivável consolidada, derivada de desmate após 2008, que precisará de DLA) | não são serviço, são geoprocessamento sobre AC/AUAS/AVN/DLA | derivar no núcleo, com o resultado declarado no `MapSpec` |
-| C4 | TCR / pontos de TAC | não existe em nenhum WFS inventariado (`sema_layers_live.json` não tem "TCR") | **pedir ao usuário** com chips + campo livre (é o caso legítimo da §8) |
-| C5 | Compilação da série num PDF único | não existe hoje | juntar as 20 páginas na ordem da §3.1 |
+| # | O que faltava | Estado em 2026-07-29 |
+|---|---|---|
+| C1 | `autorizacao_desmate_sema` (mapa PEF) — existia no WFS vivo e faltava no catálogo | **fechada** — no catálogo (agora 43 camadas), respondendo ao vivo |
+| C2 | Mosaicos SEMA por ano como basemap selecionável | **fechada** — `basemap.camada_de_mosaico()` aceita id ou ano, escolhe o sensor mais nítido, declara ano aproximado e recusa cena furada |
+| C3 | Camadas derivadas ("que precisará de DLA", amortecimentos) | **fechada** — `analise/preparar.DERIVADAS`: `AUAS − DLA`, anel de 3 km da UC, anel de 10 km da TI (aproximação declarada) |
+| C4 | TCR / pontos de TAC | **aberta** — não existe em WFS público; é dado do escritório. É a única reprovação de anatomia da série (TCR, A02) |
+| C5 | Compilação da série num PDF único | **fechada** — `Mapas/Analise_de_area.pdf`, 20 páginas na ordem da §3.1 |
 
 **AP-04 continua valendo:** nada de inventar camada fora do catálogo/MANIFEST. Cada item acima
 entra no catálogo **antes** de ser usado por um mapa.
@@ -255,16 +256,16 @@ Ordem de dependência, não de calendário (AP-13).
 
 | # | Tarefa | Arquivos | Fecha o quê |
 |---|---|---|---|
-| L1 | Destravar a galeria para saídas nativas (§6.1) | `galeria/estado.py`, `galeria/montar.py` | card não nasce `indisponivel` |
-| L2 | **Perfil paisagem** exercitado e validado contra `Tipologia.pdf` e `Terras_Indigenas.pdf` | `motores/nativo.py`, `blocos.py`, `perfil_pagina.py` | 8 dos 20 mapas |
-| L3 | Basemap por ano/sensor lendo `mosaicos_sema.json` (C2) | `motores/basemap.py` | Dinâmicas 2000/2008/2013 com paridade direta |
-| L4 | Acervo compartilhado de rasters (chave sensor+período+bbox, reuso, sem recorte) | novo módulo em `nucleo/.../acervo/` | §4.2 |
-| L5 | Camada `autorizacao_desmate_sema` (C1) + derivadas de Áreas Cultiváveis (C3) | `shared/catalog/camadas.json`, núcleo | mapas PEF e Áreas Cultiváveis |
-| L6 | Modelo `analise_de_area` na galeria + pipeline da série + compilado (C5) | `shared/galeria/modelos.json`, `motores/gerar.py` | o produto |
-| L7 | Progresso rico no front, amarrado a evento real | `app/src/paineis/`, `progresso.py` | DoD 2 |
-| L8 | Integração Groq Vision no backend + provisão da chave | `nucleo/.../validacao/`, `agente/provisao.py` | DoD 4 |
-| L9 | Testes dedicados dos módulos do motor + golden de anatomia no CI | `nucleo/tests/`, `.github/workflows/nucleo.yml` | evita regressão |
-| L10 | Rodar na Aruanã, validar 20 PDFs, corrigir, repetir | — | DoD 9 |
+| L1 | Destravar a galeria para saídas nativas (§6.1) | `galeria/estado.py`, `galeria/montar.py` | **aberta** — card ainda nasceria `indisponivel` |
+| L2 | **Perfil paisagem** exercitado e validado | `motores/{nativo,blocos,perfil_pagina}.py` | **fechada** — 8 mapas paisagem, todos verdes; o layout vem medido do modelo de cada um |
+| L3 | Basemap por ano/sensor lendo `mosaicos_sema.json` (C2) | `motores/basemap.py` | **fechada** |
+| L4 | Acervo compartilhado de rasters | novo módulo em `nucleo/.../acervo/` | **aberta** — hoje o reuso é o cache de camadas + `Mapas/recursos/` do projeto |
+| L5 | Camada do PEF (C1) + derivadas (C3) | `shared/catalog/camadas.json`, `analise/preparar.py` | **fechada** |
+| L6 | Pipeline da série + compilado (C5) | `analise/{serie,executar}.py` | **fechada** — falta só o card na galeria |
+| L7 | Progresso rico no front, amarrado a evento real | `app/src/paineis/`, `progresso.py` | **aberta** — o executor já emite passo a passo por callback |
+| L8 | Groq Vision no backend + provisão da chave | `nucleo/.../validacao/`, `agente/provisao.py` | **aberta** — chave ainda não existe no cofre |
+| L9 | Testes dedicados + golden de anatomia no CI | `nucleo/tests/` | **fechada** — `test_analise_serie.py` e `test_analise_preparar.py`, 19 testes sem rede |
+| L10 | Rodar na Aruanã, validar os 20 PDFs, corrigir, repetir | — | **fechada** — 20/20 gerados, 19/20 anatomia verde |
 
 ## 11. Fase W — fechar o que falta **no Windows, sem intervenção humana**
 
@@ -421,7 +422,23 @@ python3 ferramentas/chaves_mxd.py verificar          # "Seguro para commit"
 
 ## 15. Registro de validação
 
-Feito em **2026-07-29**, neste PC Linux (sem ArcMap):
+### Execução da série (2026-07-29, Aruanã, PC Linux sem ArcMap)
+
+| O que | Resultado |
+|---|---|
+| Identidade descoberta só do polígono | Fazenda Aruanã I · CAR `MT117446/2017` · Ribeirão Cascalheira · IoU 0,9995 |
+| Camadas materializadas | 20 (18 do catálogo + ATP + UF) + 3 derivadas |
+| Mapas gerados | **20/20** em 355 s, mais o compilado de 20 páginas |
+| Anatomia contra os modelos | **19/20 verdes**; a exceção é o TCR (A02), por falta do número do termo (C4) |
+| Imagem de fundo | mosaicos SEMA de 2000, 2008 (Landsat e SPOT), 2013, 2017, 2019, 2023 e 2024 |
+| Suítes | núcleo `pytest -q` verde (501 testes); `validar_goal_analise.py` sem falhas |
+
+Detalhe da rodada, com os 7 bugs achados e corrigidos:
+[`docs/analise-de-area-serie.md`](../docs/analise-de-area-serie.md).
+
+### Conferência do documento (2026-07-29)
+
+Feito neste PC Linux (sem ArcMap):
 
 | O que | Resultado |
 |---|---|
