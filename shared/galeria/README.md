@@ -1,7 +1,8 @@
 # Galeria de modelos
 
-Catálogo determinístico de modelos de mapa (F1-15). A UI e o agente usam **o mesmo**
-`galeria.montar_mapspec` — não há caminho paralelo.
+Catálogo determinístico de modelos de mapa (F1-15). Cards `tipo_execucao: mapspec` usam o mesmo
+`galeria.montar_mapspec` na UI e no agente. O card especial `analise_de_area` chama
+`analise.executar`, que monta e valida internamente os 20 MapSpecs da série.
 
 ## Arquivos
 
@@ -13,13 +14,16 @@ Catálogo determinístico de modelos de mapa (F1-15). A UI e o agente usam **o m
 
 ## Como adicionar um modelo
 
-1. O template já precisa existir em `shared/templates/MANIFEST.json` com `sha256` real.
-   Sem isso o trabalho é B1/B2, não galeria.
+1. O template precisa existir no MANIFEST. SHA real e `status: pronto` são obrigatórios quando
+   o card pede `mxd`; saídas PDF/PNG/XLSX nativas não dependem do arquivo ArcMap.
 2. Acrescente o item em `modelos.json`. **Não** incremente `galeria_version` só por modelo novo.
 3. Gere `previews/<id>.png` a partir de um PDF real do acervo (lado maior ≤ 1024 px, ≤ 300 KB).
-4. Acrescente caso em `nucleo/tests/test_galeria.py` — `montar_mapspec` passa em `mapspec.validar`.
+4. Defina `tipo_execucao: mapspec` e acrescente caso em `nucleo/tests/test_galeria.py` —
+   `montar_mapspec` passa em `mapspec.validar`.
 5. Campo novo no MapSpec? Pare: isso é mudança de contrato em `planos/02-mapspec-contrato.md`.
 
 ## Status em runtime
 
-Calculado (nunca gravado no JSON): `pronto` · `parcial` · `faltam_dados` · `indisponivel`.
+Calculado para `saidas_pedidas` (nunca gravado no JSON):
+`pronto` · `parcial` · `faltam_dados` · `indisponivel`. Somente a saída `mxd` aplica o gate do
+template ArcMap.

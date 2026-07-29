@@ -130,8 +130,8 @@ Esse não é bit a bit — mede posição de blocos, cores amostradas e presenç
 - [x] Logo (com recorte do alfa: o PNG do acervo tem 2% de pixels opacos)
 - [x] Export PDF 300 dpi + PNG da página
 - [x] `motor: "nativo"` no relatório
-- [ ] Regressão visual no CI com golden images — **falta**
-- [~] Paridade por **anatomia** contra os PDFs-modelo, 6/6 verdes (`validacao/anatomia.py`, `ferramentas/paridade_nativa.py`); falta virar teste de CI
+- [x] Regressão visual no CI com golden de anatomia — `test_golden_anatomia.py`, tolerância 0,3% e esperado/obtido/diff publicados na falha
+- [x] Paridade por **anatomia** contra os PDFs-modelo e máscara determinística versionada (`validacao/anatomia.py`, `ferramentas/paridade_nativa.py`)
 
 ## Pendências
 
@@ -140,5 +140,4 @@ Esse não é bit a bit — mede posição de blocos, cores amostradas e presenç
 | P1 | Hachura: calibrar espaçamento e ângulo do matplotlib contra o ArcMap para o olho não distinguir |
 | P2 | A fonte do título nos modelos é serifada; identificar a família exata com PyMuPDF |
 | P3 | Rosa dos ventos: redesenhar em vetor ou embutir o glifo da fonte ESRI North? |
-| P4 | Golden images no repositório (tamanho) ou geradas num job de release? |
 | P5 | Tempo de render com basemap Planet em imóvel grande — medir e otimizar o cache de tiles |

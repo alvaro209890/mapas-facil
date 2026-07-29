@@ -36,6 +36,7 @@ visual Harmonia / motor ArcPy (M2–M9).
 | # | Tarefa (F1-13 bloco D) | Estado | Onde |
 |---|---|---|---|
 | D8 | `painel-galeria` + detalhe + `CartaoModelo` | **feito** | `src/paineis/Galeria*.tsx`, `src/componentes/CartaoModelo.tsx`, `src/estado/galeria.ts`, `tests/galeria.test.tsx` |
+| J12 | Card `analise_de_area` + progresso real da série | **feito** | um clique chama `analise.executar`; `BarraProgressoJob` e `Preview` consomem contexto de série injetado nos eventos |
 
 | # | Tarefa (F1-13 bloco F) | Estado | Onde |
 |---|---|---|---|
@@ -165,6 +166,10 @@ A raiz é reescrita para um caminho neutro e nenhum recibo do CAR entra na fixtu
 `BarraProgressoJob` só desenha barra e porcentagem quando chega `job.progresso`. Sem evento, o
 texto é "gerando…", sem número. `pct` vem do evento e é monotônico; não há `setInterval` em
 `src/motion/` nem em `src/componentes/`.
+
+Na série de Análise de área, o mesmo evento inclui `serie.fase`, mensagem, mapa corrente,
+índice/total e compilado. A barra mantém o percentual global monotônico, permite que as dez
+etapas internas reiniciem a cada mapa e mostra somente os últimos passos realmente recebidos.
 
 O mesmo vale para o M8: o indicador "pensando" (A1) sai do estado real do turno, os cartões de
 tool (A3) vêm de `chat.tool`, e o `painel-preview` (A5) só troca o esqueleto pela imagem quando

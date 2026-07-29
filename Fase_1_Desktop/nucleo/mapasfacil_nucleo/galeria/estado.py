@@ -7,6 +7,8 @@ from typing import Any
 from mapasfacil_nucleo.motores import manifesto
 
 PAPEIS = frozenset({"ATP", "AVN", "AC", "AUAS", "APP", "ARL", "SIGEF", "RESERVA_LEGAL"})
+SAIDAS_NATIVAS = frozenset({"pdf", "png", "xlsx"})
+SAIDAS_VALIDAS = SAIDAS_NATIVAS | {"mxd"}
 
 
 def fontes_do_indice(indice: dict[str, Any] | None) -> set[str]:
@@ -48,21 +50,32 @@ def _template_info(template_id: str) -> dict[str, Any]:
 def avaliar_status(
     modelo: dict[str, Any],
     indice: dict[str, Any] | None,
+    saidas_pedidas: list[str] | tuple[str, ...] | set[str] | None = None,
 ) -> dict[str, Any]:
-    """Devolve `{status, motivo?, requisitos_faltando}`."""
+    """Devolve `{status, motivo?, requisitos_faltando}`.
+
+    O arquivo ``.mxd`` é a única saída que depende do binário preparado no
+    ArcMap. PDF/PNG/XLSX usam o motor nativo e só precisam dos metadados do
+    template no MANIFEST. Esse detalhe é a diferença entre um card útil numa
+    máquina sem ArcMap e um falso ``indisponivel`` (GOAL §6.1).
+    """
+    saidas = set(saidas_pedidas or modelo.get("saidas_padrao") or ())
+    saidas &= SAIDAS_VALIDAS
+    exige_template_mxd = "mxd" in saidas
+
     info = _template_info(modelo["template"])
     status_tpl = info.get("status")
     sha_ok = bool(info.get("sha256_ok"))
     sha_esperado = info.get("sha256")
 
-    if status_tpl == "a_preparar" or sha_esperado is None:
+    if exige_template_mxd and (status_tpl == "a_preparar" or sha_esperado is None):
         return {
             "status": "indisponivel",
             "motivo": "template ainda não preparado no ArcMap",
             "requisitos_faltando": [],
         }
 
-    if not sha_ok:
+    if exige_template_mxd and not sha_ok:
         return {
             "status": "indisponivel",
             "motivo": "sha256 do template diverge do MANIFEST",
@@ -88,9 +101,9 @@ def avaliar_status(
             "requisitos_faltando": faltando_obrig,
         }
 
-    if status_tpl == "parcial" or faltando_opc:
+    if (exige_template_mxd and status_tpl == "parcial") or faltando_opc:
         partes: list[str] = []
-        if status_tpl == "parcial":
+        if exige_template_mxd and status_tpl == "parcial":
             partes.append("template parcial (offsets pendentes)")
         if faltando_opc:
             partes.append("opcional ausente: " + ", ".join(faltando_opc))
@@ -100,7 +113,7 @@ def avaliar_status(
             "requisitos_faltando": faltando_opc,
         }
 
-    if status_tpl == "pronto":
+    if not exige_template_mxd or status_tpl == "pronto":
         return {"status": "pronto", "motivo": None, "requisitos_faltando": []}
 
     return {

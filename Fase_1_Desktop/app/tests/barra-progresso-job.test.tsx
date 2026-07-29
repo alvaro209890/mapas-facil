@@ -122,6 +122,49 @@ describe("BarraProgressoJob", () => {
     }
   });
 
+  it("mostra a timeline rica da série usando somente passos emitidos pelo núcleo", () => {
+    const emitir = ligarProgresso();
+    render(<BarraProgressoJob ativo />);
+
+    emitir({
+      etapa: "validando_spec",
+      pct: 1,
+      serie: { fase: "identidade", mensagem: "buscando CAR e identificando o imóvel" },
+    });
+    emitir({
+      etapa: "baixando_externas",
+      pct: 18,
+      item: "ALERTAS_MAPBIOMAS",
+      serie: {
+        fase: "camada",
+        mensagem: "camada pronta · ALERTAS_MAPBIOMAS",
+        indice: 7,
+        total: 23,
+      },
+    });
+    emitir({
+      etapa: "preparando_template",
+      pct: 30,
+      item: "alertas_mapbiomas",
+      serie: {
+        fase: "mapa",
+        mensagem: "montando mapa 1 de 20 · Alertas MapBiomas",
+        indice: 1,
+        total: 20,
+        mapa_id: "alertas_mapbiomas",
+        mapa_nome: "Alertas MapBiomas",
+      },
+    });
+
+    expect(
+      screen.getByRole("progressbar", { name: "progresso da série de análise de área" }),
+    ).toHaveAttribute("aria-valuenow", "30");
+    expect(screen.getAllByText("montando mapa 1 de 20 · Alertas MapBiomas")).toHaveLength(2);
+    expect(screen.getByText("1/20")).toBeInTheDocument();
+    expect(screen.getByLabelText("passos recentes da análise").children).toHaveLength(3);
+    expect(document.querySelectorAll("[data-etapa]")).toHaveLength(0);
+  });
+
   it("cancelar o job é botão próprio, e só existe quando há handler", () => {
     const emitir = ligarProgresso();
     const { rerender } = render(<BarraProgressoJob ativo />);
@@ -153,5 +196,31 @@ describe("aplicarProgresso", () => {
       pct: 99,
     });
     expect(invasor).toBe(bom);
+  });
+
+  it("permite reiniciar as dez subetapas quando a série avança para outro mapa", () => {
+    const primeiro = aplicarProgresso(null, {
+      etapa: "validando_saida",
+      pct: 34,
+      serie: {
+        fase: "mapa",
+        mensagem: "mapa 1 pronto",
+        indice: 1,
+        total: 20,
+      },
+    });
+    const segundo = aplicarProgresso(primeiro, {
+      etapa: "validando_spec",
+      pct: 35,
+      serie: {
+        fase: "mapa",
+        mensagem: "validando mapa 2",
+        indice: 2,
+        total: 20,
+      },
+    });
+    expect(segundo.etapa).toBe("validando_spec");
+    expect(segundo.pct).toBe(35);
+    expect(segundo.serie?.indice).toBe(2);
   });
 });

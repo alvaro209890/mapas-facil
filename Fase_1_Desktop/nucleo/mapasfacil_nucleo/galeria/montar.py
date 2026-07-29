@@ -95,30 +95,42 @@ def montar_mapspec(
         )
 
     modelo = obter_modelo(modelo_id)
+    if modelo.get("tipo_execucao") == "analise_de_area":
+        raise ErroNucleo(
+            "NU-235",
+            "Análise de área é uma série; use o método analise.executar.",
+            {"modelo_id": modelo_id, "metodo": "analise.executar"},
+        )
 
-    # 2. template no MANIFEST + sha256
+    saidas = sobrescritas.get("saidas") or list(modelo.get("saidas_padrao") or ["pdf"])
+    if not isinstance(saidas, list) or not saidas or not all(isinstance(s, str) for s in saidas):
+        raise ErroNucleo("NU-232", "sobrescritas.saidas precisa ser uma lista não vazia.")
+    exige_template_mxd = "mxd" in saidas
+
+    # 2. O MANIFEST sempre fornece formato/CRS ao motor nativo. O arquivo e seu
+    # sha256 só são gate quando a saída inclui .mxd.
     try:
-        info = manifesto.verificar_template(modelo["template"])
+        tpl = manifesto.obter_template(modelo["template"])
+        info = manifesto.verificar_template(modelo["template"]) if exige_template_mxd else None
     except ErroNucleo as exc:
         raise ErroNucleo(
             "NU-231",
             f"Template do modelo ausente ou inacessível: {modelo['template']}",
             {"template": modelo["template"], "causa": exc.codigo},
         ) from exc
-    if info.get("sha256") is None or info.get("status") == "a_preparar":
-        raise ErroNucleo(
-            "NU-231",
-            f"Template ainda não preparado: {modelo['template']}",
-            {"template": modelo["template"], "status": info.get("status")},
-        )
-    if not info.get("sha256_ok"):
-        raise ErroNucleo(
-            "NU-231",
-            f"sha256 do template diverge do MANIFEST: {modelo['template']}",
-            {"template": modelo["template"]},
-        )
-
-    tpl = manifesto.obter_template(modelo["template"])
+    if exige_template_mxd and info is not None:
+        if info.get("sha256") is None or info.get("status") == "a_preparar":
+            raise ErroNucleo(
+                "NU-231",
+                f"Template ainda não preparado: {modelo['template']}",
+                {"template": modelo["template"], "status": info.get("status")},
+            )
+        if not info.get("sha256_ok"):
+            raise ErroNucleo(
+                "NU-231",
+                f"sha256 do template diverge do MANIFEST: {modelo['template']}",
+                {"template": modelo["template"]},
+            )
 
     # 3–4. índice + recibo
     if workspace:
@@ -247,7 +259,6 @@ def montar_mapspec(
     if isinstance(sobrescritas.get("elementos_layout"), dict):
         elementos.update(sobrescritas["elementos_layout"])
 
-    saidas = sobrescritas.get("saidas") or list(modelo.get("saidas_padrao") or ["pdf"])
     titulo = sobrescritas.get("titulo") or modelo["nome"]
 
     # 12. id ULID

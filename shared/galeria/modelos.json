@@ -1,5 +1,5 @@
 {
-  "galeria_version": 1,
+  "galeria_version": 2,
   "contract_version": 2,
   "modelos": [
     {
@@ -7,6 +7,7 @@
       "nome": "Dinâmica de uso do solo",
       "subtitulo": "Série Dinâmica · A4 retrato",
       "descricao": "Perímetro, vegetação nativa, área consolidada e desmate após 2008, com tabela de quantitativos.",
+      "tipo_execucao": "mapspec",
       "template": "dinamica_retrato",
       "perfil": "harmonia",
       "preview": "previews/dinamica_2026_retrato.png",
@@ -89,6 +90,7 @@
       "nome": "Dinâmica com quantitativos",
       "subtitulo": "Série Dinâmica · A4 retrato · tabela em destaque",
       "descricao": "Mesma série Dinâmica com ênfase na tabela de quantitativos no layout.",
+      "tipo_execucao": "mapspec",
       "template": "dinamica_quantitativos_retrato",
       "perfil": "harmonia",
       "preview": "previews/dinamica_2026_quantitativos.png",
@@ -170,6 +172,7 @@
       "nome": "Tipologia vegetal",
       "subtitulo": "A4 paisagem",
       "descricao": "Mapa de tipologia vegetal sobre o imóvel.",
+      "tipo_execucao": "mapspec",
       "template": "tipologia_paisagem",
       "perfil": "harmonia",
       "preview": "previews/tipologia_paisagem.png",
@@ -222,6 +225,7 @@
       "nome": "Terras Indígenas",
       "subtitulo": "A4 paisagem",
       "descricao": "Sobreposição do imóvel com terras indígenas.",
+      "tipo_execucao": "mapspec",
       "template": "terras_indigenas_paisagem",
       "perfil": "harmonia",
       "preview": "previews/terras_indigenas_paisagem.png",
@@ -274,6 +278,7 @@
       "nome": "Unidades de Conservação",
       "subtitulo": "A4 paisagem",
       "descricao": "Sobreposição do imóvel com unidades de conservação.",
+      "tipo_execucao": "mapspec",
       "template": "uc_paisagem",
       "perfil": "harmonia",
       "preview": "previews/uc_paisagem.png",
@@ -317,6 +322,59 @@
         { "rotulo": "Satélite/Sensor", "valor": "PLANET" },
         { "rotulo": "Data da imagem", "valor": "auto" },
         { "rotulo": "Fonte", "valor": "WMS-SEMA" },
+        { "rotulo": "Datum", "valor": "auto" },
+        { "rotulo": "Escala", "valor": "auto" }
+      ]
+    },
+    {
+      "id": "analise_de_area",
+      "nome": "Análise de área",
+      "subtitulo": "Série completa · 20 mapas · PDF compilado",
+      "descricao": "Descobre o imóvel e o CAR, materializa as camadas oficiais e gera os 20 mapas da análise com um PDF compilado.",
+      "tipo_execucao": "analise_de_area",
+      "template": "dinamica_retrato",
+      "perfil": "harmonia",
+      "preview": "previews/dinamica_2026_quantitativos.png",
+      "orientacao": "retrato",
+      "tags": ["analise", "car", "serie", "20_mapas"],
+      "saidas_padrao": ["pdf"],
+      "escala_padrao": "auto",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "{imovel.nome}",
+          "estilo": "perimetro_imovel",
+          "ordem": 10
+        }
+      ],
+      "camadas_catalogo": [],
+      "basemap_padrao": {
+        "tipo": "mosaico_sema",
+        "fallback": ["esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": true,
+        "creditos": false
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP"],
+        "total_geral": true,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite/Sensor", "valor": "auto" },
+        { "rotulo": "Data da imagem", "valor": "auto" },
+        { "rotulo": "Fonte", "valor": "auto" },
         { "rotulo": "Datum", "valor": "auto" },
         { "rotulo": "Escala", "valor": "auto" }
       ]

@@ -5,22 +5,23 @@
 A galeria é a segunda porta de entrada do produto, ao lado do chat, e a **única que funciona sem
 chave de IA**. O usuário abre a pasta, vê uma grade de modelos com preview real, escolhe
 "Dinâmica 2026 — retrato", e o núcleo monta um `MapSpec` a partir do modelo + do índice da pasta +
-do recibo do CAR. Chat e galeria são duas entradas para **o mesmo contrato**: os dois terminam em
-`mapspec.validar` → `mapa.gerar`, e nenhum dos dois tem um caminho privilegiado.
+do recibo do CAR. Nos cinco cards simples, chat e galeria terminam no mesmo
+`mapspec.validar` → `mapa.gerar`. O sexto card, `analise_de_area`, chama o executor de domínio
+que monta, valida e gera os 20 MapSpecs da série.
 
 ## Estado atual vs alvo
 
 | Item | Atual | Alvo |
 |---|---|---|
-| `shared/galeria/` | **existe** — `modelos.json` + schema + 5 previews | catálogo `modelos.json` + previews PNG |
+| `shared/galeria/` | **existe** — 6 cards, schema v2 e previews reais (o card da série reutiliza o preview real da dinâmica) | catálogo `modelos.json` + previews PNG |
 | Métodos `galeria.*` | **fechados** (M4) | `galeria.listar`, `galeria.detalhar`, `galeria.montar_mapspec` |
 | Montagem determinística de `MapSpec` | **fechada** em `galeria/montar.py` | implementada e testada no anel 1 |
 | UI da galeria | **fechada** — painel direito do shell | painel `painel-galeria` ([F1-02](02-ui-chat-e-workspace.md)) |
-| Templates disponíveis | `dinamica_retrato` **parcial**; 4 `a_preparar` | ver [MANIFEST](../../shared/templates/MANIFEST.json) |
+| Gate de template | considera `saidas_pedidas`; somente `mxd` exige template preparado | ver [MANIFEST](../../shared/templates/MANIFEST.json) |
 
-Consequência operacional que o agente **não pode esconder do usuário**: hoje só um modelo pode
-sair do estado `indisponivel` (`dinamica_2026_retrato` → `parcial` ou `faltam_dados`), e os
-outros quatro ficam `indisponivel` com motivo honesto. A galeria exibe o estado real.
+Consequência operacional que o agente **não pode esconder do usuário**: um template
+`a_preparar` bloqueia a saída `.mxd`, mas não bloqueia PDF/PNG/XLSX nativo. A galeria calcula o
+estado para as saídas pedidas e sempre mostra o motivo real.
 
 ## Dependências
 
@@ -39,11 +40,12 @@ outros quatro ficam `indisponivel` com motivo honesto. A galeria exibe o estado 
 
 ```json
 {
-  "galeria_version": 1,
+  "galeria_version": 2,
   "contract_version": 2,
   "modelos": [
     {
       "id": "dinamica_2026_retrato",
+      "tipo_execucao": "mapspec",
       "nome": "Dinâmica de uso do solo",
       "subtitulo": "Série Dinâmica · A4 retrato",
       "descricao": "Perímetro, vegetação nativa, área consolidada e desmate após 2008, com tabela de quantitativos.",
@@ -92,6 +94,7 @@ Regras do arquivo:
 | Campo | Regra |
 |---|---|
 | `id` | estável e único; nunca reaproveitado depois de publicado |
+| `tipo_execucao` | `mapspec` para um mapa; `analise_de_area` somente para o card especial da série |
 | `template` | **tem** de existir em `shared/templates/MANIFEST.json`. Validado no boot; ausente → o modelo some da galeria e registra `NU-231` no log |
 | `preview` | caminho relativo a `shared/galeria/`; PNG, lado maior ≤ 1024 px, ≤ 300 KB, gerado a partir de um PDF real do acervo, **nunca** mockup desenhado à mão |
 | `requisitos_camadas[].papel` | vocabulário fechado do índice do workspace: `ATP`, `AVN`, `AC`, `AUAS`, `APP`, `ARL`, `SIGEF`, `RESERVA_LEGAL` |
@@ -106,10 +109,10 @@ Regras do arquivo:
 
 | `status` | Quando |
 |---|---|
-| `pronto` | template com `status: "pronto"` no MANIFEST **e** `sha256_ok` **e** todos os `requisitos_camadas` obrigatórios presentes no índice do workspace |
-| `parcial` | template `parcial` no MANIFEST, ou algum requisito **não** obrigatório ausente |
-| `faltam_dados` | template ok, mas falta requisito **obrigatório** na pasta |
-| `indisponivel` | template `a_preparar`, `sha256` nulo ou divergente |
+| `pronto` | saídas pedidas disponíveis e todos os `requisitos_camadas` obrigatórios presentes no índice |
+| `parcial` | algum requisito **não** obrigatório ausente |
+| `faltam_dados` | falta requisito **obrigatório** na pasta |
+| `indisponivel` | as saídas incluem `mxd` e o template está `a_preparar`, sem SHA ou divergente |
 
 O cartão da galeria mostra o motivo em uma linha (`falta ATP.shp na pasta`), nunca só um ícone.
 
@@ -121,8 +124,8 @@ O cartão da galeria mostra o motivo em uma linha (`falta ATP.shp na pasta`), nu
 
 | Método | Params | Retorno |
 |---|---|---|
-| `galeria.listar` | `{workspace?}` | `{galeria_version, modelos:[{id, nome, subtitulo, tags, orientacao, preview, status, motivo?, requisitos_faltando:[]}]}` — **sem** `requisitos_camadas` completos, sem base64 |
-| `galeria.detalhar` | `{modelo_id, workspace?}` | o item completo + `status` + `mapeamento_sugerido` (papel → `local.<id>` do índice) |
+| `galeria.listar` | `{workspace?, saidas_pedidas?}` | `{galeria_version, modelos:[{id, tipo_execucao, nome, subtitulo, tags, orientacao, preview, status, motivo?, requisitos_faltando:[]}]}` — **sem** `requisitos_camadas` completos, sem base64 |
+| `galeria.detalhar` | `{modelo_id, workspace?, saidas_pedidas?}` | o item completo + `status` + `mapeamento_sugerido` (papel → `local.<id>` do índice) |
 | `galeria.montar_mapspec` | `{modelo_id, workspace, sobrescritas?}` | `{mapspec, avisos:[]}` — **não gera nada**, só monta |
 
 `sobrescritas` é um objeto raso e tipado, não um `MapSpec` parcial livre:
@@ -195,8 +198,10 @@ clique no cartão → painel-galeria-detalhe
 "Gerar"   → mapa.gerar             → job.progresso anima o painel-preview
 ```
 
-A galeria **nunca** chama `mapa.gerar` direto. `mapspec.validar` no meio é obrigatório — economiza
-uma geração inteira por erro evitado, e é a mesma regra imposta ao agente de IA.
+Para `tipo_execucao: mapspec`, a galeria **nunca** chama `mapa.gerar` direto:
+`mapspec.validar` no meio é obrigatório. O card `analise_de_area` é a exceção explícita de
+produto: um clique chama `analise.executar`, cujo pipeline monta e valida cada MapSpec antes de
+gerar e emite progresso/artefatos reais da série.
 
 ### Relação com o chat
 
@@ -226,7 +231,7 @@ Receita fechada, para um agente seguir sem julgamento:
 
 ## Tarefas agentáveis
 
-- [x] `shared/galeria/modelos.json` com os 5 modelos do MANIFEST (4 nascem `indisponivel`)
+- [x] `shared/galeria/modelos.json` com 5 modelos MapSpec + card `analise_de_area`
 - [x] `shared/galeria/schema.json` — JSON Schema do arquivo acima
 - [x] `shared/galeria/previews/` — PNG por modelo, extraídos de `Referencias_IMAP/Mapas/01/`
 - [x] `shared/galeria/README.md` — como adicionar modelo (a receita acima, resumida)
@@ -239,11 +244,13 @@ Receita fechada, para um agente seguir sem julgamento:
 - [x] `app/src/paineis/GaleriaDetalhe.tsx` — mapeamento e toggles, id `painel-galeria-detalhe`
 - [x] `app/src/componentes/CartaoModelo.tsx` — preview, chip de status, motivo
 - [x] `nucleo/tests/test_galeria.py`
+- [x] gate por `saidas_pedidas`: nativo não exige `.mxd`, mas `mxd` continua bloqueado
+- [x] card da série chama `analise.executar` e consome eventos reais no front
 
 ## Critérios de aceite
 
-- [x] `python -m mapasfacil_nucleo stdio` responde `galeria.listar` com 5 modelos e
-      `status` coerente com o MANIFEST (hoje: 1 `parcial`/`faltam_dados`, 4 `indisponivel`)
+- [x] `python -m mapasfacil_nucleo stdio` responde `galeria.listar` com 6 cards e
+      `status` coerente com as saídas pedidas
 - [x] `galeria.montar_mapspec` do `dinamica_2026_retrato` contra a fixture da Harmonia produz um
       `MapSpec` que passa em `mapspec.validar` **sem erros**
 - [x] Determinismo: rodar `montar_mapspec` 3× produz JSON idêntico exceto `id` (ULID) — teste
@@ -255,6 +262,7 @@ Receita fechada, para um agente seguir sem julgamento:
       mesmo `template`, as mesmas `camadas[].id` e o mesmo `elementos_layout`
       (`nucleo/tests/test_paridade_galeria_agente.py`, com o provedor em modo fake) — **adiado a M7/G10**
 - [x] Clicar num cartão `indisponivel` não dispara requisição nenhuma; mostra o motivo
+- [x] Clicar em `analise_de_area` disponível dispara uma única `analise.executar`
 
 ## Fora de escopo
 

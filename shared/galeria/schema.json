@@ -23,6 +23,7 @@
         "nome",
         "subtitulo",
         "descricao",
+        "tipo_execucao",
         "template",
         "perfil",
         "preview",
@@ -42,6 +43,10 @@
         "nome": { "type": "string", "minLength": 1 },
         "subtitulo": { "type": "string" },
         "descricao": { "type": "string" },
+        "tipo_execucao": {
+          "type": "string",
+          "enum": ["mapspec", "analise_de_area"]
+        },
         "template": { "type": "string", "minLength": 1 },
         "perfil": { "type": "string", "const": "harmonia" },
         "preview": { "type": "string", "pattern": "^previews/.+\\.png$" },

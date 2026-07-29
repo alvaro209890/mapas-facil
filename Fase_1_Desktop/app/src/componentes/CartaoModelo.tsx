@@ -33,6 +33,7 @@ export interface PropsCartaoModelo {
   selecionado?: boolean;
   /** Posição na grade — escalona a entrada para a lista não aparecer em bloco. */
   indice?: number;
+  ocupado?: boolean;
 }
 
 type EstadoPreview = "carregando" | "pronto" | "falhou";
@@ -42,6 +43,7 @@ export function CartaoModelo({
   aoAbrir,
   selecionado = false,
   indice = 0,
+  ocupado = false,
 }: PropsCartaoModelo) {
   const [preview, setPreview] = useState<EstadoPreview>("carregando");
   const clicavel = modelo.status !== "indisponivel";
@@ -53,7 +55,7 @@ export function CartaoModelo({
       data-status={modelo.status}
       data-selecionado={selecionado ? "sim" : "nao"}
       aria-pressed={selecionado}
-      disabled={!clicavel}
+      disabled={!clicavel || ocupado}
       title={clicavel ? modelo.nome : (modelo.motivo ?? "Modelo indisponível")}
       // Cascata de entrada: 40 ms por cartão, teto de 6 para a última linha não
       // ficar esperando meio segundo.

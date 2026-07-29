@@ -13,6 +13,7 @@ export interface ModeloResumo {
   tags: string[];
   orientacao: string;
   preview: string;
+  tipo_execucao: "mapspec" | "analise_de_area";
   status: StatusModelo;
   motivo: string | null;
   requisitos_faltando: string[];
@@ -40,6 +41,8 @@ export interface EstadoGaleria {
   mapspecMontado: Record<string, unknown> | null;
   avisosMontagem: string[];
   erro: { codigo: string; mensagem: string } | null;
+  executandoSerie: boolean;
+  resultadoSerie: Record<string, unknown> | null;
 }
 
 const INICIAL: EstadoGaleria = {
@@ -49,12 +52,15 @@ const INICIAL: EstadoGaleria = {
   mapspecMontado: null,
   avisosMontagem: [],
   erro: null,
+  executandoSerie: false,
+  resultadoSerie: null,
 };
 
 export function useGaleria(): EstadoGaleria & {
   listar: () => Promise<void>;
   detalhar: (modeloId: string) => Promise<void>;
   montar: (modeloId: string, sobrescritas?: Record<string, unknown>) => Promise<boolean>;
+  executarSerie: () => Promise<boolean>;
   limparDetalhe: () => void;
 } {
   const [estado, setEstado] = useState<EstadoGaleria>(INICIAL);
@@ -70,7 +76,7 @@ export function useGaleria(): EstadoGaleria & {
       return;
     }
     setEstado((a) => ({ ...a, situacao: "carregando", erro: null }));
-    const resposta = await ponte.chamar("galeria.listar", {});
+    const resposta = await ponte.chamar("galeria.listar", { saidas_pedidas: ["pdf"] });
     if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
       setEstado((a) => ({
         ...a,
@@ -95,7 +101,10 @@ export function useGaleria(): EstadoGaleria & {
   const detalhar = useCallback(async (modeloId: string) => {
     const ponte = api();
     if (ponte === undefined) return;
-    const resposta = await ponte.chamar("galeria.detalhar", { modelo_id: modeloId });
+    const resposta = await ponte.chamar("galeria.detalhar", {
+      modelo_id: modeloId,
+      saidas_pedidas: ["pdf"],
+    });
     if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
       setEstado((a) => ({
         ...a,
@@ -117,7 +126,7 @@ export function useGaleria(): EstadoGaleria & {
     if (ponte === undefined) return false;
     const resposta = await ponte.chamar("galeria.montar_mapspec", {
       modelo_id: modeloId,
-      sobrescritas: sobrescritas ?? {},
+      sobrescritas: sobrescritas ?? { saidas: ["pdf"] },
     });
     if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
       setEstado((a) => ({
@@ -140,11 +149,35 @@ export function useGaleria(): EstadoGaleria & {
     return true;
   }, []);
 
+  const executarSerie = useCallback(async () => {
+    const ponte = api();
+    if (ponte === undefined) return false;
+    setEstado((a) => ({ ...a, executandoSerie: true, resultadoSerie: null, erro: null }));
+    try {
+      const resposta = await ponte.chamar("analise.executar", {});
+      if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
+        setEstado((a) => ({
+          ...a,
+          erro: resposta.erro ?? { codigo: "NU-240", mensagem: "A série não pôde ser gerada." },
+        }));
+        return false;
+      }
+      setEstado((a) => ({
+        ...a,
+        resultadoSerie: resposta.resultado as Record<string, unknown>,
+        erro: null,
+      }));
+      return true;
+    } finally {
+      setEstado((a) => ({ ...a, executandoSerie: false }));
+    }
+  }, []);
+
   const limparDetalhe = useCallback(() => {
     setEstado((a) => ({ ...a, detalhe: null, mapspecMontado: null, avisosMontagem: [] }));
   }, []);
 
-  return { ...estado, listar, detalhar, montar, limparDetalhe };
+  return { ...estado, listar, detalhar, montar, executarSerie, limparDetalhe };
 }
 
 /** Caminho servido pelo Vite a partir de `app/public/galeria/`.

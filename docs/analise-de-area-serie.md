@@ -165,16 +165,23 @@ Planet continua disponível (`planet_api_key` no cofre, `basemap_planet.py`) par
 quem quiser paridade de imagem com o modelo; a série usa SEMA por padrão porque
 não gasta quota.
 
-## 8. O que falta
+## 8. Integração desktop e o que falta
+
+Em 2026-07-29 a série entrou no fluxo principal do desktop:
+
+- o sexto card da galeria, `analise_de_area`, inicia `analise.executar` em um clique;
+- o gate da galeria só exige template ArcMap quando a saída inclui `mxd`;
+- `job.progresso` e `job.artefato_parcial` carregam fase, mapa corrente e índice real da série;
+- a barra e o preview mostram somente esses eventos, sem porcentagem simulada;
+- rasters WMS válidos entram no acervo compartilhado e são reutilizados entre workspaces;
+- a anatomia tem golden determinístico no CI.
 
 | # | Item | Onde |
 |---|---|---|
-| 1 | Card **"Análise de área"** na galeria + progresso rico no front | `shared/galeria/modelos.json`, `galeria/estado.py`, `app/src/` |
-| 2 | Destravar a galeria para saída nativa (hoje modelo sem `.mxd` nasce `indisponivel`) | `galeria/estado.py` |
-| 3 | Groq Vision no backend (a chave ainda não existe no cofre) | `validacao/`, `agente/provisao.py` |
-| 4 | Quantitativos por classe no mapa da tabela | `quantitativos/` |
-| 5 | TCR e pontos de TAC via `chat.pergunta` | `agente/tools.py` |
-| 6 | Os 20 `.mxd` da série no Windows | §11 do GOAL (Fase W) |
+| 1 | Groq Vision opcional (a chave ainda não existe no cofre) | `validacao/`, `agente/provisao.py` |
+| 2 | Quantitativos por classe no mapa da tabela | `quantitativos/` |
+| 3 | TCR e pontos de TAC via `chat.pergunta` | `agente/tools.py` |
+| 4 | Os 20 `.mxd` da série no Windows | §11 do GOAL (Fase W) |
 
 ## 9. Entrega ao cliente
 

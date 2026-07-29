@@ -16,6 +16,56 @@
   height: 6px;
 }
 
+.trilhaSerie {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--mf-superficie-3);
+}
+
+.preenchimentoSerie {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mf-acento), var(--mf-info));
+  transition: width var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.passosSerie {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 112px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.passoSerie {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+}
+
+.passoSerie:last-child {
+  color: var(--mf-texto);
+}
+
+.marcaSerie {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: var(--mf-borda-forte);
+}
+
+.passoSerie:last-child .marcaSerie {
+  background: var(--mf-acento);
+}
+
 .segmento {
   position: relative;
   overflow: hidden;
@@ -54,6 +104,10 @@
   .segmento[data-estado="ativa"]::after {
     animation: none !important;
     transform: none !important;
+  }
+
+  .preenchimentoSerie {
+    transition-duration: 80ms;
   }
 }
 

@@ -62,6 +62,25 @@ export interface DadosJobProgresso {
   item?: string;
   /** A10 — id do job para `mapa.cancelar`. */
   job_id?: string;
+  /** Série Análise de área — passo real do executor, nunca derivado por timer. */
+  serie?: DadosProgressoSerie;
+}
+
+export type FaseProgressoSerie =
+  | "identidade"
+  | "camada"
+  | "mapa"
+  | "compilando"
+  | "concluido";
+
+export interface DadosProgressoSerie {
+  fase: FaseProgressoSerie;
+  mensagem: string;
+  indice?: number;
+  total?: number;
+  mapa_id?: string;
+  mapa_nome?: string;
+  compilado?: boolean;
 }
 
 /** `job.log` — linha técnica do job. A UI mostra colapsado; ninguém lê linha a linha. */
@@ -76,6 +95,7 @@ export interface DadosJobArtefatoParcial {
   camada_id?: string;
   ordem?: number;
   pct?: number;
+  serie?: DadosProgressoSerie;
 }
 export interface DadosWorkspaceMudou {
   mudancas: MudancaWorkspace[];
@@ -202,8 +222,14 @@ export function ehJobProgresso(
   evento: EnvelopeEvento<Record<string, unknown>>,
 ): evento is EventoJobProgresso {
   if (evento.evento !== "job.progresso") return false;
-  const { etapa, pct } = evento.dados;
-  return typeof etapa === "string" && indiceDaEtapa(etapa) >= 0 && typeof pct === "number";
+  const { etapa, pct, serie } = evento.dados;
+  if (!(typeof etapa === "string" && indiceDaEtapa(etapa) >= 0 && typeof pct === "number")) {
+    return false;
+  }
+  if (serie === undefined) return true;
+  if (typeof serie !== "object" || serie === null) return false;
+  const s = serie as Partial<DadosProgressoSerie>;
+  return typeof s.fase === "string" && typeof s.mensagem === "string" && s.mensagem !== "";
 }
 
 /** `workspace.mudou` estreitado (A12). */

@@ -32,7 +32,7 @@ por falta do número do termo — dado que não existe em WFS público.
 Detalhe da rodada e os 7 bugs corrigidos: [`docs/analise-de-area-serie.md`](docs/analise-de-area-serie.md).
 Entrega ao cliente (https://analises.cursar.space, **sem senha** por decisão de 2026-07-29):
 [`docs/analise-entrega-cloudflare.md`](docs/analise-entrega-cloudflare.md).
-Contrato e o que falta (card na galeria, progresso no front, Groq, Fase W no Windows):
+Contrato e o que falta (Groq e Fase W no Windows):
 [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md), conferível com
 `python3 ferramentas/validar_goal_analise.py`.
 
@@ -134,7 +134,7 @@ python3 ferramentas/validar_goal_analise.py # o GOAL da Análise de área × dis
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~124)
 ```
 
-## O que existe hoje (2026-07-26, núcleo v0.4.0 + M6)
+## O que existe hoje (2026-07-29, núcleo v0.4.0 + M8)
 
 | Camada | Estado | Onde |
 |---|---|---|
@@ -143,18 +143,18 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Catálogo de camadas (43) | existe — 41 até 2026-07-28 + as duas autorizações da SEMA (desmate/exploração) | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
-| Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
+| Sidecar Python NDJSON | **46 métodos** (inclui `analise.executar`, galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
 | Clientes de camada em runtime | **fechado — 41/41 camadas, os 4 tipos do catálogo**: `wms_wfs` (A13), `arcgis_rest`, `wfs_gml` (reprojeta do EPSG nativo) e `wms_raster` (imagem, `tipo_saida="raster"`); cache TTL por tema; `NU-101/102/110/111/112/120/130/140` | `nucleo/.../camadas/{catalogo,http,wfs,rest_arcgis,gml_incra,wms,clip,cache,resolver}.py` |
 | Eventos NDJSON com emissor | **os 10 do vocabulário** — `job.progresso` (A9), `chat.delta`/`chat.tool`/`chat.raciocinio` (M7), `job.artefato_parcial` (M8), `workspace.mudou` (A12), `mapspec.atualizado` (H6), `job.log`, `aviso` e `chat.pergunta` (G12) | `nucleo/.../progresso.py`, `artefatos.py`, `agente/orquestrador.py`, `agente/tools.py`, `workspace/watcher.py`, `motores/gerar.py` |
 | App Electron | **M3–M8 + épico sem ArcMap** — menus/tray, offline, Esc≠job, R14 completo | [`Fase_1_Desktop/app/README.md`](Fase_1_Desktop/app/README.md) |
-| Galeria de modelos | **fechada** — `galeria.listar/detalhar/montar_mapspec`, 5 modelos, previews reais | [`shared/galeria/`](shared/galeria/) |
+| Galeria de modelos | **fechada** — 6 cards; os 5 modelos simples usam `galeria.listar/detalhar/montar_mapspec` e `analise_de_area` inicia a série real | [`shared/galeria/`](shared/galeria/) |
 | Conta local | **fechada** (M5) — e-mail+senha Argon2id, `contas.sqlite`, `tela-login`, gate `AUTH-030` | `nucleo/.../contas/`, `sessao.py`, `app/src/telas/Login.tsx` |
 | Persistência de conversas | **fechada** (M6) — `chats.sqlite` WAL+FTS5, redator, 10 `chat.*`, `barra-chats` | `nucleo/.../conversas/`, `app/src/paineis/BarraChats.tsx` |
 | Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, **27/27 tools reais** (F1-07 fechou `analisar_referencia`) | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | Visão de referência (F1-07) | **determinístico fechado**; API V4 **sem** imagem (P1 fechada 2026-07-26 — `400 image_url`) — interpretação LLM fica em `IA-060` até a DeepSeek publicar modelo multimodal na API | `nucleo/.../agente/visao/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
-| PDF nativo + overlay da tabela | **retrato e paisagem** (2026-07-29): 19/20 mapas da série verdes na anatomia contra os PDFs-modelo; sem paridade pixel a pixel com o ArcMap | `motores/nativo.py` e `motores/{perfil_pagina,grade_dms,estilos,blocos,basemap}.py` |
-| Série Análise de área | **fechada no PDF** — de `SHP/ATP.shp` a 20 mapas + compilado, com dado real e sem perguntar nada | `nucleo/.../analise/`, `shared/padrao-imap/anatomia_serie.json` |
+| PDF nativo + overlay da tabela | **retrato e paisagem** (2026-07-29): 19/20 mapas da série verdes na anatomia contra os PDFs-modelo; golden determinístico de anatomia no CI; sem paridade pixel a pixel com o ArcMap | `motores/nativo.py` e `motores/{perfil_pagina,grade_dms,estilos,blocos,basemap}.py` |
+| Série Análise de área | **fechada no desktop para PDF** — card de um clique, progresso/eventos reais, 20 mapas + compilado e acervo compartilhado de rasters; Groq continua opcional sem chave | `nucleo/.../analise/`, `nucleo/.../acervo/`, `shared/padrao-imap/anatomia_serie.json` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
 | `mapspec.diff`, diff raster de PDF | fechados | `mapspec/diff.py`, `validacao/comparar_pdf.py` |
 | Motor `.mxd` | **parcial**: T2 copia template preparado; T1 é esqueleto | `motores/patch_mxd.py`, `motores/arcpy_ponte.py` |
@@ -261,8 +261,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R04 | ≥3 animações amarradas a evento real | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) | **feito** (M8+A12+H6) — A1–A6 completas: A1–A5 + realce de arquivo novo (`workspace.mudou`) + troca de versão (`mapspec.atualizado`) | `app/src/componentes/IndicadorPensando.tsx`, `CartaoTool.tsx`, `BarraProgressoJob.tsx`, `LinhaVersoes.tsx`, `app/src/paineis/Preview.tsx`, `Workspace.tsx` |
 | R05 | Emissão de `job.progresso` com as 10 etapas | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** (A9, v0.4.0) — `pct` monotônico 3→100, `item` nas camadas locais | `nucleo/.../progresso.py`, `motores/gerar.py`, `protocolo.py` |
 | R06 | Evento `job.artefato_parcial` (preview em construção) | [F1-16](Fase_1_Desktop/planos/16-design-system-dark.md) §Contrato | **feito** (M8) — 4 tipos, caminho relativo, `artefato.ler` para o renderer | `nucleo/.../artefatos.py`, `leitor_artefato.py`, `motores/gerar.py`, `motores/nativo.py` |
-| R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — 5 modelos, previews reais, UI no painel direito | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
-| R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** (M4) — `NU-230`…`NU-234`; só `dinamica_2026_retrato` sai de `indisponivel` | `nucleo/.../galeria/` |
+| R07 | Galeria de modelos (catálogo + UI + montagem de MapSpec) | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** — 6 cards, previews reais e card `analise_de_area` de um clique | `shared/galeria/`, `app/src/paineis/Galeria*.tsx` |
+| R08 | `galeria.listar` / `galeria.detalhar` / `galeria.montar_mapspec` | [F1-15](Fase_1_Desktop/planos/15-galeria-de-modelos.md) | **feito** — gate considera `saidas_pedidas`: PDF/PNG/XLSX nativos não dependem de `.mxd`; somente `mxd` exige template preparado | `nucleo/.../galeria/` |
 | R09 | Login obrigatório **e-mail + senha local** (SQLite) | [F1-14](Fase_1_Desktop/planos/14-auth-e-conta.md) | **feito** (M5) — Argon2id, `tela-login`, sem Google | `nucleo/.../contas/`, `app/src/telas/Login.tsx` |
 | R10 | Conta na nuvem (adiado); site v1 = distribuição sem login (D21) | [F2-00](Fase_2_Site/planos/00-visao-e-escopo.md), [F2-05](Fase_2_Site/planos/05-auth-e-memoria.md) | **frontend feito** — landing, requisitos, download e contato; sem login/chat/backend; mapa demo fictício | `Fase_2_Site/web/` |
 | R11 | Cofre BYOK (DeepSeek/SEMA/Planet) no OS keyring | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md), [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **feito** (A11) — `keyring` (CM/Secret Service); Preferências grava; `secrets.local.json` ainda vale em dev | `nucleo/.../cofre.py`, `app/src/componentes/Preferencias.tsx` |
@@ -282,8 +282,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf`. **Diff raster só é honesto com o mesmo dado**: para máquina sem ArcMap entrou a métrica de **anatomia** (mm contra o PDF-modelo), hoje 6/6 | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py`, `validacao/anatomia.py` |
-| R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **feito** (2026-07-29) — **retrato e paisagem** exercitados nos 20 mapas da série, com o layout de cada um medido do seu PDF-modelo, fonte com métrica de Arial e cores amostradas do acervo. Falta só golden image no CI | `nucleo/.../motores/{nativo,perfil_pagina,grade_dms,estilos,blocos,basemap}.py`, `shared/padrao-imap/anatomia_serie.json` |
-| R30 | **Análise de área**: série de 20 mapas a partir só do polígono | [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md) | **feito no PDF** (2026-07-29) — identidade (município + CAR por IoU), 18 camadas do catálogo + 3 derivadas, 20 receitas, PDF compilado e validação de anatomia por mapa. **20/20 gerados, 19/20 verdes** na Aruanã. Falta card na galeria, progresso no front e Groq | `nucleo/.../analise/{identidade,preparar,serie,executar}.py` |
+| R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **feito** (2026-07-29) — retrato e paisagem exercitados nos 20 mapas; golden de anatomia versionado com tolerância de 0,3% roda no CI e publica esperado/obtido/diff quando falha | `nucleo/.../validacao/anatomia.py`, `nucleo/tests/test_golden_anatomia.py`, `nucleo/tests/golden/` |
+| R30 | **Análise de área**: série de 20 mapas a partir só do polígono | [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md) | **feito no desktop para PDF** (2026-07-29) — card, gate nativo, identidade, 20 receitas, compilado, progresso/artefatos reais e acervo raster compartilhado. **20/20 gerados, 19/20 verdes** na Aruanã. Groq é opcional e segue sem chave; `.mxd` fica na Fase W | `nucleo/.../analise/`, `nucleo/.../acervo/`, `app/src/componentes/BarraProgressoJob.tsx` |
 | R31 | Entrega dos mapas ao cliente por link | [`docs/analise-entrega-cloudflare.md`](docs/analise-entrega-cloudflare.md) | **feito** (2026-07-29) — `analises.cursar.space` deste PC pelo tunnel do Mapas Fácil. **Sem senha, por decisão do dono**: quem tem a URL vê CAR, nome da propriedade e geometria do imóvel | `Fase_2_Site/deploy/servidor_analises.py`, `ferramentas/publicar_analise.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `v0.5.2` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). **Falta a assinatura Authenticode** (SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
 | R28 | Auto-update: o app avisa e atualiza com um clique | [F1-11 §P2](Fase_1_Desktop/planos/11-empacotamento-instalador.md#p2--auto-update) | **feito** (2026-07-27, a partir da `0.5.2`) — `electron-updater` com feed do GitHub; verifica no boot e a cada 4 h; nada baixa nem instala sem clique. **Toda release precisa de tag `vX.Y.Z` e do `latest.yml` publicado** | `app/electron/atualizador.ts`, `app/src/componentes/BarraAtualizacao.tsx` |

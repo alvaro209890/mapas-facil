@@ -13,7 +13,7 @@ o agente executor para ele.
 | | |
 |---|---|
 | Estado do documento | **completo** — inventário, matriz de imagem, lacunas e plano Windows fechados |
-| Estado da implementação | **série em PDF nativo entregue** (2026-07-29): 20/20 mapas gerados na Aruanã, 19/20 aprovados na anatomia. Falta o card na galeria, o progresso no front e a Fase W. Detalhe: [`docs/analise-de-area-serie.md`](../docs/analise-de-area-serie.md) |
+| Estado da implementação | **desktop para PDF entregue** (2026-07-29): card de um clique, progresso real, acervo raster, 20/20 mapas gerados na Aruanã e 19/20 aprovados na anatomia. Groq é opcional e não foi habilitado sem chave; `.mxd` permanece na Fase W. Detalhe: [`docs/analise-de-area-serie.md`](../docs/analise-de-area-serie.md) |
 | Validador | `python3 ferramentas/validar_goal_analise.py` (checa este arquivo contra o disco) |
 | Última validação | 2026-07-29 — ver [§15](#15-registro-de-validação) |
 
@@ -192,10 +192,9 @@ entra no catálogo **antes** de ser usado por um mapa.
 
 ### 6.1 O card não pode depender de `.mxd`
 
-`galeria/estado.py` hoje devolve `indisponivel` para qualquer modelo cujo template `.mxd` esteja
-`a_preparar` — e 4 dos 5 modelos estão nesse estado. Como esta meta entrega **PDF nativo**,
-o gate tem de considerar a saída pedida: PDF/PNG/XLSX pelo motor nativo **não** exigem template
-ArcMap; só `mxd` exige. Sem isso, o card "Análise de área" nasce morto.
+Desde 2026-07-29, `galeria/estado.py` considera a saída pedida: PDF/PNG/XLSX pelo motor nativo
+**não** exigem template ArcMap; só `mxd` exige. Assim, o card "Análise de área" permanece
+disponível para PDF mesmo quando um template `.mxd` estiver `a_preparar`.
 
 ## 7. Critério de qualidade do PDF
 
@@ -236,7 +235,7 @@ ArcMap; só `mxd` exige. Sem isso, o card "Análise de área" nasce morto.
 | `motores/basemap_planet.py` | ✔ | WMTS Planet (chave no cofre) |
 | `motores/{patch_mxd,arcpy_ponte}.py` | ✔ | caminho MXD (T2 copia template; T1 é ponte) |
 | `validacao/{anatomia,saida,comparar_pdf,relatorio}.py` | ✔ | as métricas |
-| `shared/galeria/modelos.json` | ✔ | **5 cards**; `dinamica_2026_retrato` é o único com template `pronto` — os outros 4 caem em `indisponivel` (§6.1) |
+| `shared/galeria/modelos.json` | ✔ | **6 cards**; cinco `mapspec` + `analise_de_area`; o gate de template só vale quando `mxd` é pedido (§6.1) |
 | `shared/templates/MANIFEST.json` | ✔ | 1 `pronto` + 4 `a_preparar` |
 | `shared/catalog/{camadas,mosaicos_sema,sema_layers_live,servicos_geo}.json` | ✔ | 41 camadas + 43 mosaicos |
 | `shared/bases/ibge/lml_municipio_mt.shp` | ✔ | resolve município sem rede |
@@ -256,15 +255,15 @@ Ordem de dependência, não de calendário (AP-13).
 
 | # | Tarefa | Arquivos | Fecha o quê |
 |---|---|---|---|
-| L1 | Destravar a galeria para saídas nativas (§6.1) | `galeria/estado.py`, `galeria/montar.py` | **aberta** — card ainda nasceria `indisponivel` |
+| L1 | Destravar a galeria para saídas nativas (§6.1) | `galeria/estado.py`, `galeria/montar.py` | **fechada** — `saidas_pedidas` separa o gate nativo do gate `.mxd` |
 | L2 | **Perfil paisagem** exercitado e validado | `motores/{nativo,blocos,perfil_pagina}.py` | **fechada** — 8 mapas paisagem, todos verdes; o layout vem medido do modelo de cada um |
 | L3 | Basemap por ano/sensor lendo `mosaicos_sema.json` (C2) | `motores/basemap.py` | **fechada** |
-| L4 | Acervo compartilhado de rasters | novo módulo em `nucleo/.../acervo/` | **aberta** — hoje o reuso é o cache de camadas + `Mapas/recursos/` do projeto |
+| L4 | Acervo compartilhado de rasters | novo módulo em `nucleo/.../acervo/` | **fechada** — cache por fonte+bbox+CRS+largura, checksum e cópia preservada em `Mapas/recursos/` |
 | L5 | Camada do PEF (C1) + derivadas (C3) | `shared/catalog/camadas.json`, `analise/preparar.py` | **fechada** |
-| L6 | Pipeline da série + compilado (C5) | `analise/{serie,executar}.py` | **fechada** — falta só o card na galeria |
-| L7 | Progresso rico no front, amarrado a evento real | `app/src/paineis/`, `progresso.py` | **aberta** — o executor já emite passo a passo por callback |
+| L6 | Pipeline da série + compilado (C5) | `analise/{serie,executar}.py` | **fechada** — `analise.executar` está registrado no protocolo e no card |
+| L7 | Progresso rico no front, amarrado a evento real | `app/src/paineis/`, `progresso.py` | **fechada** — série, mapa corrente e últimos passos vêm de eventos injetados, sem timer |
 | L8 | Groq Vision no backend + provisão da chave | `nucleo/.../validacao/`, `agente/provisao.py` | **aberta** — chave ainda não existe no cofre |
-| L9 | Testes dedicados + golden de anatomia no CI | `nucleo/tests/` | **fechada** — `test_analise_serie.py` e `test_analise_preparar.py`, 19 testes sem rede |
+| L9 | Testes dedicados + golden de anatomia no CI | `nucleo/tests/` | **fechada** — golden versionado com tolerância de 0,3% e artefatos de diff |
 | L10 | Rodar na Aruanã, validar os 20 PDFs, corrigir, repetir | — | **fechada** — 20/20 gerados, 19/20 anatomia verde |
 
 ## 11. Fase W — fechar o que falta **no Windows, sem intervenção humana**
@@ -382,6 +381,10 @@ Fora esses três, a Fase W roda sozinha.
 | 7 | Falha de SEMA avisa e não derruba a série | teste com endpoint forçado a erro |
 | 8 | Contrato MXD documentado para o Windows | §11 deste arquivo + `docs/handoff-windows-fase1.md` |
 | 9 | Teste ponta a ponta como usuário, bugs corrigidos, reteste verde | `pytest -q` + `pnpm test` + roteiro manual no app |
+
+Estado em 2026-07-29: critérios 1, 2, 3, 5, 7 e 8 têm implementação e testes automatizados.
+O critério 4 permanece parcial (19/20 na execução Aruanã e Groq sem chave); o `.mxd` e o roteiro
+instalado completo continuam na Fase W.
 
 Comandos que fecham a meta:
 

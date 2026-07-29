@@ -35,18 +35,22 @@ def pasta_harmonia(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def test_carregar_galeria_tem_5_modelos():
+def test_carregar_galeria_tem_6_modelos_com_analise_de_area():
     galeria = carregar_galeria()
-    assert galeria["galeria_version"] == 1
-    assert len(galeria["modelos"]) == 5
+    assert galeria["galeria_version"] == 2
+    assert len(galeria["modelos"]) == 6
     ids = {m["id"] for m in galeria["modelos"]}
     assert "dinamica_2026_retrato" in ids
+    assert "analise_de_area" in ids
+    analise = obter_modelo("analise_de_area")
+    assert analise["tipo_execucao"] == "analise_de_area"
+    assert analise["saidas_padrao"] == ["pdf"]
 
 
 def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
     workspace_servico.abrir(str(pasta_harmonia))
     resultado = listar({"workspace": str(pasta_harmonia)})
-    assert len(resultado["modelos"]) == 5
+    assert len(resultado["modelos"]) == 6
     por_id = {m["id"]: m for m in resultado["modelos"]}
     assert por_id["dinamica_2026_retrato"]["status"] == "pronto"
     assert not por_id["dinamica_2026_retrato"].get("requisitos_faltando")
@@ -57,6 +61,44 @@ def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
         "uc_paisagem",
     ):
         assert por_id[mid]["status"] == "indisponivel"
+    assert por_id["analise_de_area"]["status"] == "pronto"
+    assert por_id["analise_de_area"]["tipo_execucao"] == "analise_de_area"
+
+
+def test_listar_saida_nativa_nao_exige_template_arcmap(pasta_harmonia: Path):
+    resultado = listar(
+        {
+            "workspace": str(pasta_harmonia),
+            "saidas_pedidas": ["pdf", "png"],
+        }
+    )
+    por_id = {m["id"]: m for m in resultado["modelos"]}
+    for mid in (
+        "dinamica_2026_quantitativos",
+        "tipologia_paisagem",
+        "terras_indigenas_paisagem",
+        "uc_paisagem",
+    ):
+        assert por_id[mid]["status"] == "pronto"
+        assert por_id[mid]["motivo"] is None
+
+
+def test_listar_saida_mxd_continua_exigindo_template_arcmap(pasta_harmonia: Path):
+    resultado = listar(
+        {
+            "workspace": str(pasta_harmonia),
+            "saidas_pedidas": ["mxd", "pdf"],
+        }
+    )
+    por_id = {m["id"]: m for m in resultado["modelos"]}
+    assert por_id["tipologia_paisagem"]["status"] == "indisponivel"
+    assert "ArcMap" in por_id["tipologia_paisagem"]["motivo"]
+
+
+def test_listar_rejeita_saida_desconhecida() -> None:
+    with pytest.raises(ErroNucleo) as exc:
+        listar({"saidas_pedidas": ["svg"]})
+    assert exc.value.codigo == "NU-001"
 
 
 def test_listar_sem_atp_faltam_dados(tmp_path: Path):
@@ -88,6 +130,46 @@ def test_montar_mapspec_valida_e_deterministico(pasta_harmonia: Path):
     assert sem_id(a["mapspec"]) == sem_id(b["mapspec"]) == sem_id(c["mapspec"])
     assert a["mapspec"]["template"] == "dinamica_retrato"
     assert {cam["id"] for cam in a["mapspec"]["camadas"]} >= {"perimetro", "avn", "auas", "ac"}
+
+
+def test_montar_pdf_nativo_com_template_a_preparar(pasta_harmonia: Path):
+    pacote = montar_mapspec(
+        "tipologia_paisagem",
+        workspace=str(pasta_harmonia),
+        sobrescritas={"saidas": ["pdf"]},
+    )
+    assert pacote["mapspec"]["template"] == "tipologia_paisagem"
+    assert pacote["mapspec"]["saidas"] == ["pdf"]
+    fontes = frozenset(
+        workspace_servico.estado_atual().indice["fontes_locais"]  # type: ignore[union-attr]
+    )
+    checagem = validar(pacote["mapspec"], fontes_locais=fontes)
+    assert checagem["valido"] is True, checagem["erros"]
+    assert any(aviso["codigo"] == "AG-030" for aviso in checagem["avisos"])
+
+
+def test_montar_mxd_com_template_a_preparar_nu231(pasta_harmonia: Path):
+    with pytest.raises(ErroNucleo) as exc:
+        montar_mapspec(
+            "tipologia_paisagem",
+            workspace=str(pasta_harmonia),
+            sobrescritas={"saidas": ["mxd", "pdf"]},
+        )
+    assert exc.value.codigo == "NU-231"
+
+
+def test_modelo_de_serie_nao_finge_ser_um_mapspec(pasta_harmonia: Path):
+    with pytest.raises(ErroNucleo) as exc:
+        montar_mapspec(
+            "analise_de_area",
+            workspace=str(pasta_harmonia),
+            sobrescritas={"saidas": ["pdf"]},
+        )
+    assert exc.value.codigo == "NU-235"
+    assert exc.value.detalhes == {
+        "modelo_id": "analise_de_area",
+        "metodo": "analise.executar",
+    }
 
 
 def test_montar_sem_atp_nu233(tmp_path: Path):

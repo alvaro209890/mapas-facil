@@ -64,6 +64,7 @@ ANCORAS = [
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/nativo.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/basemap.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/basemap_planet.py",
+    "Fase_1_Desktop/nucleo/mapasfacil_nucleo/acervo/rasters.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/blocos.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/estilos.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/grade_dms.py",
@@ -71,6 +72,7 @@ ANCORAS = [
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/patch_mxd.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/motores/arcpy_ponte.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/validacao/anatomia.py",
+    "Fase_1_Desktop/nucleo/mapasfacil_nucleo/analise/progresso.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/validacao/saida.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/validacao/comparar_pdf.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/validacao/relatorio.py",
@@ -82,6 +84,7 @@ ANCORAS = [
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/contas/banco.py",
     "Fase_1_Desktop/nucleo/mapasfacil_nucleo/conversas/banco.py",
     "shared/galeria/modelos.json",
+    "Fase_1_Desktop/nucleo/tests/golden/anatomia_dinamica_retrato.png",
     "shared/templates/MANIFEST.json",
     "shared/catalog/camadas.json",
     "shared/catalog/mosaicos_sema.json",
@@ -360,16 +363,28 @@ def checar_galeria(r: Resultado) -> None:
     manifest = _carregar_json(RAIZ / "shared" / "templates" / "MANIFEST.json")
     status = {t["id"]: t.get("status") for t in manifest["templates"]}
 
-    ids = {m["id"] for m in modelos}
-    if "analise_de_area" in ids:
-        r.ok("Card analise_de_area", "implementado — o GOAL saiu do estado 'não iniciada'")
+    por_id = {m["id"]: m for m in modelos}
+    card = por_id.get("analise_de_area")
+    if (
+        galeria.get("galeria_version") == 2
+        and card
+        and card.get("tipo_execucao") == "analise_de_area"
+        and "mxd" not in card.get("saidas_padrao", [])
+    ):
+        r.ok("Card analise_de_area", "schema v2, executor de série e saída nativa")
     else:
-        r.ok("Card analise_de_area", "ainda ausente, como o GOAL declara")
+        r.falha("Card analise_de_area", "ausente ou sem contrato nativo da série")
 
     prontos = [m["id"] for m in modelos if status.get(m["template"]) == "pronto"]
     bloqueados = [m["id"] for m in modelos if status.get(m["template"]) == "a_preparar"]
-    if len(modelos) == 5 and prontos == ["dinamica_2026_retrato"] and len(bloqueados) == 4:
-        r.ok("Galeria e templates", "5 cards; 1 template pronto e 4 a_preparar (§6.1)")
+    tipos_mapspec = [m["id"] for m in modelos if m.get("tipo_execucao") == "mapspec"]
+    if (
+        len(modelos) == 6
+        and len(tipos_mapspec) == 5
+        and prontos == ["dinamica_2026_retrato", "analise_de_area"]
+        and len(bloqueados) == 4
+    ):
+        r.ok("Galeria e templates", "6 cards; gate ArcMap preservado só para saída mxd (§6.1)")
     else:
         r.falha(
             "Galeria e templates",

@@ -23,6 +23,7 @@ from typing import Any
 
 import fitz
 import numpy as np
+from PIL import Image, ImageDraw
 
 from mapasfacil_nucleo.validacao.comparar_pdf import rasterizar_pdf
 
@@ -33,6 +34,17 @@ LIMIAR_ESCURO = 110
 
 FRACAO_LINHA = 0.55
 """Fração da largura/altura que uma linha precisa cobrir para ser moldura."""
+
+PX_POR_MM_GOLDEN = 2
+CORES_GOLDEN = {
+    "fundo": (255, 255, 255),
+    "pagina": (226, 232, 240),
+    "quadro_mapa": (15, 23, 42),
+    "titulo": (225, 29, 72),
+    "metadados": (37, 99, 235),
+    "legenda": (22, 163, 74),
+    "dms": (245, 158, 11),
+}
 
 
 def _pt_para_mm(valor: float) -> float:
@@ -201,6 +213,76 @@ def medir(pdf: Path, *, pagina: int = 0) -> dict[str, Any]:
         "rotulos_dms": {"total": len(dms), "por_borda": bordas},
         "palavras": len(palavras),
     }
+
+
+def imagem_anatomia(
+    medida: dict[str, Any],
+    *,
+    px_por_mm: int = PX_POR_MM_GOLDEN,
+) -> Image.Image:
+    """Converte uma anatomia medida numa máscara raster determinística.
+
+    A máscara é o *golden* de CI: ignora imagem de satélite, antialias e métricas
+    de fonte que variam entre SOs, mas torna qualquer deslocamento de quadro,
+    título, metadados, legenda ou distribuição da grade uma diferença de pixel.
+    Não há texto nem fonte na imagem, só primitivas inteiras do Pillow.
+    """
+    pagina = medida.get("pagina_mm") or {}
+    largura_mm = float(pagina.get("largura") or 210)
+    altura_mm = float(pagina.get("altura") or 297)
+    escala = max(1, int(px_por_mm))
+    tamanho = (max(1, round(largura_mm * escala)), max(1, round(altura_mm * escala)))
+    imagem = Image.new("RGB", tamanho, CORES_GOLDEN["fundo"])
+    desenho = ImageDraw.Draw(imagem)
+    desenho.rectangle((0, 0, tamanho[0] - 1, tamanho[1] - 1), outline=CORES_GOLDEN["pagina"])
+
+    def _retangulo(caixa: dict[str, float] | None, cor: tuple[int, int, int], largura: int) -> None:
+        if not caixa:
+            return
+        xy = tuple(round(float(caixa[chave]) * escala) for chave in ("x0", "y0", "x1", "y1"))
+        desenho.rectangle(xy, outline=cor, width=largura)
+
+    quadro = medida.get("quadro_mapa")
+    _retangulo(quadro, CORES_GOLDEN["quadro_mapa"], 3)
+    _retangulo((medida.get("titulo") or {}).get("caixa_mm"), CORES_GOLDEN["titulo"], 2)
+    _retangulo(medida.get("metadados"), CORES_GOLDEN["metadados"], 2)
+    _retangulo(medida.get("legenda"), CORES_GOLDEN["legenda"], 2)
+
+    if quadro:
+        bordas = (medida.get("rotulos_dms") or {}).get("por_borda") or {}
+        x0, y0, x1, y1 = (
+            round(float(quadro[chave]) * escala) for chave in ("x0", "y0", "x1", "y1")
+        )
+
+        def _posicoes(inicio: int, fim: int, total: int) -> list[int]:
+            if total <= 0:
+                return []
+            return [round(inicio + (fim - inicio) * (i + 1) / (total + 1)) for i in range(total)]
+
+        cor = CORES_GOLDEN["dms"]
+        for x in _posicoes(x0, x1, int(bordas.get("superior") or 0)):
+            desenho.line((x, max(0, y0 - 5), x, y0 + 2), fill=cor, width=2)
+        for x in _posicoes(x0, x1, int(bordas.get("inferior") or 0)):
+            desenho.line((x, y1 - 2, x, min(tamanho[1] - 1, y1 + 5)), fill=cor, width=2)
+        for y in _posicoes(y0, y1, int(bordas.get("esquerda") or 0)):
+            desenho.line((max(0, x0 - 5), y, x0 + 2, y), fill=cor, width=2)
+        for y in _posicoes(y0, y1, int(bordas.get("direita") or 0)):
+            desenho.line((x1 - 2, y, min(tamanho[0] - 1, x1 + 5), y), fill=cor, width=2)
+
+    return imagem
+
+
+def salvar_imagem_anatomia(
+    medida: dict[str, Any],
+    destino: Path,
+    *,
+    px_por_mm: int = PX_POR_MM_GOLDEN,
+) -> Path:
+    """Grava a máscara PNG usada pela regressão visual do CI."""
+    destino = Path(destino)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    imagem_anatomia(medida, px_por_mm=px_por_mm).save(destino, format="PNG", optimize=True)
+    return destino
 
 
 def _delta(a: dict[str, float] | None, b: dict[str, float] | None) -> dict[str, float] | None:

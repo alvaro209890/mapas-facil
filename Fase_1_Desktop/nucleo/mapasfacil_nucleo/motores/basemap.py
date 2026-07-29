@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from mapasfacil_nucleo import cofre
+from mapasfacil_nucleo.acervo import rasters as acervo_rasters
 from mapasfacil_nucleo.camadas import catalogo as catalogo_mod
 from mapasfacil_nucleo.camadas import wms
 from mapasfacil_nucleo.erros import ErroNucleo
@@ -220,8 +221,23 @@ def buscar(
             continue
 
         try:
-            chave = _authkey(camada)
-            if camada.get("auth") and not chave:
+            entrada_acervo = acervo_rasters.obter(
+                camada_id,
+                extent,
+                f"EPSG:{epsg}",
+                largura,
+                endpoint=camada.get("endpoint"),
+                camada=camada.get("layer"),
+            )
+            if entrada_acervo is not None:
+                imagem = entrada_acervo.imagem
+                origem_acervo = "hit"
+            else:
+                imagem = None
+                origem_acervo = "miss"
+
+            chave = _authkey(camada) if imagem is None else None
+            if imagem is None and camada.get("auth") and not chave:
                 tentativas.append(
                     {
                         "camada": camada_id,
@@ -231,20 +247,21 @@ def buscar(
                 )
                 continue
 
-            resposta = wms.buscar_mapa(
-                camada["endpoint"],
-                camada["layer"],
-                extent,
-                f"EPSG:{epsg}",
-                authkey=chave,
-                largura=largura,
-            )
+            if imagem is None:
+                resposta = wms.buscar_mapa(
+                    camada["endpoint"],
+                    camada["layer"],
+                    extent,
+                    f"EPSG:{epsg}",
+                    authkey=chave,
+                    largura=largura,
+                )
+                imagem = resposta.get("imagem") or resposta.get("corpo")
         except Exception as exc:  # noqa: BLE001 — rede/serviço não derruba o mapa
             codigo = getattr(exc, "codigo", type(exc).__name__)
             tentativas.append({"camada": camada_id, "erro": codigo, "detalhe": str(exc)})
             continue
 
-        imagem = resposta.get("imagem") or resposta.get("corpo")
         if not isinstance(imagem, (bytes, bytearray)) or not wms.eh_imagem(bytes(imagem)):
             tentativas.append(
                 {"camada": camada_id, "erro": "NU-110", "detalhe": "resposta não é imagem"}
@@ -264,6 +281,17 @@ def buscar(
                 }
             )
             continue
+
+        if origem_acervo == "miss":
+            acervo_rasters.salvar(
+                camada_id,
+                extent,
+                f"EPSG:{epsg}",
+                largura,
+                bytes(imagem),
+                endpoint=camada.get("endpoint"),
+                camada=camada.get("layer"),
+            )
 
         assinatura = hashlib.sha256(
             f"{camada_id}|{epsg}|{extent}|{largura}".encode()
@@ -288,6 +316,7 @@ def buscar(
             # quem escreve o metadado precisa saber para não mentir a data.
             "ano_exato": camada.get("ano_exato", True),
             "bytes": len(imagem),
+            "origem_acervo": origem_acervo,
             "tentativas": tentativas,
         }
 

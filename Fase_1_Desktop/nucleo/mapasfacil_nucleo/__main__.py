@@ -8,6 +8,9 @@ from typing import Any, Callable, TextIO
 from mapasfacil_nucleo import doctor, leitor_artefato, sessao
 from mapasfacil_nucleo import cofre, jobs
 from mapasfacil_nucleo.agente import servico as agente_servico
+from mapasfacil_nucleo.analise import executar as analise_executar
+from mapasfacil_nucleo.analise.progresso import RastreadorProgressoSerie
+from mapasfacil_nucleo.analise.serie import RECEITAS as RECEITAS_ANALISE
 from mapasfacil_nucleo.camadas import catalogo as catalogo_camadas
 from mapasfacil_nucleo.camadas.resolver import resolver_camada
 from mapasfacil_nucleo.contas import servico as contas_servico
@@ -66,6 +69,7 @@ def criar_roteador() -> Roteador:
     roteador.registrar("galeria.listar", galeria_servico.listar)
     roteador.registrar("galeria.detalhar", galeria_servico.detalhar)
     roteador.registrar("galeria.montar_mapspec", galeria_servico.montar)
+    roteador.registrar("analise.executar", _handler_analise_executar, com_eventos=True)
     roteador.registrar("conta.criar", contas_servico.criar)
     roteador.registrar("conta.entrar", contas_servico.entrar)
     roteador.registrar("conta.sair", contas_servico.sair)
@@ -175,6 +179,65 @@ def _handler_mapa_gerar(params: dict[str, Any], emissor: Emissor) -> dict[str, A
             comparar_baseline=comparar_baseline,
             recibo=_recibo_do_estado(estado),
             progresso=RastreadorProgresso(emissor.emitir, job_id=job_id),
+        )
+    finally:
+        jobs.liberar(job_id)
+
+
+def _handler_analise_executar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
+    """Executa o card Análise de área usando a série real, não um MapSpec fictício."""
+    sessao.exigir_conectado("gerar a série de análise de área")
+    estado = workspace_servico.estado_atual()
+    if estado is None:
+        raise ErroNucleo("NU-040", "Abra um workspace antes de gerar a análise de área.")
+
+    fontes = _fontes_idx_do_estado(estado)
+    atp_rel = fontes.get("ATP")
+    if not isinstance(atp_rel, str) or not atp_rel:
+        raise ErroNucleo(
+            "NU-233",
+            "A análise de área precisa de um polígono ATP no workspace.",
+            {"requisitos_faltando": ["ATP"]},
+        )
+
+    apenas_bruto = params.get("apenas")
+    if apenas_bruto is not None and (
+        not isinstance(apenas_bruto, list)
+        or not all(isinstance(item, str) and item for item in apenas_bruto)
+    ):
+        raise ErroNucleo("NU-001", "Parâmetro 'apenas' inválido.")
+    apenas = tuple(apenas_bruto) if isinstance(apenas_bruto, list) else None
+    ids_receitas = {receita.id for receita in RECEITAS_ANALISE}
+    ids_invalidos = sorted(set(apenas or ()) - ids_receitas)
+    if apenas is not None and (not apenas or ids_invalidos):
+        raise ErroNucleo(
+            "NU-001",
+            "Parâmetro 'apenas' precisa listar receitas válidas da análise.",
+            {"ids_invalidos": ids_invalidos},
+        )
+    preparar_camadas = params.get("preparar_camadas", True)
+    if not isinstance(preparar_camadas, bool):
+        raise ErroNucleo("NU-001", "Parâmetro 'preparar_camadas' inválido.")
+
+    total = len([r for r in RECEITAS_ANALISE if not apenas or r.id in apenas])
+    job_id = jobs.registrar()
+    progresso = RastreadorProgressoSerie(
+        emissor.emitir,
+        job_id=job_id,
+        total_mapas=total,
+    )
+
+    def _verificar_cancelamento(_fase: str, _item: str, _indice: int, _total: int) -> None:
+        jobs.verificar_nao_cancelado(job_id)
+
+    try:
+        return analise_executar.executar(
+            guard=estado.guard,
+            atp_rel=atp_rel,
+            apenas=apenas,
+            ao_progresso=_verificar_cancelamento,
+            progresso=progresso,
+            preparar_camadas=preparar_camadas,
         )
     finally:
         jobs.liberar(job_id)
@@ -426,7 +489,7 @@ def loop_ndjson(
     # Eventos fora de req (A12 `workspace.mudou`) usam o mesmo canal stdout.
     configurar_sink_assincrono(_emitir)
 
-    metodos_em_background = frozenset({"mapa.gerar", "chat.enviar"})
+    metodos_em_background = frozenset({"mapa.gerar", "analise.executar", "chat.enviar"})
     threads_bg: list[threading.Thread] = []
 
     def _em_background(linha: str) -> None:

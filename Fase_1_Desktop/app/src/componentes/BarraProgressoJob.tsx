@@ -43,6 +43,41 @@ export function BarraProgressoJob({ ativo = false, onCancelar }: PropsBarraProgr
     <div id="barra-progresso-job" className={estilos.barra}>
       {progresso === null ? (
         <p className={estilos.semEvento}>gerando…</p>
+      ) : progresso.serie !== undefined ? (
+        <>
+          <div
+            className={estilos.trilhaSerie}
+            role="progressbar"
+            aria-label="progresso da série de análise de área"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progresso.pct}
+            aria-valuetext={`${progresso.pct}% · ${progresso.serie.mensagem}`}
+          >
+            <span className={estilos.preenchimentoSerie} style={{ width: `${progresso.pct}%` }} />
+          </div>
+          <p className={estilos.linha} aria-live="polite">
+            <span>{progresso.serie.mensagem}</span>
+            {progresso.serie.indice !== undefined && progresso.serie.total !== undefined && (
+              <span className={`${estilos.item} mf-num`}>
+                {progresso.serie.indice}/{progresso.serie.total}
+              </span>
+            )}
+            <span className={`${estilos.pct} mf-num`}>{progresso.pct}%</span>
+          </p>
+          <ol className={estilos.passosSerie} aria-label="passos recentes da análise">
+            {progresso.historicoSerie.map((passo, indice) => (
+              <li
+                key={`${passo.fase}-${passo.indice ?? 0}-${passo.mensagem}-${indice}`}
+                className={estilos.passoSerie}
+                data-fase={passo.fase}
+              >
+                <span className={estilos.marcaSerie} aria-hidden="true" />
+                <span>{passo.mensagem}</span>
+              </li>
+            ))}
+          </ol>
+        </>
       ) : (
         <>
           <div

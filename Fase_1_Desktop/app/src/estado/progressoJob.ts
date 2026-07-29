@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 
-import type { DadosJobProgresso, EnvelopeEvento } from "./eventos.js";
+import type { DadosJobProgresso, DadosProgressoSerie, EnvelopeEvento } from "./eventos.js";
 import { ETAPAS_JOB, ehJobProgresso, indiceDaEtapa, pctAoConcluir } from "./eventos.js";
 import { assinarEventos } from "./ponte.js";
 
@@ -23,6 +23,10 @@ export interface EstadoProgressoJob {
   concluidas: number;
   /** A10 — para `mapa.cancelar`. */
   jobId?: string;
+  /** Passo estruturado atual da série de 20 mapas. */
+  serie?: DadosProgressoSerie;
+  /** Últimos passos reais, para a timeline compacta do job. */
+  historicoSerie: DadosProgressoSerie[];
 }
 
 /**
@@ -43,8 +47,14 @@ export function aplicarProgresso(
   const fechou = pct >= pctAoConcluir(dados.etapa);
   const concluidas = Math.max(anterior?.concluidas ?? 0, fechou ? indice + 1 : indice);
 
-  // Evento atrasado (pct menor que o já visto) não pode reescrever a etapa corrente.
-  if (anterior !== null && indice < anterior.indice) {
+  const historicoSerie =
+    dados.serie === undefined
+      ? (anterior?.historicoSerie ?? [])
+      : acrescentarPasso(anterior?.historicoSerie ?? [], dados.serie);
+
+  // Evento atrasado comum não reescreve a etapa. Na série, cada mapa reinicia
+  // as dez etapas; o percentual global continua monotônico e é a autoridade.
+  if (dados.serie === undefined && anterior !== null && indice < anterior.indice) {
     return { ...anterior, pct, concluidas };
   }
 
@@ -54,6 +64,8 @@ export function aplicarProgresso(
     pct,
     ...(dados.item === undefined ? {} : { item: dados.item }),
     concluidas,
+    historicoSerie,
+    ...(dados.serie === undefined ? {} : { serie: dados.serie }),
     ...(dados.job_id !== undefined
       ? { jobId: dados.job_id }
       : anterior?.jobId !== undefined
@@ -63,7 +75,22 @@ export function aplicarProgresso(
 }
 
 function criarInicial(): EstadoProgressoJob {
-  return { etapa: ETAPAS_JOB[0].id, indice: 0, pct: 0, concluidas: 0 };
+  return { etapa: ETAPAS_JOB[0].id, indice: 0, pct: 0, concluidas: 0, historicoSerie: [] };
+}
+
+function acrescentarPasso(
+  anterior: DadosProgressoSerie[],
+  passo: DadosProgressoSerie,
+): DadosProgressoSerie[] {
+  const ultimo = anterior.at(-1);
+  if (
+    ultimo?.fase === passo.fase &&
+    ultimo.mensagem === passo.mensagem &&
+    ultimo.indice === passo.indice
+  ) {
+    return anterior;
+  }
+  return [...anterior, passo].slice(-8);
 }
 
 /** Verdadeiro quando o job chegou ao fim das 10 etapas. */

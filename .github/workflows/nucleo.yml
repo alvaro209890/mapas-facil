@@ -43,6 +43,14 @@ jobs:
           COVERAGE_RCFILE: ${{ github.workspace }}/Fase_1_Desktop/nucleo/pyproject.toml
         run: pytest --cov=mapasfacil_nucleo --cov-report=term-missing
 
+      - name: Publicar diagnóstico do golden de anatomia
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-anatomia-diagnostico
+          path: output/golden-anatomia/
+          if-no-files-found: ignore
+
       - name: Cobertura fsguard (100%)
         env:
           COVERAGE_RCFILE: ${{ github.workspace }}/Fase_1_Desktop/nucleo/pyproject.toml

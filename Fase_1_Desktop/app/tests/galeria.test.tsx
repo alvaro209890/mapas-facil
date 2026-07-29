@@ -21,6 +21,7 @@ const MODELOS = {
       tags: ["dinamica"],
       orientacao: "retrato",
       preview: "previews/dinamica_2026_retrato.png",
+      tipo_execucao: "mapspec",
       status: "parcial",
       motivo: "template parcial (offsets pendentes)",
       requisitos_faltando: [],
@@ -32,8 +33,21 @@ const MODELOS = {
       tags: ["uc"],
       orientacao: "paisagem",
       preview: "previews/uc_paisagem.png",
+      tipo_execucao: "mapspec",
       status: "indisponivel",
       motivo: "template ainda não preparado no ArcMap",
+      requisitos_faltando: [],
+    },
+    {
+      id: "analise_de_area",
+      nome: "Análise de área",
+      subtitulo: "Série completa · 20 mapas",
+      tags: ["analise"],
+      orientacao: "retrato",
+      preview: "previews/dinamica_2026_quantitativos.png",
+      tipo_execucao: "analise_de_area",
+      status: "pronto",
+      motivo: null,
       requisitos_faltando: [],
     },
   ],
@@ -106,5 +120,31 @@ describe("Galeria (D8)", () => {
     await userEvent.click(screen.getByRole("button", { name: "Montar MapSpec" }));
     await waitFor(() => expect(document.getElementById("painel-mapspec")).toBeInTheDocument());
     expect(document.getElementById("painel-mapspec")).toHaveTextContent('"template": "dinamica_retrato"');
+  });
+
+  it("um clique no card Análise de área inicia a série real sem montar MapSpec fictício", async () => {
+    const ponte = ligarPonteFake({
+      respostas: {
+        "doctor.rodar": { ok: true, resultado: RELATORIO },
+        "galeria.listar": { ok: true, resultado: MODELOS },
+        "analise.executar": {
+          ok: true,
+          resultado: {
+            resumo: { total: 20, gerados: 20, falhas: 0 },
+            compilado: { pdf: "Mapas/Analise_de_area.pdf", paginas: 20 },
+          },
+        },
+      },
+    });
+    render(<App />);
+    await waitFor(() => expect(screen.getByText("Análise de área")).toBeInTheDocument());
+
+    await userEvent.click(document.getElementById("cartao-modelo-analise_de_area")!);
+
+    await waitFor(() =>
+      expect(ponte.chamadas.map((c) => c.metodo)).toContain("analise.executar"),
+    );
+    expect(ponte.chamadas.map((c) => c.metodo)).not.toContain("galeria.montar_mapspec");
+    expect(ponte.chamadas.map((c) => c.metodo)).not.toContain("galeria.detalhar");
   });
 });

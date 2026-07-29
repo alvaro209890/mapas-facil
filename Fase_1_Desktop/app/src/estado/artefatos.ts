@@ -7,7 +7,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import type { DadosJobArtefatoParcial, EnvelopeEvento } from "./eventos.js";
+import type {
+  DadosJobArtefatoParcial,
+  DadosProgressoSerie,
+  EnvelopeEvento,
+} from "./eventos.js";
 import { ehJobArtefatoParcial } from "./eventos.js";
 import { api, assinarEventos } from "./ponte.js";
 
@@ -28,6 +32,8 @@ export interface EstadoArtefatos {
   pdf: string | null;
   /** Quantos artefatos chegaram — o teste usa para provar que nada foi simulado. */
   total: number;
+  /** Contexto da série a que pertence o último artefato. */
+  serie: DadosProgressoSerie | null;
 }
 
 export const ARTEFATOS_INICIAL: EstadoArtefatos = {
@@ -36,6 +42,7 @@ export const ARTEFATOS_INICIAL: EstadoArtefatos = {
   tabelaPng: null,
   pdf: null,
   total: 0,
+  serie: null,
 };
 
 /** Aplica um `job.artefato_parcial` ao estado anterior. Pura: é o que o teste exercita. */
@@ -43,7 +50,11 @@ export function aplicarArtefato(
   anterior: EstadoArtefatos,
   dados: DadosJobArtefatoParcial,
 ): EstadoArtefatos {
-  const base = { ...anterior, total: anterior.total + 1 };
+  const base = {
+    ...anterior,
+    total: anterior.total + 1,
+    serie: dados.serie ?? anterior.serie,
+  };
   switch (dados.tipo) {
     case "camada": {
       const camadaId = dados.camada_id ?? dados.caminho;

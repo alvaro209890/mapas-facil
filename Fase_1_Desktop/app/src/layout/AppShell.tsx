@@ -304,12 +304,12 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
           />
           <div className={estilos.rodapeChat}>
             <BarraProgressoJob
-              ativo={progressoJob !== null}
+              ativo={galeria.executandoSerie || progressoJob !== null}
               onCancelar={
-                progressoJob !== null
+                galeria.executandoSerie || progressoJob !== null
                   ? () => {
                       void api()?.chamar("mapa.cancelar", {
-                        ...(progressoJob.jobId !== undefined
+                        ...(progressoJob?.jobId !== undefined
                           ? { job_id: progressoJob.jobId }
                           : {}),
                       });
@@ -372,8 +372,17 @@ export function AppShell({ nucleo, banner }: PropsAppShell) {
               modelos={galeria.modelos}
               situacao={galeria.situacao}
               erro={galeria.erro}
-              aoAbrir={(id) => void galeria.detalhar(id)}
-              selecionado={null}
+              aoAbrir={(id) => {
+                const modelo = galeria.modelos.find((item) => item.id === id);
+                if (modelo?.tipo_execucao === "analise_de_area") {
+                  setAbaDireita("preview");
+                  void galeria.executarSerie();
+                  return;
+                }
+                void galeria.detalhar(id);
+              }}
+              selecionado={galeria.executandoSerie ? "analise_de_area" : null}
+              ocupado={galeria.executandoSerie}
             />
           )}
           {abaDireita === "galeria" &&

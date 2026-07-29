@@ -20,7 +20,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
-| J — Análise de área (série de 20 mapas) | — | **fechado no PDF** (2026-07-29) — 20/20 gerados na Aruanã, 19/20 aprovados na anatomia, publicados em `analises.cursar.space`. Falta card na galeria, progresso no front, Groq e os `.mxd` (Fase W) |
+| J — Análise de área (série de 20 mapas) | — | **fechado no desktop para PDF** (2026-07-29) — card, progresso real, golden no CI e acervo raster entregues; 20/20 gerados na Aruanã, 19/20 aprovados. Groq é opcional sem chave; `.mxd` fica na Fase W |
 
 **Backlog desktop sem ArcMap: esgotado** (a série Análise de área foi a última coisa que dava
 para fechar aqui). Ordem do que resta: **M9 → M10 → M11**. Fase 2 começa após M11.
@@ -88,8 +88,10 @@ rodada: [`../../docs/analise-de-area-serie.md`](../../docs/analise-de-area-serie
 | J9 | PDF compilado na ordem de entrega | [x] | `Mapas/Analise_de_area.pdf`, 20 páginas |
 | J10 | Validação de anatomia mapa a mapa | [x] | 19/20 verdes; a exceção é falta de dado (TCR), não de layout |
 | J11 | Entrega ao cliente por link | [x] | `analises.cursar.space` — **sem senha**, ver [`../../docs/analise-entrega-cloudflare.md`](../../docs/analise-entrega-cloudflare.md) |
-| J12 | Card "Análise de área" na galeria + progresso no front | [ ] | depende de destravar `galeria/estado.py` para saída nativa |
+| J12 | Card "Análise de área" na galeria + progresso no front | [x] | `tipo_execucao: analise_de_area`; um clique chama `analise.executar`; barra e histórico consomem `job.progresso`/`job.artefato_parcial` reais |
 | J13 | Groq Vision na validação | [ ] | chave ainda não existe no cofre |
+| J14 | Golden determinístico de anatomia no CI | [x] | `test_golden_anatomia.py`, PNG versionado, tolerância 0,3% e artefato de diff em falha |
+| J15 | Acervo compartilhado de rasters | [x] | `acervo/rasters.py`; chave por fonte+bbox+CRS+largura, SHA-256 e reuso entre workspaces |
 | J14 | Os 20 `.mxd` da série no Windows | [ ] | Fase W do GOAL — sem intervenção humana |
 
 ## Bloco B — Motor `.mxd` (M2)
@@ -143,7 +145,7 @@ Plano: [F1-15](15-galeria-de-modelos.md).
 
 | # | Tarefa | Feito | Arquivo |
 |---|---|---|---|
-| D1 | `modelos.json` com os 5 modelos + schema | [x] | `shared/galeria/modelos.json`, `schema.json`, `README.md` |
+| D1 | `modelos.json` com 6 cards + schema v2 | [x] | 5 modelos MapSpec + `analise_de_area`; `tipo_execucao` explícito |
 | D2 | Previews PNG extraídos de `Referencias_IMAP/Mapas/01/` | [x] | `shared/galeria/previews/` (+ cópia em `app/public/galeria/` para o renderer) |
 | D3 | Carga e validação do catálogo | [x] | `nucleo/.../galeria/catalogo.py` |
 | D4 | Cálculo de `status` (MANIFEST × índice) | [x] | `nucleo/.../galeria/estado.py` |
@@ -151,7 +153,7 @@ Plano: [F1-15](15-galeria-de-modelos.md).
 | D6 | Métodos `galeria.*` no roteador | [x] | `galeria.listar` / `detalhar` / `montar_mapspec` em `__main__.py` |
 | D7 | Erros `NU-230`…`NU-234` | [x] | códigos usados em `catalogo`/`montar` via `ErroNucleo` |
 | D8 | `painel-galeria` + `painel-galeria-detalhe` + `CartaoModelo` | [x] | `app/src/paineis/Galeria*.tsx`, `CartaoModelo.tsx`; `app/tests/galeria.test.tsx` |
-| D9 | Testes de determinismo e de requisito ausente | [x] | `nucleo/tests/test_galeria.py` (9 testes) |
+| D9 | Testes de determinismo, requisitos e gate por saída | [x] | `nucleo/tests/test_galeria.py` (15 testes) |
 
 ## Bloco E — Conta local (M5)
 

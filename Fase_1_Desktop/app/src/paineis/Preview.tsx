@@ -99,7 +99,8 @@ export function Preview({ mapspec, progresso, artefatos }: PropsPreview) {
 
   const camadaVisual = pilhaImagem.atual;
 
-  if (mapspec === null) {
+  const contextoSerie = prog?.serie ?? arte.serie;
+  if (mapspec === null && contextoSerie === null && arte.previewPng === null) {
     return (
       <div id="painel-preview" className={estilos.raiz}>
         <EstadoVazio
@@ -110,10 +111,10 @@ export function Preview({ mapspec, progresso, artefatos }: PropsPreview) {
     );
   }
 
-  const camadas = [...(mapspec.camadas ?? [])].sort(
+  const camadas = [...(mapspec?.camadas ?? [])].sort(
     (a, b) => (a.ordem ?? 0) - (b.ordem ?? 0),
   );
-  const elementos = Object.entries(mapspec.elementos_layout ?? {})
+  const elementos = Object.entries(mapspec?.elementos_layout ?? {})
     .filter(([nome, ligado]) => ligado && ETAPA_DO_ELEMENTO[nome] !== undefined)
     .map(([nome]) => nome);
 
@@ -122,7 +123,11 @@ export function Preview({ mapspec, progresso, artefatos }: PropsPreview) {
       <div
         className={estilos.palco}
         data-fase={camadaVisual === null ? "esqueleto" : "artefato"}
-        data-final={arte.pdf === null ? "nao" : "sim"}
+        data-final={
+          contextoSerie?.fase === "concluido" || (contextoSerie === null && arte.pdf !== null)
+            ? "sim"
+            : "nao"
+        }
       >
         {pilhaImagem.previa !== null && (
           <img className={estilos.imagem} src={pilhaImagem.previa} alt="" data-camada="previa" />
@@ -132,12 +137,12 @@ export function Preview({ mapspec, progresso, artefatos }: PropsPreview) {
             key={camadaVisual}
             className={`${estilos.imagem} ${estilos.entrando}`}
             src={camadaVisual}
-            alt={`pré-visualização de ${mapspec.titulo ?? "mapa"} em construção`}
+            alt={`pré-visualização de ${mapspec?.titulo ?? contextoSerie?.mapa_nome ?? "análise de área"} em construção`}
             data-camada="atual"
             data-artefato={arte.previewPng ?? undefined}
           />
         )}
-        {camadaVisual === null && (
+        {camadaVisual === null && camadas.length > 0 && (
           <ul className={estilos.pilha} aria-label="camadas do mapa">
             {camadas.map((camada) => (
               <li
@@ -165,10 +170,29 @@ export function Preview({ mapspec, progresso, artefatos }: PropsPreview) {
             ))}
           </ul>
         )}
+        {camadaVisual === null && camadas.length === 0 && contextoSerie !== null && (
+          <div className={estilos.serie} data-fase-serie={contextoSerie.fase}>
+            <span className={estilos.serieSelo}>Análise de área</span>
+            <strong>{contextoSerie.mapa_nome ?? "Série de 20 mapas"}</strong>
+            <span>{contextoSerie.mensagem}</span>
+            {contextoSerie.indice !== undefined && contextoSerie.total !== undefined && (
+              <span className="mf-num">
+                {contextoSerie.indice} de {contextoSerie.total}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <p className={estilos.rodape} aria-live="polite">
-        {arte.pdf !== null ? (
+        {contextoSerie !== null ? (
+          <>
+            <span className={contextoSerie.fase === "concluido" ? estilos.final : undefined}>
+              {contextoSerie.mensagem}
+            </span>
+            {prog !== null && <span className={`${estilos.pct} mf-num`}>{prog.pct}%</span>}
+          </>
+        ) : arte.pdf !== null ? (
           <span className={estilos.final}>PDF pronto · {arte.pdf}</span>
         ) : prog !== null ? (
           <>

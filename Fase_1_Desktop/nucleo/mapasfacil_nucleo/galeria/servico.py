@@ -6,9 +6,22 @@ from typing import Any
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria.catalogo import carregar_galeria, obter_modelo
-from mapasfacil_nucleo.galeria.estado import avaliar_status, fontes_do_indice
+from mapasfacil_nucleo.galeria.estado import SAIDAS_VALIDAS, avaliar_status, fontes_do_indice
 from mapasfacil_nucleo.galeria.montar import montar_mapspec
 from mapasfacil_nucleo.workspace import servico as workspace_servico
+
+
+def _saidas_pedidas(params: dict[str, Any]) -> list[str] | None:
+    saidas = params.get("saidas_pedidas")
+    if saidas is None:
+        return None
+    if (
+        not isinstance(saidas, list)
+        or not saidas
+        or not all(isinstance(s, str) and s in SAIDAS_VALIDAS for s in saidas)
+    ):
+        raise ErroNucleo("NU-001", "Parâmetro 'saidas_pedidas' inválido.")
+    return saidas
 
 
 def _indice_opcional(workspace: str | None) -> dict[str, Any] | None:
@@ -29,11 +42,12 @@ def listar(params: dict[str, Any]) -> dict[str, Any]:
     workspace = params.get("workspace")
     if workspace is not None and not isinstance(workspace, str):
         raise ErroNucleo("NU-001", "Parâmetro 'workspace' inválido.")
+    saidas_pedidas = _saidas_pedidas(params)
     galeria = carregar_galeria()
     indice = _indice_opcional(workspace)
     modelos = []
     for modelo in galeria["modelos"]:
-        estado = avaliar_status(modelo, indice)
+        estado = avaliar_status(modelo, indice, saidas_pedidas)
         modelos.append(
             {
                 "id": modelo["id"],
@@ -42,6 +56,7 @@ def listar(params: dict[str, Any]) -> dict[str, Any]:
                 "tags": modelo.get("tags", []),
                 "orientacao": modelo["orientacao"],
                 "preview": modelo["preview"],
+                "tipo_execucao": modelo.get("tipo_execucao", "mapspec"),
                 "status": estado["status"],
                 "motivo": estado.get("motivo"),
                 "requisitos_faltando": estado.get("requisitos_faltando", []),
@@ -57,10 +72,11 @@ def detalhar(params: dict[str, Any]) -> dict[str, Any]:
     workspace = params.get("workspace")
     if workspace is not None and not isinstance(workspace, str):
         raise ErroNucleo("NU-001", "Parâmetro 'workspace' inválido.")
+    saidas_pedidas = _saidas_pedidas(params)
 
     modelo = obter_modelo(modelo_id)
     indice = _indice_opcional(workspace)
-    estado = avaliar_status(modelo, indice)
+    estado = avaliar_status(modelo, indice, saidas_pedidas)
     fontes = fontes_do_indice(indice)
     mapeamento: dict[str, str] = {}
     for req in modelo.get("requisitos_camadas") or []:

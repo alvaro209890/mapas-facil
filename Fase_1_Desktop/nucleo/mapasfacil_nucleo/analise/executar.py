@@ -24,6 +24,7 @@ from shapely.ops import unary_union
 from mapasfacil_nucleo.analise import preparar as preparar_mod
 from mapasfacil_nucleo.analise import serie as serie_mod
 from mapasfacil_nucleo.analise.identidade import IdentidadeImovel, identificar
+from mapasfacil_nucleo.analise.progresso import RastreadorProgressoSerie
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
@@ -94,6 +95,7 @@ def executar(
     apenas: tuple[str, ...] | None = None,
     modelos: Path | None = None,
     ao_progresso: Callable[[str, str, int, int], None] | None = None,
+    progresso: RastreadorProgressoSerie | None = None,
     preparar_camadas: bool = True,
 ) -> dict[str, Any]:
     """Executa a série e devolve o relatório completo.
@@ -105,7 +107,11 @@ def executar(
     imovel = _geometria_do_atp(guard, atp_rel)
     bbox = tuple(imovel.bounds)  # type: ignore[assignment]
 
+    if progresso:
+        progresso.iniciar_identidade()
     identidade = identificar(imovel, guard=guard, epsg=epsg)
+    if progresso:
+        progresso.concluir_identidade(identidade.rotulo)
     if ao_progresso:
         ao_progresso("identidade", identidade.rotulo, 0, 0)
 
@@ -113,14 +119,21 @@ def executar(
     folga_maxima = max((r.folga_extent for r in receitas), default=1.12)
 
     if preparar_camadas:
+        if progresso:
+            progresso.iniciar_camadas()
+
+        def _camada_pronta(papel: str, i: int, t: int) -> None:
+            if ao_progresso:
+                ao_progresso("camada", papel, i, t)
+            if progresso:
+                progresso.camada(papel, i, t)
+
         preparacao = preparar_mod.preparar(
             guard=guard,
             atp_rel=atp_rel,
             extent=_extent_com_folga(bbox, folga_maxima),
             epsg=epsg,
-            ao_progresso=(
-                (lambda papel, i, t: ao_progresso("camada", papel, i, t)) if ao_progresso else None
-            ),
+            ao_progresso=_camada_pronta if (ao_progresso or progresso) else None,
         )
     else:
         preparacao = _preparacao_do_disco(guard)
@@ -129,21 +142,38 @@ def executar(
     for indice, receita in enumerate(receitas, start=1):
         if ao_progresso:
             ao_progresso("mapa", receita.nome, indice, len(receitas))
-        resultados.append(
-            _gerar_um(
-                receita,
-                identidade=identidade,
-                preparacao=preparacao,
-                guard=guard,
-                epsg=epsg,
-                modelos=modelos,
-            )
+        if progresso:
+            progresso.iniciar_mapa(receita, indice)
+        resultado_mapa = _gerar_um(
+            receita,
+            identidade=identidade,
+            preparacao=preparacao,
+            guard=guard,
+            epsg=epsg,
+            modelos=modelos,
+            rastreador=(
+                progresso.rastreador_do_mapa(receita, indice) if progresso else None
+            ),
         )
+        resultados.append(resultado_mapa)
+        if progresso:
+            progresso.concluir_mapa(
+                receita,
+                indice,
+                ok=resultado_mapa.ok,
+                erro=resultado_mapa.erro,
+            )
 
     compilado = None
     pdfs_ok = [r for r in resultados if r.ok and r.pdf]
     if len(pdfs_ok) > 1:
+        if ao_progresso:
+            ao_progresso("compilando", NOME_COMPILADO, len(pdfs_ok), len(pdfs_ok))
+        if progresso:
+            progresso.iniciar_compilacao(len(pdfs_ok))
         compilado = _compilar(guard, [r.pdf for r in pdfs_ok if r.pdf])
+        if progresso and compilado:
+            progresso.artefato_compilado(compilado["pdf"], compilado["paginas"])
 
     relatorio = {
         "imovel": identidade.para_ndjson(),
@@ -164,6 +194,12 @@ def executar(
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
     relatorio["relatorio"] = str(destino.relative_to(guard.raiz))
+    if progresso:
+        progresso.concluir(
+            gerados=relatorio["resumo"]["gerados"],
+            total=relatorio["resumo"]["total"],
+            relatorio=relatorio["relatorio"],
+        )
     return relatorio
 
 
@@ -191,6 +227,7 @@ def _gerar_um(
     guard: WorkspaceGuard,
     epsg: int,
     modelos: Path | None,
+    rastreador: Any = None,
 ) -> ResultadoMapa:
     t0 = time.time()
     resultado = ResultadoMapa(id=receita.id, ordem=receita.ordem, nome=receita.nome, ok=False)
@@ -203,13 +240,20 @@ def _gerar_um(
             crs=f"EPSG:{epsg}",
         )
         resultado.camadas = [c["id"] for c in mapspec["camadas"]]
-        saida = gerar_mapa(mapspec, guard, dict(preparacao.fontes_idx))
+        saida = gerar_mapa(
+            mapspec,
+            guard,
+            dict(preparacao.fontes_idx),
+            progresso=rastreador,
+        )
         resultado.pdf = saida.get("pdf")
         resultado.avisos = list(saida.get("avisos") or [])
         artefatos = saida.get("artefatos") or {}
         resultado.basemap = (artefatos.get("basemap") or {}) if isinstance(artefatos, dict) else {}
         resultado.ok = bool(resultado.pdf)
     except Exception as exc:  # noqa: BLE001 — um mapa não derruba a série
+        if getattr(exc, "codigo", None) == "NU-050":
+            raise
         resultado.erro = f"{getattr(exc, 'codigo', type(exc).__name__)}: {getattr(exc, 'mensagem', exc)}"
     resultado.segundos = time.time() - t0
 
