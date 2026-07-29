@@ -30,6 +30,8 @@ IBAMA/MapBiomas, gera os **20 mapas do acervo do Julio** e o PDF compilado, e me
 contra o seu modelo: **20/20 gerados, 19/20 aprovados na anatomia**. A única reprovação é o TCR,
 por falta do número do termo — dado que não existe em WFS público.
 Detalhe da rodada e os 7 bugs corrigidos: [`docs/analise-de-area-serie.md`](docs/analise-de-area-serie.md).
+Entrega ao cliente (https://analises.cursar.space, **sem senha** por decisão de 2026-07-29):
+[`docs/analise-entrega-cloudflare.md`](docs/analise-entrega-cloudflare.md).
 Contrato e o que falta (card na galeria, progresso no front, Groq, Fase W no Windows):
 [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md), conferível com
 `python3 ferramentas/validar_goal_analise.py`.

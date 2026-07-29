@@ -31,6 +31,9 @@ Scripts presentes:
 | `fechar_m9_windows.ps1` | orquestra M9: smoke checks + diff raster + pytest |
 | `smoke_m9_harmonia.py` | smoke M9 com `comparar_baseline` e relatório JSON |
 | `validar_goal_analise.py` | confere [`planos/GOAL_analise_de_area.md`](../planos/GOAL_analise_de_area.md) contra o disco (inventário, catálogo, âncoras, segredos) |
+| `medir_modelos_serie.py` | mede a anatomia dos 20 PDFs-modelo → `shared/padrao-imap/anatomia_serie.json` |
+| `amostrar_cores_modelo.py` | amostra as cores oficiais nos quadradinhos de legenda dos modelos |
+| `publicar_analise.py` | publica os PDFs de uma análise em https://analises.cursar.space (**sem senha** — ver [`docs/analise-entrega-cloudflare.md`](../docs/analise-entrega-cloudflare.md)) |
 | Roteiro paridade &lt; 0,3% | [`docs/paridade-visual-harmonia.md`](../docs/paridade-visual-harmonia.md) |
 
 Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):

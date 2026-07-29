@@ -1,0 +1,20 @@
+[Unit]
+Description=Mapas Fácil — entrega das análises (PDFs) em 127.0.0.1:3081
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/Documentos/Mapas_Facil/Fase_2_Site/deploy/servidor_analises.py --raiz %h/MapasFacil_Publicado --porta 3081
+Restart=always
+RestartSec=3
+MemoryMax=512M
+CPUWeight=40
+# Só leitura, e só na pasta de publicação.
+ProtectSystem=strict
+ReadWritePaths=%h/MapasFacil_Publicado
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

@@ -176,7 +176,19 @@ não gasta quota.
 | 5 | TCR e pontos de TAC via `chat.pergunta` | `agente/tools.py` |
 | 6 | Os 20 `.mxd` da série no Windows | §11 do GOAL (Fase W) |
 
-## 9. Testes
+## 9. Entrega ao cliente
+
+Os PDFs de uma análise vão para https://analises.cursar.space com um comando:
+
+```bash
+python3 ferramentas/publicar_analise.py ~/Documentos/MapasFacil_Aruana --slug aruana-i
+```
+
+Servido deste PC pelo tunnel do Cloudflare, **sem senha** por decisão de
+2026-07-29 — o que isso implica e como fechar depois está em
+[`analise-entrega-cloudflare.md`](analise-entrega-cloudflare.md).
+
+## 10. Testes
 
 ```bash
 cd Fase_1_Desktop/nucleo && .venv/bin/python -m pytest -q
