@@ -4,7 +4,7 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
-## Snapshot — o que falta (2026-07-28)
+## Snapshot — o que falta (2026-07-29)
 
 **Rodada 2026-07-28 (Linux, sem ArcMap):** o **motor nativo** passou a desenhar a
 anatomia completa do perfil Harmonia (quadro + grade DMS, título, rosa dos ventos,
@@ -17,7 +17,7 @@ Detalhe, armadilhas e o que ficou aberto: [`docs/motor-nativo-harmonia.md`](docs
 
 | Faixa | Estado |
 |---|---|
-| **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 41/41 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job |
+| **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 43/43 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job + **série Análise de área (20 mapas em PDF)** |
 | **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap. H10 fechou; **5/5 HARD verdes**. Basemap Planet (WMTS) e legenda entram no MXD, mas a paridade **ainda não foi medida** com eles ativos — última medição sem basemap: ~81,6%. Próximo: medir → templates restantes → **M10 → M11** |
 | **Com Windows (sem ArcMap)** | **M10 quase** — instalador **`v0.5.2`** publicado e reproduzível do repo (`pnpm dist`), **com atualização automática** (F1-11 §P2: avisa e atualiza com um clique, a partir desta versão). Os 3 bugs que travavam o piloto (app não abria, login duplicado, WMS manual) estão corrigidos e verificados. **Falta: Authenticode** e instalar num PC limpo → **M11** |
 
@@ -129,7 +129,8 @@ ls shared/galeria                          # M4: modelos.json + previews
 ls Fase_1_Desktop/nucleo/mapasfacil_nucleo # sidecar Python real, v0.4.0
 grep -rn "envelope_evt\|Emissor" --include=*.py Fase_1_Desktop/nucleo/mapasfacil_nucleo
 #   → definição + chamadores: os 10 eventos do vocabulário têm emissor
-cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~457)
+cd Fase_1_Desktop/nucleo && pytest -q      # anel 1 deve ficar verde (~501)
+python3 ferramentas/validar_goal_analise.py # o GOAL da Análise de área × disco
 cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + motion + login (~124)
 ```
 
@@ -139,7 +140,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 |---|---|---|
 | Planos e contratos | escritos; esta rodada os reescreveu para agentes | `planos/`, `Fase_1_Desktop/planos/`, `Fase_2_Site/planos/` |
 | `MapSpec` schema `contract_version: 2` | existe e valida | `shared/schemas/mapspec.schema.json` |
-| Catálogo de camadas (41) | existe | `shared/catalog/camadas.json` |
+| Catálogo de camadas (43) | existe — 41 até 2026-07-28 + as duas autorizações da SEMA (desmate/exploração) | `shared/catalog/camadas.json` |
 | MANIFEST de templates | 1 `parcial` (`dinamica_retrato`), 4 `a_preparar` | `shared/templates/MANIFEST.json` |
 | Acervo de referência | 6 acervos, 84 PDFs + 61 `.mxd`, organizados em `Mapas/01–06` | [`Referencias_IMAP/README.md`](Referencias_IMAP/README.md) |
 | Sidecar Python NDJSON | **45 métodos** (galeria + chat + conta/sessão M5 + `artefato.ler` + `catalogo.listar`/`camada.resolver` A13) | `Fase_1_Desktop/nucleo/` |
@@ -152,7 +153,8 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, **27/27 tools reais** (F1-07 fechou `analisar_referencia`) | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | Visão de referência (F1-07) | **determinístico fechado**; API V4 **sem** imagem (P1 fechada 2026-07-26 — `400 image_url`) — interpretação LLM fica em `IA-060` até a DeepSeek publicar modelo multimodal na API | `nucleo/.../agente/visao/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
-| PDF nativo + overlay da tabela | **anatomia Harmonia completa** (2026-07-28): retrato validado 6/6 contra o PDF-modelo; sem paridade pixel a pixel com o ArcMap | `motores/nativo.py` e `motores/{perfil_pagina,grade_dms,estilos,blocos,basemap}.py` |
+| PDF nativo + overlay da tabela | **retrato e paisagem** (2026-07-29): 19/20 mapas da série verdes na anatomia contra os PDFs-modelo; sem paridade pixel a pixel com o ArcMap | `motores/nativo.py` e `motores/{perfil_pagina,grade_dms,estilos,blocos,basemap}.py` |
+| Série Análise de área | **fechada no PDF** — de `SHP/ATP.shp` a 20 mapas + compilado, com dado real e sem perguntar nada | `nucleo/.../analise/`, `shared/padrao-imap/anatomia_serie.json` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
 | `mapspec.diff`, diff raster de PDF | fechados | `mapspec/diff.py`, `validacao/comparar_pdf.py` |
 | Motor `.mxd` | **parcial**: T2 copia template preparado; T1 é esqueleto | `motores/patch_mxd.py`, `motores/arcpy_ponte.py` |
@@ -280,7 +282,9 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
 | R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf`. **Diff raster só é honesto com o mesmo dado**: para máquina sem ArcMap entrou a métrica de **anatomia** (mm contra o PDF-modelo), hoje 6/6 | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py`, `validacao/anatomia.py` |
-| R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **parcial** (2026-07-28) — perfil **retrato** completo: quadro + grade DMS, título, rosa, estilos oficiais, rótulo, minimapa (retângulo/guia/selo UF), metadados, legenda, logo, tabela e basemap WMS com degradação declarada. Falta paisagem exercitado, golden images no CI e testes dedicados | `nucleo/.../motores/{nativo,perfil_pagina,grade_dms,estilos,blocos,basemap}.py`, `ferramentas/paridade_nativa.py` |
+| R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **feito** (2026-07-29) — **retrato e paisagem** exercitados nos 20 mapas da série, com o layout de cada um medido do seu PDF-modelo, fonte com métrica de Arial e cores amostradas do acervo. Falta só golden image no CI | `nucleo/.../motores/{nativo,perfil_pagina,grade_dms,estilos,blocos,basemap}.py`, `shared/padrao-imap/anatomia_serie.json` |
+| R30 | **Análise de área**: série de 20 mapas a partir só do polígono | [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md) | **feito no PDF** (2026-07-29) — identidade (município + CAR por IoU), 18 camadas do catálogo + 3 derivadas, 20 receitas, PDF compilado e validação de anatomia por mapa. **20/20 gerados, 19/20 verdes** na Aruanã. Falta card na galeria, progresso no front e Groq | `nucleo/.../analise/{identidade,preparar,serie,executar}.py` |
+| R31 | Entrega dos mapas ao cliente por link | [`docs/analise-entrega-cloudflare.md`](docs/analise-entrega-cloudflare.md) | **feito** (2026-07-29) — `analises.cursar.space` deste PC pelo tunnel do Mapas Fácil. **Sem senha, por decisão do dono**: quem tem a URL vê CAR, nome da propriedade e geometria do imóvel | `Fase_2_Site/deploy/servidor_analises.py`, `ferramentas/publicar_analise.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `v0.5.2` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). **Falta a assinatura Authenticode** (SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
 | R28 | Auto-update: o app avisa e atualiza com um clique | [F1-11 §P2](Fase_1_Desktop/planos/11-empacotamento-instalador.md#p2--auto-update) | **feito** (2026-07-27, a partir da `0.5.2`) — `electron-updater` com feed do GitHub; verifica no boot e a cada 4 h; nada baixa nem instala sem clique. **Toda release precisa de tag `vX.Y.Z` e do `latest.yml` publicado** | `app/electron/atualizador.ts`, `app/src/componentes/BarraAtualizacao.tsx` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |

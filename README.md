@@ -10,6 +10,11 @@ cartografia: **você aponta uma pasta e conversa.**
 > **Agente de IA: comece por [`AGENT_BRIEF.md`](AGENT_BRIEF.md)** — snapshot do que falta, estado
 > real do código, ordem dos marcos, gap analysis e anti-padrões vinculantes.
 
+**Análise de área (2026-07-29):** de um shapefile só, o sistema descobre o imóvel (município e
+CAR), busca as camadas na SEMA/FUNAI/IBAMA/MapBiomas e entrega a **série de 20 mapas** do padrão
+IMAP em PDF, mais o compilado — cada página medida contra o modelo do acervo. Como funciona:
+[`docs/analise-de-area-serie.md`](docs/analise-de-area-serie.md).
+
 ## As duas fases
 
 | Fase | O quê | Prioridade |
@@ -37,10 +42,10 @@ Fase 1 (Windows)                    Fase 2 (distribuição)
 | [`planos/`](planos/README.md) | planos comuns às duas fases (visão, `MapSpec`, Harmonia, segurança) |
 | [`Fase_1_Desktop/`](Fase_1_Desktop/README.md) | app desktop Windows — **produto principal** (`app/` + `nucleo/`) |
 | [`Fase_2_Site/`](Fase_2_Site/README.md) | site de distribuição — https://mapasfacil.cursar.space |
-| [`docs/site-download-cloudflare.md`](docs/site-download-cloudflare.md) | download no ar, tunnel, dados locais, DeepSeek no login |
-| [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais |
+| [`docs/`](docs/analise-de-area-serie.md) | rodadas e operação: série Análise de área, entrega ao cliente, site/download, handoff Windows |
+| [`shared/`](shared/README.md) | catálogo de camadas, schema do `MapSpec`, templates operacionais, [anatomia medida dos modelos](shared/padrao-imap/README.md) |
 | [`Referencias_IMAP/`](Referencias_IMAP/README.md) | acervos reais (PDFs-modelo + `.mxd`) — gabarito visual |
-| [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2, smoke DeepSeek |
+| [`ferramentas/`](ferramentas/README.md) | chaves nos `.mxd`, preparação B1/B2, medição dos modelos, publicação das análises |
 
 ## Por que desktop primeiro
 

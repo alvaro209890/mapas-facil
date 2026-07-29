@@ -20,7 +20,7 @@ mesmo commit.
 
 | Meta | Documento | Estado |
 |---|---|---|
-| Análise de área — série completa de mapas com a ATP Aruanã | [`GOAL_analise_de_area.md`](GOAL_analise_de_area.md) | especificação **fechada e validada** (2026-07-29); implementação **não iniciada**. Inclui o roteiro para fechar a parte MXD no Windows sem intervenção humana (§11). Confira com `python3 ferramentas/validar_goal_analise.py` |
+| Análise de área — série completa de mapas com a ATP Aruanã | [`GOAL_analise_de_area.md`](GOAL_analise_de_area.md) | **série em PDF entregue** (2026-07-29): 20/20 mapas gerados na Aruanã, 19/20 aprovados na anatomia, publicados em https://analises.cursar.space. Falta o card na galeria, o progresso no front, a visão Groq e a Fase W (`.mxd` no Windows, §11 — sem intervenção humana). Rodada: [`../docs/analise-de-area-serie.md`](../docs/analise-de-area-serie.md) · confira o documento com `python3 ferramentas/validar_goal_analise.py` |
 
 ## Planos por fase
 

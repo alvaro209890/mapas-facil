@@ -6,8 +6,14 @@ Produção local + Cloudflare Tunnel dedicado → `https://mapasfacil.cursar.spa
 
 | Unidade | Função |
 |---|---|
-| `mapas-facil-site.service` | vinext em `127.0.0.1:3080` |
-| `mapas-facil-tunnel.service` | tunnel dedicado `mapasfacil` |
+| `mapas-facil-site.service` | vinext em `127.0.0.1:3080` — site de download |
+| `mapas-facil-analises.service` | entrega das análises em `127.0.0.1:3081` — `servidor_analises.py` |
+| `mapas-facil-tunnel.service` | tunnel dedicado `mapasfacil` (serve os dois hostnames) |
+
+| Hostname | Aponta para | Doc |
+|---|---|---|
+| `mapasfacil.cursar.space` | site de download (3080) | [`../../docs/site-download-cloudflare.md`](../../docs/site-download-cloudflare.md) |
+| `analises.cursar.space` | PDFs das análises (3081) — **sem senha** | [`../../docs/analise-entrega-cloudflare.md`](../../docs/analise-entrega-cloudflare.md) |
 
 `Linger=yes` no usuário faz os serviços subirem no boot sem login gráfico.
 
@@ -21,6 +27,7 @@ npm run build
 install -m 0755 ../deploy/run-mapas-facil-site.sh ~/.config/systemd/user/
 install -m 0644 ../deploy/mapas-facil-site.service ~/.config/systemd/user/
 install -m 0644 ../deploy/mapas-facil-tunnel.service ~/.config/systemd/user/
+install -m 0644 ../deploy/mapas-facil-analises.service ~/.config/systemd/user/
 
 # tunnel dedicado (uma vez):
 # cloudflared tunnel create mapasfacil

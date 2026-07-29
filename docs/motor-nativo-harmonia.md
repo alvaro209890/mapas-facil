@@ -125,16 +125,19 @@ imagem.
 
 ## 5. O que falta
 
+> **Atualizado em 2026-07-29.** A rodada da série Análise de área fechou os itens 1 e 6 e
+> mudou o 4 — detalhe em [`analise-de-area-serie.md`](analise-de-area-serie.md).
+
 Ordem de dependência, não de calendário.
 
-| # | Item | Onde |
-|---|---|---|
-| 1 | **Perfil paisagem** — os retângulos já estão em `perfil_pagina.PAISAGEM`, falta exercitar e validar contra `Tipologia.pdf` / `Terras_Indigenas.pdf` | `motores/nativo.py`, `blocos.py` |
-| 2 | **Galeria: destravar os 5 modelos pelo caminho nativo** — hoje 4 de 5 ficam `indisponivel` porque exigem template `.mxd` preparado; PDF/PNG/XLSX não deveriam depender disso | `galeria/estado.py`, `galeria/montar.py` |
-| 3 | **Validador F1-09 completo** — os 14 HARD e 11 SOFT, amostragem HSV do perímetro, varredura de texto herdado (S11), `ignorar_hard` justificado e fixture propositalmente quebrado | `validacao/saida.py`, `validacao/anatomia.py` |
-| 4 | **Regressão visual no CI** com golden images + teste de paridade de anatomia contra os PDFs-modelo | `nucleo/tests/`, `.github/workflows/nucleo.yml` |
-| 5 | **Agente sugere camadas/basemaps selecionáveis no chat** (pedido de 2026-07-27) | `agente/tools.py`, UI |
-| 6 | **Testes do motor novo** — os módulos desta rodada ainda não têm teste dedicado; a suíte existente passou sem falhas, mas não cobre `perfil_pagina`, `grade_dms`, `blocos`, `basemap` nem `anatomia` | `nucleo/tests/` |
+| # | Item | Estado | Onde |
+|---|---|---|---|
+| 1 | **Perfil paisagem** exercitado e validado | **fechado** (2026-07-29) — 8 mapas paisagem verdes; o layout de cada mapa vem medido do seu modelo, não de um perfil médio | `motores/{nativo,blocos,perfil_pagina}.py` |
+| 2 | **Galeria: destravar os 5 modelos pelo caminho nativo** — hoje 4 de 5 ficam `indisponivel` porque exigem template `.mxd` preparado | **aberto** | `galeria/estado.py`, `galeria/montar.py` |
+| 3 | **Validador F1-09 completo** — os 14 HARD e 11 SOFT, amostragem HSV do perímetro, varredura de texto herdado (S11) | **aberto** | `validacao/saida.py`, `validacao/anatomia.py` |
+| 4 | **Regressão visual no CI** com golden images | **parcial** — a anatomia da série é medida a cada execução e há teste do critério; falta a golden image | `nucleo/tests/`, `.github/workflows/nucleo.yml` |
+| 5 | **Agente sugere camadas/basemaps selecionáveis no chat** | **aberto** | `agente/tools.py`, UI |
+| 6 | **Testes do motor novo** | **fechado** — `test_analise_serie.py` cobre perfis medidos, mosaico por ano e o critério de anatomia; `test_analise_preparar.py` cobre derivadas e cache | `nucleo/tests/` |
 
 ### Continua dependendo de Windows + ArcMap (não dá para fechar aqui)
 

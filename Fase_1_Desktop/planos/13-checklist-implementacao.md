@@ -6,7 +6,7 @@ analysis em [`../../AGENT_BRIEF.md`](../../AGENT_BRIEF.md#gap-analysis--requisit
 
 Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 
-## Estado em 2026-07-27
+## Estado em 2026-07-29
 
 | Bloco | Marco | Estado |
 |---|---|---|
@@ -20,9 +20,10 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
+| J — Análise de área (série de 20 mapas) | — | **fechado no PDF** (2026-07-29) — 20/20 gerados na Aruanã, 19/20 aprovados na anatomia, publicados em `analises.cursar.space`. Falta card na galeria, progresso no front, Groq e os `.mxd` (Fase W) |
 
-**Backlog desktop sem ArcMap: esgotado.** Ordem do que resta: **M9 → M10 → M11**.
-Fase 2 começa após M11.
+**Backlog desktop sem ArcMap: esgotado** (a série Análise de área foi a última coisa que dava
+para fechar aqui). Ordem do que resta: **M9 → M10 → M11**. Fase 2 começa após M11.
 
 **Operação no Windows:** [`../GUIA_WINDOWS.md`](../GUIA_WINDOWS.md) · handoff: [`../../docs/handoff-windows-fase1.md`](../../docs/handoff-windows-fase1.md).
 
@@ -68,6 +69,28 @@ Fase 2 começa após M11.
 | V1 | `validacao.comparar_pdf` (diff raster B9) | [x] | PyMuPDF + numpy; tolerância 0,3% |
 | V2 | Integração em `mapa.gerar` (`comparar_baseline`) | [x] | usa `baseline_pdf` do MANIFEST |
 | V3 | Smoke Harmonia vs `Mapas/01` | [~] | `smoke_m9_harmonia.py`; diff ~81% — roteiro: [`docs/paridade-visual-harmonia.md`](../../docs/paridade-visual-harmonia.md) |
+
+## Bloco J — Análise de área: a série de 20 mapas (anel 1, sem ArcMap)
+
+Contrato: [`../../planos/GOAL_analise_de_area.md`](../../planos/GOAL_analise_de_area.md) ·
+rodada: [`../../docs/analise-de-area-serie.md`](../../docs/analise-de-area-serie.md).
+
+| # | Tarefa | Feito | Nota |
+|---|---|---|---|
+| J1 | Identidade do imóvel sem perguntar (município + CAR) | [x] | ponto-em-polígono na base IBGE local + maior IoU contra `car_atp`; lista branca de campos (AP-09) |
+| J2 | Materializar as camadas da análise | [x] | 18 do catálogo, recorte no imóvel ou no extent, classe vira camada |
+| J3 | Camadas derivadas que nenhum serviço publica | [x] | `AUAS − DLA`, anel de 3 km da UC, anel de 10 km da TI (aproximação declarada) |
+| J4 | Anatomia medida dos 20 modelos | [x] | `ferramentas/medir_modelos_serie.py` → `shared/padrao-imap/anatomia_serie.json` |
+| J5 | Cores amostradas dos modelos | [x] | `ferramentas/amostrar_cores_modelo.py`; corrigiu `ac` e `auas` |
+| J6 | As 20 receitas (título, camadas, metadados, legenda) | [x] | `analise/serie.py` |
+| J7 | Basemap por ano/sensor + recusa de cena furada | [x] | 43 mosaicos da SEMA; declara quando o ano pedido não existe |
+| J8 | Executar a série sem que um mapa derrube os outros | [x] | `analise/executar.py`; relatório JSON por execução |
+| J9 | PDF compilado na ordem de entrega | [x] | `Mapas/Analise_de_area.pdf`, 20 páginas |
+| J10 | Validação de anatomia mapa a mapa | [x] | 19/20 verdes; a exceção é falta de dado (TCR), não de layout |
+| J11 | Entrega ao cliente por link | [x] | `analises.cursar.space` — **sem senha**, ver [`../../docs/analise-entrega-cloudflare.md`](../../docs/analise-entrega-cloudflare.md) |
+| J12 | Card "Análise de área" na galeria + progresso no front | [ ] | depende de destravar `galeria/estado.py` para saída nativa |
+| J13 | Groq Vision na validação | [ ] | chave ainda não existe no cofre |
+| J14 | Os 20 `.mxd` da série no Windows | [ ] | Fase W do GOAL — sem intervenção humana |
 
 ## Bloco B — Motor `.mxd` (M2)
 
