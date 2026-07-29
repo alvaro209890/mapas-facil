@@ -9,6 +9,7 @@ import pytest
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria.catalogo import carregar_galeria, limpar_cache, obter_modelo
+from mapasfacil_nucleo.galeria import estado as estado_mod
 from mapasfacil_nucleo.galeria.estado import avaliar_status
 from mapasfacil_nucleo.galeria.montar import montar_mapspec
 from mapasfacil_nucleo.galeria.servico import detalhar, listar, montar
@@ -44,7 +45,7 @@ def test_carregar_galeria_tem_6_modelos_com_analise_de_area():
     assert "analise_de_area" in ids
     analise = obter_modelo("analise_de_area")
     assert analise["tipo_execucao"] == "analise_de_area"
-    assert analise["saidas_padrao"] == ["pdf"]
+    assert analise["saidas_padrao"] == ["mxd", "pdf"]
 
 
 def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
@@ -60,7 +61,7 @@ def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
         "terras_indigenas_paisagem",
         "uc_paisagem",
     ):
-        assert por_id[mid]["status"] == "indisponivel"
+        assert por_id[mid]["status"] == "pronto"
     assert por_id["analise_de_area"]["status"] == "pronto"
     assert por_id["analise_de_area"]["tipo_execucao"] == "analise_de_area"
 
@@ -83,16 +84,30 @@ def test_listar_saida_nativa_nao_exige_template_arcmap(pasta_harmonia: Path):
         assert por_id[mid]["motivo"] is None
 
 
-def test_listar_saida_mxd_continua_exigindo_template_arcmap(pasta_harmonia: Path):
-    resultado = listar(
-        {
-            "workspace": str(pasta_harmonia),
-            "saidas_pedidas": ["mxd", "pdf"],
-        }
+def test_saida_mxd_continua_exigindo_template_arcmap(pasta_harmonia: Path, monkeypatch):
+    modelo = obter_modelo("tipologia_paisagem")
+    monkeypatch.setattr(
+        estado_mod,
+        "_template_info",
+        lambda _template: {"status": "a_preparar", "sha256_ok": False, "sha256": None},
     )
-    por_id = {m["id"]: m for m in resultado["modelos"]}
-    assert por_id["tipologia_paisagem"]["status"] == "indisponivel"
-    assert "ArcMap" in por_id["tipologia_paisagem"]["motivo"]
+    estado = avaliar_status(modelo, {"fontes_locais": ["ATP"]}, ["mxd", "pdf"])
+    assert estado["status"] == "indisponivel"
+    assert "ArcMap" in estado["motivo"]
+
+
+def test_serie_mxd_exige_os_20_templates(monkeypatch):
+    modelo = obter_modelo("analise_de_area")
+
+    def info(template_id: str) -> dict:
+        if template_id == "serie_dla":
+            return {"status": "a_preparar", "sha256_ok": False, "sha256": None}
+        return {"status": "pronto", "sha256_ok": True, "sha256": "ok"}
+
+    monkeypatch.setattr(estado_mod, "_template_info", info)
+    indice = {"fontes_locais": ["ATP"]}
+    assert avaliar_status(modelo, indice, ["pdf"])["status"] == "pronto"
+    assert avaliar_status(modelo, indice, ["mxd", "pdf"])["status"] == "indisponivel"
 
 
 def test_listar_rejeita_saida_desconhecida() -> None:
@@ -148,14 +163,13 @@ def test_montar_pdf_nativo_com_template_a_preparar(pasta_harmonia: Path):
     assert any(aviso["codigo"] == "AG-030" for aviso in checagem["avisos"])
 
 
-def test_montar_mxd_com_template_a_preparar_nu231(pasta_harmonia: Path):
-    with pytest.raises(ErroNucleo) as exc:
-        montar_mapspec(
-            "tipologia_paisagem",
-            workspace=str(pasta_harmonia),
-            sobrescritas={"saidas": ["mxd", "pdf"]},
-        )
-    assert exc.value.codigo == "NU-231"
+def test_montar_mxd_com_template_preparado(pasta_harmonia: Path):
+    pacote = montar_mapspec(
+        "tipologia_paisagem",
+        workspace=str(pasta_harmonia),
+        sobrescritas={"saidas": ["mxd", "pdf"]},
+    )
+    assert pacote["mapspec"]["saidas"] == ["mxd", "pdf"]
 
 
 def test_modelo_de_serie_nao_finge_ser_um_mapspec(pasta_harmonia: Path):

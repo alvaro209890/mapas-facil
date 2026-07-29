@@ -34,12 +34,23 @@ def test_sha256_mxd_acervo() -> None:
     assert len(digest) == 64
 
 
-def test_verificar_template_sem_hash_registrado() -> None:
+def test_verificar_template_tipologia_preparado() -> None:
     info = verificar_template("tipologia_paisagem")
-    assert info["sha256_ok"] is False
-    assert info["preparado"] is False
+    assert info["sha256_ok"] is True
+    assert info["preparado"] is True
     assert info["id"] == "tipologia_paisagem"
     assert len(info["sha256"]) == 64
+
+
+def test_os_20_templates_da_serie_estao_prontos_e_integros() -> None:
+    series = [tpl for tpl in carregar()["templates"] if tpl["id"].startswith("serie_")]
+    assert len(series) == 20
+    for template in series:
+        info = verificar_template(template["id"])
+        assert template["status"] == "pronto", template["id"]
+        assert info["sha256_ok"] is True, template["id"]
+        assert template["patch"]["offsets"]["extent"]
+        assert template["patch"]["offsets"]["escala"]
 
 
 def test_verificar_template_dinamica_preparado() -> None:

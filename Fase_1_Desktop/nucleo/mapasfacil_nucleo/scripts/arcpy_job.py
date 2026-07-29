@@ -174,8 +174,7 @@ def _aplicar_basemap(df, e):
     """Preferir WMTS vivo; raster local so como fallback explicito."""
     if _aplicar_basemap_wmts(df, e):
         return
-    # Raster local: so se MAPASFACIL_BASEMAP_RASTER=1 (evita hang no smoke).
-    if os.environ.get("MAPASFACIL_BASEMAP_RASTER") == "1":
+    if e.get(u"basemap_raster"):
         _aplicar_basemap_raster(df, e)
 
 
@@ -210,6 +209,10 @@ def _workspaces_das_camadas(mxd):
             except Exception:
                 continue
             if not ds:
+                continue
+            # Apenas shapefiles locais são materializados no workspace do job.
+            # WMS/WMTS/raster do modelo precisam permanecer no serviço/origem.
+            if not ds.lower().endswith(u".shp"):
                 continue
             pasta = os.path.dirname(ds)
             chave = pasta.lower()
@@ -263,6 +266,108 @@ def _reponte_workspaces(mxd, pasta_template_shp, pasta_saida_shp, pasta_ibge=Non
                 pass
 
 
+def _nome_norm(valor):
+    return (valor or u"").strip().lower()
+
+
+def _encontrar_camada(mxd, df, item):
+    nomes = set(
+        _nome_norm(v)
+        for v in [item.get(u"id"), item.get(u"nome")] + list(item.get(u"aliases") or [])
+        if v
+    )
+    for lyr in arcpy.mapping.ListLayers(mxd, u"", df):
+        if _nome_norm(lyr.name) in nomes:
+            return lyr
+        try:
+            dataset = lyr.datasetName if lyr.supports(u"DATASETNAME") else u""
+        except Exception:
+            dataset = u""
+        if _nome_norm(dataset) in nomes:
+            return lyr
+    return None
+
+
+def _camada_quebrada(lyr):
+    try:
+        return bool(lyr.isBroken)
+    except Exception:
+        return True
+
+
+def _adicionar_camada_local(df, pasta_shp, item):
+    dataset = _u(item.get(u"dataset") or item.get(u"id"))
+    caminho = os.path.join(_u(pasta_shp), dataset + u".shp")
+    if not os.path.isfile(caminho):
+        return None
+    try:
+        lyr = arcpy.mapping.Layer(caminho)
+        lyr.name = _u(item.get(u"nome") or item.get(u"id") or dataset)
+        lyr.visible = True
+        arcpy.mapping.AddLayer(df, lyr, u"TOP")
+        adicionadas = arcpy.mapping.ListLayers(df, lyr.name)
+        return adicionadas[0] if adicionadas else lyr
+    except Exception:
+        return None
+
+
+def _sincronizar_camadas_locais(mxd, df, e):
+    """Preserva a simbologia válida do modelo e recria o que continuar quebrado."""
+    pasta_shp = e.get(u"pasta_saida_shp")
+    for item in e.get(u"camadas") or []:
+        existente = _encontrar_camada(mxd, df, item)
+        if existente is not None and not existente.isGroupLayer and not _camada_quebrada(existente):
+            existente.name = _u(item.get(u"nome") or item.get(u"id"))
+            existente.visible = True
+            continue
+        if existente is not None:
+            try:
+                arcpy.mapping.RemoveLayer(df, existente)
+            except Exception:
+                pass
+        _adicionar_camada_local(df, pasta_shp, item)
+
+
+def _remover_fontes_quebradas(mxd):
+    """Remove layers/grupos legados quebrados antes de recriar as requeridas."""
+    for df in arcpy.mapping.ListDataFrames(mxd):
+        camadas = list(arcpy.mapping.ListLayers(mxd, u"", df))
+        alvos = []
+        vistos = set()
+        for lyr in reversed(camadas):
+            if not _camada_quebrada(lyr):
+                continue
+            alvo = lyr
+            try:
+                longo = _u(lyr.longName)
+            except Exception:
+                longo = u""
+            if u"\\" in longo:
+                topo = _nome_norm(longo.split(u"\\", 1)[0])
+                grupo = next(
+                    (
+                        cand
+                        for cand in camadas
+                        if cand.isGroupLayer
+                        and _nome_norm(cand.name) == topo
+                        and u"\\" not in _u(cand.longName)
+                    ),
+                    None,
+                )
+                if grupo is not None:
+                    alvo = grupo
+            chave = _nome_norm(getattr(alvo, "longName", alvo.name))
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            alvos.append(alvo)
+        for alvo in alvos:
+            try:
+                arcpy.mapping.RemoveLayer(df, alvo)
+            except Exception:
+                pass
+
+
 def main():
     job_path = os.environ.get("MAPASFACIL_JOB_JSON")
     if not job_path:
@@ -297,6 +402,11 @@ def main():
             e.get(u"pasta_saida_shp"),
             e.get(u"pasta_ibge"),
         )
+        # Sublayer quebrada dentro de GroupLayer não é removível de forma
+        # confiável neste ArcMap. Remove-se primeiro o grupo legado; em seguida
+        # as camadas exigidas pelo MapSpec são recriadas como layers locais.
+        _remover_fontes_quebradas(mxd)
+        _sincronizar_camadas_locais(mxd, df, e)
 
         _aplicar_basemap(df, e)
         _aplicar_queries(mxd, e)

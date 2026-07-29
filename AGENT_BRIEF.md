@@ -4,21 +4,26 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
-## Snapshot — o que falta (2026-07-29)
+## Snapshot — o que falta (2026-07-29, noite)
 
-**Rodada 2026-07-28 (Linux, sem ArcMap):** o **motor nativo** passou a desenhar a
-anatomia completa do perfil Harmonia (quadro + grade DMS, título, rosa dos ventos,
-estilos oficiais, rótulo, minimapa com retângulo/linha-guia/selo UF, metadados,
-legenda, logo, tabela, basemap WMS) e ganhou a métrica que fecha **sem** ArcMap:
-comparação de **anatomia** em milímetros contra os PDFs-modelo — hoje **6/6 verdes**.
-Detalhe, armadilhas e o que ficou aberto: [`docs/motor-nativo-harmonia.md`](docs/motor-nativo-harmonia.md).
+**Rodada 2026-07-29 (Windows, Fase W):** os **25 templates `.mxd`** estão em
+`shared/templates/` com `status: pronto` no MANIFEST (20 da série Análise de área +
+5 da galeria). O card `analise_de_area` pede `mxd` + `pdf`. Detalhe:
+[`docs/mxd-templates-serie-w5.md`](docs/mxd-templates-serie-w5.md). **Falta:** smoke W5
+na Aruanã (`smoke_serie_mxd.py`) e paridade M9.
+
+**Rodada 2026-07-28 (Linux, sem ArcMap):** motor nativo Harmonia completo + anatomia 6/6.
+[`docs/motor-nativo-harmonia.md`](docs/motor-nativo-harmonia.md).
+
+**Rodada 2026-07-29 (tarde):** galeria + progresso série + acervo raster + golden CI
+([`f28791c`](https://github.com/alvaro209890/mapas-facil/commit/f28791c)).
 
 ### Fase 1 — desktop
 
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 43/43 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job + **série Análise de área (20 mapas em PDF)** |
-| **Com Windows + ArcMap** | **M9 parcial** (2026-07-27) — pipeline de checks + smoke + diff no PDF ArcMap. H10 fechou; **5/5 HARD verdes**. Basemap Planet (WMTS) e legenda entram no MXD, mas a paridade **ainda não foi medida** com eles ativos — última medição sem basemap: ~81,6%. Próximo: medir → templates restantes → **M10 → M11** |
+| **Com Windows + ArcMap** | **M2 expandido** (2026-07-29) — 25/25 templates `pronto`; `analise.executar` com `mxd`+`pdf`. **M9 parcial** — diff raster ~81% na Harmonia; smoke série MXD pendente |
 | **Com Windows (sem ArcMap)** | **M10 quase** — instalador **`v0.5.2`** publicado e reproduzível do repo (`pnpm dist`), **com atualização automática** (F1-11 §P2: avisa e atualiza com um clique, a partir desta versão). Os 3 bugs que travavam o piloto (app não abria, login duplicado, WMS manual) estão corrigidos e verificados. **Falta: Authenticode** e instalar num PC limpo → **M11** |
 
 **Detalhe da rodada (causa raiz de cada bug + o que falta):**

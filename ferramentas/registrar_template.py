@@ -111,6 +111,10 @@ def main() -> int:
         action="store_true",
         help="Mostra o que seria gravado sem alterar o MANIFEST",
     )
+    parser.add_argument(
+        "--crs-data-frame",
+        help="Atualiza o CRS do data frame no MANIFEST (ex.: EPSG:3857).",
+    )
     args = parser.parse_args()
 
     with MANIFEST.open(encoding="utf-8") as fh:
@@ -124,6 +128,8 @@ def main() -> int:
     nome_arquivo = tpl.get("arquivo") or Path(tpl["fonte_acervo"]).name
     if not tpl.get("arquivo"):
         tpl["arquivo"] = nome_arquivo
+    if args.crs_data_frame:
+        tpl["crs_data_frame"] = args.crs_data_frame
 
     destino = args.mxd or (TEMPLATES_DIR / nome_arquivo)
     if not destino.is_file():
@@ -159,6 +165,7 @@ def main() -> int:
         "arquivo": nome_arquivo,
         "sha256": digest,
         "status": tpl["status"],
+        "crs_data_frame": tpl.get("crs_data_frame"),
         "patch": patch,
     }
 

@@ -154,7 +154,7 @@ export function useGaleria(): EstadoGaleria & {
     if (ponte === undefined) return false;
     setEstado((a) => ({ ...a, executandoSerie: true, resultadoSerie: null, erro: null }));
     try {
-      const resposta = await ponte.chamar("analise.executar", {});
+      const resposta = await ponte.chamar("analise.executar", { saidas: ["mxd", "pdf"] });
       if (!resposta.ok || typeof resposta.resultado !== "object" || resposta.resultado === null) {
         setEstado((a) => ({
           ...a,

@@ -63,12 +63,25 @@ def avaliar_status(
     saidas &= SAIDAS_VALIDAS
     exige_template_mxd = "mxd" in saidas
 
-    info = _template_info(modelo["template"])
-    status_tpl = info.get("status")
-    sha_ok = bool(info.get("sha256_ok"))
-    sha_esperado = info.get("sha256")
+    template_ids = [modelo["template"]]
+    if modelo.get("tipo_execucao") == "analise_de_area":
+        template_ids = [
+            str(tpl["id"])
+            for tpl in manifesto.carregar().get("templates", [])
+            if tpl.get("serie")
+        ]
+    infos = [_template_info(template_id) for template_id in template_ids]
+    status_tpl = (
+        "a_preparar"
+        if any(info.get("status") == "a_preparar" for info in infos)
+        else "parcial"
+        if any(info.get("status") == "parcial" for info in infos)
+        else "pronto"
+    )
+    sha_ok = all(bool(info.get("sha256_ok")) for info in infos)
+    sha_esperado = all(info.get("sha256") is not None for info in infos)
 
-    if exige_template_mxd and (status_tpl == "a_preparar" or sha_esperado is None):
+    if exige_template_mxd and (status_tpl == "a_preparar" or not sha_esperado):
         return {
             "status": "indisponivel",
             "motivo": "template ainda não preparado no ArcMap",

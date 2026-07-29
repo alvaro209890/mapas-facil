@@ -158,8 +158,17 @@ def test_arcpy_ponte_monta_payload_e_script_existe() -> None:
         escala=60000,
         municipio="Vila Rica",
         uf_extenso="Mato Grosso",
+        camadas=[
+            {
+                "id": "PERIMETRO",
+                "nome": "Fazenda Harmonia",
+                "dataset": "ATP",
+                "aliases": ["CAR_ATP"],
+            }
+        ],
     )
     assert payload["escala"] == 60000
+    assert payload["camadas"][0]["dataset"] == "ATP"
     assert arcpy_ponte.caminho_arcpy_job().exists()
 
 

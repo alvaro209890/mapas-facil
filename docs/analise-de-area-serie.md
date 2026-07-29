@@ -181,7 +181,7 @@ Em 2026-07-29 a série entrou no fluxo principal do desktop:
 | 1 | Groq Vision opcional (a chave ainda não existe no cofre) | `validacao/`, `agente/provisao.py` |
 | 2 | Quantitativos por classe no mapa da tabela | `quantitativos/` |
 | 3 | TCR e pontos de TAC via `chat.pergunta` | `agente/tools.py` |
-| 4 | Os 20 `.mxd` da série no Windows | §11 do GOAL (Fase W) |
+| 4 | Smoke MXD+PDF da série na Aruanã (W5–W7) | `ferramentas/smoke_serie_mxd.py`, `analise_area_windows.ps1` — **templates 25/25 `pronto`** em [`mxd-templates-serie-w5.md`](mxd-templates-serie-w5.md) |
 
 ## 9. Entrega ao cliente
 

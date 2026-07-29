@@ -101,6 +101,7 @@ def test_handler_registra_job_emite_serie_e_libera(monkeypatch):
     assert resposta["resumo"]["gerados"] == 20
     assert recebido["guard"] == "guard-teste"
     assert recebido["atp_rel"] == "SHP/ATP.shp"
+    assert recebido["saidas"] == ("mxd", "pdf")
     assert liberados == ["job-analise"]
     assert eventos[0]["evento"] == "job.progresso"
     assert eventos[0]["dados"]["job_id"] == "job-analise"
@@ -119,6 +120,23 @@ def test_handler_rejeita_receita_desconhecida_antes_de_criar_job(monkeypatch):
     with pytest.raises(ErroNucleo) as exc:
         main_mod._handler_analise_executar(
             {"apenas": ["mapa_inexistente"]},
+            Emissor("req-analise"),
+        )
+    assert exc.value.codigo == "NU-001"
+
+
+def test_handler_rejeita_saida_desconhecida(monkeypatch):
+    monkeypatch.setattr(main_mod.sessao, "exigir_conectado", lambda _acao: None)
+    monkeypatch.setattr(
+        main_mod.workspace_servico,
+        "estado_atual",
+        lambda: SimpleNamespace(guard="guard-teste"),
+    )
+    monkeypatch.setattr(main_mod, "_fontes_idx_do_estado", lambda _estado: {"ATP": "SHP/ATP.shp"})
+
+    with pytest.raises(ErroNucleo) as exc:
+        main_mod._handler_analise_executar(
+            {"saidas": ["svg"]},
             Emissor("req-analise"),
         )
     assert exc.value.codigo == "NU-001"

@@ -59,8 +59,58 @@ def _safe(getter, default=None):
         return default
 
 
+def _json_safe(valor):
+    """Converte caminhos/textos do ArcMap para Unicode sem depender do cp1252."""
+    if isinstance(valor, dict):
+        return {_json_safe(k): _json_safe(v) for k, v in valor.items()}
+    if isinstance(valor, (list, tuple)):
+        return [_json_safe(item) for item in valor]
+    try:
+        unicode_type = unicode
+    except NameError:
+        unicode_type = str
+    if isinstance(valor, bytes) and not isinstance(valor, unicode_type):
+        for encoding in (sys.getfilesystemencoding() or "mbcs", "utf-8", "cp1252"):
+            try:
+                return valor.decode(encoding)
+            except (UnicodeDecodeError, LookupError):
+                pass
+        return valor.decode("utf-8", "replace")
+    return valor
+
+
+def _texto_normalizado(texto):
+    """Texto de layout sem tags/linhas, para casar receitas da série com segurança."""
+    texto = texto or u""
+    if isinstance(texto, str):
+        for encoding in ("mbcs", "utf-8", "cp1252", "latin-1"):
+            try:
+                texto = texto.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+    texto = re.sub(r"</?[^>]+>", u" ", texto)
+    return u" ".join(texto.replace(u"\r", u" ").replace(u"\n", u" ").split()).strip().lower()
+
+
 def _classificar_data_frames(dfs):
     """Escolhe MAPA (UTM, escala pequena) e MINIMAPA (o próximo por área de extent)."""
+    # O acervo Harmonia mais recente já traz nomes canônicos. Preservá-los é
+    # obrigatório nos temáticos: MAPA e MINIMAPA usam EPSG:3857 e uma heurística
+    # apenas por CRS/área confundia o pequeno UF_INSET com o mapa principal.
+    mapa_nomeado = next((df for df in dfs if (df.name or u"").upper() == u"MAPA"), None)
+    minimapa_nomeado = next(
+        (df for df in dfs if (df.name or u"").upper() == u"MINIMAPA"),
+        None,
+    )
+    if mapa_nomeado is not None:
+        extras = [
+            df
+            for df in dfs
+            if df is not mapa_nomeado and (minimapa_nomeado is None or df is not minimapa_nomeado)
+        ]
+        return mapa_nomeado, minimapa_nomeado, extras
+
     candidatos = []
     for df in dfs:
         sr = _safe(lambda: df.spatialReference.factoryCode)
@@ -101,7 +151,14 @@ def _dentro_ou_perto(x, y, df, folga=5.0):
     return (dx - folga) <= x <= (dx + dw + folga) and (dy - folga) <= y <= (dy + dh + folga)
 
 
-def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
+def normalizar(
+    mxd_entrada,
+    mxd_saida,
+    dry_run=False,
+    logo=None,
+    titulo_texto=None,
+    rotulo_imovel_texto=None,
+):
     shutil.copy2(mxd_entrada, mxd_saida)
     mxd = arcpy.mapping.MapDocument(mxd_saida)
     aplicados = []
@@ -146,33 +203,66 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
         # "Ano: NNNN") e ROTULO_IMOVEL (novo: reaproveita o rotulo solto que sobrar). ---
         metadados_feito = False
         titulo_feito = False
+        rotulo_imovel_feito = False
         textos_sem_mapear = []  # lista de (elemento, texto) ainda sem nome canonico
+        titulo_alvo = _texto_normalizado(titulo_texto)
+        rotulo_alvo = _texto_normalizado(rotulo_imovel_texto)
         for el in arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT"):
             texto = el.text or ""
             nome_atual = _safe(lambda: el.name) or ""
+            texto_norm = _texto_normalizado(texto)
+            if nome_atual == "TITULO":
+                titulo_feito = True
+            if nome_atual == "ROTULO_IMOVEL":
+                rotulo_imovel_feito = True
             if not metadados_feito and texto.strip().startswith("<bol>METADADOS"):
                 if nome_atual != "METADADOS":
                     el.name = "METADADOS"
                     aplicados.append("text_element (conteudo METADADOS IMAGEM) -> METADADOS")
                 metadados_feito = True
-            elif not titulo_feito and _RE_TITULO_ANO.match(texto.strip()):
+            elif (
+                not titulo_feito
+                and (
+                    (titulo_alvo and texto_norm == titulo_alvo)
+                    or (not titulo_alvo and _RE_TITULO_ANO.match(texto.strip()))
+                )
+            ):
                 if nome_atual != "TITULO":
                     el.name = "TITULO"
                     aplicados.append(
-                        u"text_element '{0}' (caixa balao existente, reaproveitada) -> TITULO "
+                        u"text_element '{0}' (texto da receita existente, reaproveitado) -> TITULO "
                         u"— trocar .text por job em mapa.gerar, nao precisa GUI".format(texto.strip())
                     )
                 titulo_feito = True
+            elif not rotulo_imovel_feito and rotulo_alvo and texto_norm == rotulo_alvo:
+                if nome_atual != "ROTULO_IMOVEL":
+                    el.name = "ROTULO_IMOVEL"
+                    aplicados.append(
+                        u"text_element '{0}' (rotulo do imovel existente) -> ROTULO_IMOVEL".format(
+                            texto.strip()
+                        )
+                    )
+                rotulo_imovel_feito = True
             elif not nome_atual:
                 textos_sem_mapear.append((el, texto))
 
         if not titulo_feito:
             pendencias.append(
-                u"Nenhum TEXT_ELEMENT no padrao 'Ano: NNNN' pra virar TITULO — confirmar no ArcMap "
-                u"(pode ser que este .mxd nao tenha a caixa balao; nesse caso precisa criar na GUI)."
+                u"Nenhum TEXT_ELEMENT correspondente ao titulo '{0}' — confirmar no ArcMap "
+                u"(pode ser que este .mxd nao tenha a caixa balao; nesse caso precisa criar na GUI).".format(
+                    titulo_texto or u"Ano: NNNN"
+                )
             )
 
-        if len(textos_sem_mapear) == 1:
+        if rotulo_imovel_feito:
+            pass
+        elif rotulo_alvo:
+            pendencias.append(
+                u"Nenhum TEXT_ELEMENT correspondente ao rotulo do imovel '{0}'.".format(
+                    rotulo_imovel_texto
+                )
+            )
+        elif len(textos_sem_mapear) == 1:
             el, texto = textos_sem_mapear[0]
             el.name = "ROTULO_IMOVEL"
             aplicados.append(
@@ -256,7 +346,40 @@ def normalizar(mxd_entrada, mxd_saida, dry_run=False, logo=None):
                         u"({0}); passe --logo apontando pro PNG certo.".format(caminho_logo)
                     )
         elif len(pictures) > 1:
-            pendencias.append(u"{0} PICTURE_ELEMENT encontrados — LOGO ambiguo.".format(len(pictures)))
+            # Nos modelos com tabela/figura temática, o logo continua sempre na
+            # faixa inferior direita (x≈16,5 cm; y≈0,4 cm). A outra imagem fica
+            # dentro do mapa, acima de y=4 cm.
+            candidatos_logo = [
+                p
+                for p in pictures
+                if (_safe(lambda: p.elementPositionX) or 0) >= 15.0
+                and (_safe(lambda: p.elementPositionY) or 99) <= 2.0
+            ]
+            if len(candidatos_logo) == 1:
+                alvo_logo = candidatos_logo[0]
+                alvo_logo.name = "LOGO"
+                aplicados.append("picture_element inferior direito -> LOGO")
+                caminho_logo = logo or LOGO_PADRAO
+                if os.path.isfile(caminho_logo):
+                    try:
+                        alvo_logo.sourceImage = caminho_logo
+                        aplicados.append(
+                            u"picture_element 'LOGO' sourceImage -> {0}".format(caminho_logo)
+                        )
+                    except Exception as exc:
+                        pendencias.append(
+                            u"PICTURE_ELEMENT 'LOGO' identificado, mas sourceImage falhou ({0}).".format(
+                                exc
+                            )
+                        )
+                outros = [p for p in pictures if p is not alvo_logo]
+                if len(outros) == 1 and not (_safe(lambda: outros[0].name) or ""):
+                    outros[0].name = "TABELA_QUANTITATIVOS"
+                    aplicados.append("picture_element do mapa -> TABELA_QUANTITATIVOS")
+            else:
+                pendencias.append(
+                    u"{0} PICTURE_ELEMENT encontrados — LOGO ambiguo.".format(len(pictures))
+                )
 
         # --- Graficos do minimapa: heuristica geometrica (fino = linha-guia) + heuristica
         # posicional (dentro do data frame MINIMAPA = retangulo indicador). Antes o script so
@@ -360,10 +483,25 @@ def main():
     parser.add_argument("saida", help="MXD de destino (sera criado/sobrescrito)")
     parser.add_argument("--dry-run", action="store_true", help="Nao salva, so relata")
     parser.add_argument("--logo", help="Caminho do PNG do logo (default: acervo Logos IMAP, tom escuro sem fundo)")
+    parser.add_argument(
+        "--titulo-texto",
+        help="Texto atual exato do titulo a reaproveitar (necessario nos mapas tematicos)",
+    )
+    parser.add_argument(
+        "--rotulo-imovel-texto",
+        help="Texto atual exato do rotulo do imovel a reaproveitar",
+    )
     parser.add_argument("-o", "--relatorio", help="Gravar relatorio JSON neste arquivo")
     args = parser.parse_args()
 
-    rel = normalizar(args.entrada, args.saida, dry_run=args.dry_run, logo=args.logo)
+    rel = normalizar(
+        args.entrada,
+        args.saida,
+        dry_run=args.dry_run,
+        logo=args.logo,
+        titulo_texto=args.titulo_texto,
+        rotulo_imovel_texto=args.rotulo_imovel_texto,
+    )
 
     def _out(prefixo, item):
         linha = u"  {0} {1}".format(prefixo, item)
@@ -381,7 +519,7 @@ def main():
         import codecs
 
         with codecs.open(args.relatorio, "w", "utf-8") as fh:
-            fh.write(json.dumps(rel, ensure_ascii=False, indent=2))
+            fh.write(json.dumps(_json_safe(rel), ensure_ascii=False, indent=2))
         print("Relatorio:", args.relatorio)
 
     return 0

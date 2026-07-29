@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "perfil": "harmonia",
   "contract_version": 2,
-  "nota": "dinamica_retrato status pronto (2026-07-27): sha256 + offsets extent/escala (sentinelas pós-aspecto ArcMap). LOGO em recursos/logo_imap_tom_escuro.png. Falta ROTULO_IMOVEL via GUI — ver docs/handoff-windows-fase1.md. Demais templates a_preparar. | 2026-07-29: 20 templates serie_* da Análise de área registrados (PDF nativo usa a anatomia medida em shared/padrao-imap/anatomia_serie.json; o .mxd de cada um é tarefa da Fase W no Windows).",
+  "nota": "2026-07-29 Fase W: 25/25 templates pronto (dinamica_retrato + 4 galeria + 20 serie_* Análise de área). sha256 + offsets extent/escala. PDF nativo usa shared/padrao-imap/anatomia_serie.json. Detalhe: docs/mxd-templates-serie-w5.md. Smoke MXD+PDF na Aruanã (W5) e paridade M9 ainda pendentes.",
   "templates": [
     {
       "id": "dinamica_retrato",
@@ -47,10 +47,10 @@
     {
       "id": "dinamica_quantitativos_retrato",
       "nome": "Dinâmica 2026 com tabela de quantitativos",
-      "arquivo": null,
+      "arquivo": "Dinamica_2026_quantitativos.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026_quantitativos.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026_quantitativos.pdf",
-      "sha256": null,
+      "sha256": "e304cfacc060ad508f03e650b99a35204875f4d6e435c757458f48258d5fa769",
       "formato_pagina": {
         "papel": "A4",
         "orientacao": "retrato",
@@ -60,15 +60,36 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar"
+      "status": "pronto",
+      "patch": {
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2940781,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2941027,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
+      }
     },
     {
       "id": "tipologia_paisagem",
       "nome": "Tipologia vegetal — A4 paisagem",
-      "arquivo": null,
+      "arquivo": "Tipologia.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Tipologia.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Tipologia.pdf",
-      "sha256": null,
+      "sha256": "9a0159294d0a1fb09c71194235a8425bbf864645058d97b11c0ab6b12be38895",
       "formato_pagina": {
         "papel": "A4",
         "orientacao": "paisagem",
@@ -78,15 +99,36 @@
         ]
       },
       "crs_data_frame": "EPSG:3857",
-      "status": "a_preparar"
+      "status": "pronto",
+      "patch": {
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2295486,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.8235969921,
+            "sentinelas": [
+              81239.8235969921,
+              252405.6188939979,
+              363204.17640300794,
+              414260.38110600214
+            ]
+          },
+          "escala": {
+            "offset": 2295732,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
+      }
     },
     {
       "id": "terras_indigenas_paisagem",
       "nome": "Terras Indígenas — A4 paisagem",
-      "arquivo": null,
+      "arquivo": "Terras_Indigenas.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Terras_Indigenas.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Terras_Indigenas.pdf",
-      "sha256": null,
+      "sha256": "f24e166f014d228b21cedf200c0103f49df9db105163cc614a4e78445991fe28",
       "formato_pagina": {
         "papel": "A4",
         "orientacao": "paisagem",
@@ -96,15 +138,36 @@
         ]
       },
       "crs_data_frame": "EPSG:3857",
-      "status": "a_preparar"
+      "status": "pronto",
+      "patch": {
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2137573,
+            "formato": "4×float64 LE",
+            "sentinela": 80576.61393600248,
+            "sentinelas": [
+              80576.61393600248,
+              261388.33202399543,
+              363867.3860639975,
+              405277.66797600454
+            ]
+          },
+          "escala": {
+            "offset": 2137819,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
+      }
     },
     {
       "id": "uc_paisagem",
       "nome": "Unidade de Conservação — A4 paisagem",
-      "arquivo": null,
+      "arquivo": "Unidade_de_Conservação.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Unidade_de_Conservação.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Unidade_de_Conservação.pdf",
-      "sha256": null,
+      "sha256": "ce4456ef836587ccb36946c77b0fcbca839a3183b1e7e3c0e7ba1eafaf24d65f",
       "formato_pagina": {
         "papel": "A4",
         "orientacao": "paisagem",
@@ -114,15 +177,36 @@
         ]
       },
       "crs_data_frame": "EPSG:3857",
-      "status": "a_preparar"
+      "status": "pronto",
+      "patch": {
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2477152,
+            "formato": "4×float64 LE",
+            "sentinela": 80576.61393600248,
+            "sentinelas": [
+              80576.61393600248,
+              261388.33202399543,
+              363867.3860639975,
+              405277.66797600454
+            ]
+          },
+          "escala": {
+            "offset": 2477398,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
+      }
     },
     {
       "id": "serie_alertas_mapbiomas",
       "nome": "Alertas MapBiomas — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Alertas_MAPBIOMAS_2.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Alertas_MAPBIOMAS_2.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Alertas_MAPBIOMAS_2.pdf",
-      "sha256": null,
+      "sha256": "26f9b5a809a0c7b5279805f4ad185014418eebf2809272299f613863acbbcee6",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -132,24 +216,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 1,
         "mapa_id": "alertas_mapbiomas",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 1977980,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.8235969921,
+            "sentinelas": [
+              81239.8235969921,
+              252405.6188939979,
+              363204.17640300794,
+              414260.38110600214
+            ]
+          },
+          "escala": {
+            "offset": 1978226,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_alertas_prodes",
       "nome": "Alertas PRODES — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Alertas_PRODES_VF.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Alertas_PRODES_VF.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Alertas_PRODES_VF.pdf",
-      "sha256": null,
+      "sha256": "cfd4873591663a845d9cace4cc8798db5923b99b237e9e2586a77b970c3d121c",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -159,24 +261,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 2,
         "mapa_id": "alertas_prodes",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2159325,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.8235969921,
+            "sentinelas": [
+              81239.8235969921,
+              252405.6188939979,
+              363204.17640300794,
+              414260.38110600214
+            ]
+          },
+          "escala": {
+            "offset": 2159571,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dla",
       "nome": "Declarações de limpeza de área — série Análise de área",
-      "arquivo": null,
+      "arquivo": "DLA.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/DLA.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/DLA.pdf",
-      "sha256": null,
+      "sha256": "a481fc0e822cb6bb03e4de1f99dc1f13910de36ad452dc77c408c668d0fac41b",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -187,23 +307,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 3,
         "mapa_id": "dla",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2464258,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2464504,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_unidades_conservacao",
       "nome": "Unidades de Conservação — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Unidade_de_Conservação.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Unidade_de_Conservação.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Unidade_de_Conservação.pdf",
-      "sha256": null,
+      "sha256": "ce4456ef836587ccb36946c77b0fcbca839a3183b1e7e3c0e7ba1eafaf24d65f",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -213,24 +351,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 4,
         "mapa_id": "unidades_conservacao",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2477152,
+            "formato": "4×float64 LE",
+            "sentinela": 80576.61393600248,
+            "sentinelas": [
+              80576.61393600248,
+              261388.33202399543,
+              363867.3860639975,
+              405277.66797600454
+            ]
+          },
+          "escala": {
+            "offset": 2477398,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_tipologia",
       "nome": "Tipologia vegetal — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Tipologia.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Tipologia.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Tipologia.pdf",
-      "sha256": null,
+      "sha256": "9a0159294d0a1fb09c71194235a8425bbf864645058d97b11c0ab6b12be38895",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -240,24 +396,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 5,
         "mapa_id": "tipologia",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2295486,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.8235969921,
+            "sentinelas": [
+              81239.8235969921,
+              252405.6188939979,
+              363204.17640300794,
+              414260.38110600214
+            ]
+          },
+          "escala": {
+            "offset": 2295732,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_terras_indigenas",
       "nome": "Terras Indígenas — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Terras_Indigenas.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Terras_Indigenas.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Terras_Indigenas.pdf",
-      "sha256": null,
+      "sha256": "f24e166f014d228b21cedf200c0103f49df9db105163cc614a4e78445991fe28",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -267,24 +441,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 6,
         "mapa_id": "terras_indigenas",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2137573,
+            "formato": "4×float64 LE",
+            "sentinela": 80576.61393600248,
+            "sentinelas": [
+              80576.61393600248,
+              261388.33202399543,
+              363867.3860639975,
+              405277.66797600454
+            ]
+          },
+          "escala": {
+            "offset": 2137819,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_tcr",
       "nome": "Termo de Recuperação de Área — série Análise de área",
-      "arquivo": null,
+      "arquivo": "TCR.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/TCR.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/TCR.pdf",
-      "sha256": null,
+      "sha256": "1be99bb157946778f81e98b56594f6482435b06248e46350294629da9e266054",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -295,23 +487,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 7,
         "mapa_id": "tcr",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2486615,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2486861,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_pef",
       "nome": "Área desmatada com licenciamento (PEF) — série Análise de área",
-      "arquivo": null,
+      "arquivo": "PEF.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/PEF.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/PEF.pdf",
-      "sha256": null,
+      "sha256": "80fb4cf148bbf4227f8f42266b993091733f3f8e3df30fa30c6450b8f509a65d",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -322,23 +532,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 8,
         "mapa_id": "pef",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 3231783,
+            "formato": "4×float64 LE",
+            "sentinela": 185007.19727999967,
+            "sentinelas": [
+              185007.19727999967,
+              303555.2319000057,
+              259436.80272000033,
+              363110.7680999943
+            ]
+          },
+          "escala": {
+            "offset": 3232029,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_embargos_sema_siga",
       "nome": "Embargos SEMA/SIGA — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Embargos_SEMA_SIGA_Poligono.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Embargos_SEMA_SIGA_Poligono.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Embargos_SEMA_SIGA_Poligono.pdf",
-      "sha256": null,
+      "sha256": "021ad9bb22490d3d84130903c351e68c3986b5bbdaf061ff2de8f38a855edf7b",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -348,24 +576,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 9,
         "mapa_id": "embargos_sema_siga",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2311167,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.8235969921,
+            "sentinelas": [
+              81239.8235969921,
+              256015.49426399675,
+              363204.17640300794,
+              410650.5057360033
+            ]
+          },
+          "escala": {
+            "offset": 2311413,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_embargos_ibama",
       "nome": "Embargos IBAMA — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Embargos_IBAMA.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Embargos_IBAMA.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Embargos_IBAMA.pdf",
-      "sha256": null,
+      "sha256": "e3bfb0a0cddf590be13f1b6c3ee02e3138a96a83aa7fb485bea47efb8915ca10",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -375,24 +621,42 @@
           210.1
         ]
       },
-      "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "crs_data_frame": "EPSG:3857",
+      "status": "pronto",
       "serie": {
         "ordem": 10,
         "mapa_id": "embargos_ibama",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2464752,
+            "formato": "4×float64 LE",
+            "sentinela": 81239.82359699212,
+            "sentinelas": [
+              81239.82359699212,
+              253357.22352299595,
+              363204.1764030079,
+              413308.77647700405
+            ]
+          },
+          "escala": {
+            "offset": 2464998,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_areas_cultivaveis",
       "nome": "Áreas cultiváveis — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Areas_Cultivaveis_VF.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Areas_Cultivaveis_VF.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Areas_Cultivaveis_VF.pdf",
-      "sha256": null,
+      "sha256": "338aa54a707460e1061792ac6dc41c59e79e22148f4de67ea71da195e3487311",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -403,23 +667,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 11,
         "mapa_id": "areas_cultivaveis",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 3208081,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 3208327,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_quantitativos",
       "nome": "Dinâmica com quantitativos — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2026_quantitativos.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2026_quantitativos.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2026_quantitativos.pdf",
-      "sha256": null,
+      "sha256": "e304cfacc060ad508f03e650b99a35204875f4d6e435c757458f48258d5fa769",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -430,23 +712,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 12,
         "mapa_id": "dinamica_quantitativos",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2940781,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2941027,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2026",
       "nome": "Dinâmica 2026 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2026.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2026.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2026.pdf",
-      "sha256": null,
+      "sha256": "ca7eced6bde6790eddda915a2bd370cfafcbce9f8531d2963324da30b5e1ecc2",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -457,23 +757,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 13,
         "mapa_id": "dinamica_2026",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2130007,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2130253,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2023",
       "nome": "Dinâmica 2023 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2023.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2023.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2023.pdf",
-      "sha256": null,
+      "sha256": "a2c05e117a11e7e222bc9b3a4c9ea5dc9c1af994371d1f8c98edb9d1c2dab403",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -484,23 +802,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 14,
         "mapa_id": "dinamica_2023",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2132055,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2132301,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2019",
       "nome": "Dinâmica 2019 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2019.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2019.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2019.pdf",
-      "sha256": null,
+      "sha256": "30ae51c5deba137957013430e1f1f5b4c372927c624b58247796ba34675bf955",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -511,23 +847,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 15,
         "mapa_id": "dinamica_2019",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2428503,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2428749,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2017",
       "nome": "Dinâmica 2017 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2017.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2017.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2017.pdf",
-      "sha256": null,
+      "sha256": "28bd493ea5f6cc59c6dd0010c8acaf09f757dd82333452b0a37c54bca53dff0f",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -538,23 +892,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 16,
         "mapa_id": "dinamica_2017",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2429015,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2429261,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2013",
       "nome": "Dinâmica 2013 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2013.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2013.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2013.pdf",
-      "sha256": null,
+      "sha256": "d863bbb51ddd3478d0d1dbb522fb43c623de9191d4208c4d54187df1334884f8",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -565,23 +937,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 17,
         "mapa_id": "dinamica_2013",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2431510,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2431756,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2008_spot",
       "nome": "Dinâmica 2008 (SPOT) — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2008_SPOT.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2008_SPOT.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2008_SPOT.pdf",
-      "sha256": null,
+      "sha256": "cb386372f4f5d52d6664356238f0aaad07d4aeba47687e69039058a9a82e6682",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -592,23 +982,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 18,
         "mapa_id": "dinamica_2008_spot",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2434601,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2434847,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2008_landsat",
       "nome": "Dinâmica 2008 (Landsat) — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2008_LANDSAT.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2008_LANDSAT.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2008_LANDSAT.pdf",
-      "sha256": null,
+      "sha256": "d2e3659fb0d0463fccf42f8cb98f8ca2227acc38f1fe0ee1aa2fa64347fe5516",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -619,23 +1027,41 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 19,
         "mapa_id": "dinamica_2008_landsat",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2447661,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2447907,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     },
     {
       "id": "serie_dinamica_2000",
       "nome": "Dinâmica 2000 — série Análise de área",
-      "arquivo": null,
+      "arquivo": "Dinamica_2000.mxd",
       "fonte_acervo": "Testes/01_analise_04_Julio/Modelo/MXD/Dinamica_2000.mxd",
       "baseline_pdf": "Testes/01_analise_04_Julio/Modelo/Mapas/Dinamica_2000.pdf",
-      "sha256": null,
+      "sha256": "fd81fdd465d5f48382517ed6ae7285656434faca0ec014fa8de1e15b7544e376",
       "versao_arcmap": "10.8",
       "formato_pagina": {
         "papel": "A4",
@@ -646,14 +1072,32 @@
         ]
       },
       "crs_data_frame": "EPSG:31982",
-      "status": "a_preparar",
+      "status": "pronto",
       "serie": {
         "ordem": 20,
         "mapa_id": "dinamica_2000",
         "anatomia": "shared/padrao-imap/anatomia_serie.json"
       },
       "patch": {
-        "suportado": false
+        "suportado": true,
+        "offsets": {
+          "extent": {
+            "offset": 2456726,
+            "formato": "4×float64 LE",
+            "sentinela": 124719.31563899854,
+            "sentinelas": [
+              124719.31563899854,
+              209463.9044549968,
+              319724.6843610015,
+              457202.0955450032
+            ]
+          },
+          "escala": {
+            "offset": 2456972,
+            "formato": "float64 LE",
+            "sentinela": 987654.0
+          }
+        }
       }
     }
   ]

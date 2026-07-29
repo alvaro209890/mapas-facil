@@ -325,6 +325,7 @@ def montar_mapspec(
     pasta_saida: str = "Mapas",
     crs: str = "EPSG:31982",
     mapspec_id: str | None = None,
+    saidas: tuple[str, ...] = ("pdf",),
 ) -> dict[str, Any]:
     """Receita + imóvel → MapSpec válido no contrato v2.
 
@@ -368,7 +369,7 @@ def montar_mapspec(
         "versao": 1,
         "titulo": titulo,
         "template": receita.template,
-        "saidas": ["pdf"],
+        "saidas": list(saidas),
         "imovel": identidade.para_mapspec(),
         "crs": crs,
         "escala": receita.escala,

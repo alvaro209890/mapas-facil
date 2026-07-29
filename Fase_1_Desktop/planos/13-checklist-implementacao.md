@@ -20,7 +20,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
 | I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
-| J — Análise de área (série de 20 mapas) | — | **fechado no desktop para PDF** (2026-07-29) — card, progresso real, golden no CI e acervo raster entregues; 20/20 gerados na Aruanã, 19/20 aprovados. Groq é opcional sem chave; `.mxd` fica na Fase W |
+| J — Análise de área (série de 20 mapas) | — | **fechado no desktop** (2026-07-29) — PDF nativo 20/20, card, progresso, golden, acervo raster; **templates MXD 25/25 `pronto`** no MANIFEST ([`docs/mxd-templates-serie-w5.md`](../../docs/mxd-templates-serie-w5.md)). Falta smoke W5 na Aruanã; Groq opcional |
 
 **Backlog desktop sem ArcMap: esgotado** (a série Análise de área foi a última coisa que dava
 para fechar aqui). Ordem do que resta: **M9 → M10 → M11**. Fase 2 começa após M11.
@@ -92,7 +92,7 @@ rodada: [`../../docs/analise-de-area-serie.md`](../../docs/analise-de-area-serie
 | J13 | Groq Vision na validação | [ ] | chave ainda não existe no cofre |
 | J14 | Golden determinístico de anatomia no CI | [x] | `test_golden_anatomia.py`, PNG versionado, tolerância 0,3% e artefato de diff em falha |
 | J15 | Acervo compartilhado de rasters | [x] | `acervo/rasters.py`; chave por fonte+bbox+CRS+largura, SHA-256 e reuso entre workspaces |
-| J14 | Os 20 `.mxd` da série no Windows | [ ] | Fase W do GOAL — sem intervenção humana |
+| J16 | Os 20 `.mxd` da série no Windows | [~] | **templates preparados** (2026-07-29) — 20 `.mxd` em `shared/templates/`, MANIFEST `pronto` + sha256; falta smoke `smoke_serie_mxd.py` na Aruanã |
 
 ## Bloco B — Motor `.mxd` (M2)
 

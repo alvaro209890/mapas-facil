@@ -28,7 +28,11 @@ from mapasfacil_nucleo.analise.progresso import RastreadorProgressoSerie
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
-from mapasfacil_nucleo.workspace.shapefile import _abrir_reader, _shapes_para_geometrias
+from mapasfacil_nucleo.workspace.shapefile import (
+    _abrir_reader,
+    _shapes_para_geometrias,
+    inspecionar,
+)
 
 PASTA_SAIDA = "Mapas"
 NOME_COMPILADO = "Analise_de_area"
@@ -43,6 +47,9 @@ class ResultadoMapa:
     nome: str
     ok: bool
     pdf: str | None = None
+    pdf_nativo: str | None = None
+    pdf_arcmap: str | None = None
+    mxd: str | None = None
     segundos: float = 0.0
     erro: str | None = None
     avisos: list[str] = field(default_factory=list)
@@ -57,6 +64,9 @@ class ResultadoMapa:
             "nome": self.nome,
             "ok": self.ok,
             "pdf": self.pdf,
+            "pdf_nativo": self.pdf_nativo,
+            "pdf_arcmap": self.pdf_arcmap,
+            "mxd": self.mxd,
             "segundos": round(self.segundos, 1),
             "erro": self.erro,
             "avisos": self.avisos,
@@ -97,6 +107,7 @@ def executar(
     ao_progresso: Callable[[str, str, int, int], None] | None = None,
     progresso: RastreadorProgressoSerie | None = None,
     preparar_camadas: bool = True,
+    saidas: tuple[str, ...] = ("pdf",),
 ) -> dict[str, Any]:
     """Executa a série e devolve o relatório completo.
 
@@ -106,10 +117,12 @@ def executar(
     inicio = time.time()
     imovel = _geometria_do_atp(guard, atp_rel)
     bbox = tuple(imovel.bounds)  # type: ignore[assignment]
+    meta_atp = inspecionar(guard.resolver(atp_rel))
+    epsg_efetivo = int(meta_atp.crs.get("epsg") or epsg)
 
     if progresso:
         progresso.iniciar_identidade()
-    identidade = identificar(imovel, guard=guard, epsg=epsg)
+    identidade = identificar(imovel, guard=guard, epsg=epsg_efetivo)
     if progresso:
         progresso.concluir_identidade(identidade.rotulo)
     if ao_progresso:
@@ -132,7 +145,7 @@ def executar(
             guard=guard,
             atp_rel=atp_rel,
             extent=_extent_com_folga(bbox, folga_maxima),
-            epsg=epsg,
+            epsg=epsg_efetivo,
             ao_progresso=_camada_pronta if (ao_progresso or progresso) else None,
         )
     else:
@@ -151,6 +164,7 @@ def executar(
             guard=guard,
             epsg=epsg,
             modelos=modelos,
+            saidas=saidas,
             rastreador=(
                 progresso.rastreador_do_mapa(receita, indice) if progresso else None
             ),
@@ -227,6 +241,7 @@ def _gerar_um(
     guard: WorkspaceGuard,
     epsg: int,
     modelos: Path | None,
+    saidas: tuple[str, ...] = ("pdf",),
     rastreador: Any = None,
 ) -> ResultadoMapa:
     t0 = time.time()
@@ -238,6 +253,7 @@ def _gerar_um(
             fontes_disponiveis=preparacao.feicoes,
             pasta_saida=PASTA_SAIDA,
             crs=f"EPSG:{epsg}",
+            saidas=saidas,
         )
         resultado.camadas = [c["id"] for c in mapspec["camadas"]]
         saida = gerar_mapa(
@@ -246,11 +262,17 @@ def _gerar_um(
             dict(preparacao.fontes_idx),
             progresso=rastreador,
         )
-        resultado.pdf = saida.get("pdf")
+        resultado.pdf_nativo = saida.get("pdf")
+        resultado.pdf_arcmap = saida.get("pdf_arcmap")
+        resultado.pdf = resultado.pdf_arcmap or resultado.pdf_nativo
+        resultado.mxd = saida.get("mxd")
         resultado.avisos = list(saida.get("avisos") or [])
         artefatos = saida.get("artefatos") or {}
         resultado.basemap = (artefatos.get("basemap") or {}) if isinstance(artefatos, dict) else {}
-        resultado.ok = bool(resultado.pdf)
+        resultado.ok = (
+            ("pdf" not in saidas or bool(resultado.pdf))
+            and ("mxd" not in saidas or bool(resultado.mxd))
+        )
     except Exception as exc:  # noqa: BLE001 — um mapa não derruba a série
         if getattr(exc, "codigo", None) == "NU-050":
             raise

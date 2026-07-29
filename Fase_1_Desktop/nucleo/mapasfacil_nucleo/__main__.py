@@ -218,6 +218,18 @@ def _handler_analise_executar(params: dict[str, Any], emissor: Emissor) -> dict[
     preparar_camadas = params.get("preparar_camadas", True)
     if not isinstance(preparar_camadas, bool):
         raise ErroNucleo("NU-001", "Parâmetro 'preparar_camadas' inválido.")
+    saidas_bruto = params.get("saidas", ["mxd", "pdf"])
+    if (
+        not isinstance(saidas_bruto, list)
+        or not saidas_bruto
+        or not all(isinstance(item, str) for item in saidas_bruto)
+        or not set(saidas_bruto) <= {"mxd", "pdf"}
+    ):
+        raise ErroNucleo(
+            "NU-001",
+            "Parâmetro 'saidas' precisa conter somente 'mxd' e/ou 'pdf'.",
+        )
+    saidas = tuple(dict.fromkeys(saidas_bruto))
 
     total = len([r for r in RECEITAS_ANALISE if not apenas or r.id in apenas])
     job_id = jobs.registrar()
@@ -238,6 +250,7 @@ def _handler_analise_executar(params: dict[str, Any], emissor: Emissor) -> dict[
             ao_progresso=_verificar_cancelamento,
             progresso=progresso,
             preparar_camadas=preparar_camadas,
+            saidas=saidas,
         )
     finally:
         jobs.liberar(job_id)

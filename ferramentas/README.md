@@ -34,6 +34,13 @@ Scripts presentes:
 | `medir_modelos_serie.py` | mede a anatomia dos 20 PDFs-modelo → `shared/padrao-imap/anatomia_serie.json` |
 | `amostrar_cores_modelo.py` | amostra as cores oficiais nos quadradinhos de legenda dos modelos |
 | `publicar_analise.py` | publica os PDFs de uma análise em https://analises.cursar.space (**sem senha** — ver [`docs/analise-entrega-cloudflare.md`](../docs/analise-entrega-cloudflare.md)) |
+| `detectar_arcmap.ps1` | W0 — detecta ArcMap/ArcPy/licença → `output/w0_ambiente.json` |
+| `auditar_templates_mxd.ps1` | inspeciona todos os `.mxd` em `shared/templates/` |
+| `preparar_templates_serie_mxd.ps1` | W3–W4 — normaliza, sentinelas e registra os 20 templates da série |
+| `clonar_elementos_layout_arcobjects.py` | clona layout de MXD-modelo (ArcObjects) |
+| `analise_area_windows.ps1` | orquestrador W1–W8 da Análise de área no Windows |
+| `smoke_serie_mxd.py` | smoke W5 — série com `mxd` + `pdf` e relatório JSON |
+| Roteiro templates série | [`docs/mxd-templates-serie-w5.md`](../docs/mxd-templates-serie-w5.md) |
 | Roteiro paridade &lt; 0,3% | [`docs/paridade-visual-harmonia.md`](../docs/paridade-visual-harmonia.md) |
 
 Procedimento completo (remoção + salvar na GUI para a janelinha não voltar):

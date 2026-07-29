@@ -78,7 +78,9 @@ class IdentidadeImovel:
         """Bloco `imovel` do MapSpec — sem nenhum dado pessoal."""
         return {
             "nome": self.nome,
-            "car": self.car_estadual,
+            # O contrato MapSpec exige string; CAR não encontrado é representado
+            # por vazio e permanece declarado nos avisos da identificação.
+            "car": self.car_estadual or "",
             "matricula": None,
             "area_total_ha": round(self.area_atp_ha, 4),
             "municipio": {

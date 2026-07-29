@@ -17,21 +17,91 @@ from mapasfacil_nucleo.motores import minimapa as minimapa_mod
 from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.patch_mxd import _textos_do_mapspec
 from mapasfacil_nucleo.workspace.shapefile import inspecionar
+from mapasfacil_nucleo.camadas.materializar import NOME_CANONICO_POR_PAPEL
 
 # Stems canônicos → nomes que o template Dinâmica ainda pode exigir (acervo).
 _HOMONIMOS_SHAPE: dict[str, tuple[str, ...]] = {
-    "ATP": ("CAR_ATP", "Fazenda_Harmonia", "Fazenda_Santa_Clara"),
+    "ATP": (
+        "CAR_ATP",
+        "Fazenda_Harmonia",
+        "Fazenda_Santa_Clara",
+        "Fazendas_Unidas",
+        "Fazenda_Unificada",
+        "SIEGEF",
+    ),
     "AREA_CONSOLIDADA": ("AC", "AREA_CONSOLIDADA"),
     "AVN": ("AVN",),
     "AUAS": ("AUAS",),
 }
 
+_ALIASES_POR_CAMADA: dict[str, tuple[str, ...]] = {
+    "alertas_mapbiomas": ("AIR",),
+    "prodes": ("AIR",),
+    "unidades_conservacao": ("UNIDADES_CONSERVACAOPolygon",),
+    "uc_amortecimento": ("Zona_de_Amortecimento_UC",),
+    "tipologia_floresta": ("Embargo",),
+    "terras_indigenas": ("tis_poligonaisPolygon",),
+    "ti_amortecimento": ("Zona de amortecimento T_I",),
+    "zona_amortecimento": ("Zona de amortecimento T_I",),
+    "pef": ("Area_do_PEF",),
+    "embargos_ibama": ("adm_embargo_a",),
+    "embargos_sema": ("AREAS_EMBARGADAS_SEMA",),
+    "embargos_siga": ("AREA_EMBARGADA_SIGA_POLIGONO",),
+    "area_precisa_dla": ("Area_que_precisara_de_DLA",),
+    "auas": ("AUAS_PEF", "AUAS"),
+    "ac": ("Area_cultivavel", "AC"),
+    "avn": ("AVN",),
+}
+
 _SUFIXOS_SHAPE = (".shp", ".shx", ".dbf", ".prj", ".cpg", ".sbn", ".sbx")
 
 
-def _garantir_homonimos_shp(pasta_shp: Path) -> None:
+def _gravar_georreferencia_raster(
+    caminho: Path,
+    bbox: tuple[float, float, float, float],
+    epsg: int,
+) -> None:
+    """Cria world file/PRJ para o PNG/JPEG WMS entrar alinhado no ArcMap."""
+    from PIL import Image
+    from pyproj import CRS
+
+    with Image.open(caminho) as imagem:
+        largura, altura = imagem.size
+    xmin, ymin, xmax, ymax = bbox
+    pixel_x = (xmax - xmin) / float(largura)
+    pixel_y = -(ymax - ymin) / float(altura)
+    centro_x = xmin + pixel_x / 2.0
+    centro_y = ymax + pixel_y / 2.0
+    world_ext = ".pgw" if caminho.suffix.lower() == ".png" else ".jgw"
+    caminho.with_suffix(world_ext).write_text(
+        "\n".join(
+            str(valor)
+            for valor in (pixel_x, 0.0, 0.0, pixel_y, centro_x, centro_y)
+        )
+        + "\n",
+        encoding="ascii",
+    )
+    caminho.with_suffix(".prj").write_text(CRS.from_epsg(epsg).to_wkt(), encoding="utf-8")
+
+
+def _garantir_homonimos_shp(
+    pasta_shp: Path,
+    camadas: list[dict[str, Any]] | None = None,
+) -> None:
     """Copia ATP.shp → CAR_ATP.shp etc. para findAndReplaceWorkspacePaths resolver."""
-    for canonico, aliases in _HOMONIMOS_SHAPE.items():
+    aliases_por_canonico = {k: list(v) for k, v in _HOMONIMOS_SHAPE.items()}
+    for camada in camadas or []:
+        fonte = str(camada.get("fonte") or "")
+        if not fonte.startswith("local."):
+            continue
+        papel = fonte.split(".", 1)[1]
+        canonico = NOME_CANONICO_POR_PAPEL.get(papel.upper(), papel.upper())
+        aliases = aliases_por_canonico.setdefault(canonico, [])
+        for alias in _ALIASES_POR_CAMADA.get(str(camada.get("id") or "").lower(), ()):
+            if alias not in aliases:
+                aliases.append(alias)
+
+    for canonico, aliases in aliases_por_canonico.items():
         origem = pasta_shp / f"{canonico}.shp"
         if not origem.is_file():
             continue
@@ -161,7 +231,8 @@ def tentar_gerar_mxd_arcpy(
     pasta_saida_shp = guard.resolver(pasta_shp, escrita=True)
 
     # Homônimos que o template ainda espera (técnica F1-04) — sem replaceDataSource.
-    _garantir_homonimos_shp(pasta_saida_shp)
+    camadas_mapspec = list(mapspec.get("camadas") or [])
+    _garantir_homonimos_shp(pasta_saida_shp, camadas_mapspec)
 
     ctx = montar_contexto_minimapa(mapspec, guard=guard, fontes_idx=fontes_idx)
     if not quer_minimapa:
@@ -226,6 +297,34 @@ def tentar_gerar_mxd_arcpy(
                     basemap_raster = resultado_basemap["png"]
             except Exception:
                 basemap_raster = None
+    if (
+        basemap_raster is None
+        and bbox
+        and basemap_cfg
+        and os.environ.get("MAPASFACIL_ARCPY_BASEMAP", "1") != "0"
+    ):
+        try:
+            epsg_df = int(
+                str(tpl.get("crs_data_frame", mapspec.get("crs", "EPSG:31982"))).replace(
+                    "EPSG:", ""
+                )
+            )
+            from mapasfacil_nucleo.motores import basemap as basemap_mod
+
+            resultado_basemap = basemap_mod.buscar(
+                basemap_cfg,
+                guard=guard,
+                extent=tuple(bbox),
+                epsg=epsg_df,
+                pasta_saida=str(saida_cfg.get("pasta", "Mapas")),
+                largura=1600,
+            )
+            caminho_basemap = resultado_basemap.get("caminho")
+            if resultado_basemap.get("ok") and isinstance(caminho_basemap, Path):
+                _gravar_georreferencia_raster(caminho_basemap, tuple(bbox), epsg_df)
+                basemap_raster = str(caminho_basemap)
+        except Exception:
+            basemap_raster = None
     # PDF ArcMap ao lado do nativo (critério M2 §1.5): *_arcmap.pdf
     saidas_job = ["mxd"]
     saida_pdf_arc = None
@@ -243,6 +342,23 @@ def tentar_gerar_mxd_arcpy(
     if imovel.get("nome"):
         textos.setdefault("ROTULO_IMOVEL", str(imovel["nome"]))
 
+    camadas_payload: list[dict[str, Any]] = []
+    for camada in camadas_mapspec:
+        fonte = str(camada.get("fonte") or "")
+        if not fonte.startswith("local."):
+            continue
+        papel = fonte.split(".", 1)[1]
+        camadas_payload.append(
+            {
+                "id": str(camada.get("id") or papel).upper(),
+                "nome": str(camada.get("nome_no_mxd") or camada.get("id") or papel),
+                "dataset": NOME_CANONICO_POR_PAPEL.get(papel.upper(), papel.upper()),
+                "aliases": list(
+                    _ALIASES_POR_CAMADA.get(str(camada.get("id") or "").lower(), ())
+                ),
+            }
+        )
+
     payload = arcpy_ponte.montar_payload(
         template=str(template_path),
         tmp_dir=str(tmp),
@@ -254,6 +370,12 @@ def tentar_gerar_mxd_arcpy(
         uf_extenso=ctx["uf_extenso"],
         textos=textos,
         graficos=ctx["graficos"],
+        camadas=camadas_payload,
+        camadas_visiveis=[
+            nome
+            for camada in camadas_payload
+            for nome in (camada["id"], camada["nome"])
+        ],
         basemap_raster=basemap_raster,
         basemap_mosaico=basemap_mosaico,
         planet_api_key=planet_api_key,

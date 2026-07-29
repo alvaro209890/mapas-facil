@@ -337,7 +337,7 @@
       "preview": "previews/dinamica_2026_quantitativos.png",
       "orientacao": "retrato",
       "tags": ["analise", "car", "serie", "20_mapas"],
-      "saidas_padrao": ["pdf"],
+      "saidas_padrao": ["mxd", "pdf"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {

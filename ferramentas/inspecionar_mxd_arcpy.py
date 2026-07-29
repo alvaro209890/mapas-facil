@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import json
+import os
 import sys
 
 try:
@@ -42,6 +43,26 @@ def _safe(getter, default=None):
         return getter()
     except (NameError, AttributeError, ValueError):
         return default
+
+
+def _json_safe(valor):
+    """Converte caminhos/textos do ArcMap para Unicode sem depender do cp1252."""
+    if isinstance(valor, dict):
+        return {_json_safe(k): _json_safe(v) for k, v in valor.items()}
+    if isinstance(valor, (list, tuple)):
+        return [_json_safe(item) for item in valor]
+    try:
+        unicode_type = unicode
+    except NameError:
+        unicode_type = str
+    if isinstance(valor, bytes) and not isinstance(valor, unicode_type):
+        for encoding in (sys.getfilesystemencoding() or "mbcs", "utf-8", "cp1252"):
+            try:
+                return valor.decode(encoding)
+            except (UnicodeDecodeError, LookupError):
+                pass
+        return valor.decode("utf-8", "replace")
+    return valor
 
 
 def inspecionar(caminho_mxd):
@@ -88,6 +109,9 @@ def inspecionar(caminho_mxd):
             info = {
                 "df": df.name,
                 "name": lyr.name,
+                "long_name": _safe(lambda: lyr.longName),
+                "grupo": _safe(lambda: lyr.isGroupLayer, False),
+                "quebrada": _safe(lambda: lyr.isBroken, False),
                 "visible": _safe(lambda: lyr.visible),
             }
             rel["camadas"].append(info)
@@ -202,7 +226,7 @@ def main():
     parser.add_argument("-o", "--saida", help="Gravar JSON neste arquivo (UTF-8)")
     args = parser.parse_args()
     rel = inspecionar(args.mxd)
-    payload = json.dumps(rel, ensure_ascii=False, indent=2)
+    payload = json.dumps(_json_safe(rel), ensure_ascii=False, indent=2)
     if args.saida:
         import codecs
 

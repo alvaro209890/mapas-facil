@@ -86,6 +86,31 @@ def test_mapspec_da_receita_e_valido(identidade, disponiveis) -> None:
         assert resultado["valido"], (receita.id, resultado["erros"])
 
 
+def test_mapspec_da_serie_aceita_mxd_e_pdf(identidade, disponiveis) -> None:
+    spec = serie_mod.montar_mapspec(
+        serie_mod.POR_ID["dinamica_2023"],
+        identidade,
+        fontes_disponiveis=disponiveis,
+        saidas=("mxd", "pdf"),
+    )
+    assert spec["saidas"] == ["mxd", "pdf"]
+
+
+def test_mapspec_permanece_valido_quando_car_nao_e_encontrado(disponiveis) -> None:
+    sem_car = IdentidadeImovel(
+        nome="Imóvel sem nome",
+        area_atp_ha=1.0,
+        municipio={"nome": "Vila Rica", "cod_ibge": "5108600", "sigla_uf": "MT"},
+    )
+    spec = serie_mod.montar_mapspec(
+        serie_mod.POR_ID["dinamica_2023"],
+        sem_car,
+        fontes_disponiveis=disponiveis,
+    )
+    assert spec["imovel"]["car"] == ""
+    assert validar(spec, fontes_locais=frozenset(disponiveis))["valido"] is True
+
+
 def test_camada_sem_feicao_sai_do_mapa_e_da_legenda(identidade) -> None:
     receita = serie_mod.POR_ID["tipologia"]
     spec = serie_mod.montar_mapspec(

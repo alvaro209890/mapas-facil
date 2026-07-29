@@ -41,6 +41,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 MXD_DIRS = [
     RAIZ / "Referencias_IMAP" / "MXD",
     RAIZ / "Referencias_IMAP" / "Mapas",
+    RAIZ / "shared" / "templates",
 ]
 SECRETS = RAIZ / "secrets.local.json"
 
