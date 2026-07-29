@@ -24,6 +24,14 @@ Detalhe, armadilhas e o que ficou aberto: [`docs/motor-nativo-harmonia.md`](docs
 **Detalhe da rodada (causa raiz de cada bug + o que falta):**
 [`docs/estado-2026-07-27.md`](docs/estado-2026-07-27.md).
 
+**Meta aberta (2026-07-29):** "Análise de área" — um card de galeria que gera a **série
+completa** (20 mapas + compilado) a partir só do polígono ATP. A especificação está fechada e
+validada contra o disco em [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md):
+inventário 1:1 PDF↔MXD, matriz de imagem por mapa, lacunas de catálogo (C1–C5), trilha Linux
+(L1–L10) e o roteiro **W1–W8 para fechar a parte MXD no Windows sem intervenção humana** — só
+Claude Code + ArcMap instalado. Nada dela foi implementado ainda. Confira o documento com
+`python3 ferramentas/validar_goal_analise.py`.
+
 Ordem obrigatória do que resta: **M9 (Harmonia, parcial) → M10 (instalador) → M11 (piloto)**.
 Fechamento M2: [`docs/m2-entrega-harmonia.md`](docs/m2-entrega-harmonia.md) · `ferramentas/fechar_m2_windows.ps1`.
 Entrega M9 (infra + medição): [`docs/m9-conformidade-harmonia.md`](docs/m9-conformidade-harmonia.md) · `ferramentas/fechar_m9_windows.ps1`.

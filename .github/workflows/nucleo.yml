@@ -7,11 +7,15 @@ on:
       - "Fase_1_Desktop/nucleo/**"
       - "shared/**"
       - ".github/workflows/nucleo.yml"
+      - "planos/GOAL_analise_de_area.md"
+      - "ferramentas/validar_goal_analise.py"
   pull_request:
     paths:
       - "Fase_1_Desktop/nucleo/**"
       - "shared/**"
       - ".github/workflows/nucleo.yml"
+      - "planos/GOAL_analise_de_area.md"
+      - "ferramentas/validar_goal_analise.py"
 
 jobs:
   teste-anel-1:
@@ -43,6 +47,13 @@ jobs:
         env:
           COVERAGE_RCFILE: ${{ github.workspace }}/Fase_1_Desktop/nucleo/pyproject.toml
         run: pytest tests/test_fsguard.py tests/test_fsguard_branches.py --cov=mapasfacil_nucleo.fsguard --cov-report=term-missing --cov-fail-under=100
+
+      - name: Validar GOAL "Análise de área" contra o repo
+        # O documento afirma contagens do catálogo, da galeria e do MANIFEST. Se um
+        # commit em shared/ mudar isso, o plano passa a mentir — este passo pega.
+        # Os checks que dependem de Testes/ (gitignored) se pulam sozinhos.
+        working-directory: ${{ github.workspace }}
+        run: python3 ferramentas/validar_goal_analise.py
 
       - name: Validar MapSpec canônico
         run: |

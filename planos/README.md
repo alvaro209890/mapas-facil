@@ -16,6 +16,12 @@ mesmo commit.
 | 04 | [Dados, camadas e o CAR](04-dados-camadas-e-car.md) | pasta de trabalho, validação de shapefile, recibo do CAR, cache |
 | 05 | [Segurança e segredos](05-seguranca-e-segredos.md) | cofre de chaves, modelo de ameaças, LGPD, incidente 2026-07-25 |
 
+## Metas abertas
+
+| Meta | Documento | Estado |
+|---|---|---|
+| Análise de área — série completa de mapas com a ATP Aruanã | [`GOAL_analise_de_area.md`](GOAL_analise_de_area.md) | especificação **fechada e validada** (2026-07-29); implementação **não iniciada**. Inclui o roteiro para fechar a parte MXD no Windows sem intervenção humana (§11). Confira com `python3 ferramentas/validar_goal_analise.py` |
+
 ## Planos por fase
 
 | Fase | Onde | Prioridade |
