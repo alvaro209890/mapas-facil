@@ -98,3 +98,10 @@ Referencias_IMAP/Mapas/03/OneDrive*.zip
 # núcleo, nunca estes. Ver Referencias_IMAP/README.md.
 Referencias_IMAP/**/CAR - Recibo*.pdf
 Referencias_IMAP/**/CAR - Emissao*.pdf
+
+# Instalador do ArcGIS trazido para a máquina (1 GB, e o pacote inclui
+# pasta Crack/): nunca vai para o repositório público.
+ArcGIS*.zip
+
+# Dados de teste locais (imóveis reais + modelos do acervo), 134 MB.
+Testes/

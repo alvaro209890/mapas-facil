@@ -4,7 +4,14 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
-## Snapshot — o que falta (2026-07-27)
+## Snapshot — o que falta (2026-07-28)
+
+**Rodada 2026-07-28 (Linux, sem ArcMap):** o **motor nativo** passou a desenhar a
+anatomia completa do perfil Harmonia (quadro + grade DMS, título, rosa dos ventos,
+estilos oficiais, rótulo, minimapa com retângulo/linha-guia/selo UF, metadados,
+legenda, logo, tabela, basemap WMS) e ganhou a métrica que fecha **sem** ArcMap:
+comparação de **anatomia** em milímetros contra os PDFs-modelo — hoje **6/6 verdes**.
+Detalhe, armadilhas e o que ficou aberto: [`docs/motor-nativo-harmonia.md`](docs/motor-nativo-harmonia.md).
 
 ### Fase 1 — desktop
 
@@ -133,7 +140,7 @@ cd Fase_1_Desktop/app && pnpm test         # shell + galeria + chats + chat + mo
 | Agente DeepSeek | **fechado** (M7) — orquestrador, VCR/cassetes, MapSpec em disco, **27/27 tools reais** (F1-07 fechou `analisar_referencia`) | `nucleo/.../agente/`, `app/src/paineis/PainelChat.tsx` |
 | Visão de referência (F1-07) | **determinístico fechado**; API V4 **sem** imagem (P1 fechada 2026-07-26 — `400 image_url`) — interpretação LLM fica em `IA-060` até a DeepSeek publicar modelo multimodal na API | `nucleo/.../agente/visao/` |
 | `fsguard` | fechado, 100% de cobertura | `mapasfacil_nucleo/fsguard.py` |
-| PDF nativo + overlay da tabela | estrutural (sem paridade visual Harmonia) | `motores/nativo.py` |
+| PDF nativo + overlay da tabela | **anatomia Harmonia completa** (2026-07-28): retrato validado 6/6 contra o PDF-modelo; sem paridade pixel a pixel com o ArcMap | `motores/nativo.py` e `motores/{perfil_pagina,grade_dms,estilos,blocos,basemap}.py` |
 | Quantitativos + `.xlsx` + PNG + Conferência | fechados | `quantitativos/` |
 | `mapspec.diff`, diff raster de PDF | fechados | `mapspec/diff.py`, `validacao/comparar_pdf.py` |
 | Motor `.mxd` | **parcial**: T2 copia template preparado; T1 é esqueleto | `motores/patch_mxd.py`, `motores/arcpy_ponte.py` |
@@ -260,7 +267,8 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
-| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf` | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py` |
+| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf`. **Diff raster só é honesto com o mesmo dado**: para máquina sem ArcMap entrou a métrica de **anatomia** (mm contra o PDF-modelo), hoje 6/6 | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py`, `validacao/anatomia.py` |
+| R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **parcial** (2026-07-28) — perfil **retrato** completo: quadro + grade DMS, título, rosa, estilos oficiais, rótulo, minimapa (retângulo/guia/selo UF), metadados, legenda, logo, tabela e basemap WMS com degradação declarada. Falta paisagem exercitado, golden images no CI e testes dedicados | `nucleo/.../motores/{nativo,perfil_pagina,grade_dms,estilos,blocos,basemap}.py`, `ferramentas/paridade_nativa.py` |
 | R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `v0.5.2` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). **Falta a assinatura Authenticode** (SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
 | R28 | Auto-update: o app avisa e atualiza com um clique | [F1-11 §P2](Fase_1_Desktop/planos/11-empacotamento-instalador.md#p2--auto-update) | **feito** (2026-07-27, a partir da `0.5.2`) — `electron-updater` com feed do GitHub; verifica no boot e a cada 4 h; nada baixa nem instala sem clique. **Toda release precisa de tag `vX.Y.Z` e do `latest.yml` publicado** | `app/electron/atualizador.ts`, `app/src/componentes/BarraAtualizacao.tsx` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |

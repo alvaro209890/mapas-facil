@@ -116,22 +116,22 @@ Esse não é bit a bit — mede posição de blocos, cores amostradas e presenç
 
 ## Checklist de implementação
 
-- [ ] Perfil retrato e perfil paisagem, com retângulos do manifesto
-- [ ] Grade DMS com passo automático e formato correto
-- [ ] Caixa de título
-- [ ] Rosa dos ventos
-- [ ] Estilos oficiais das 6 camadas do imóvel + temáticas sólidas
-- [ ] Rótulo do imóvel com halo, no centroide, acima das hachuras
-- [ ] Bloco de metadados como lista de pares com negrito
-- [ ] Legenda com swatch de polígono vazado
-- [ ] Minimapa completo (IBGE gzip, laranja, retângulo, linha-guia, selo UF)
-- [ ] Basemap nos 5 tipos, com validação de magic bytes
+- [~] Perfil **retrato** feito (2026-07-28), com os retângulos medidos em `motores/perfil_pagina.py`; paisagem definido mas ainda não exercitado
+- [x] Grade DMS com passo automático e formato correto — `motores/grade_dms.py`
+- [x] Caixa de título
+- [x] Rosa dos ventos
+- [x] Estilos oficiais das 6 camadas do imóvel + temáticas sólidas — `motores/estilos.py`
+- [x] Rótulo do imóvel com halo, no centroide, acima das hachuras
+- [x] Bloco de metadados como lista de pares com negrito (ancorado na base da caixa)
+- [x] Legenda com swatch de polígono vazado, com quebra de rótulo longo
+- [x] Minimapa completo (IBGE, laranja, retângulo, linha-guia em L, selo UF)
+- [~] Basemap **WMS** do catálogo com validação de magic bytes e degradação declarada (`motores/basemap.py`); faltam os demais tipos
 - [x] Tabela PNG sobreposta
-- [ ] Logo
-- [ ] Export PDF 300 dpi + PNG de preview
+- [x] Logo (com recorte do alfa: o PNG do acervo tem 2% de pixels opacos)
+- [x] Export PDF 300 dpi + PNG da página
 - [x] `motor: "nativo"` no relatório
-- [ ] Regressão visual no CI com golden images
-- [ ] Teste de paridade com os PDFs-modelo
+- [ ] Regressão visual no CI com golden images — **falta**
+- [~] Paridade por **anatomia** contra os PDFs-modelo, 6/6 verdes (`validacao/anatomia.py`, `ferramentas/paridade_nativa.py`); falta virar teste de CI
 
 ## Pendências
 
