@@ -68,8 +68,10 @@ describe("BarraChats", () => {
       respostas: { "doctor.rodar": { ok: true, resultado: RELATORIO } },
     });
     render(<App />);
-    await waitFor(() => expect(document.getElementById("busca-chats")).toBeInTheDocument());
-    expect(ponte.chamadas.some((c) => c.metodo === "chat.listar_conversas")).toBe(true);
+    await waitFor(() => {
+      expect(document.getElementById("busca-chats")).toBeInTheDocument();
+      expect(ponte.chamadas.some((c) => c.metodo === "chat.listar_conversas")).toBe(true);
+    });
 
     await userEvent.click(screen.getByRole("button", { name: "Nova conversa" }));
     await waitFor(() =>
