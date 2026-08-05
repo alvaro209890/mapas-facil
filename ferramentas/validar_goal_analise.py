@@ -369,7 +369,7 @@ def checar_galeria(r: Resultado) -> None:
         galeria.get("galeria_version") == 2
         and card
         and card.get("tipo_execucao") == "analise_de_area"
-        and "mxd" not in card.get("saidas_padrao", [])
+        and {"mxd", "pdf"}.issubset(card.get("saidas_padrao", []))
     ):
         r.ok("Card analise_de_area", "schema v2, executor de série e saída nativa")
     else:
@@ -381,8 +381,8 @@ def checar_galeria(r: Resultado) -> None:
     if (
         len(modelos) == 6
         and len(tipos_mapspec) == 5
-        and prontos == ["dinamica_2026_retrato", "analise_de_area"]
-        and len(bloqueados) == 4
+        and len(prontos) == 6
+        and not bloqueados
     ):
         r.ok("Galeria e templates", "6 cards; gate ArcMap preservado só para saída mxd (§6.1)")
     else:

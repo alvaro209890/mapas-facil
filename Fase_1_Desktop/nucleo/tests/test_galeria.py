@@ -147,7 +147,7 @@ def test_montar_mapspec_valida_e_deterministico(pasta_harmonia: Path):
     assert {cam["id"] for cam in a["mapspec"]["camadas"]} >= {"perimetro", "avn", "auas", "ac"}
 
 
-def test_montar_pdf_nativo_com_template_a_preparar(pasta_harmonia: Path):
+def test_montar_pdf_nativo_com_template_preparado(pasta_harmonia: Path):
     pacote = montar_mapspec(
         "tipologia_paisagem",
         workspace=str(pasta_harmonia),
@@ -160,7 +160,7 @@ def test_montar_pdf_nativo_com_template_a_preparar(pasta_harmonia: Path):
     )
     checagem = validar(pacote["mapspec"], fontes_locais=fontes)
     assert checagem["valido"] is True, checagem["erros"]
-    assert any(aviso["codigo"] == "AG-030" for aviso in checagem["avisos"])
+    assert not any(aviso["codigo"] == "AG-030" for aviso in checagem["avisos"])
 
 
 def test_montar_mxd_com_template_preparado(pasta_harmonia: Path):
