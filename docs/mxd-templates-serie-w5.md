@@ -85,12 +85,16 @@ Handoff anterior (não refazer B1/B2 da Harmonia):
 
 | Item | Nota |
 |---|---|
-| **W5/W6/W7** | Smoke MXD+PDF na Aruanã com relatório `output/w5_serie_mxd.json` e paridade |
-| **M9** | Diff raster T1 × modelo &lt; 0,3% na Harmonia (última medição ~81%) |
-| **M10** | Authenticode no instalador |
+| **W5/W6/W7** | Smoke MXD+PDF na Aruanã com relatório `output/w5_serie_mxd.json` e paridade — `Testes/` (gitignored) não existe no PC da rodada 2026-08-10; `smoke_serie_mxd.py` roda onde o dado estiver |
+| **M9** | Diff raster T1 × modelo &lt; 0,3% na Harmonia (última medição ~81–82%); smoke M9 com motor `arcpy` rerodado 2026-08-10: 6/6 HARD verdes, MXD sem links quebrados |
+| **M10** | Authenticode no instalador (signtool: "No signature found") |
 | **M11** | Piloto em PC limpo com técnico real |
 | **Groq Vision** | Opcional — sem `groq_api_key` no cofre |
 | **TCR** | Dado do escritório — anatomia 19/20 na Aruanã |
+
+Auditoria dos templates confirmada com o ArcPy real em 2026-08-10
+(`auditar_templates_mxd.ps1 -IncluirDinamicaRetrato` → `TOTAL=21 PRONTOS=21 PENDENTES=0`):
+[`validacao-windows-2026-08-10.md`](validacao-windows-2026-08-10.md).
 
 ## Commits relacionados
 

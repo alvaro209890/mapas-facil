@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import copy
+import importlib
 
 import pytest
 
-from mapasfacil_nucleo.mapspec.validar import validar
+validar_mod = importlib.import_module("mapasfacil_nucleo.mapspec.validar")
+validar = validar_mod.validar
 
 
 def test_exemplo_canonico_valido(mapspec_canonico: dict) -> None:
@@ -100,7 +102,19 @@ def test_rejeita_metadado_vazio(mapspec_canonico: dict) -> None:
     assert any(e["codigo"] == "NU-223" for e in resultado["erros"])
 
 
-def test_aviso_template_sem_sha256(mapspec_canonico: dict) -> None:
+def test_aviso_template_sem_sha256(mapspec_canonico: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    # 25/25 templates do MANIFEST já têm sha256 (2026-07-29);
+    # monkeypatch simula um template sem sha256 (caso a_preparar).
+    monkeypatch.setattr(
+        validar_mod,
+        "_template_ids",
+        lambda: frozenset({"tipologia_paisagem"}),
+    )
+    monkeypatch.setattr(
+        validar_mod,
+        "_templates_por_id",
+        lambda: {"tipologia_paisagem": {"id": "tipologia_paisagem", "status": "a_preparar"}},
+    )
     spec = copy.deepcopy(mapspec_canonico)
     spec["template"] = "tipologia_paisagem"
     resultado = validar(

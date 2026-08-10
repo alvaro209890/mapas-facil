@@ -62,16 +62,16 @@ Fase 1 (Windows)                    Fase 2 (distribuição)
 4. [`Fase_1_Desktop/planos/13-checklist-implementacao.md`](Fase_1_Desktop/planos/13-checklist-implementacao.md)
 5. [`planos/02-mapspec-contrato.md`](planos/02-mapspec-contrato.md)
 
-## Estado atual (2026-07-26)
+## Estado atual (2026-08-10)
 
 | Marco | Status |
 |---|---|
 | M0 — Planos e contratos | **fechado** |
 | M1 — Núcleo + `MapSpec` + `fsguard` | **bloco A fechado** · bloco B **parcial** (precisa ArcMap para fechar) |
-| M2 — Motor `.mxd` | **parcial** — próximo grande passo (Windows + ArcMap) |
+| M2 — Motor `.mxd` | **parcial** — 25/25 templates `pronto`; auditoria ArcPy 21/21 e smoke M9 com motor `arcpy` (6/6 HARD, MXD sem links quebrados) em 2026-08-10; smoke da série na Aruanã pendente (dado gitignored) |
 | M3–M8 — shell, galeria, auth, chats, agente, motion | **fechados** (+ épico sem ArcMap: F1-07, 41/41 camadas, eventos, UI) |
-| M9–M11 — Harmonia, instalador, piloto | **não iniciados** |
-| Fase 2 | planos **reescritos** (D21 = distribuição); código `web/` não iniciado |
+| M9–M11 — Harmonia, instalador, piloto | **M9 parcial** — diff raster ~81–82% (par de imóveis diferentes); **M10 quase** — instalador 0.5.2 reproduzido (144 MB), falta Authenticode e PC limpo; **M11 não iniciado** |
+| Fase 2 | planos **reescritos** (D21 = distribuição); site **no ar** — https://mapasfacil.cursar.space |
 
 **Backlog desktop sem ArcMap: esgotado.** No Linux Mint deste projeto só sobra polish opcional;
 o eixo que falta é **M2 → M9 → M10 → M11** em PC Windows.

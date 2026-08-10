@@ -6,6 +6,18 @@ em qualquer coisa.
 
 ## Snapshot — o que falta (2026-07-29, noite)
 
+**Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (2 runs: 2026-07-29
+e 2026-08-05) pelo mesmo teste — `test_aviso_template_sem_sha256` assumia `tipologia_paisagem`
+sem sha256, mas os 25 templates agora são `pronto`. Corrigido com monkeypatch (o caso `AG-030`
+continua coberto). Neste Windows: núcleo **521 passed**, app **180 passed** + typecheck+build,
+doctor com ArcMap 10.8 (`Pronto para MXD: True`), **auditoria ArcPy 21/21 `pronto_b1`**
+(`auditar_templates_mxd.ps1`), smoke M9 real com motor `arcpy`: 6/6 HARD verdes e MXD gerado
+**sem links quebrados** (`broken: []`, paths relativos — I3 exercitado), instalador
+`MapasFacil-Setup-0.5.2.exe` **reproduzido** via `pnpm dist` (144 MB, sem Authenticode —
+depende de certificado). Detalhe: [`docs/validacao-windows-2026-08-10.md`](docs/validacao-windows-2026-08-10.md).
+**Ainda não roda aqui:** smoke W5 na Aruanã (`Testes/` gitignored não existe neste PC) e
+paridade < 0,3%.
+
 **Rodada 2026-07-29 (Windows, Fase W):** os **25 templates `.mxd`** estão em
 `shared/templates/` com `status: pronto` no MANIFEST (20 da série Análise de área +
 5 da galeria). O card `analise_de_area` pede `mxd` + `pdf`. Detalhe:
@@ -23,7 +35,7 @@ na Aruanã (`smoke_serie_mxd.py`) e paridade M9.
 | Faixa | Estado |
 |---|---|
 | **Sem ArcMap (Linux ok)** | **esgotado** — M3–M8 + A9–A13 + F1-07 + clientes 43/43 + `job.log`/`aviso` + watcher→chat + R14 + menus/tray + offline + Esc≠job + **série Análise de área (20 mapas em PDF)** |
-| **Com Windows + ArcMap** | **M2 expandido** (2026-07-29) — 25/25 templates `pronto`; `analise.executar` com `mxd`+`pdf`. **M9 parcial** — diff raster ~81% na Harmonia; smoke série MXD pendente |
+| **Com Windows + ArcMap** | **M2 expandido** (2026-07-29) — 25/25 templates `pronto`; `analise.executar` com `mxd`+`pdf`. **M9 parcial** — diff raster ~81% na Harmonia; smoke série MXD pendente. **2026-08-10:** auditoria ArcPy 21/21 `pronto_b1`, smoke M9 com motor `arcpy` 6/6 HARD + MXD sem links quebrados, CI corrigido |
 | **Com Windows (sem ArcMap)** | **M10 quase** — instalador **`v0.5.2`** publicado e reproduzível do repo (`pnpm dist`), **com atualização automática** (F1-11 §P2: avisa e atualiza com um clique, a partir desta versão). Os 3 bugs que travavam o piloto (app não abria, login duplicado, WMS manual) estão corrigidos e verificados. **Falta: Authenticode** e instalar num PC limpo → **M11** |
 
 **Detalhe da rodada (causa raiz de cada bug + o que falta):**
@@ -283,14 +295,14 @@ Tabela viva. Um agente que fecha um item **atualiza a linha no mesmo commit**.
 | R19 | `mapa.cancelar` e `chat.cancelar` | [F1-01](Fase_1_Desktop/planos/01-arquitetura.md) | **feito** — `chat.cancelar` + `mapa.cancelar` (`jobs.py`, `NU-050`, `taskkill` no Windows); loop NDJSON em thread | `nucleo/.../jobs.py`, `app/.../BarraProgressoJob.tsx` |
 | R20 | Cofre (`cofre.definir`/`existe`/`testar`) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** (A11) — valor nunca no stdio | `nucleo/.../cofre.py` |
 | R21 | `catalogo.listar` e `camada.resolver` (clientes em runtime) | [F1-03](Fase_1_Desktop/planos/03-nucleo-python.md) | **feito** — A13 abriu com `wms_wfs`; o épico seguinte fechou `arcgis_rest`, `wfs_gml` e `wms_raster`. **41/41 camadas com cliente** | `nucleo/.../camadas/` |
-| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
+| R22 | Motor T1 (ArcPy real) | [F1-04](Fase_1_Desktop/planos/04-motor-mxd.md) | **quase** — T1 gera MXD+PDF ArcMap na Harmonia; `AC` ainda quebrada no template. 2026-08-10: smoke M9 com motor `arcpy` rerodado (6/6 HARD; 82,1% de diff por serem imóveis diferentes); MXD gerado abre sem link quebrado (`broken: []`, paths relativos) — I3 exercitado localmente, falta só o PC alheio | `nucleo/.../scripts/arcpy_job.py`, `docs/m2-entrega-harmonia.md` |
 | R23 | B1: template `dinamica_retrato` completo + offsets | [F1-13](Fase_1_Desktop/planos/13-checklist-implementacao.md) | **feito** (2026-07-27) — B1 fechado na GUI (`ROTULO_IMOVEL`) + B2 recalibrado; `pronto_b1: true`, `status: pronto` | `shared/templates/MANIFEST.json` |
 | R27 | `chat.pergunta` — agente pergunta ao usuário com opções em vez de chutar | [F1-06](Fase_1_Desktop/planos/06-agente-eng-florestal.md) | **feito** (2026-07-27) — 9º evento do vocabulário; chips + campo livre; resposta volta como mensagem do turno seguinte | `nucleo/.../protocolo.py`, `agente/tools.py`, `app/src/componentes/CartaoPergunta.tsx` |
-| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf`. **Diff raster só é honesto com o mesmo dado**: para máquina sem ArcMap entrou a métrica de **anatomia** (mm contra o PDF-modelo), hoje 6/6 | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py`, `validacao/anatomia.py` |
+| R24 | Paridade visual Harmonia (< 0,3% raster) | [F1-09](Fase_1_Desktop/planos/09-validacao-conformidade.md) | **parcial** — smoke M9 mede ~81% no PDF ArcMap (Dinâmica 2026); comparador usa `*_arcmap.pdf`. **Diff raster só é honesto com o mesmo dado**: para máquina sem ArcMap entrou a métrica de **anatomia** (mm contra o PDF-modelo), hoje 6/6. 2026-08-10: smoke M9 rerodado com motor `arcpy` real — 6/6 HARD verdes, 82,1% no par de imóveis diferentes (esperado) | `docs/m9-conformidade-harmonia.md`, `validacao/saida.py`, `validacao/anatomia.py` |
 | R29 | Renderizador nativo no padrão Harmonia (F1-05) | [F1-05](Fase_1_Desktop/planos/05-motor-pdf-nativo.md) | **feito** (2026-07-29) — retrato e paisagem exercitados nos 20 mapas; golden de anatomia versionado com tolerância de 0,3% roda no CI e publica esperado/obtido/diff quando falha | `nucleo/.../validacao/anatomia.py`, `nucleo/tests/test_golden_anatomia.py`, `nucleo/tests/golden/` |
 | R30 | **Análise de área**: série de 20 mapas a partir só do polígono | [`planos/GOAL_analise_de_area.md`](planos/GOAL_analise_de_area.md) | **feito no desktop para PDF** (2026-07-29) — card, gate nativo, identidade, 20 receitas, compilado, progresso/artefatos reais e acervo raster compartilhado. **20/20 gerados, 19/20 verdes** na Aruanã. Groq é opcional e segue sem chave; `.mxd` fica na Fase W | `nucleo/.../analise/`, `nucleo/.../acervo/`, `app/src/componentes/BarraProgressoJob.tsx` |
 | R31 | Entrega dos mapas ao cliente por link | [`docs/analise-entrega-cloudflare.md`](docs/analise-entrega-cloudflare.md) | **feito** (2026-07-29) — `analises.cursar.space` deste PC pelo tunnel do Mapas Fácil. **Sem senha, por decisão do dono**: quem tem a URL vê CAR, nome da propriedade e geometria do imóvel | `Fase_2_Site/deploy/servidor_analises.py`, `ferramentas/publicar_analise.py` |
-| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `v0.5.2` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). **Falta a assinatura Authenticode** (SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
+| R25 | Instalador Windows assinado | [F1-11](Fase_1_Desktop/planos/11-empacotamento-instalador.md) | **parcial** — `v0.5.2` publicado e reproduzível (`pnpm dist`: spec PyInstaller + config NSIS versionados). 2026-08-10: **reproduzido** neste Windows — `MapasFacil-Setup-0.5.2.exe` 144 MB + `latest.yml`; sidecar onedir roda `doctor`. **Falta a assinatura Authenticode** (signtool confirma "No signature found"; SmartScreen ainda alerta) e validar a instalação num PC limpo | `Fase_1_Desktop/app/package.json` (`build`), `Fase_1_Desktop/nucleo/mapasfacil-nucleo.spec` |
 | R28 | Auto-update: o app avisa e atualiza com um clique | [F1-11 §P2](Fase_1_Desktop/planos/11-empacotamento-instalador.md#p2--auto-update) | **feito** (2026-07-27, a partir da `0.5.2`) — `electron-updater` com feed do GitHub; verifica no boot e a cada 4 h; nada baixa nem instala sem clique. **Toda release precisa de tag `vX.Y.Z` e do `latest.yml` publicado** | `app/electron/atualizador.ts`, `app/src/componentes/BarraAtualizacao.tsx` |
 | R26 | `analisar_referencia` — print/PDF/`.mxd`/`.zip` → MapSpec proposto | [F1-07](Fase_1_Desktop/planos/07-visao-print-e-zip.md) | **feito** — determinístico completo; P1 fechada: API V4 **não** tem visão (`400 image_url`); interpretação LLM → `IA-060` até existir modelo multimodal na API | `nucleo/.../agente/visao/`, `agente/tools.py` |
 

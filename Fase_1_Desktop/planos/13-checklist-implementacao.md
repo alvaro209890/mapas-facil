@@ -19,7 +19,7 @@ Legenda: `[x]` feito · `[~]` parcial (com nota) · `[ ]` não iniciado.
 | F — conversas | M6 | **fechado** — F1–F7 + menu R14 completo |
 | G — agente | M7 | **fechado** — 27/27 tools; F1-07 determinístico; API V4 sem visão (P1 negativa) |
 | H — motion e preview | M8 | **fechado** — H1–H7 + H6 `mapspec.atualizado` |
-| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; I1–I3 bloqueados por diff e série |
+| I — conformidade / instalador / piloto | M9–M11 | **M9 parcial** (2026-07-27) — pipeline checks + smoke; rerodado 2026-08-10 com motor `arcpy` (6/6 HARD, MXD sem links quebrados); I2/I5 seguem bloqueados por dados iguais/certificado |
 | J — Análise de área (série de 20 mapas) | — | **fechado no desktop** (2026-07-29) — PDF nativo 20/20, card, progresso, golden, acervo raster; **templates MXD 25/25 `pronto`** no MANIFEST ([`docs/mxd-templates-serie-w5.md`](../../docs/mxd-templates-serie-w5.md)). Falta smoke W5 na Aruanã; Groq opcional |
 
 **Backlog desktop sem ArcMap: esgotado** (a série Análise de área foi a última coisa que dava
@@ -92,7 +92,7 @@ rodada: [`../../docs/analise-de-area-serie.md`](../../docs/analise-de-area-serie
 | J13 | Groq Vision na validação | [ ] | chave ainda não existe no cofre |
 | J14 | Golden determinístico de anatomia no CI | [x] | `test_golden_anatomia.py`, PNG versionado, tolerância 0,3% e artefato de diff em falha |
 | J15 | Acervo compartilhado de rasters | [x] | `acervo/rasters.py`; chave por fonte+bbox+CRS+largura, SHA-256 e reuso entre workspaces |
-| J16 | Os 20 `.mxd` da série no Windows | [~] | **templates preparados** (2026-07-29) — 20 `.mxd` em `shared/templates/`, MANIFEST `pronto` + sha256; falta smoke `smoke_serie_mxd.py` na Aruanã |
+| J16 | Os 20 `.mxd` da série no Windows | [~] | **templates preparados** (2026-07-29) — 20 `.mxd` em `shared/templates/`, MANIFEST `pronto` + sha256. 2026-08-10: **auditoria ArcPy 21/21 `pronto_b1`** (`auditar_templates_mxd.ps1`); falta smoke `smoke_serie_mxd.py` na Aruanã (`Testes/` não existe neste PC) |
 
 ## Bloco B — Motor `.mxd` (M2)
 
@@ -227,12 +227,12 @@ Plano: [F1-16](16-design-system-dark.md).
 
 | # | Tarefa | Feito |
 |---|---|---|
-| I1 | Série completa da Harmonia com 14 HARD verdes | [~] | 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador |
-| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] | medido ~81% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json` |
-| I3 | `.mxd` abrindo no ArcMap de outro PC | [ ] | paths relativos no T1; teste manual em outro PC pendente |
-| I4 | PyInstaller onedir + `electron-builder` + NSIS | [ ] |
-| I5 | Assinatura Authenticode + `sha256.txt` na release | [ ] |
-| I6 | Auto-update N → N+1 | [ ] |
+| I1 | Série completa da Harmonia com 14 HARD verdes | [~] | 1/5 templates `pronto`; checks H01–H03/H06/H09/H10/S11 no validador. 2026-08-10: smoke M9 com motor `arcpy` rerodado — 6/6 HARD verdes |
+| I2 | Diff raster < 0,3% contra os 21 PDFs-modelo | [ ] | medido ~81–82% (ArcMap) na Dinâmica 2026 — `output/m9_smoke_relatorio.json`; 2026-08-10 rerodado em imóvel diferente (82,1%, esperado) |
+| I3 | `.mxd` abrindo no ArcMap de outro PC | [~] | 2026-08-10: MXD gerado pelo T1 abre **sem links quebrados** com paths relativos (`broken: []`); falta só abrir em PC alheio |
+| I4 | PyInstaller onedir + `electron-builder` + NSIS | [~] | 2026-08-10: `pnpm dist` **reproduzido** — exe 144 MB + `latest.yml` gerados; sidecar onedir roda `doctor` |
+| I5 | Assinatura Authenticode + `sha256.txt` na release | [ ] | `signtool verificar` → "No signature found" — depende de certificado do dono |
+| I6 | Auto-update N → N+1 | [ ] | feed já publicado desde 0.5.2; testar N→N+1 numa release futura |
 | I7 | Login funcionando a partir da build instalada | [ ] |
 | I8 | Piloto instala, faz login e gera o primeiro mapa em < 15 min | [ ] |
 
