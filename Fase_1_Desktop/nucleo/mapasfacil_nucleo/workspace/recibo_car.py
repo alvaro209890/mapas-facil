@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF (nome novo; `fitz` imprime deprecation no stdout)
 
 from mapasfacil_nucleo.erros import ErroNucleo
 

@@ -305,7 +305,7 @@ def _validar_anatomia(gerado: Path, modelo: Path) -> dict[str, Any] | None:
 def _compilar(guard: WorkspaceGuard, pdfs: list[str]) -> dict[str, Any] | None:
     """Junta os PDFs na ordem da série — o equivalente ao `Mapas_unidos.pdf`."""
     try:
-        import fitz
+        import pymupdf as fitz
     except ImportError:  # pragma: no cover — PyMuPDF é dependência do núcleo
         return None
 

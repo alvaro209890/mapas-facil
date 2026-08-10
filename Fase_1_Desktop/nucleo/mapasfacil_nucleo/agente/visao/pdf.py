@@ -7,7 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import fitz
+import pymupdf as fitz
 
 from mapasfacil_nucleo.erros import ErroNucleo
 

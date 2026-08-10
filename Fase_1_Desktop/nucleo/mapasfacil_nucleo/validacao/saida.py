@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import fitz
+import pymupdf as fitz
 
 from mapasfacil_nucleo.validacao.comparar_pdf import rasterizar_pdf
 
