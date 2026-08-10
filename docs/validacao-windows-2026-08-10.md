@@ -6,27 +6,36 @@ PC), corrigiu o CI vermelho, validou os templates com o ArcPy real e reproduziu 
 
 ## O que foi encontrado e corrigido
 
-### CI do `main` estava vermelho (2 runs falhos)
+### CI do `main` estava vermelho (3 runs falhos)
 
 | Run | Data | Falhas |
 |---|---|---|
 | `30486988567` (f28791c → templates série) | 2026-07-29 | `test_aviso_template_sem_sha256` + `test_montar_pdf_nativo_com_template_a_preparar` |
 | `31028862211` (6306ee3) | 2026-08-05 | `test_aviso_template_sem_sha256` |
+| `31397223747` (fix do teste) | 2026-08-10 | `test_doctor_cli_json` — PyMuPDF novo imprime o deprecation do `fitz` **no stdout**, poluindo o JSON do `doctor --json` |
 
-**Causa raiz:** o commit que preparou os 25 templates `.mxd` (`aaa97e0`) pôs **todos** com
+**Causa raiz 1:** o commit que preparou os 25 templates `.mxd` (`aaa97e0`) pôs **todos** com
 `status: pronto` e `sha256` — e o teste `test_aviso_template_sem_sha256` assumia que
 `tipologia_paisagem` ainda estava sem sha256 (caso `a_preparar`). O teste virou falso negativo.
 
-**Correção:** `nucleo/tests/test_mapspec_validar.py` agora monkeypatcha `_template_ids` /
-`_templates_por_id` para simular um template sem `sha256` — o caso `AG-030` continua coberto
-sem depender do estado mutável do MANIFEST. (O teste da galeria já havia sido corrigido no
-commit `6306ee3`.)
+**Causa raiz 2:** o CI instala PyMuPDF recente, que emite `warning: The fitz API is deprecated`
+direto no stdout ao `import fitz` — o `doctor --json` (e qualquer CLI que imprima JSON) ficava
+com o JSON poluído e `json.loads` quebrava.
+
+**Correções:**
+1. `nucleo/tests/test_mapspec_validar.py` monkeypatcha `_template_ids` / `_templates_por_id`
+   para simular um template sem `sha256` — o caso `AG-030` continua coberto sem depender do
+   estado mutável do MANIFEST. (O teste da galeria já havia sido corrigido no commit `6306ee3`.)
+2. Todos os módulos do núcleo trocaram `import fitz` por `import pymupdf as fitz` (nome novo,
+   sem warning): `validacao/{saida,comparar_pdf,anatomia}.py`, `workspace/recibo_car.py`,
+   `agente/visao/pdf.py`, `analise/executar.py`.
 
 ### Suítes locais (venv do núcleo + pnpm)
 
 | Suíte | Resultado |
 |---|---|
 | `pytest -q` (núcleo, anel 1) | **521 passed** em 168 s |
+| CI GitHub Actions (`nucleo.yml`) | **verde** (run `31399588694`, 2026-08-10) |
 | `pnpm test` (app) | **27 arquivos, 180 passed** em 14 s |
 | `pnpm typecheck` | limpo |
 | `pnpm build` | renderer + electron ok |

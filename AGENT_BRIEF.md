@@ -6,15 +6,18 @@ em qualquer coisa.
 
 ## Snapshot — o que falta (2026-07-29, noite)
 
-**Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (2 runs: 2026-07-29
-e 2026-08-05) pelo mesmo teste — `test_aviso_template_sem_sha256` assumia `tipologia_paisagem`
-sem sha256, mas os 25 templates agora são `pronto`. Corrigido com monkeypatch (o caso `AG-030`
-continua coberto). Neste Windows: núcleo **521 passed**, app **180 passed** + typecheck+build,
-doctor com ArcMap 10.8 (`Pronto para MXD: True`), **auditoria ArcPy 21/21 `pronto_b1`**
-(`auditar_templates_mxd.ps1`), smoke M9 real com motor `arcpy`: 6/6 HARD verdes e MXD gerado
-**sem links quebrados** (`broken: []`, paths relativos — I3 exercitado), instalador
-`MapasFacil-Setup-0.5.2.exe` **reproduzido** via `pnpm dist` (144 MB, sem Authenticode —
-depende de certificado). Detalhe: [`docs/validacao-windows-2026-08-10.md`](docs/validacao-windows-2026-08-10.md).
+**Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
+2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia
+`tipologia_paisagem` sem sha256, mas os 25 templates agora são `pronto` — corrigido com
+monkeypatch (o caso `AG-030` continua coberto); (2) PyMuPDF novo imprime o deprecation do
+`fitz` no stdout e poluía o JSON do `doctor --json` — todos os `import fitz` do núcleo viraram
+`import pymupdf as fitz`. **CI verde** (run `31399588694`). Neste Windows: núcleo **521
+passed**, app **180 passed** + typecheck+build, doctor com ArcMap 10.8 (`Pronto para MXD:
+True`), **auditoria ArcPy 21/21 `pronto_b1`** (`auditar_templates_mxd.ps1`), smoke M9 real com
+motor `arcpy`: 6/6 HARD verdes e MXD gerado **sem links quebrados** (`broken: []`, paths
+relativos — I3 exercitado), instalador `MapasFacil-Setup-0.5.2.exe` **reproduzido** via
+`pnpm dist` (144 MB, sem Authenticode — depende de certificado). Detalhe:
+[`docs/validacao-windows-2026-08-10.md`](docs/validacao-windows-2026-08-10.md).
 **Ainda não roda aqui:** smoke W5 na Aruanã (`Testes/` gitignored não existe neste PC) e
 paridade < 0,3%.
 
