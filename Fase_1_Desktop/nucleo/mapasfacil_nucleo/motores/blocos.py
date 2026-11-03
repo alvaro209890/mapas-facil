@@ -33,8 +33,28 @@ COR_MUNICIPIO_ALVO = "#F4A460"
 COR_UF = "#C5E0B4"
 COR_GUIA = "#FF0000"
 
-HALO_ESCURO = [patheffects.withStroke(linewidth=2.6, foreground="#1A1A1A")]
-HALO_CLARO = [patheffects.withStroke(linewidth=2.6, foreground="white")]
+# W9-03 — espessuras e halos acompanham a folha.
+#
+# Até aqui a moldura, a grade, os swatches da legenda e o halo do rótulo eram
+# **pt literais**. Numa A0 (841 mm de largura) uma moldura de 1,2 pt fica fina
+# como cabelo, porque a folha cresceu ~4× e a linha não. Toda grandeza de
+# espessura/fonte passa a ser multiplicada por `k = folha / A4` via
+# `PerfilPagina.escalado`, que em A4 (k = 1,0) devolve o próprio valor — o
+# gabarito medido não muda em um único bit.
+LARGURA_HALO_PT = 2.6
+"""Espessura base do halo, em pt, **na A4**. As demais folhas multiplicam por `k`."""
+
+
+def halos(perfil: PerfilPagina | None = None, claro: bool = False) -> list[Any]:
+    """Lista de `path_effects` de contorno, com a espessura escalada pela folha (W9-03).
+
+    Substitui as antigas constantes `HALO_ESCURO`/`HALO_CLARO`, que carregavam os
+    2,6 pt congelados — corretos só em A4 e invisíveis no papel grande. `perfil=None`
+    devolve o valor de A4 **sem escala** (compatibilidade com chamadas antigas), nunca
+    um erro; `claro=True` usa contorno branco, `claro=False` o escuro.
+    """
+    espessura = perfil.escalado(LARGURA_HALO_PT) if perfil is not None else LARGURA_HALO_PT
+    return [patheffects.withStroke(linewidth=espessura, foreground="white" if claro else "#1A1A1A")]
 
 
 def _eixo(fig: Figure, perfil: PerfilPagina, caixa: Caixa, *, zorder: int = 5) -> Axes:
@@ -76,12 +96,14 @@ def caixa_titulo(fig: Figure, perfil: PerfilPagina, texto: str) -> None:
             transform=ax.transAxes,
             facecolor="white",
             edgecolor=COR_MOLDURA,
-            linewidth=1.0,
+            linewidth=perfil.escalado(1.0),
         )
     )
     # Só quebra título que **transborda de verdade**. `perfil.titulo` é o bbox do
     # texto do modelo, não da moldura branca — usá-lo como limite exato fazia
     # "Tipologia Vegetal" quebrar em duas linhas por 1 mm de diferença de fonte.
+    # `perfil.titulo.largura` já vem multiplicada por `k`, e `pt_titulo` também:
+    # a razão texto/caixa fica folha-invariante (W9-03).
     largura_util = perfil.titulo.largura * 1.6
     ax.text(
         0.5,
@@ -118,7 +140,7 @@ def rosa_dos_ventos(fig: Figure, perfil: PerfilPagina) -> None:
                 closed=True,
                 facecolor="white",
                 edgecolor="black",
-                linewidth=0.5,
+                linewidth=perfil.escalado(0.5),
             )
         )
         ax.add_patch(
@@ -127,7 +149,7 @@ def rosa_dos_ventos(fig: Figure, perfil: PerfilPagina) -> None:
                 closed=True,
                 facecolor="#333333",
                 edgecolor="black",
-                linewidth=0.5,
+                linewidth=perfil.escalado(0.5),
             )
         )
 
@@ -143,7 +165,7 @@ def rosa_dos_ventos(fig: Figure, perfil: PerfilPagina) -> None:
             letra,
             ha="center",
             va="center",
-            fontsize=5.5,
+            fontsize=perfil.escalado(5.5),
             fontweight="bold",
             color="black",
         )
@@ -164,7 +186,7 @@ def moldura_e_grade(
     """Moldura preta + ticks e rótulos DMS nas 4 bordas (sem linhas internas)."""
     for lado in ("left", "right", "top", "bottom"):
         ax.spines[lado].set_visible(True)
-        ax.spines[lado].set_linewidth(1.2)
+        ax.spines[lado].set_linewidth(perfil.escalado(1.2))
         ax.spines[lado].set_color(COR_MOLDURA)
     ax.set_xticks([])
     ax.set_yticks([])
@@ -188,7 +210,7 @@ def moldura_e_grade(
                 [base, base + sentido * tam_tick],
                 transform=trans_x,
                 color=COR_MOLDURA,
-                linewidth=0.8,
+                linewidth=perfil.escalado(0.8),
                 clip_on=False,
                 zorder=30,
             )
@@ -209,7 +231,7 @@ def moldura_e_grade(
                 [item["inferior"], item["superior"]],
                 [y0, y1],
                 color="#999999",
-                linewidth=0.4,
+                linewidth=perfil.escalado(0.4),
                 zorder=6,
             )
 
@@ -226,7 +248,7 @@ def moldura_e_grade(
                 [pos, pos],
                 transform=trans_y,
                 color=COR_MOLDURA,
-                linewidth=0.8,
+                linewidth=perfil.escalado(0.8),
                 clip_on=False,
                 zorder=30,
             )
@@ -249,23 +271,35 @@ def moldura_e_grade(
                 [x0, x1],
                 [item["esquerda"], item["direita"]],
                 color="#999999",
-                linewidth=0.4,
+                linewidth=perfil.escalado(0.4),
                 zorder=6,
             )
 
 
-def rotulo_imovel(ax: Axes, ponto: tuple[float, float], texto: str, *, pt: float = 9.0) -> None:
-    """Nome do imóvel no centroide, branco com halo escuro, acima das hachuras."""
+def rotulo_imovel(
+    ax: Axes,
+    ponto: tuple[float, float],
+    texto: str,
+    *,
+    pt: float = 9.0,
+    perfil: PerfilPagina | None = None,
+) -> None:
+    """Nome do imóvel no centroide, branco com halo escuro, acima das hachuras.
+
+    W9-03: com `perfil`, a fonte e o halo do rótulo crescem com a folha (`pt` é o
+    tamanho de A4). Sem `perfil`, mantém o valor histórico de A4 — nenhuma chamada
+    antiga muda de resultado.
+    """
     ax.text(
         ponto[0],
         ponto[1],
         texto,
         ha="center",
         va="center",
-        fontsize=pt,
+        fontsize=perfil.escalado(pt) if perfil is not None else pt,
         color="white",
         fontweight="bold",
-        path_effects=HALO_ESCURO,
+        path_effects=halos(perfil, claro=False),
         zorder=15,
     )
 
@@ -309,7 +343,7 @@ def bloco_metadados(
         titulo,
         ha="center",
         va="center",
-        fontsize=perfil.pt_metadados + 1,
+        fontsize=perfil.pt_metadados + perfil.escalado(1.0),
         fontweight="bold",
         color="black",
     )
@@ -384,6 +418,14 @@ def _quebrar(texto: str, largura_mm: float, pt: float) -> str:
     Mede o texto de verdade (`largura_texto_mm`) antes de decidir: a estimativa
     por caractere quebrava "Tipologia: Floresta" em duas linhas num espaço onde
     ele cabe inteiro no modelo.
+
+    W9-03: **nada aqui mudou** — e não deve mudar. `largura_mm` chega da caixa já
+    multiplicada por `k` (`perfil.titulo.largura`, `perfil.legenda.largura`) e `pt`
+    chega dos `pt_*` já multiplicados por `k`. Como texto medido e caixa crescem na
+    mesma proporção, a razão é folha-invariante: um rótulo quebra nas **mesmas**
+    linhas em A4 e em A0. Por isso o piso de 8 caracteres fica **fixo** — escalá-lo
+    faria a caixa pequena quebrar diferente em folha grande, quebrando justamente a
+    invariância que a folha proporcional promete.
     """
     if largura_texto_mm(texto, pt) <= largura_mm:
         return texto
@@ -435,7 +477,7 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
         perfil.titulo_legenda,
         ha="left",
         va="center",
-        fontsize=getattr(perfil, "pt_legenda_titulo", 0.0) or (pt + 1),
+        fontsize=getattr(perfil, "pt_legenda_titulo", 0.0) or (pt + perfil.escalado(1.0)),
         fontweight="bold",
         color="black",
     )
@@ -457,7 +499,7 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
                 transform=ax.transAxes,
                 facecolor=face if face else "none",
                 edgecolor=estilo["cor_linha"],
-                linewidth=1.6,
+                linewidth=perfil.escalado(1.6),
             )
         )
         ax.text(
@@ -581,7 +623,7 @@ def bloco_minimapa(
     ax.set_yticks([])
     for lado in ("left", "right", "top", "bottom"):
         ax.spines[lado].set_visible(True)
-        ax.spines[lado].set_linewidth(1.0)
+        ax.spines[lado].set_linewidth(perfil.escalado(1.0))
         ax.spines[lado].set_color(COR_MOLDURA)
     ax.set_facecolor("white")
 
@@ -617,9 +659,11 @@ def bloco_minimapa(
             shape,
             facecolor=COR_MUNICIPIO_VIZINHO,
             edgecolor="black",
-            linewidth=0.25,
+            linewidth=perfil.escalado(0.25),
         )
-    _desenhar_shape(ax, alvo_shape, facecolor=COR_MUNICIPIO_ALVO, edgecolor="black", linewidth=0.5)
+    _desenhar_shape(
+        ax, alvo_shape, facecolor=COR_MUNICIPIO_ALVO, edgecolor="black", linewidth=perfil.escalado(0.5)
+    )
 
     ax.set_xlim(vista[0], vista[2])
     ax.set_ylim(vista[1], vista[3])
@@ -632,10 +676,10 @@ def bloco_minimapa(
             municipio,
             ha="center",
             va="center",
-            fontsize=6.5,
+            fontsize=perfil.escalado(6.5),
             fontweight="bold",
             color="black",
-            path_effects=HALO_CLARO,
+            path_effects=halos(perfil, claro=True),
             zorder=12,
         )
 
@@ -650,7 +694,7 @@ def bloco_minimapa(
                 lado_y,
                 facecolor="none",
                 edgecolor=COR_GUIA,
-                linewidth=1.4,
+                linewidth=perfil.escalado(1.4),
                 zorder=14,
             )
         )
@@ -668,7 +712,7 @@ def bloco_minimapa(
             [px_fig[0], px_fig[0], alvo_x],
             [px_fig[1], alvo_y, alvo_y],
             color=COR_GUIA,
-            linewidth=0.9,
+            linewidth=perfil.escalado(0.9),
             zorder=21,
         )
         info["guia_ok"] = True
@@ -690,7 +734,7 @@ def bloco_minimapa(
         selo.set_xticks([])
         selo.set_yticks([])
         for lado in ("left", "right", "top", "bottom"):
-            selo.spines[lado].set_linewidth(0.8)
+            selo.spines[lado].set_linewidth(perfil.escalado(0.8))
             selo.spines[lado].set_color(COR_MOLDURA)
         selo.set_facecolor("white")
         import shapefile as _shp
@@ -701,12 +745,14 @@ def bloco_minimapa(
         for sr in reader.iterShapeRecords():
             if str(sr.record[i_sigla]).upper() != uf.upper():
                 continue
-            _desenhar_shape(selo, sr.shape, facecolor=COR_UF, edgecolor="black", linewidth=0.4)
+            _desenhar_shape(selo, sr.shape, facecolor=COR_UF, edgecolor="black", linewidth=perfil.escalado(0.4))
             ux0, uy0, ux1, uy1 = sr.shape.bbox
             selo.set_xlim(ux0, ux1)
             selo.set_ylim(uy0, uy1)
             selo.set_aspect("equal", adjustable="box")
-            _desenhar_shape(selo, alvo_shape, facecolor=COR_MUNICIPIO_ALVO, edgecolor="black", linewidth=0.4)
+            _desenhar_shape(
+                selo, alvo_shape, facecolor=COR_MUNICIPIO_ALVO, edgecolor="black", linewidth=perfil.escalado(0.4)
+            )
             selo.text(
                 0.5,
                 0.12,
@@ -714,9 +760,9 @@ def bloco_minimapa(
                 transform=selo.transAxes,
                 ha="center",
                 va="center",
-                fontsize=6.0,
+                fontsize=perfil.escalado(6.0),
                 fontweight="bold",
-                path_effects=HALO_CLARO,
+                path_effects=halos(perfil, claro=True),
             )
             info["selo_uf_ok"] = True
             break

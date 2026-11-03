@@ -150,7 +150,7 @@ indicado; aqui fica o índice para o agente não se perder.
 
 - [x] W9-01 `perfil_para(folha)` + `escalar_perfil(perfil, folha)` em `perfil_pagina.py`: A4 devolve o objeto medido, o resto é A4 × `k` com **encaixe de borda** (o ISO não tem razão √2 exata: A3 é 297·1,41428 = 420,043 mm, e sem encaixe o minimapa vazava do papel); `NU-303` para `escala_elementos` diferente de `proporcional` — `tests/test_perfil_para.py` (57 testes)
 - [x] W9-02 `nativo.py` usa `perfil_para`/`escalar_perfil` no `_perfil_do_mapspec` (o modelo medido da série manda na orientação, a folha só diz o tamanho) e `perfil.dpi_raster()` no `savefig` do PDF — 300 dpi até A2, teto de pixels em A1 (7.000 px ≈ 249 dpi) e A0 (9.000 px ≈ 226 dpi)
-- [ ] W9-03 `blocos.py` por `k`
+- [x] W9-03 `blocos.py` por `k`: toda espessura e todo halo passaram por `perfil.escalado()` (moldura, grade, rosa, minimapa, legenda, logo, selos) e `HALO_ESCURO/HALO_CLARO` viraram `halos(perfil, claro=)`; a quebra de linha é folha-invariante por construção (caixa e `pt` já vêm multiplicados por `k`) — `tests/test_blocos_por_folha.py` (8)
 - [x] W9-04 `grade_dms.escolher_passo`: correção real — varrimento pequeno demais para 4 rótulos caía no passo de 1° e o mapa ficava **sem grade**; agora vale "pelo menos uma linha". Teste `tests/test_grade_por_folha.py` prova 4–8 rótulos por eixo em 5 folhas × 2 orientações × 7 escalas (S07)
 - [ ] W9-05 Minimapa
 - [ ] W9-06 Basemap por folha + S17

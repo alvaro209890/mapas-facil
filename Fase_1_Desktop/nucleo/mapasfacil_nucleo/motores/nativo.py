@@ -32,6 +32,12 @@ matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["font.sans-serif"] = FAMILIA_FONTE + list(
     matplotlib.rcParams.get("font.sans-serif", [])
 )
+# PDF de entrega: Type 42 (TrueType subset). O default do matplotlib é Type 3, em que cada
+# glifo vira um procedimento vetorial — o texto continua extraível, mas a fonte não vai
+# embutida de verdade (ext `n/a` no `get_fonts`), o que pré-impressora recusa e alguns
+# leitores tratam como desenho. Type 42 embute o programa da fonte e mantém o texto texto.
+matplotlib.rcParams["pdf.fonttype"] = 42
+matplotlib.rcParams["ps.fonttype"] = 42
 from matplotlib.image import imread  # noqa: E402
 from matplotlib.patches import Polygon as PolygonPatch  # noqa: E402
 from shapely.ops import transform  # noqa: E402
@@ -538,6 +544,7 @@ def gerar_pdf_minimo(
                 ax,
                 ((bbox_imovel[0] + bbox_imovel[2]) / 2, (bbox_imovel[1] + bbox_imovel[3]) / 2),
                 str(rotulo["rotulo_texto"]),
+                perfil=perfil,
             )
 
     if ao_preview is not None:
