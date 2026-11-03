@@ -48,7 +48,15 @@ def pasta_dist(raiz: Path) -> Path:
     do_ambiente = os.environ.get("MF_WEB_DIST", "").strip()
     if do_ambiente:
         return Path(do_ambiente)
-    return Path(raiz) / "web" / "dist"
+    candidatos = [
+        Path(raiz) / "web" / "dist",
+        Path(raiz) / "codigo" / "Fase_3_Web" / "web" / "dist",
+        Path(__file__).resolve().parents[2] / "web" / "dist",
+    ]
+    for c in candidatos:
+        if (c / "index.html").is_file():
+            return c
+    return candidatos[0]
 
 
 def _tipo(caminho: Path) -> str:
@@ -64,7 +72,7 @@ def montar_estaticos(app: FastAPI, dist: Path) -> bool:
 
     assets = dist / "assets"
 
-    @app.get("/assets/{caminho:path}", include_in_schema=False)
+    @app.api_route("/assets/{caminho:path}", methods=["GET", "HEAD"], include_in_schema=False)
     def asset(caminho: str) -> FileResponse:
         alvo = (assets / caminho).resolve()
         if not str(alvo).startswith(str(assets.resolve())) or not alvo.is_file():
@@ -72,7 +80,7 @@ def montar_estaticos(app: FastAPI, dist: Path) -> bool:
                                 status_code=404)
         return FileResponse(alvo, media_type=_tipo(alvo), headers={"Cache-Control": CACHE_ASSET})
 
-    @app.get("/{caminho:path}", include_in_schema=False)
+    @app.api_route("/{caminho:path}", methods=["GET", "HEAD"], include_in_schema=False)
     def spa(caminho: str):  # type: ignore[no-untyped-def]
         # A API tem precedência: um `/api/...` desconhecido é 404 de API, nunca o index.html.
         if caminho.startswith("api/"):

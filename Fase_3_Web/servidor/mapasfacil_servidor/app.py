@@ -83,11 +83,6 @@ def create_app(
     app.include_router(arquivos.router, prefix=API)
     app.include_router(palco.router, prefix=API)
 
-    # A SPA é montada **depois** dos routers: a rota curinga do front não pode engolir
-    # `/api/v1/...`. Sem build (`web/dist` ausente) nada é montado e a API segue sozinha.
-    raiz_do_build = pasta_dist(Path(str(getattr(config, "raiz", ".") or ".")))
-    app.state.tem_spa = montar_estaticos(app, raiz_do_build)
-
     @app.get(f"{API}/saude")
     def saude() -> dict:
         """Público: só o suficiente para saber que o servidor está de pé."""
@@ -98,6 +93,11 @@ def create_app(
             "espaco_disco_gb": _disco_gb(config),
             "spa": bool(getattr(app.state, "tem_spa", False)),
         }
+
+    # A SPA é montada **depois** de todas as rotas de API (inclusive /saude):
+    # a rota curinga do front `/{caminho:path}` não pode engolir `/api/v1/...`.
+    raiz_do_build = pasta_dist(Path(str(getattr(config, "raiz", ".") or ".")))
+    app.state.tem_spa = montar_estaticos(app, raiz_do_build)
 
     return app
 
