@@ -88,7 +88,9 @@ Os três pilares pedidos pelo Álvaro:
 | W4 | Importação do ZIP e indexação | **quase fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W4.md`); faltam W4-03 (web) e W4-10 (SAD69) |
 | W5 | Stream de eventos + chat relay | **fechado** em 2026-11-03: W5-01..W5-20 fechados, chave própria `mapasfacil-app` no 9Router, smoke medido (32 tools, tool calls paralelos, raciocínio, stream, contexto) e visão verde (`docs/fase3-rodada-2026-11-03-w10-enquadramento-e-provider.md`); W5-17 com `web_hard` dependendo do H17 do W9 |
 | W6 | **fechado** em 2026-11-03 — W6-01..W6-10 (web com 118 testes, typecheck 0 e build verdes; SPA servida pelo FastAPI com assets immutable) |
-| W7 | Eventos de motion no núcleo | **núcleo/servidor fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W7.md`): `motion.py`, `palco.py`, 13 eventos no protocolo, emissão real, rota `/palco`, recortes PNG e roteiro `palco_dinamica.ndjson`; pendem W7-08 (medir basemap no server) e a metade web (W8) |
+| W7 | Eventos de motion no núcleo | **núcleo/servidor fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W7.md`): `motion.py`, `palco.py`, 13 eventos, emissão real, rota `/palco`, recortes PNG e roteiro `palco_dinamica.ndjson`; pendem W7-08 (medir basemap no server) e a metade web (W8) |
+| W8 | Palco na web | **em andamento** — W8-05 (coreografia pura) e W8-06 (store da fila) fechados em 2026-11-03 com 29 testes novos; W8-01/02/03/07/08/09 na trilha do palco |
+| W9 | PDF A4–A0 | **quase fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W9.md`): perfil por folha (A4 × k), dpi do raster, grade, espessuras, minimapa, PNG da tabela, H15/H16/S17, fonte embutida Type 42; faltam W9-10 (medir no server) e o quadro cadastral do W9-12 |
 | W8 | Palco do mapa (câmera, camadas, folha) | não iniciado |
 | W9 | PDF nativo A4–A0 | não iniciado |
 | W10 | Motor `.mxd` binário | não iniciado |
