@@ -6,6 +6,7 @@
     python -m mapasfacil_servidor conta criar|listar|bloquear|desbloquear
     python -m mapasfacil_servidor limpar-lixeira
     python -m mapasfacil_servidor sonda-saude
+    python -m mapasfacil_servidor varrer-pii
 
 A superfície nasce no W0; o corpo de cada comando chega no marco dono
 (`migrar`/`limpar-lixeira` no W12-04, `conta` no W3-23). Comando sem corpo
@@ -170,6 +171,54 @@ def cmd_sonda_saude() -> int:
         return 0
 
 
+def cmd_varrer_pii() -> int:
+    """W12-20: procura CPF no banco, nos eventos e nos logs. Achou ⇒ alerta e código 1.
+
+    O caminho do achado é registrado (arquivo e linha); o **valor** nunca é impresso — um alerta
+    que cita o CPF seria a própria fuga.
+    """
+    import json
+    import time
+
+    from . import pii
+
+    cfg = carregar()
+    alvos = [
+        cfg.banco,
+        cfg.logs,
+        cfg.projetos,
+    ]
+    achados = pii.varrer(
+        alvos,
+        globs=("*.log", "*.ndjson", "*.json", "chats.sqlite", "*/chats.sqlite", "*/eventos.ndjson"),
+    )
+
+    if not achados:
+        print("varrer-pii: nenhum CPF encontrado")
+        return 0
+
+    alertas = cfg.logs / "alertas.log"
+    alertas.parent.mkdir(parents=True, exist_ok=True)
+    with alertas.open("a", encoding="utf-8") as fh:
+        for achado in achados:
+            fh.write(
+                json.dumps(
+                    {
+                        "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                        "nivel": "erro",
+                        "codigo": "SV-PII",
+                        **achado.publico(),
+                    },
+                    ensure_ascii=False,
+                )
+                + chr(10)
+            )
+    for achado in achados:
+        print(f"CPF em {achado.arquivo}:{achado.linha}", file=sys.stderr)
+    print(f"varrer-pii: {len(achados)} achado(s) — alerta em logs/alertas.log", file=sys.stderr)
+    return 1
+
+
 def montar_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mapasfacil_servidor",
@@ -185,6 +234,10 @@ def montar_parser() -> argparse.ArgumentParser:
     sub.add_parser("serve", help="sobe a API + SPA (127.0.0.1 por padrão)")
     sub.add_parser("migrar", help="aplica as migrações do SQLite")
     sub.add_parser("limpar-lixeira", help="apaga lixeira > 30 dias e uploads expirados")
+    sub.add_parser(
+        "varrer-pii",
+        help="procura CPF no banco, nos eventos e nos logs (falha com achado)",
+    )
     sub.add_parser(
         "sonda-saude",
         help="consulta /saude e grava alerta em logs/alertas.log após 3 falhas seguidas",
@@ -222,6 +275,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return cmd_limpar_lixeira()
         if args.comando == "sonda-saude":
             return cmd_sonda_saude()
+        if args.comando == "varrer-pii":
+            return cmd_varrer_pii()
         if args.comando == "conta":
             return cmd_conta(args)
     except NaoImplementado as erro:

@@ -1,0 +1,10 @@
+[Unit]
+Description=Mapas Fácil — varredura de PII diária às 03:10
+
+[Timer]
+OnCalendar=*-*-* 03:10:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

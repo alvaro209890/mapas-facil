@@ -198,7 +198,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W12-01 `deploy/`: `mapasfacil-app.service`, `mapasfacil-app-tunnel.service`, `mapasfacil-app-tunnel.yml.example`, `mapasfacil-app-backup.{service,timer}`, `mapasfacil-app-saude.{service,timer}` e `scripts/checar_hd.sh` (espera o HD, testa escrita real porque o fuseblk aceita tudo como 777)
 - [x] W12-02 `scripts/atualizar.sh <tag>` (preflight → tag → deps → backup → migração → SPA → symlink `atual` → restart → smoke com `versao==tag`), `rollback.sh` (sem desfazer migração) e `backup.sh` (`.backup` + retenção 14 dias); `bash -n` limpo nos 5 scripts
 - [x] W12-03 `servidor/requirements.lock` gerado por `uv pip compile pyproject.toml --generate-hashes --python-version 3.12 --python-platform linux` (665 linhas, 610 hashes, sem dev); `tests/test_requirements_lock.py` (5) garante hash em toda dependência, versões iguais às do `pyproject` e ausência de faixa aberta
-- [ ] W12-04 CLIs de operação
+- [x] W12-04 CLIs de operação: `serve`, `migrar`, `limpar-lixeira`, `conta` (W3) + **`sonda-saude`** (3 falhas seguidas → `logs/alertas.log`; 1 falha isolada não alarma) e **`varrer-pii`** (CPF em banco/eventos/logs com validação de dígito verificador, sai 1 no achado e **nunca imprime o valor**). Falta `amostras-mxd`, que é do W10-09
 - [x] W12-05 `deploy/PEDIDOS-AO-ALVARO.md`: as **duas chaves geo** que não existem em cofre nenhum, o túnel+DNS `mapasfacil-app` com os comandos exatos, e o desligamento do `analises` — mais o estado medido do preflight (9 OK, 1 falta)
 - [ ] W12-06 Primeiro deploy `web-v0.1.0` + vault
 - [ ] W12-07 Piloto interno
@@ -207,6 +207,6 @@ indicado; aqui fica o índice para o agente não se perder.
 ## W17 — Conhecimento das skills
 
 - [x] W17-01 Avisar o Álvaro da chave da Planet em claro na skill `analise-auas-planet` (2026-11-03)
-- [ ] W12-20 `varrer-pii`
+- [~] W12-20 `varrer-pii` implementado e testado (`mapasfacil_servidor/pii.py` + `tests/test_cli_varrer_pii.py`, 17) e `mapasfacil-app-pii.{service,timer}` (03:10 diário) no `deploy/`; falta a medição do critério do W-00 (importar `imovel_ficticio.zip` no server e conferir **zero** achados)
 - [ ] W12-21 Permissão do `servidor.env`
 - [ ] W12-22 Revisão de segurança final

@@ -1,0 +1,7 @@
+[Unit]
+Description=Mapas Fácil — varredura de PII (CPF) no banco, eventos e logs
+
+[Service]
+Type=oneshot
+ExecStart=/home/server/mapasfacil/venv/bin/python -m mapasfacil_servidor varrer-pii
+Nice=10
