@@ -201,7 +201,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W12-04 CLIs de operação: `serve`, `migrar`, `limpar-lixeira`, `conta` (W3) + **`sonda-saude`** (3 falhas seguidas → `logs/alertas.log`; 1 falha isolada não alarma) e **`varrer-pii`** (CPF em banco/eventos/logs com validação de dígito verificador, sai 1 no achado e **nunca imprime o valor**). Falta `amostras-mxd`, que é do W10-09
 - [x] W12-05 `deploy/PEDIDOS-AO-ALVARO.md`: as **duas chaves geo** que não existem em cofre nenhum, o túnel+DNS `mapasfacil-app` com os comandos exatos, e o desligamento do `analises` — mais o estado medido do preflight (9 OK, 1 falta)
 - [ ] W12-06 Primeiro deploy `web-v0.1.0` + vault
-- [ ] W12-07 Piloto interno
+- [~] W12-07 roteiro e tabela do piloto prontos em `docs/piloto-fase3.md` (3 pessoas × 5 imóveis, com o que se mede e a regra de não citar dado de cliente); **execução bloqueada** pelo túnel/DNS e pelas duas chaves
 - [ ] W12-08 Desligar `analises.cursar.space` (acer) sem derrubar a landing
 
 ## W17 — Conhecimento das skills
