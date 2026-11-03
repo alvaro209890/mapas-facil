@@ -22,6 +22,7 @@ import { useProjetoAtivo } from '../estado/projetoAtivo';
 import { Camera, type MapaLike } from './Camera';
 import { GerenciadorCamadas, type DadosCamada } from './Camadas';
 import type { Bbox4326, NivelViewport } from './coreografia';
+import { Folha } from './Folha';
 import { duracaoEfetiva } from './tokens';
 import { useReducedMotion } from './useReducedMotion';
 import { CODIGO_SEM_WEBGL, MENSAGEM_SEM_WEBGL, suportaWebGL } from './webgl';
@@ -52,6 +53,7 @@ export function Palco({
   const camadasStore = usePalco((s) => s.camadas);
   const versaoStore = usePalco((s) => s.versao);
   const erroStore = usePalco((s) => s.erro);
+  const elementosStore = usePalco((s) => s.elementos);
   const fila = usePalco((s) => s.fila);
   const passoCorrente = usePalco((s) => s.passoCorrente);
   const animar = usePalco((s) => s.animar);
@@ -293,30 +295,20 @@ export function Palco({
       {/* ------------------------------------------------ MODO FOLHA */}
       {modoEfetivo === 'folha' && (
         <div className={estilos.folhaArea} role="region" aria-label="Montagem da Folha">
-          <div className={estilos.folhaMoldura}>
-            <div className={estilos.folhaGradeElementos}>
-              <span>{projeto?.imovel?.nome ?? 'Mapa de Fazenda'}</span>
-              <span>{projeto?.folha?.formato ?? 'A3'} · {projeto?.folha?.orientacao ?? 'paisagem'}</span>
-            </div>
-            <div className={estilos.folhaQuadroMapa}>
-              {snapshotMapa ? (
-                <img
-                  src={snapshotMapa}
-                  alt="Snapshot do mapa para layout"
-                  className={estilos.folhaSnapshot}
-                />
-              ) : (
-                <div style={{ color: '#666', fontSize: 13, fontFamily: 'monospace' }}>
-                  [Quadro do Mapa]
-                </div>
-              )}
-            </div>
-            {elementosFolha.length > 0 && (
-              <div className={estilos.folhaGradeElementos}>
-                <span>Elementos: {elementosFolha.join(', ')}</span>
-              </div>
-            )}
-          </div>
+          <Folha
+            formato={projeto?.folha?.formato}
+            orientacao={projeto?.folha?.orientacao}
+            elementos={elementosStore}
+            elementosVisiveis={
+              fila.length > 0 || passoCorrente
+                ? elementosFolha
+                : elementosFolha.length > 0
+                  ? elementosFolha
+                  : Object.keys(elementosStore)
+            }
+            snapshotMapa={snapshotMapa}
+            reduzirMovimento={reduzirMovimento}
+          />
         </div>
       )}
 

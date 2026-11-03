@@ -132,7 +132,7 @@ describe('Palco (W8-01, W8-07, W8-08, W8-09)', () => {
       expect(screen.getByText('Querência/MT')).toBeInTheDocument();
     });
 
-    it('3. Modo Folha: exibe área de montagem da folha', () => {
+    it('3. Modo Folha: exibe área de montagem da folha com SVG em mm reais (W8-04)', () => {
       // Evento de folha leva ao modo folha
       usePalco.getState().aplicarEvento({
         seq: 1,
@@ -150,6 +150,46 @@ describe('Palco (W8-01, W8-07, W8-08, W8-09)', () => {
       render(<Palco suporteWebGL={false} />);
 
       expect(screen.getByLabelText('Montagem da Folha')).toBeInTheDocument();
+      expect(screen.getByTestId('palco-folha')).toBeInTheDocument();
+      expect(screen.getByTestId('papel-folha')).toBeInTheDocument();
+    });
+
+    it('3.1 Modo Folha: elemento entra após consumo do passo na fila', async () => {
+      usePalco.getState().definirReduzirMovimento(true);
+
+      usePalco.getState().aplicarEvento({
+        seq: 1,
+        ts: '2026-11-03T12:00:00Z',
+        origem: 'nucleo',
+        evento: 'viewport.foco',
+        dados: {
+          nivel: 'folha',
+          rotulo: 'Folha A3',
+          bbox_4326: [-52.5, -13.2, -52.1, -12.8],
+          origem: 'perfil_pagina',
+        },
+      });
+
+      usePalco.getState().aplicarEvento({
+        seq: 2,
+        ts: '2026-11-03T12:00:01Z',
+        origem: 'nucleo',
+        evento: 'layout.elemento',
+        dados: {
+          elemento: 'titulo_caixa',
+          sequencia: 1,
+          total: 1,
+          folha: { formato: 'A3', orientacao: 'retrato', largura_mm: 297, altura_mm: 420 },
+          caixa_mm: { x0: 20, y0: 10, x1: 200, y1: 30 },
+          conteudo: 'MAPA INTEGRAÇÃO',
+        },
+      });
+
+      render(<Palco suporteWebGL={false} />);
+
+      await vi.waitFor(() => {
+        expect(screen.getByText('MAPA INTEGRAÇÃO')).toBeInTheDocument();
+      });
     });
 
     it('4. Modo Resultado: exibe selo conforme e resultado da versão', () => {
