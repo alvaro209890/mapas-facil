@@ -41,3 +41,31 @@ cloudflared tunnel route dns mapasfacil-app mapasfacil-app.cursar.space
 # e montar /home/server/mapasfacil/segredos/servidor.env (0600) com a chave
 # dedicada do Mapas Fácil no 9Router da VPS
 ```
+
+## Peças de deploy (W12-01/02)
+
+| Arquivo | O que é |
+|---|---|
+| `mapasfacil-app.service` | unit `systemd --user` do app (`127.0.0.1:3130`), com `ExecStartPre` que espera o HD montar |
+| `mapasfacil-app-tunnel.service` | unit do túnel próprio `mapasfacil-app` |
+| `mapasfacil-app-tunnel.yml.example` | modelo do túnel (sem credencial) — copiar e trocar os `<UUID>` |
+| `mapasfacil-app-backup.{service,timer}` | backup diário 02:30 do `mapasfacil.sqlite` + `chats.sqlite` por projeto, retenção 14 dias |
+| `mapasfacil-app-saude.{service,timer}` | sonda de `/saude` a cada 5 min; 3 falhas seguidas viram linha em `logs/alertas.log` |
+| `scripts/checar_hd.sh` | pré-requisito da unit: HD montado e `dados/` escrevível |
+| `scripts/atualizar.sh <tag>` | deploy por **tag**: preflight → tag → deps → backup → migração → SPA → symlink `atual` → restart → smoke |
+| `scripts/rollback.sh <tag>` | volta a tag anterior (migração é só aditiva, não se desfaz) |
+| `scripts/backup.sh [--silencioso]` | cópia consistente via `sqlite3 .backup` |
+| `PEDIDOS-AO-ALVARO.md` | o que exige sudo/Cloudflare/segredo, com os comandos exatos |
+
+Instalação (usuário `server`, sem sudo):
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp Fase_3_Web/deploy/mapasfacil-app.service    Fase_3_Web/deploy/mapasfacil-app-tunnel.service    Fase_3_Web/deploy/mapasfacil-app-backup.{service,timer}    Fase_3_Web/deploy/mapasfacil-app-saude.{service,timer}    ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now mapasfacil-app mapasfacil-app-tunnel
+systemctl --user enable --now mapasfacil-app-backup.timer mapasfacil-app-saude.timer
+loginctl enable-linger server   # já está ligado
+```
+
+Nada disso roda `git pull` sozinho: deploy é sempre `atualizar.sh <tag>`.

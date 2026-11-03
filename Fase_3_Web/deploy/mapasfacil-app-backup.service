@@ -1,0 +1,8 @@
+[Unit]
+Description=Mapas Fácil — backup diário do banco (sqlite .backup)
+
+[Service]
+Type=oneshot
+ExecStart=/home/server/mapasfacil/codigo/Fase_3_Web/deploy/scripts/backup.sh
+Nice=10
+IOSchedulingClass=best-effort

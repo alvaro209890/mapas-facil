@@ -1,0 +1,10 @@
+[Unit]
+Description=Mapas Fácil — backup diário às 02:30 (horário de Brasília no host)
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

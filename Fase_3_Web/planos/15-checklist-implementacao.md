@@ -195,11 +195,11 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W12 — Deploy + piloto
 
-- [ ] W12-01 Units e config de túnel
-- [ ] W12-02 `atualizar.sh`, `rollback.sh`, `backup.sh` + timers
+- [x] W12-01 `deploy/`: `mapasfacil-app.service`, `mapasfacil-app-tunnel.service`, `mapasfacil-app-tunnel.yml.example`, `mapasfacil-app-backup.{service,timer}`, `mapasfacil-app-saude.{service,timer}` e `scripts/checar_hd.sh` (espera o HD, testa escrita real porque o fuseblk aceita tudo como 777)
+- [x] W12-02 `scripts/atualizar.sh <tag>` (preflight → tag → deps → backup → migração → SPA → symlink `atual` → restart → smoke com `versao==tag`), `rollback.sh` (sem desfazer migração) e `backup.sh` (`.backup` + retenção 14 dias); `bash -n` limpo nos 5 scripts
 - [ ] W12-03 `requirements.lock` com hashes
 - [ ] W12-04 CLIs de operação
-- [ ] W12-05 Pedidos ao Álvaro
+- [x] W12-05 `deploy/PEDIDOS-AO-ALVARO.md`: as **duas chaves geo** que não existem em cofre nenhum, o túnel+DNS `mapasfacil-app` com os comandos exatos, e o desligamento do `analises` — mais o estado medido do preflight (9 OK, 1 falta)
 - [ ] W12-06 Primeiro deploy `web-v0.1.0` + vault
 - [ ] W12-07 Piloto interno
 - [ ] W12-08 Desligar `analises.cursar.space` (acer) sem derrubar a landing

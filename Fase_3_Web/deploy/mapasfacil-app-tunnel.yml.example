@@ -1,0 +1,15 @@
+# Copie para ~/.cloudflared/mapasfacil-app.yml e troque os DOIS <UUID> pelo id que o
+# `cloudflared tunnel create mapasfacil-app` imprimir. Este arquivo NÃO tem credencial:
+# o JSON do túnel fica em ~/.cloudflared/<UUID>.json e nunca entra no git.
+tunnel: <UUID-do-tunel-mapasfacil-app>
+credentials-file: /home/server/.cloudflared/<UUID-do-tunel-mapasfacil-app>.json
+
+ingress:
+  # Só o app. Nada de reaproveitar túnel de outro serviço da frota.
+  - hostname: mapasfacil-app.cursar.space
+    service: http://127.0.0.1:3130
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: false
+      disableChunkedEncoding: false
+  - service: http_status:404

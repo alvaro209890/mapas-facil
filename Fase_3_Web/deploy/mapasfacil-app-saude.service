@@ -1,0 +1,6 @@
+[Unit]
+Description=Mapas Fácil — sonda de saúde (3 falhas seguidas viram alerta em logs/alertas.log)
+
+[Service]
+Type=oneshot
+ExecStart=/home/server/mapasfacil/venv/bin/python -m mapasfacil_servidor sonda-saude

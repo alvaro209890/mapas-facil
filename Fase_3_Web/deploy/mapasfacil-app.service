@@ -1,0 +1,23 @@
+[Unit]
+Description=Mapas Fácil — app web (API + SPA)
+Documentation=file:///home/server/mapasfacil/codigo/Fase_3_Web/deploy/README.md
+After=network-online.target
+# Unit de usuário não depende de mount de sistema: quem espera o HD é o ExecStartPre.
+
+[Service]
+Type=simple
+WorkingDirectory=/home/server/mapasfacil/codigo/Fase_3_Web/servidor
+EnvironmentFile=/home/server/mapasfacil/segredos/servidor.env
+Environment=MF_RAIZ=/home/server/mapasfacil
+Environment=MF_HOST=127.0.0.1
+Environment=MF_PORTA=3130
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/home/server/mapasfacil/codigo/Fase_3_Web/deploy/scripts/checar_hd.sh
+ExecStart=/home/server/mapasfacil/venv/bin/python -m mapasfacil_servidor serve
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=60
+KillMode=mixed
+
+[Install]
+WantedBy=default.target

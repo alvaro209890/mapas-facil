@@ -5,6 +5,7 @@
     python -m mapasfacil_servidor migrar
     python -m mapasfacil_servidor conta criar|listar|bloquear|desbloquear
     python -m mapasfacil_servidor limpar-lixeira
+    python -m mapasfacil_servidor sonda-saude
 
 A superfície nasce no W0; o corpo de cada comando chega no marco dono
 (`migrar`/`limpar-lixeira` no W12-04, `conta` no W3-23). Comando sem corpo
@@ -116,6 +117,59 @@ def cmd_conta(args: argparse.Namespace) -> int:
     raise NaoImplementado(f"conta {args.acao}", "W3")
 
 
+def cmd_sonda_saude() -> int:
+    """W12-04: sonda o `/saude` do app e só grita depois de 3 falhas seguidas.
+
+    Uma falha isolada é deploy, restart ou WAL checkpoint — alerta em cima disso vira ruído e o
+    alarme perde o valor. O contador fica em `logs/.saude_falhas` e o alerta em
+    `logs/alertas.log` (JSON por linha, igual ao resto dos logs).
+    """
+    import json
+    import time
+    import urllib.error
+    import urllib.request
+
+    cfg = carregar()
+    logs = cfg.logs
+    logs.mkdir(parents=True, exist_ok=True)
+    contador = logs / ".saude_falhas"
+    alertas = logs / "alertas.log"
+    url = f"http://{cfg.host}:{cfg.porta}/api/v1/saude"
+
+    def _anotar(nivel: str, mensagem: str) -> None:
+        linha = {
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "nivel": nivel,
+            "codigo": "SV-SAUDE",
+            "mensagem": mensagem,
+            "url": url,
+        }
+        with alertas.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(linha, ensure_ascii=False) + chr(10))
+
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resposta:
+            corpo = json.loads(resposta.read().decode("utf-8"))
+        contador.write_text("0", encoding="utf-8")
+        print(f"ok: {corpo.get('estado')} versao={corpo.get('versao')}")
+        return 0
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        falhas = 0
+        if contador.is_file():
+            try:
+                falhas = int(contador.read_text(encoding="utf-8").strip() or "0")
+            except ValueError:
+                falhas = 0
+        falhas += 1
+        contador.write_text(str(falhas), encoding="utf-8")
+        print(f"falha {falhas}/3: {exc}", file=sys.stderr)
+        if falhas >= 3:
+            _anotar("erro", f"{falhas} falhas seguidas na sonda de saúde: {exc}")
+            print("alerta gravado em logs/alertas.log", file=sys.stderr)
+            return 1
+        return 0
+
+
 def montar_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mapasfacil_servidor",
@@ -131,6 +185,10 @@ def montar_parser() -> argparse.ArgumentParser:
     sub.add_parser("serve", help="sobe a API + SPA (127.0.0.1 por padrão)")
     sub.add_parser("migrar", help="aplica as migrações do SQLite")
     sub.add_parser("limpar-lixeira", help="apaga lixeira > 30 dias e uploads expirados")
+    sub.add_parser(
+        "sonda-saude",
+        help="consulta /saude e grava alerta em logs/alertas.log após 3 falhas seguidas",
+    )
 
     conta = sub.add_parser("conta", help="administração de contas pela CLI")
     conta.add_argument("acao", choices=["criar", "listar", "bloquear", "desbloquear"])
@@ -162,6 +220,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return cmd_migrar()
         if args.comando == "limpar-lixeira":
             return cmd_limpar_lixeira()
+        if args.comando == "sonda-saude":
+            return cmd_sonda_saude()
         if args.comando == "conta":
             return cmd_conta(args)
     except NaoImplementado as erro:

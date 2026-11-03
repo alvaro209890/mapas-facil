@@ -1,0 +1,14 @@
+[Unit]
+Description=Mapas Fácil — túnel Cloudflare (mapasfacil-app.cursar.space)
+After=network-online.target mapasfacil-app.service
+Wants=mapasfacil-app.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cloudflared --no-autoupdate tunnel --config /home/server/.cloudflared/mapasfacil-app.yml run
+Restart=always
+RestartSec=15
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target
