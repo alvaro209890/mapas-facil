@@ -19,6 +19,7 @@ from . import __version__
 from .api import admin, arquivos, auth, deps, eventos, importacao, mensagens, projetos, sugestoes
 from .db import Banco
 from .erros import ErroServidor
+from .estaticos import montar_estaticos, pasta_dist
 
 API = "/api/v1"
 
@@ -81,6 +82,11 @@ def create_app(
     app.include_router(admin.router, prefix=API)
     app.include_router(arquivos.router, prefix=API)
 
+    # A SPA é montada **depois** dos routers: a rota curinga do front não pode engolir
+    # `/api/v1/...`. Sem build (`web/dist` ausente) nada é montado e a API segue sozinha.
+    raiz_do_build = pasta_dist(Path(str(getattr(config, "raiz", ".") or ".")))
+    app.state.tem_spa = montar_estaticos(app, raiz_do_build)
+
     @app.get(f"{API}/saude")
     def saude() -> dict:
         """Público: só o suficiente para saber que o servidor está de pé."""
@@ -89,6 +95,7 @@ def create_app(
             "versao": __version__,
             "schema": banco.versao(),
             "espaco_disco_gb": _disco_gb(config),
+            "spa": bool(getattr(app.state, "tem_spa", False)),
         }
 
     return app
