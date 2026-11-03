@@ -36,15 +36,17 @@ export const useProjetoAtivo = create<LojaProjetoAtivo>((set, get) => ({
   carregar: async (projetoId) => {
     set({ carregando: true, erro: null });
     try {
-      const [projeto, resumo] = await Promise.all([
+      const [projeto, resumo, versoes] = await Promise.all([
         api.get<{ projeto: Projeto }>(`/projetos/${projetoId}`),
         api
           .get<ResumoProjeto>(`/projetos/${projetoId}/resumo`)
           .catch(() => ({ projeto_id: projetoId, estado: 'pronto' as const, resumo: null })),
+        api.get<{ itens: Versao[] }>(`/projetos/${projetoId}/versoes`).catch(() => ({ itens: [] })),
       ]);
       set({
         projeto: projeto.projeto,
         resumo: resumo.resumo ?? null,
+        versoes: versoes.itens,
         carregando: false,
         // A versão aberta é a mais recente, salvo se a rota pediu outra.
         versaoAberta: get().versaoAberta ?? (projeto.projeto.versao_atual || null),

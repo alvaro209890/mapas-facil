@@ -65,7 +65,10 @@ export const useProjetos = create<LojaProjetos>((set, get) => ({
     if (!proximo) return;
     set({ carregando: true });
     try {
-      const pagina = await api.get<PaginaProjetos>(`/projetos?cursor=${encodeURIComponent(proximo)}`);
+      // O cursor do servidor é exclusivo e se chama `antes` (= id do último item entregue).
+      const pagina = await api.get<PaginaProjetos>(
+        `${consulta(get().busca, get().filtro)}&antes=${encodeURIComponent(proximo)}`,
+      );
       set((atual) => ({
         itens: [...atual.itens, ...pagina.itens],
         proximo: pagina.proximo ?? null,

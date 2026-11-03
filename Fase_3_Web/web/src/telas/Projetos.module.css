@@ -1,0 +1,375 @@
+/* Lista de projetos (W6-05). Grade 3–4 colunas no desktop, 1 no celular. */
+
+.tela {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.titulo {
+  font-family: var(--mf-fonte-titulo, inherit);
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--mf-texto);
+}
+
+.subtitulo {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--mf-texto-2);
+}
+
+.novo {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #04150f;
+  background: var(--mf-acento);
+  border: 0;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.novo:hover {
+  background: var(--mf-acento-forte);
+}
+
+.tecla {
+  padding: 0.05rem 0.3rem;
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.6875rem;
+  color: rgba(4, 21, 15, 0.7);
+  background: rgba(4, 21, 15, 0.12);
+  border-radius: 3px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.busca {
+  flex: 1 1 18rem;
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.busca:focus-visible {
+  outline: 2px solid var(--mf-acento);
+  outline-offset: 1px;
+}
+
+.abas {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+}
+
+.aba {
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--mf-raio-2) - 2px);
+  cursor: pointer;
+}
+
+.abaAtiva {
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+}
+
+.aviso {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda-forte);
+  border-left: 3px solid var(--mf-aviso);
+  border-radius: var(--mf-raio-1);
+}
+
+.fecharAviso {
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--mf-acento);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 0.9rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.cartao {
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
+  height: 100%;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  transition: box-shadow 140ms ease, transform 140ms ease, border-color 140ms ease;
+}
+
+.cartao:hover {
+  transform: translateY(-1px);
+  border-color: var(--mf-borda-forte);
+  box-shadow: var(--mf-sombra-alta);
+}
+
+.cartao[data-estado='erro'] {
+  border-left: 3px solid var(--mf-erro);
+}
+
+.areaAbrir {
+  display: flex;
+  flex: 1;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.miniatura {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  overflow: hidden;
+  background: var(--mf-superficie-2);
+  border-radius: var(--mf-raio-1);
+}
+
+.imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Silhueta da folha na proporção real do formato escolhido. */
+.silhueta {
+  background: linear-gradient(160deg, var(--mf-superficie-3), var(--mf-superficie-2));
+  border: 1px dashed var(--mf-borda-forte);
+  border-radius: 2px;
+}
+
+.info {
+  min-width: 0;
+}
+
+.nome {
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--mf-texto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linhaSecundaria {
+  overflow: hidden;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.selo {
+  padding: 0.1rem 0.4rem;
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.6875rem;
+  color: var(--mf-texto-2);
+  background: var(--mf-superficie-3);
+  border-radius: 3px;
+}
+
+.estado_pronto {
+  color: var(--mf-ok);
+}
+
+.estado_gerando,
+.estado_importando,
+.estado_indexando {
+  color: var(--mf-info);
+}
+
+.estado_erro {
+  color: var(--mf-erro);
+}
+
+.estado_lixeira {
+  color: var(--mf-texto-3);
+}
+
+.tempo {
+  font-size: 0.6875rem;
+  color: var(--mf-texto-3);
+}
+
+.menuZona {
+  position: relative;
+  padding: 0.4rem;
+}
+
+.menuBotao {
+  width: 1.9rem;
+  height: 1.9rem;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--mf-texto-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.menuBotao:hover {
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+}
+
+.menu {
+  position: absolute;
+  top: 2.4rem;
+  right: 0.4rem;
+  z-index: 5;
+  display: grid;
+  min-width: 11rem;
+  padding: 0.25rem;
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-1);
+  box-shadow: var(--mf-sombra);
+}
+
+.menu button {
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: var(--mf-superficie-3);
+}
+
+.vazio {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  padding: clamp(2rem, 8vw, 4rem) 1rem;
+  text-align: center;
+  background: var(--mf-superficie-1);
+  border: 1px dashed var(--mf-borda-forte);
+  border-radius: var(--mf-raio-3);
+}
+
+.vazio h2 {
+  font-size: 1.0625rem;
+  color: var(--mf-texto);
+}
+
+.vazio p {
+  max-width: 34rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--mf-texto-2);
+}
+
+.silhuetaVazia {
+  width: 72px;
+  height: 102px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(160deg, var(--mf-superficie-3), var(--mf-superficie-2));
+  border: 1px dashed var(--mf-borda-forte);
+  border-radius: 3px;
+}
+
+.mais {
+  display: block;
+  margin: 1.25rem auto 0;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.carregando {
+  padding: 2rem 0;
+  font-size: 0.875rem;
+  color: var(--mf-texto-3);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .grade {
+    grid-template-columns: 1fr;
+  }
+
+  .miniatura {
+    width: 72px;
+    height: 72px;
+  }
+}

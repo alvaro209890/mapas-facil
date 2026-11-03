@@ -22,6 +22,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from
 import { useSessao } from "./estado/sessao";
 import { EmBreve } from "./telas/EmBreve";
 import { Entrar } from "./telas/Entrar";
+import { Projetos } from "./telas/Projetos";
 
 function Carregando() {
   return (
@@ -87,7 +88,7 @@ function Rotas() {
         path="/projetos"
         element={
           <Protegido>
-            <EmBreve titulo="Seus projetos" marco="W6-05" />
+            <Projetos />
           </Protegido>
         }
       />

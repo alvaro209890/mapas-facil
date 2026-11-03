@@ -16,7 +16,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from . import __version__
-from .api import admin, auth, deps, eventos, importacao, mensagens, projetos, sugestoes
+from .api import admin, arquivos, auth, deps, eventos, importacao, mensagens, projetos, sugestoes
 from .db import Banco
 from .erros import ErroServidor
 
@@ -79,6 +79,7 @@ def create_app(
     app.include_router(mensagens.router, prefix=API)
     app.include_router(sugestoes.router, prefix=API)
     app.include_router(admin.router, prefix=API)
+    app.include_router(arquivos.router, prefix=API)
 
     @app.get(f"{API}/saude")
     def saude() -> dict:
