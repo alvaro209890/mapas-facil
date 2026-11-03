@@ -21,14 +21,12 @@ login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop 
 [`15-checklist`](Fase_3_Web/planos/15-checklist-implementacao.md). Estado medido vai em
 `docs/fase3-rodada-*.md`. O desktop (Fase 1) e a landing (Fase 2) **não** mudam de escopo.
 
-**Estado da Fase 3 em 2026-11-03 (fim da rodada):** W0–W7 **fechados** (fundação, núcleo em modo
-servidor, ponte NDJSON, API/contas, upload, SSE + chat, web, palco com eventos reais) e **W9 quase
-fechado** (A4 é o gabarito medido e A3–A0 são A4 × `k`, com H15/H16/S17, fonte embutida Type 42 e
-PNG da tabela por folha). **Medido agora:** núcleo **956** testes, servidor **176**, web **147** +
-typecheck 0 + build ok. Em andamento: W8-01/02/03/07/08/09 (palco na web, em subagente). Bloqueios
-vivos: W1-10 (`doctor.py`, ordem de não mexer), W4-10 (SAD69 precisa de ZIP real do SIMCAR),
-W9-10/W7-08 (só medem no server) e o W12 (depende de túnel/DNS na Cloudflare e de duas chaves que
-só o Álvaro tem: `MAPASFACIL_SEMA_AUTHKEY` e `MAPASFACIL_PLANET_API_KEY`).
+**Estado da Fase 3 em 2026-11-03 (rodada completa de MVP):**
+- **Marcos fechados:** W0–W9 fechados (fundação, núcleo em modo servidor, ponte/pool, API/contas, upload/importação, SSE + chat, web base, palco motion com Folha SVG em mm reais, e motor PDF nativo A4–A0 com medição real no server: A4 1,7 s · A0 3,6 s · RSS 410 MB).
+- **W10 em andamento:** W10-01 e W10-02 fechados (`mxd_binario/cfbf.py` puro stdlib com 52 testes round-trip byte a byte contra os 47 MXDs do corpus de templates e referências).
+- **W12 no ar no `server-desktop`:** `mapasfacil-app.service` (`systemd --user`, active/enabled), banco `schema 2`, `/api/v1/saude` respondendo `{"ok":true,"versao":"0.1.0","schema":2,"espaco_disco_gb":1037.8,"spa":true}`, SPA buildada e servida com fallback e headers de cache imutáveis, `servidor.env` em 0600.
+- **Suítes completas medidas:** núcleo **1.015** testes verdes, servidor **205** testes verdes, web **191** testes verdes + typecheck 0 + build ok.
+- **Pendências externas (Álvaro):** túnel + DNS `mapasfacil-app.cursar.space` na Cloudflare (para o app sair do loopback 3130 e receber o piloto) e as duas chaves geo opcionais (`MAPASFACIL_SEMA_AUTHKEY` e `MAPASFACIL_PLANET_API_KEY`). Bloqueios técnicos internos: W1-10 (`doctor.py`, ordem de não mexer) e W4-10 (SAD69 precisa de ZIP real do SIMCAR para calibrar Helmert).
 
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
 2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia
