@@ -115,6 +115,25 @@ def test_cadastro_abre_sessao_e_devolve_csrf(cliente):
     assert eu.json()["usuario"]["id"] == usuario["id"]
 
 
+def test_login_devolve_csrf_que_ja_autoriza_escrita(cliente):
+    """O `csrf` do login tem que servir na hora: a web não recarrega a página para escrever."""
+    criado = cadastrar(cliente)
+    assert criado.json()["csrf"]
+    cliente.post(f"{API}/auth/sair")
+
+    resposta = entrar(cliente)
+    assert resposta.status_code == 200, resposta.text
+    token = resposta.json()["csrf"]
+    assert token
+
+    projeto = cliente.post(
+        f"{API}/projetos",
+        json={"nome": "Boa Vista", "folha": {"formato": "A4", "orientacao": "retrato"}},
+        headers={"X-MF-CSRF": token},
+    )
+    assert projeto.status_code == 201, projeto.text
+
+
 def test_email_duplicado_409(cliente):
     cadastrar(cliente)
     cliente.post(f"{API}/auth/sair")

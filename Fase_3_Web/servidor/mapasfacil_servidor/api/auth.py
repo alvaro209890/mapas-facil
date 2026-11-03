@@ -46,14 +46,16 @@ def cadastrar(
         senha=corpo.senha,
         admin_email=estado.admin_email,
     )
-    token, _ = sessoes.criar(
+    token, sessao = sessoes.criar(
         con,
         usuario_id=usuario.id,
         ip=deps.ip_do_pedido(request),
         agente=request.headers.get("user-agent"),
     )
     _definir_cookie(response, token)
-    return {"usuario": _usuario_publico(usuario)}
+    # O `csrf` volta no corpo porque a web precisa dele para o primeiro POST depois do
+    # login: sem isso toda escrita dava 403 até recarregar a página (`/auth/eu`).
+    return {"usuario": _usuario_publico(usuario), "csrf": sessao.csrf}
 
 
 @router.post("/entrar")
@@ -84,14 +86,14 @@ def entrar(
             estado.limitador.registrar_falha(chave)
         raise
     estado.limitador.registrar_sucesso(chave)
-    token, _ = sessoes.criar(
+    token, sessao = sessoes.criar(
         con,
         usuario_id=usuario.id,
         ip=ip,
         agente=request.headers.get("user-agent"),
     )
     _definir_cookie(response, token)
-    return {"usuario": _usuario_publico(usuario)}
+    return {"usuario": _usuario_publico(usuario), "csrf": sessao.csrf}
 
 
 @router.post("/sair", status_code=204)

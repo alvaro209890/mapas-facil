@@ -79,11 +79,16 @@ export interface Usuario {
   email: string;
   papel: 'admin' | 'usuario';
   bloqueado?: boolean;
+  /** Conta criada pelo admin: o primeiro acesso exige senha nova. */
+  trocar_senha?: boolean;
+  criado_em?: string;
 }
 
+/** Corpo de `/auth/eu`, `/auth/entrar` e `/auth/cadastrar`. */
 export interface Sessao {
   usuario: Usuario;
   csrf: string;
+  /** Legado: o servidor manda a flag dentro de `usuario`. */
   trocar_senha?: boolean;
 }
 
