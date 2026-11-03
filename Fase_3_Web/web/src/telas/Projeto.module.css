@@ -1,0 +1,420 @@
+/* Tela do projeto (W6-07): chat à esquerda, palco à direita. */
+
+.tela {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem clamp(0.75rem, 2vw, 1.5rem);
+  background: var(--mf-superficie-1);
+  border-bottom: 1px solid var(--mf-borda);
+}
+
+.cabecalhoTexto {
+  min-width: 0;
+}
+
+.voltar {
+  font-size: 0.75rem;
+  color: var(--mf-texto-3);
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--mf-acento);
+}
+
+.titulo {
+  overflow: hidden;
+  font-family: var(--mf-fonte-titulo, inherit);
+  font-size: 1.0625rem;
+  color: var(--mf-texto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitulo {
+  font-size: 0.75rem;
+  color: var(--mf-texto-2);
+}
+
+.selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.selo {
+  padding: 0.15rem 0.45rem;
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.6875rem;
+  color: var(--mf-texto-2);
+  background: var(--mf-superficie-3);
+  border-radius: 3px;
+}
+
+.selo[data-estado='pronto'] {
+  color: var(--mf-ok);
+}
+
+.selo[data-estado='erro'] {
+  color: var(--mf-erro);
+}
+
+.seloRuim {
+  color: var(--mf-aviso);
+}
+
+.divisor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* --------------------------------------------------------------- chat */
+
+.chat {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 0;
+  border-right: 1px solid var(--mf-borda);
+}
+
+.lista {
+  overflow-y: auto;
+  padding: 1rem clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.boasVindas {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 34rem;
+  margin-bottom: 1rem;
+}
+
+.boasVindas h2 {
+  font-size: 1rem;
+  color: var(--mf-texto);
+}
+
+.boasVindas p {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--mf-texto-2);
+}
+
+.sugestoes {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.sugestao {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  text-align: left;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  cursor: pointer;
+}
+
+.sugestao:hover {
+  border-color: var(--mf-acento);
+  background: var(--mf-superficie-2);
+}
+
+.sugestao strong {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--mf-texto);
+}
+
+.sugestao span {
+  font-size: 0.75rem;
+  color: var(--mf-texto-3);
+}
+
+.resumoImovel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+  padding: 0.7rem;
+  margin-bottom: 0.9rem;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+}
+
+.resumoImovel dt {
+  font-size: 0.625rem;
+  color: var(--mf-texto-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.resumoImovel dd {
+  margin: 0;
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+}
+
+.formulario {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  padding: 0.75rem clamp(0.75rem, 2vw, 1.5rem);
+  background: var(--mf-superficie-1);
+  border-top: 1px solid var(--mf-borda);
+}
+
+.entrada {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--mf-texto);
+  resize: none;
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.entrada:focus-visible {
+  outline: 2px solid var(--mf-acento);
+  outline-offset: 1px;
+}
+
+.entrada:disabled {
+  color: var(--mf-texto-3);
+  cursor: not-allowed;
+}
+
+.enviar,
+.parar {
+  padding: 0.6rem 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.enviar {
+  color: #04150f;
+  background: var(--mf-acento);
+  border: 0;
+}
+
+.enviar:disabled {
+  color: var(--mf-texto-3);
+  background: var(--mf-superficie-3);
+  cursor: not-allowed;
+}
+
+.parar {
+  color: var(--mf-erro);
+  background: transparent;
+  border: 1px solid var(--mf-erro);
+}
+
+.erro {
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: rgba(242, 85, 90, 0.1);
+  border: 1px solid rgba(242, 85, 90, 0.35);
+  border-radius: var(--mf-raio-1);
+}
+
+/* -------------------------------------------------------------- palco */
+
+.palco {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  overflow-y: auto;
+  background: var(--mf-bg);
+}
+
+.palcoDesenho {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  align-content: center;
+  padding: 1rem;
+  border: 1px dashed var(--mf-borda-forte);
+  border-radius: var(--mf-raio-2);
+}
+
+/* Desenho estático da folha: é placeholder do W8, não mapa falso. */
+.palcoFolha {
+  position: relative;
+  width: 190px;
+  height: 268px;
+  background: linear-gradient(180deg, #f6f8fa, #e8edf2);
+  border-radius: 2px;
+  box-shadow: var(--mf-sombra);
+}
+
+.palcoTitulo {
+  position: absolute;
+  top: 7%;
+  left: 12%;
+  width: 62%;
+  height: 3.5%;
+  background: rgba(11, 14, 17, 0.35);
+}
+
+.palcoMapa {
+  position: absolute;
+  top: 18%;
+  left: 10%;
+  width: 80%;
+  height: 60%;
+  background:
+    linear-gradient(135deg, rgba(53, 199, 154, 0.16), rgba(90, 169, 230, 0.1)),
+    rgba(11, 14, 17, 0.06);
+  border: 1px solid rgba(11, 14, 17, 0.16);
+}
+
+.palcoLegenda {
+  position: absolute;
+  right: 10%;
+  bottom: 8%;
+  width: 36%;
+  height: 8%;
+  background: rgba(11, 14, 17, 0.2);
+}
+
+.palcoTexto {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+}
+
+.dica {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--mf-texto-3);
+  text-align: center;
+}
+
+.faixaVersoes {
+  display: flex;
+  gap: 0.35rem;
+  padding-bottom: 0.25rem;
+  overflow-x: auto;
+}
+
+.versao {
+  display: grid;
+  gap: 0.1rem;
+  flex: none;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  text-align: left;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.versaoAberta {
+  border-color: var(--mf-acento);
+  background: var(--mf-acento-fraco);
+}
+
+.numeroVersao {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--mf-texto);
+}
+
+.estadoVersao {
+  font-size: 0.625rem;
+  color: var(--mf-aviso);
+}
+
+.estadoVersao[data-conforme='true'] {
+  color: var(--mf-ok);
+}
+
+.downloads {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.downloads h3 {
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+}
+
+.botoesDownload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.download {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--mf-texto);
+  text-decoration: none;
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.download:hover {
+  border-color: var(--mf-acento);
+  color: var(--mf-acento);
+}
+
+.carregando {
+  padding: 2rem;
+  font-size: 0.875rem;
+  color: var(--mf-texto-3);
+}
+
+/* No celular: uma coluna, chat em cima e palco embaixo (rolagem da página). */
+@media (max-width: 900px) {
+  .tela {
+    height: auto;
+    overflow: visible;
+  }
+
+  .divisor {
+    grid-template-columns: 1fr;
+  }
+
+  .chat {
+    border-right: 0;
+    border-bottom: 1px solid var(--mf-borda);
+  }
+
+  .lista {
+    max-height: 60vh;
+  }
+
+  .palcoFolha {
+    width: 150px;
+    height: 212px;
+  }
+}

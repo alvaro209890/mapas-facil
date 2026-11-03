@@ -35,18 +35,24 @@ interface LojaChat {
   limpar: () => void;
 }
 
-/** `mensagem.criada` chega com a mensagem inteira do servidor. */
+/**
+ * `mensagem.criada` chega do servidor com o essencial (`papel`, `texto`).
+ *
+ * O `message_id`/`seq` só existem quando a mensagem volta do banco do núcleo — na hora do
+ * envio o servidor manda o mínimo. Por isso a chave local é o `seq` do evento: recusar
+ * mensagem sem id faria a fala do usuário **nunca** aparecer na tela.
+ */
 function mensagemDoEvento(evento: Evento): Mensagem | null {
   const bruta = (evento.dados as { mensagem?: unknown }).mensagem;
   if (!bruta || typeof bruta !== 'object') return null;
   const m = bruta as Partial<Mensagem>;
-  if (!m.message_id || !m.papel || typeof m.texto !== 'string') return null;
+  if (!m.papel || typeof m.texto !== 'string') return null;
   return {
-    message_id: m.message_id,
-    seq: Number(m.seq ?? 0),
+    message_id: m.message_id ?? `evt-${evento.seq}`,
+    seq: Number(m.seq ?? evento.seq),
     papel: m.papel,
     texto: m.texto,
-    criada_em: String(m.criada_em ?? ''),
+    criada_em: String(m.criada_em ?? evento.ts),
   };
 }
 

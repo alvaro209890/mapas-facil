@@ -23,6 +23,7 @@ import { useSessao } from "./estado/sessao";
 import { EmBreve } from "./telas/EmBreve";
 import { Entrar } from "./telas/Entrar";
 import { NovoMapa } from "./telas/NovoMapa/NovoMapa";
+import { Projeto } from "./telas/Projeto";
 import { Projetos } from "./telas/Projetos";
 
 function Carregando() {
@@ -105,7 +106,7 @@ function Rotas() {
         path="/projetos/:id"
         element={
           <Protegido>
-            <EmBreve titulo="Projeto" marco="W6-07" />
+            <Projeto />
           </Protegido>
         }
       />
@@ -113,7 +114,7 @@ function Rotas() {
         path="/projetos/:id/versoes/:numero"
         element={
           <Protegido>
-            <EmBreve titulo="Projeto" marco="W6-07" />
+            <Projeto />
           </Protegido>
         }
       />
