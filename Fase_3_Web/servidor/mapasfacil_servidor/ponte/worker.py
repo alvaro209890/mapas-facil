@@ -76,6 +76,10 @@ def montar_env(
         "PYTHONUNBUFFERED": "1",
         "HOME": os.environ.get("HOME", str(projeto_raiz)),
         "TMPDIR": str(projeto_raiz / ".tmp"),
+        # Estado do projeto (chats, mapspecs, índice) fica DENTRO da pasta dele:
+        # nada de APPDATA/XDG no servidor e um projeto não enxerga o outro.
+        "MAPASFACIL_DADOS": str(projeto_raiz / ".estado"),
+        "MAPASFACIL_CHATS_DIR": str(projeto_raiz / ".estado" / "chats"),
     }
     for nome in _PASS_THROUGH:
         valor = os.environ.get(nome)

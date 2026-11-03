@@ -95,8 +95,8 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W5-01 `eventos/log.py` (seq gravado antes de enviar, fsync 50/1 s, índice a cada 1.000 linhas, compactação para `desde=0`)
 - [x] W5-02 `eventos/sse.py` (replay+ao vivo sob a mesma inscrição, dedupe por `seq`, heartbeat 15 s, desconexão limpa, rota `GET /projetos/{id}/eventos`)
 - [x] W5-03 `eventos/vocabulario.py` (fechado; teste compara com o `protocolo.py` do núcleo)
-- [ ] W5-10 `api/mensagens.py`
-- [ ] W5-11 Conversa principal + renomear
+- [x] W5-10 `api/mensagens.py` (GET mensagens, POST 202 com `req_id`, POST cancelar)
+- [x] W5-11 Conversa principal (nasce no primeiro turno e fica na coluna `conversa_id`) + renomear acompanha o projeto
 - [ ] W5-12 5 tools novas
 - [ ] W5-13 Prompt web
 - [ ] W5-14 Memória de trabalho com folha

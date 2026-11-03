@@ -56,3 +56,26 @@ Critérios de aceite do W-03 §SSE, medidos:
 
 W5 (chat): `api/mensagens.py`, conversa principal, relay `chat.enviar` pela ponte e o
 provedor `openai_compat` apontando para o 9Router da VPS.
+
+---
+
+## Adendo — W5-10 e W5-11 (chat do projeto)
+
+| Tarefa | Arquivo | O que ficou |
+|---|---|---|
+| W5-10 | `api/mensagens.py` | `GET /projetos/{id}/mensagens` (via `chat.carregar_anteriores`), `POST` devolve `202 {req_id}` e roda o turno em background, `POST /cancelar` |
+| W5-11 | `api/mensagens.py` + `api/projetos.py` + migração `0002` | conversa principal nasce no **primeiro turno** (`chat.criar_conversa` com o nome do projeto) e fica em `projetos.conversa_id`; renomear o projeto renomeia a conversa |
+| — | `ponte/worker.py` | `MAPASFACIL_DADOS` e `MAPASFACIL_CHATS_DIR` apontam para `.estado/` **dentro do projeto** — um projeto não enxerga o chat do outro e nada vai para APPDATA |
+| — | `eventos` | o turno emite `mensagem.criada`, repassa `chat.delta`/`chat.raciocinio`/`chat.tool`/`chat.pergunta` para o log+hub e fecha com `nucleo.res {req_id, ok}` |
+
+Comandos: `pytest tests/` → **129 testes, 0 falhas** (8 novos de chat, todos pela ponte real com o núcleo falso).
+
+Decisões que custaram sangue:
+
+1. **Rotas de chat são `async def` e usam `await pool.chamar`.** Com `asyncio.run()` por
+   requisição, cada chamada criava e fechava um *event loop* novo, e o subprocesso do worker
+   ficava preso ao loop antigo (`Event loop is closed`, `I/O operation on closed pipe`).
+   Um loop só, o do uvicorn — é o que o `TestClient` também usa.
+2. **`lifespan` encerra os workers no desligamento.** Antes, o subprocesso ficava órfão.
+3. **`SV-240` quando não há pool**: sem worker o chat responde 503 explicando, em vez de
+   fingir que mandou a mensagem.

@@ -71,16 +71,34 @@ def detalhar(
 
 
 @router.patch("/{projeto_id}")
-def renomear(
+async def renomear(
     projeto_id: str,
     corpo: modelos.ProjetoPatch,
     con: sqlite3.Connection = Depends(deps.pegar_con),
     usuario: contas.Usuario = Depends(deps.pegar_usuario),
     _sessao: sessoes.Sessao = Depends(deps.exigir_csrf),
+    estado: deps.AppState = Depends(deps.pegar_estado),
 ) -> dict:
     projeto = projetos_repo.exigir(con, projeto_id, usuario_id=usuario.id)
     if corpo.nome is not None:
         projeto = projetos_repo.renomear(con, projeto, corpo.nome)
+        # W5-11: o título da conversa acompanha o nome do projeto.
+        conversa_id = con.execute(
+            "SELECT conversa_id FROM projetos WHERE id = ?", (projeto.id,)
+        ).fetchone()["conversa_id"]
+        pool = getattr(estado, "pool", None)
+        if conversa_id and pool is not None:
+            from ..erros import ErroServidor
+
+            try:
+                await pool.chamar(
+                    projeto.id,
+                    "chat.renomear",
+                    {"conversa_id": conversa_id, "title": projeto.nome},
+                )
+            except ErroServidor:
+                # Renomear o projeto não pode falhar porque a conversa não renomeou.
+                pass
     return {"projeto": projeto.completo()}
 
 

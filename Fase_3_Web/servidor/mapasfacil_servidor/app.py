@@ -7,14 +7,16 @@ ambiente nenhum.
 
 from __future__ import annotations
 
+import contextlib
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from . import __version__
-from .api import admin, auth, deps, eventos, importacao, projetos
+from .api import admin, auth, deps, eventos, importacao, mensagens, projetos
 from .db import Banco
 from .erros import ErroServidor
 
@@ -31,9 +33,26 @@ def create_app(
     admin_email: str | None = None,
     origem: str | None = None,
     config: object | None = None,
+    pool: object | None = None,
 ) -> FastAPI:
-    app = FastAPI(title="Mapas Fácil", version=__version__, docs_url=None, redoc_url=None)
-    app.state.mf = deps.AppState(banco=banco, admin_email=admin_email, config=config)
+    @asynccontextmanager
+    async def ciclo(_app: FastAPI):
+        yield
+        # Desligamento: nenhum worker fica órfão segurando subprocesso.
+        if pool is not None:
+            with contextlib.suppress(Exception):
+                await pool.encerrar_todos(motivo="desligando")
+
+    app = FastAPI(
+        title="Mapas Fácil",
+        version=__version__,
+        docs_url=None,
+        redoc_url=None,
+        lifespan=ciclo,
+    )
+    app.state.mf = deps.AppState(
+        banco=banco, admin_email=admin_email, config=config, pool=pool
+    )
     app.state.mf_origem = origem
 
     @app.exception_handler(ErroServidor)
@@ -57,6 +76,7 @@ def create_app(
     app.include_router(projetos.router, prefix=API)
     app.include_router(importacao.router, prefix=API)
     app.include_router(eventos.router, prefix=API)
+    app.include_router(mensagens.router, prefix=API)
     app.include_router(admin.router, prefix=API)
 
     @app.get(f"{API}/saude")

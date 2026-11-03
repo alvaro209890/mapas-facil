@@ -26,6 +26,7 @@ class AppState:
     limitador: limitador.Limitador | None = None
     config: object | None = None
     hub: Hub = field(default_factory=Hub)
+    pool: object | None = None
 
     def __post_init__(self) -> None:
         if self.limitador is None:

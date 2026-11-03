@@ -115,7 +115,7 @@ def concluir_upload(
 
 
 @router.post("/projetos/{projeto_id}/importacao", status_code=202)
-def criar_importacao(
+async def criar_importacao(
     projeto_id: str,
     corpo: modelos.ImportacaoNova,
     tarefas: BackgroundTasks,
@@ -157,7 +157,7 @@ def criar_importacao(
         )
         hub.publicar(projeto.id, envelope)
 
-    def _rodar() -> None:
+    async def _rodar() -> None:
         # Roda **depois** da resposta: erro aqui já está registrado em
         # `importacoes.erro_codigo` e no estado do projeto — não pode subir como
         # exceção não tratada (o Starlette estouraria "response already started").

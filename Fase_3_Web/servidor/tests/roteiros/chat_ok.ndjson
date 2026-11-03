@@ -1,0 +1,8 @@
+# Roteiro: conversa principal + um turno com deltas, tool e nucleo.res.
+{"metodo": "ping", "resultado": {"pong": true}}
+{"metodo": "doctor.rodar", "resultado": {"modo": "servidor"}}
+{"metodo": "workspace.abrir", "resultado": {"workspace": {"shp": []}, "recibo": null}}
+{"metodo": "chat.criar_conversa", "resultado": {"conversation_id": "c1", "title": "Conversa"}}
+{"metodo": "chat.enviar", "eventos": [{"atraso": 0.01, "evento": "chat.delta", "dados": {"texto": "Vou "}}, {"atraso": 0.01, "evento": "chat.delta", "dados": {"texto": "gerar."}}, {"atraso": 0.01, "evento": "chat.tool", "dados": {"nome": "criar_mapa", "resultado_resumo": "ok"}}], "resultado": {"job_id": "j1"}}
+{"metodo": "chat.carregar_anteriores", "resultado": {"mensagens": [{"seq": 1, "papel": "usuario", "texto": "faz a dinamica"}, {"seq": 2, "papel": "assistente", "texto": "Vou gerar."}]}}
+{"metodo": "chat.renomear", "resultado": {"ok": true}}
