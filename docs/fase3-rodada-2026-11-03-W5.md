@@ -134,3 +134,31 @@ genérico.
 
 Comandos: núcleo **564 testes desktop** e **554 em modo servidor** (eram 561/551); app desktop
 **180 testes, 27 arquivos**, verde e sem alteração.
+
+## Adendo 4 — W5-18 (sugestões do chat vazio) e o event loop da importação
+
+**`GET /projetos/{id}/sugestoes`** (`api/sugestoes.py`). Cada cartão é **texto de mensagem**:
+clicar manda aquilo como se o usuário tivesse digitado. A lista sai do que a importação já sabe —
+folha do projeto e o `resumo` da última importação pronta:
+
+| Condição | Sugestão |
+|---|---|
+| sempre | "Faz a Dinâmica {ano corrente}" |
+| AVN e AC na pasta | "Mapa de uso do solo com quantitativos" |
+| sempre | "Série completa da Análise de área (20 mapas)" |
+| razão do bbox > 1,6 **e** folha em retrato | "Qual folha deixa o mapa mais detalhado?" |
+| recibo do CAR lido | "Confere as áreas do CAR neste mapa" |
+
+A razão do bbox depende de a indexação deixar `bbox` no resumo; **sem bbox a sugestão de folha não
+aparece** — melhor não sugerir do que sugerir no escuro. Isso está dito no docstring do módulo e
+coberto por teste (`test_sem_bbox_nao_sugere_folha`).
+
+**Bug real consertado no caminho:** `importacao/servico.importar()` usava `asyncio.run()` para
+falar com o pool. Como agora a importação roda numa tarefa de background **do próprio loop do
+uvicorn**, isso estouraria `RuntimeError` — o worker do núcleo pertence ao loop principal. A função
+ganhou o parâmetro `chamar` (a corrotina roda com `run_coroutine_threadsafe` no loop certo), e a
+extração/escrita de arquivo passou a rodar em thread (`anyio.to_thread.run_sync`) para não travar o
+loop durante o `unzip`.
+
+Comandos: `pytest tests/test_sugestoes.py tests/test_importacao.py` → 34 testes; suíte do servidor
+inteira → **140 testes, 0 falhas** (eram 129).

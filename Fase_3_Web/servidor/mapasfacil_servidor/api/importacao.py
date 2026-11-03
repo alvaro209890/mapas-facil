@@ -165,15 +165,28 @@ async def criar_importacao(
 
         _emitir("projeto.estado", {"estado": "importando"})
         try:
-            resumo = importacao_servico.importar(
-                banco=banco,
-                raizes=raizes,
-                projeto=projeto,
-                upload_id=upload.id,
-                importacao_id=importacao_id,
-                pool=pool,
-                ao_progresso=lambda dados: _emitir("importacao.progresso", dados),
-            )
+            import anyio
+            import asyncio
+
+            laco = asyncio.get_running_loop()
+
+            def _chamar(pedido):
+                """Roda a corrotina no loop do uvicorn, de dentro da thread de trabalho."""
+                return asyncio.run_coroutine_threadsafe(pedido, laco).result()
+
+            def _importar():
+                return importacao_servico.importar(
+                    banco=banco,
+                    raizes=raizes,
+                    projeto=projeto,
+                    upload_id=upload.id,
+                    importacao_id=importacao_id,
+                    pool=pool,
+                    chamar=_chamar,
+                    ao_progresso=lambda dados: _emitir("importacao.progresso", dados),
+                )
+
+            resumo = await anyio.to_thread.run_sync(_importar)
         except ErroServidor as exc:
             _emitir("projeto.estado", {"estado": "erro", "erro_codigo": exc.codigo})
             return

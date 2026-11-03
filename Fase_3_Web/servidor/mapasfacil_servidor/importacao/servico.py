@@ -75,6 +75,7 @@ def importar(
     upload_id: str,
     importacao_id: str,
     pool: Any | None = None,
+    chamar=None,
     ao_progresso=None,
 ) -> dict:
     """Executa a importação de ponta a ponta e devolve o resumo.
@@ -126,13 +127,17 @@ def importar(
         if pool is not None:
             import asyncio
 
-            async def _indexar() -> dict:
-                return await pool.chamar(
-                    projeto.id, "workspace.abrir", {"pasta": str(pasta)}
-                )
+            def _pedido():
+                return pool.chamar(projeto.id, "workspace.abrir", {"pasta": str(pasta)})
 
             try:
-                bruto = asyncio.run(_indexar())
+                # `chamar` existe quando quem chama já está num event loop (o worker do
+                # núcleo pertence a esse loop — `asyncio.run` aqui criaria outro e
+                # quebraria os pipes). Sem ele, caminho síncrono de teste.
+                if chamar is not None:
+                    bruto = chamar(_pedido)
+                else:
+                    bruto = asyncio.run(_pedido())
                 resumo = bruto.get("workspace") or {}
                 if bruto.get("projeto"):
                     resumo["projeto"] = bruto["projeto"]
