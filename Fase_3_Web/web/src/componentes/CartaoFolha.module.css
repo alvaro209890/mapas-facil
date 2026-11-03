@@ -1,0 +1,84 @@
+/* Cartão da folha (W6-06): desenho na proporção real do formato. */
+
+.cartao {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  padding: 0.75rem 0.6rem;
+  font: inherit;
+  color: var(--mf-texto-2);
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.cartao:hover {
+  border-color: var(--mf-borda-forte);
+  background: var(--mf-superficie-2);
+}
+
+.ativo {
+  color: var(--mf-texto);
+  border-color: var(--mf-acento);
+  background: var(--mf-acento-fraco);
+}
+
+.ativo .folha {
+  border-color: var(--mf-acento);
+}
+
+/* A folha: fundo claro (papel), com blocos que sugerem título, mapa e legenda. */
+.folha {
+  position: relative;
+  display: block;
+  flex: none;
+  background: linear-gradient(180deg, #f6f8fa 0%, #e8edf2 100%);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.titulo {
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 60%;
+  height: 6%;
+  background: rgba(11, 14, 17, 0.35);
+}
+
+.campo {
+  position: absolute;
+  top: 22%;
+  left: 12%;
+  width: 76%;
+  height: 48%;
+  background: rgba(53, 199, 154, 0.18);
+  border: 1px solid rgba(11, 14, 17, 0.18);
+}
+
+.legenda {
+  position: absolute;
+  right: 12%;
+  bottom: 10%;
+  width: 34%;
+  height: 10%;
+  background: rgba(11, 14, 17, 0.22);
+}
+
+.rotulo {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.rotulo small {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: var(--mf-texto-3);
+}

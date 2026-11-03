@@ -81,7 +81,7 @@ indicado; aqui fica o índice para o agente não se perder.
 
 - [x] W4-01 `importacao/upload.py` (nome do plano era `partes.py`)
 - [x] W4-02 `api/importacao.py` (upload + importação no mesmo módulo)
-- [ ] W4-03 `web/src/api/upload.ts` — trilha B (web), não iniciada
+- [x] W4-03 `web/src/api/upload.ts`: upload por partes com `X-Parte-SHA256` por parte, `hash_partes` = sha256 da concatenação dos hex (igual ao servidor, provado com `node:crypto`), retomada por `partes_ok` e cancelamento por `AbortSignal`
 - [x] W4-04 `importacao/extrair.py`
 - [x] W4-05 Rota de importação + estados (eventos por SSE ficam no W5; hoje o estado é `GET /importacoes/{id}`)
 - [x] W4-06 Indexação e resumo (`workspace.abrir` pela ponte; sem worker, resumo sai com aviso `SV-123`)
@@ -114,7 +114,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W6-03 Stores (`sessao`, `projetos`, `projetoAtivo`, `chat`, `job`, `palco`, `conexao`) + `api/ponteWeb.ts` com `despachar()` e `ligarProjeto()`; `seq` repetido é descartado no despachante. Testes: `estado/estado.test.ts` (16) e `estado/roteiro.test.ts` (4) — roteiro gravado de 16 eventos, replay sem duplicar
 - [x] W6-04 `Entrar.tsx` + troca de senha: abas Entrar/Criar conta, erro com o código do servidor (`SV-001`, `SV-003`, `SV-005` com contagem regressiva real de `detalhes.espera_s`, `SV-010` com a regra mostrada antes de enviar), `trocar_senha` obrigatório para conta criada pela CLI, roteador (`App.tsx`) com guarda de sessão e `volta=` só de caminho interno
 - [x] W6-05 `Projetos.tsx`: busca com debounce de 250 ms, filtro Ativos/Lixeira, grade de cartões (auto-fill, 1 coluna no celular), selo de folha e de estado (com o código quando `erro`), silhueta na proporção do formato quando não há miniatura, menu renomear/lixeira/restaurar, atalho `N`, estado vazio honesto. **Sem barra de progresso no cartão**: o percentual real só existe no SSE do projeto aberto. Veio junto `GET /projetos/{id}/arquivos/{caminho}` (`api/arquivos.py`, allowlist `Mapas/`+`MXD/`, `SV-401`/`SV-402`, `Range` 206, `?anexo=true`) — sem ele o cartão não teria miniatura nem o PDF teria download
-- [ ] W6-06 `NovoMapa/*` + `CartaoFolha.tsx`
+- [x] W6-06 `NovoMapa/*` + `CartaoFolha.tsx`: 3 passos (folha → dados → resumo), cartão desenhado na proporção real (A0 = 16 folhas A4, paisagem gira), envio do `.zip` por partes com progresso real em partes, e **projeto criado só no fim** (falha no envio não deixa projeto vazio)
 - [ ] W6-07 `Projeto.tsx`
 - [ ] W6-08 `Admin.tsx`, `Conta.tsx`
 - [ ] W6-09 Modal de sessão expirada

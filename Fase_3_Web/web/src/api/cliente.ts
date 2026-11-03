@@ -76,6 +76,8 @@ export interface OpcoesRequisicao {
   cru?: boolean;
   /** Rotas públicas (login/cadastro) não disparam o aviso de sessão expirada. */
   semAvisoDeExpiracao?: boolean;
+  /** Cabeçalhos extras (ex.: `X-Parte-SHA256` no upload por partes). */
+  cabecalhos?: Record<string, string>;
 }
 
 export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = {}): Promise<T> {
@@ -84,6 +86,9 @@ export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = 
 
   if (METODOS_COM_CORPO.has(metodo) && csrfAtual) {
     cabecalhos['X-MF-CSRF'] = csrfAtual;
+  }
+  if (opcoes.cabecalhos) {
+    Object.assign(cabecalhos, opcoes.cabecalhos);
   }
   let corpo: BodyInit | undefined;
   if (opcoes.corpoBruto !== undefined) {
@@ -180,4 +185,6 @@ export const api = {
     requisitar<T>(caminho, { ...opcoes, metodo: 'DELETE' }),
   putCru: <T>(caminho: string, corpo: BodyInit, opcoes?: Omit<OpcoesRequisicao, 'metodo'>) =>
     requisitar<T>(caminho, { ...opcoes, metodo: 'PUT', corpoBruto: corpo }),
+  put: <T>(caminho: string, corpo: unknown, opcoes?: Omit<OpcoesRequisicao, 'metodo'>) =>
+    requisitar<T>(caminho, { ...opcoes, metodo: 'PUT', corpo }),
 };

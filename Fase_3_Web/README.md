@@ -87,7 +87,7 @@ Os três pilares pedidos pelo Álvaro:
 | W3 | API base: contas, sessões, projetos | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W3.md`) |
 | W4 | Importação do ZIP e indexação | **quase fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W4.md`); faltam W4-03 (web) e W4-10 (SAD69) |
 | W5 | Stream de eventos + chat relay | **em andamento** — W5-01/02/03/10/11/12/13/14/15/18/19 fechados; W5-16 com cliente pronto e smoke pendente; W5-17 com 6 de 7 roteiros (2026-11-03) (`docs/fase3-rodada-2026-11-03-W5.md`); chat (W5-10..20) pendente |
-| W6 | **em andamento** — W6-01..W6-05 fechados em 2026-11-03 (web com 78 testes, typecheck e build verdes; servidor com a rota de arquivos e `Range`); faltam W6-06..W6-09 e `estaticos.py` (W6-10) |
+| W6 | **em andamento** — W6-01..W6-06 fechados em 2026-11-03 (web com 96 testes, typecheck e build verdes); faltam W6-07..W6-09 e `estaticos.py` (W6-10) |
 | W7 | Eventos de motion no núcleo | não iniciado |
 | W8 | Palco do mapa (câmera, camadas, folha) | não iniciado |
 | W9 | PDF nativo A4–A0 | não iniciado |
