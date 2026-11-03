@@ -13,6 +13,7 @@ import os
 import time
 from typing import Any, Protocol
 
+from mapasfacil_nucleo.config import modo_servidor
 from mapasfacil_nucleo.erros import ErroNucleo
 
 SERVICO = "MapasFacil"
@@ -24,6 +25,14 @@ NOMES_PERMITIDOS: frozenset[str] = frozenset(
         "planet_api_key",
     }
 )
+
+# Modo servidor (W1-03): a chave vem da env que a ponte injeta no worker. O keyring
+# nunca é importado nesse caminho.
+_ENV_POR_CHAVE: dict[str, str] = {
+    "deepseek_api_key": "MAPASFACIL_DEEPSEEK_API_KEY",
+    "sema_authkey": "MAPASFACIL_SEMA_AUTHKEY",
+    "planet_api_key": "MAPASFACIL_PLANET_API_KEY",
+}
 
 # Mapeamento doctor ↔ nome no cofre.
 ALIAS_DOCTOR: dict[str, str] = {
@@ -77,6 +86,25 @@ def _backend_ativo() -> BackendCofre:
     return keyring
 
 
+def _valor_do_servidor(nome: str) -> str | None:
+    """Valor da env injetada pela ponte (modo servidor). Nunca logar o retorno.
+
+    Se a env não tiver a chave e o teste tiver injetado um backend de memória, usa o
+    backend — o keyring do SO continua intocado.
+    """
+    bruto = (os.environ.get(_ENV_POR_CHAVE[nome]) or "").strip()
+    if bruto:
+        return bruto
+    if _backend is not None:
+        try:
+            valor = _backend.get_password(SERVICO, nome)
+        except Exception:
+            return None
+        texto = str(valor).strip() if valor is not None else ""
+        return texto or None
+    return None
+
+
 def _validar_nome(nome: str) -> str:
     if nome not in NOMES_PERMITIDOS:
         raise ErroNucleo(
@@ -89,8 +117,18 @@ def _validar_nome(nome: str) -> str:
 
 
 def definir(nome: str, valor: str) -> None:
-    """Grava no cofre. Valor vazio apaga a entrada."""
+    """Grava no cofre. Valor vazio apaga a entrada.
+
+    Em modo servidor o cofre é do servidor: `NU-060` e nada toca o keyring.
+    """
     nome = _validar_nome(nome)
+    if modo_servidor() and _backend is None:
+        # Só o cofre do SO é proibido no servidor; backend injetado é dublê de teste.
+        raise ErroNucleo(
+            "NU-060",
+            "No servidor o cofre é do servidor — não se define chave por aqui.",
+            {"chave": nome},
+        )
     if not isinstance(valor, str):
         raise ErroNucleo("NU-001", "Parâmetro 'valor' precisa ser texto.")
     backend = _backend_ativo()
@@ -106,6 +144,8 @@ def definir(nome: str, valor: str) -> None:
 
 def existe(nome: str) -> bool:
     nome = _validar_nome(nome)
+    if modo_servidor():
+        return _valor_do_servidor(nome) is not None
     try:
         valor = _backend_ativo().get_password(SERVICO, nome)
     except Exception:
@@ -116,6 +156,8 @@ def existe(nome: str) -> bool:
 def usar(nome: str) -> str | None:
     """Uso **interno** do núcleo. Nunca exponha o retorno no stdio."""
     nome = _validar_nome(nome)
+    if modo_servidor():
+        return _valor_do_servidor(nome)
     try:
         valor = _backend_ativo().get_password(SERVICO, nome)
     except Exception:

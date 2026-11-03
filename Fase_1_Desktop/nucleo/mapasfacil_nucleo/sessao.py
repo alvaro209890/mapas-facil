@@ -5,13 +5,23 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
+from mapasfacil_nucleo.config import modo_servidor
 from mapasfacil_nucleo.erros import ErroNucleo
 
 _estado: str = "desconectado"
 _conta_id: str | None = None
 _expira_em: str | None = None
+
+# Modo servidor (W1-04): a conta é a do site, não a do PC. A ponte injeta o id do
+# usuário dono do turno em `MAPASFACIL_SESSAO_SERVIDOR`.
+ENV_USUARIO_SERVIDOR = "MAPASFACIL_SESSAO_SERVIDOR"
+
+
+def _usuario_do_servidor() -> str | None:
+    return (os.environ.get(ENV_USUARIO_SERVIDOR) or "").strip() or None
 
 
 def resetar() -> None:
@@ -29,6 +39,12 @@ def definir(
     expira_em: str | None = None,
 ) -> dict[str, Any]:
     global _estado, _conta_id, _expira_em
+    if modo_servidor():
+        raise ErroNucleo(
+            "AUTH-090",
+            "No servidor a conta é do site — o núcleo não define sessão.",
+            {"operacao": "sessao.definir"},
+        )
     if estado not in {"desconectado", "conectando", "conectado"}:
         raise ErroNucleo("NU-001", f"Estado de sessão inválido: {estado}")
     _estado = estado
@@ -38,6 +54,13 @@ def definir(
 
 
 def estado_atual() -> dict[str, Any]:
+    if modo_servidor():
+        usuario = _usuario_do_servidor()
+        return {
+            "estado": "conectado" if usuario else "desconectado",
+            "conta_id": usuario,
+            "expira_em": None,
+        }
     return {
         "estado": _estado,
         "conta_id": _conta_id,
@@ -46,6 +69,8 @@ def estado_atual() -> dict[str, Any]:
 
 
 def conectada() -> bool:
+    if modo_servidor():
+        return _usuario_do_servidor() is not None
     return _estado == "conectado"
 
 

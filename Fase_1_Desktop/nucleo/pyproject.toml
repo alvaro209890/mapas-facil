@@ -44,6 +44,9 @@ include = ["mapasfacil_nucleo*"]
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q --strict-markers"
+markers = [
+  "desktop: comportamento que só existe no modo desktop (deselect com MAPASFACIL_MODO=servidor)",
+]
 
 [tool.coverage.run]
 branch = true

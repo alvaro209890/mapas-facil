@@ -373,8 +373,30 @@ def reiniciar(
     sleep: SleepFn | None = None,
     iniciar_thread: bool = True,
 ) -> WatcherWorkspace:
-    """Para o watcher anterior (se houver) e liga um novo na `raiz`."""
+    """Para o watcher anterior (se houver) e liga um novo na `raiz`.
+
+    Em modo servidor não existe watcher (W1-06): a entrada do projeto é imutável, então
+    observar a pasta só gastaria CPU. Os testes que exercitam o watcher diretamente
+    continuam funcionando, porque chamam a classe.
+    """
     global _watcher
+    from mapasfacil_nucleo.config import modo_servidor
+
+    if modo_servidor():
+        with _watcher_lock:
+            if _watcher is not None:
+                _watcher.parar()
+            _watcher = WatcherWorkspace(
+                raiz,
+                obter_indice=obter_indice,
+                reindexar=reindexar,
+                emitir=emitir,
+                debounce_s=debounce_s,
+                intervalo_s=intervalo_s,
+                clock=clock,
+                sleep=sleep,
+            )
+            return _watcher
     with _watcher_lock:
         if _watcher is not None:
             _watcher.parar()

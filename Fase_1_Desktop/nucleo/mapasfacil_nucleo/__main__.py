@@ -570,6 +570,8 @@ def main_cli() -> None:
     sub = parser.add_subparsers(dest="comando")
 
     sub.add_parser("stdio", help="Loop NDJSON (padrão do Electron)")
+    folhas_parser = sub.add_parser("folhas", help="Tabela de folhas A4–A0 (mm e fator k)")
+    folhas_parser.add_argument("--json", action="store_true", help="Saída JSON (espelho do servidor/web)")
     doctor_parser = sub.add_parser("doctor", help="Diagnóstico do ambiente")
     doctor_parser.add_argument("--json", action="store_true", help="Saída JSON")
     doctor_parser.add_argument(
@@ -581,6 +583,21 @@ def main_cli() -> None:
     args = parser.parse_args()
     if args.comando in (None, "stdio"):
         loop_ndjson()
+        return
+    if args.comando == "folhas":
+        from mapasfacil_nucleo.motores import folhas as folhas_mod
+
+        dados = folhas_mod.para_dict()
+        if args.json:
+            print(json.dumps(dados, ensure_ascii=False, indent=2))
+        else:
+            for nome in dados["ordem"]:
+                info = dados["formatos"][nome]
+                largura, altura = info["retrato_mm"]
+                print(
+                    f"{nome}: {largura:.0f} × {altura:.0f} mm (retrato) · "
+                    f"k={info['fator_k']:.4f}"
+                )
         return
     if args.comando == "doctor":
         resultado = doctor.rodar(sondar_arcpy=args.completo)

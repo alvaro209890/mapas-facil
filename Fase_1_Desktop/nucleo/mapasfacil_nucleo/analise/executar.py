@@ -38,6 +38,15 @@ PASTA_SAIDA = "Mapas"
 NOME_COMPILADO = "Analise_de_area"
 
 
+def pasta_da_serie() -> str:
+    """`Mapas` no desktop; `Mapas/vNNN/serie` no servidor (W1-08)."""
+    from mapasfacil_nucleo.config import modo_servidor, pasta_saida_versao, versao_saida
+
+    if modo_servidor():
+        return f"{pasta_saida_versao(versao_saida())}/serie"
+    return PASTA_SAIDA
+
+
 @dataclass
 class ResultadoMapa:
     """O que aconteceu com um mapa da série."""
@@ -115,6 +124,7 @@ def executar(
     `modelos` aponta a pasta dos PDFs-modelo para a validação de anatomia.
     """
     inicio = time.time()
+    pasta_saida_rel = pasta_da_serie()
     imovel = _geometria_do_atp(guard, atp_rel)
     bbox = tuple(imovel.bounds)  # type: ignore[assignment]
     meta_atp = inspecionar(guard.resolver(atp_rel))
@@ -168,6 +178,7 @@ def executar(
             rastreador=(
                 progresso.rastreador_do_mapa(receita, indice) if progresso else None
             ),
+            pasta_rel=pasta_saida_rel,
         )
         resultados.append(resultado_mapa)
         if progresso:
@@ -185,7 +196,7 @@ def executar(
             ao_progresso("compilando", NOME_COMPILADO, len(pdfs_ok), len(pdfs_ok))
         if progresso:
             progresso.iniciar_compilacao(len(pdfs_ok))
-        compilado = _compilar(guard, [r.pdf for r in pdfs_ok if r.pdf])
+        compilado = _compilar(guard, [r.pdf for r in pdfs_ok if r.pdf], pasta_saida_rel)
         if progresso and compilado:
             progresso.artefato_compilado(compilado["pdf"], compilado["paginas"])
 
@@ -204,7 +215,7 @@ def executar(
         },
     }
 
-    destino = guard.resolver(f"{PASTA_SAIDA}/analise_de_area_relatorio.json", escrita=True)
+    destino = guard.resolver(f"{pasta_saida_rel}/analise_de_area_relatorio.json", escrita=True)
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(json.dumps(relatorio, ensure_ascii=False, indent=1), encoding="utf-8")
     relatorio["relatorio"] = str(destino.relative_to(guard.raiz))
@@ -243,6 +254,7 @@ def _gerar_um(
     modelos: Path | None,
     saidas: tuple[str, ...] = ("pdf",),
     rastreador: Any = None,
+    pasta_rel: str = PASTA_SAIDA,
 ) -> ResultadoMapa:
     t0 = time.time()
     resultado = ResultadoMapa(id=receita.id, ordem=receita.ordem, nome=receita.nome, ok=False)
@@ -251,7 +263,7 @@ def _gerar_um(
             receita,
             identidade,
             fontes_disponiveis=preparacao.feicoes,
-            pasta_saida=PASTA_SAIDA,
+            pasta_saida=pasta_rel,
             crs=f"EPSG:{epsg}",
             saidas=saidas,
         )
@@ -302,14 +314,18 @@ def _validar_anatomia(gerado: Path, modelo: Path) -> dict[str, Any] | None:
         return {"ok": False, "erro": str(exc), "falhas": ["medicao"]}
 
 
-def _compilar(guard: WorkspaceGuard, pdfs: list[str]) -> dict[str, Any] | None:
+def _compilar(
+    guard: WorkspaceGuard,
+    pdfs: list[str],
+    pasta_saida_rel: str = PASTA_SAIDA,
+) -> dict[str, Any] | None:
     """Junta os PDFs na ordem da série — o equivalente ao `Mapas_unidos.pdf`."""
     try:
         import pymupdf as fitz
     except ImportError:  # pragma: no cover — PyMuPDF é dependência do núcleo
         return None
 
-    destino = guard.resolver(f"{PASTA_SAIDA}/{NOME_COMPILADO}.pdf", escrita=True)
+    destino = guard.resolver(f"{pasta_saida_rel}/{NOME_COMPILADO}.pdf", escrita=True)
     documento = fitz.open()
     try:
         for rel in pdfs:

@@ -49,6 +49,7 @@ def test_slug_usuario():
     assert slug_usuario("Ana@Firma.COM.br") == "ana_at_firma_com_br"
 
 
+@pytest.mark.desktop
 def test_login_cria_pasta_e_ativa_deepseek(raiz_dados: Path, monkeypatch: pytest.MonkeyPatch):
     # provisão local (sem tocar secrets.local.json real)
     provisao = raiz_dados / "provisao.local.json"
@@ -86,6 +87,7 @@ def test_login_cria_pasta_e_ativa_deepseek(raiz_dados: Path, monkeypatch: pytest
     assert Path(ativo["chats"]).is_dir()
 
 
+@pytest.mark.desktop
 def test_login_provisiona_sema_e_planet(raiz_dados: Path, monkeypatch: pytest.MonkeyPatch):
     """30 das 41 camadas exigem `sema_authkey`: ela tem de chegar ao cofre
     sozinha no login, senão o usuário final bate em `NU-102`."""

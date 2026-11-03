@@ -110,8 +110,15 @@ def sincronizar_chave_projeto_no_cofre() -> dict[str, bool | str]:
 
     SEMA/Planet são o que destrava as camadas do catálogo sem o usuário
     configurar nada. Retorno só com booleans/status — nunca o segredo.
+
+    Em modo servidor a provisão automática não existe (D33): a chave chega pela env
+    injetada pela ponte. Devolve `ok=False` sem tocar em nada.
     """
     from mapasfacil_nucleo import cofre
+    from mapasfacil_nucleo.config import modo_servidor
+
+    if modo_servidor():
+        return {"ok": False, "motivo": "modo_servidor"}
 
     sincronizadas: list[str] = []
     for chave in CHAVES_PROVISIONADAS:

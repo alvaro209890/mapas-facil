@@ -24,7 +24,7 @@ motor.** Se não dá para fazer no ArcMap nem no renderizador nativo, não vira 
 
 ```json
 {
-  "contract_version": 2,
+  "contract_version": 3,
   "perfil": "harmonia",
   "id": "spec_01J8X...",
   "versao": 3,
@@ -133,7 +133,7 @@ motor.** Se não dá para fazer no ArcMap nem no renderizador nativo, não vira 
 
 | Campo | Tipo | Regra |
 |---|---|---|
-| `contract_version` | int | atual: **2**. Motor com versão menor recusa o spec e pede atualização |
+| `contract_version` | int | atual: **3**. Motor com versão menor recusa o spec e pede atualização |
 | `perfil` | enum | só `"harmonia"` na v1. Reservado para um futuro `"trevisol"` |
 | `id` / `versao` / `parent_id` | string/int/string | histórico append-only: editar = **nova** versão com `parent_id`, nunca sobrescrever |
 
@@ -147,6 +147,27 @@ motor.** Se não dá para fazer no ArcMap nem no renderizador nativo, não vira 
 | `crs` | `EPSG:xxxxx` | **projetado**, usado para área e para o data frame. Derivado do centroide quando ausente |
 | `escala` | int \| `"auto"` | ∈ lista de escalas permitidas. `"auto"` é resolvido e **gravado de volta** |
 | `extent` | bbox \| `null` | quando `null`, calculado do imóvel + margem. Gravado de volta após resolver |
+
+### `folha` — o papel (obrigatório desde a v3)
+
+O papel deixou de ser consequência do template: no site o usuário escolhe a folha ao criar o
+projeto, e o mesmo template tem de servir de A4 a A0. Por isso a v3 tornou `folha` obrigatório e
+`template` passou a ser **estilo**, não formato.
+
+| Campo | Tipo | Regra |
+|---|---|---|
+| `formato` | enum | `A4 \| A3 \| A2 \| A1 \| A0`. Define o tamanho da página em mm |
+| `orientacao` | enum | `retrato \| paisagem`. Troca largura por altura |
+| `escala_elementos` | enum | `proporcional` (padrão) \| `fixa`. `proporcional` multiplica o tamanho de título, legenda e rótulos por `fator_k` |
+
+`fator_k = largura_retrato_mm / 210`: A4 = 1,000 · A3 ≈ 1,414 · A2 = 2,000 · A1 ≈ 2,828 · A0 ≈ 4,005.
+O valor vem dos milímetros ISO (297/210, 841/210), **não** de `sqrt(2)` — A3 e A0 não são exatos.
+
+**Migração v1/v2 → v3 é determinística:** `folha` vem de `formato_pagina` do template no
+`MANIFEST.json` (`retrato`/`paisagem` inclusos) e `escala_elementos` fica `proporcional`. Roda
+**na leitura** (`mapspec.validar.validar_schema` chama `mapspec.migrar.migrar` antes de validar),
+então spec antigo em disco continua abrindo sem reescrita e sem perguntar nada ao usuário. Spec
+v3 que já traga `folha` é devolvido intacto; `folha` inválida em v3 reprova com `NU-3xx`.
 
 ### `imovel`
 
@@ -248,7 +269,8 @@ entregue abre no PC de outra pessoa**. Detalhe em
 
 Rejeição, nunca correção silenciosa:
 
-- [ ] `contract_version` compatível com o motor
+- [ ] `contract_version` compatível com o motor (v1/v2 migram para v3 na leitura)
+- [ ] `folha.formato` ∈ `{A4..A0}`, `folha.orientacao` ∈ `{retrato, paisagem}`
 - [ ] `template` existe no `MANIFEST.json` e o `sha256` do arquivo bate
 - [ ] toda `fonte` é `local.<id>` presente no workspace **ou** `catalogo.<id>` existente
 - [ ] todo `estilo` existe na biblioteca de `.lyr`

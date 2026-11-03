@@ -257,6 +257,7 @@ def test_remover_shapefile_emite_removido(tmp_path: Path) -> None:
     assert emitidos[0][1]["mudancas"][0]["caminho"] == "dados/ATP.shp"
 
 
+@pytest.mark.desktop
 def test_abrir_liga_watcher_e_fechar_para(tmp_path: Path) -> None:
     montar_workspace_minimo(tmp_path)
     workspace_servico.abrir(str(tmp_path))

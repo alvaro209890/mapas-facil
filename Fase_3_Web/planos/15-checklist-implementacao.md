@@ -40,19 +40,19 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W1 — Núcleo em modo servidor + `MapSpec` v3
 
-- [ ] W1-01 `motores/folhas.py` + CLI `folhas --json` ([W-02](02-projeto-folha-e-upload.md))
-- [ ] W1-02 `config.modo_servidor()`
-- [ ] W1-03 `cofre.py` por env
-- [ ] W1-04 `sessao.py` + `AUTH-090`
-- [ ] W1-05 `agente/provisao.py` desligado
-- [ ] W1-06 `workspace/watcher.py` desligado
-- [ ] W1-07 `.servidor/projeto.json` na memória de trabalho
-- [ ] W1-08 Saída `Mapas/vNNN/` em modo servidor
-- [ ] W1-09 Vagas por `flock`
-- [ ] W1-10 `doctor.py` modo servidor
-- [ ] W1-11 Nunca `arcpy` em modo servidor
-- [ ] W1-12 `MapSpec` v3 (`folha`) + migração v2 + `planos/02-mapspec-contrato.md`
-- [ ] W1-13 `tests/test_modo_servidor.py`
+- [x] W1-01 `motores/folhas.py` + CLI `folhas --json` ([W-02](02-projeto-folha-e-upload.md))
+- [x] W1-02 `config.modo_servidor()`
+- [x] W1-03 `cofre.py` por env
+- [x] W1-04 `sessao.py` + `AUTH-090`
+- [x] W1-05 `agente/provisao.py` desligado
+- [x] W1-06 `workspace/watcher.py` desligado
+- [x] W1-07 `.servidor/projeto.json` na memória de trabalho
+- [x] W1-08 Saída `Mapas/vNNN/` em modo servidor
+- [x] W1-09 Vagas por `flock`
+- [ ] W1-10 `doctor.py` modo servidor — **bloqueada**: `nucleo/mapasfacil_nucleo/doctor.py` está na lista do Álvaro de arquivos de outro trabalho ("não mexa neles"). Feito o equivalente fora dele: `workspace.servico._doctor_resumido()` responde modo/motor binário sem sondar ArcMap, e o `/api/v1/saude` (W3) virá do `config`. Falta a autorização dele para tocar o arquivo.
+- [x] W1-11 Nunca `arcpy` em modo servidor
+- [x] W1-12 `MapSpec` v3 (`folha`) + migração v2 + `planos/02-mapspec-contrato.md`
+- [x] W1-13 `tests/test_modo_servidor.py`
 
 ## W2 — Ponte
 

@@ -98,6 +98,10 @@ def _pasta_saida_ok(pasta: str) -> bool:
 
 
 def validar_schema(mapspec: dict[str, Any]) -> list[dict[str, str]]:
+    """Valida contra o schema do contrato atual, migrando v1/v2 na leitura (D36)."""
+    from mapasfacil_nucleo.mapspec.migrar import migrar
+
+    mapspec = migrar(mapspec)
     validator = Draft202012Validator(_schema())
     erros: list[dict[str, str]] = []
     for err in sorted(validator.iter_errors(mapspec), key=lambda e: list(e.path)):
@@ -112,6 +116,19 @@ def validar_regras(
     fontes_locais: frozenset[str] | None = None,
 ) -> list[dict[str, str]]:
     erros: list[dict[str, str]] = []
+
+    folha = mapspec.get("folha")
+    if isinstance(folha, dict):
+        from mapasfacil_nucleo.motores import folhas as folhas_mod
+
+        formato = folha.get("formato")
+        orientacao = folha.get("orientacao")
+        if isinstance(formato, str) and not folhas_mod.formato_valido(formato):
+            erros.append(_erro("NU-301", f"Formato de folha desconhecido: {formato}", "folha/formato"))
+        if isinstance(orientacao, str) and not folhas_mod.orientacao_valida(orientacao):
+            erros.append(
+                _erro("NU-302", f"Orientação desconhecida: {orientacao}", "folha/orientacao")
+            )
 
     template = mapspec.get("template")
     if isinstance(template, str) and template not in _template_ids():

@@ -61,3 +61,6 @@ def test_sessao_definir_libera_gate(isolado: Path):
     assert sessao.conectada()
     estado = _ndjson("sessao.estado", {})
     assert estado["resultado"]["conta_id"] == "x"
+
+
+pytestmark = pytest.mark.desktop  # sessão local: não existe no modo servidor

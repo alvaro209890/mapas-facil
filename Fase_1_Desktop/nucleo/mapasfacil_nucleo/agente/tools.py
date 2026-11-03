@@ -21,7 +21,9 @@ from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, descrever_diff, nova
 from mapasfacil_nucleo.agente.visao import servico as visao_servico
 from mapasfacil_nucleo.camadas import clip as clip_camadas
 from mapasfacil_nucleo.camadas.resolver import resolver_camada
-from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared
+from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared, pasta_saida
+from mapasfacil_nucleo.mapspec.migrar import CONTRACT_ATUAL
+from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 from mapasfacil_nucleo.conversas.redator import redigir
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
@@ -122,6 +124,13 @@ def _fontes_locais() -> frozenset[str] | None:
     if indice and indice.get("fontes_locais"):
         return frozenset(indice["fontes_locais"])
     return None
+
+
+def _projeto_do_servidor() -> dict[str, Any] | None:
+    """Nome e folha do projeto do site (modo servidor). `None` no desktop."""
+    from mapasfacil_nucleo import projeto_servidor
+
+    return projeto_servidor.para_memoria()
 
 
 @lru_cache(maxsize=1)
@@ -483,13 +492,14 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     fonte = f"local.{perimetro.get('id_local')}"
     titulo = args.get("titulo") if isinstance(args.get("titulo"), str) else None
     mapspec: dict[str, Any] = {
-        "contract_version": 2,
+        "contract_version": CONTRACT_ATUAL,
         "perfil": "harmonia",
         "id": novo_id(),
         "versao": 1,
         "parent_id": None,
         "titulo": titulo or nome_imovel,
         "template": template,
+        "folha": folha_do_template(template) or folha_padrao(),
         "saidas": ["pdf"],
         "imovel": {
             "nome": nome_imovel,
@@ -518,7 +528,7 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         "elementos_layout": {"titulo_caixa": True, "norte": True, "legenda": True},
         "metadados": [],
         "tabela": None,
-        "saida": {"pasta": "Mapas", "nome_base": "Mapa"},
+        "saida": {"pasta": pasta_saida(versao=1), "nome_base": "Mapa"},
     }
     resultado = validar_mapspec_fn(mapspec, fontes_locais=_fontes_locais())
     if not resultado["valido"]:
@@ -1169,6 +1179,14 @@ def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, 
         "mapas_gerados": [],
         "avisos_abertos": [],
     }
+    # Modo servidor (W1-07): o projeto tem nome e folha escolhidos no site; entram na
+    # memória de trabalho para o agente não perguntar de novo o que já foi decidido.
+    projeto_servidor = _projeto_do_servidor()
+    if projeto_servidor:
+        memoria["projeto"] = {
+            "nome": projeto_servidor.get("nome"),
+            "folha": projeto_servidor.get("folha"),
+        }
     # garante teto
     texto = json.dumps(memoria, ensure_ascii=False, sort_keys=True)
     if limites.excede_memoria_trabalho(limites.estimar_tokens(texto)):

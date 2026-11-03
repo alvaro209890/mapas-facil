@@ -38,14 +38,21 @@ def _sessao_conectada_padrao(tmp_path_factory, monkeypatch):
     sobrescrevem com `sessao.resetar()` / `conta.*` no próprio arquivo.
     """
     from mapasfacil_nucleo import sessao
+    from mapasfacil_nucleo.config import modo_servidor
     from mapasfacil_nucleo.contas import servico as contas_servico
 
     pasta = tmp_path_factory.mktemp("contas-padrao")
     monkeypatch.setenv("MAPASFACIL_CONTAS_DIR", str(pasta))
     contas_servico.configurar_diretorio(pasta)
-    sessao.definir(estado="conectado", conta_id="conta-teste")
+    if modo_servidor():
+        # No modo servidor a sessão vem do env que a ponte injeta (W1-04); o núcleo
+        # não tem conta local.
+        monkeypatch.setenv(sessao.ENV_USUARIO_SERVIDOR, "conta-teste")
+    else:
+        sessao.definir(estado="conectado", conta_id="conta-teste")
     yield
-    sessao.resetar()
+    if not modo_servidor():
+        sessao.resetar()
     contas_servico.configurar_diretorio(None)
 
 

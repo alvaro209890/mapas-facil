@@ -6,6 +6,7 @@ from typing import Any
 from pyproj import Transformer
 
 from mapasfacil_nucleo.camadas.materializar import materializar_camadas_locais
+from mapasfacil_nucleo.config import modo_servidor
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.geo.bbox_shp import ler_bbox_header_shp
@@ -14,7 +15,7 @@ from mapasfacil_nucleo.motores.manifesto import obter_template
 from mapasfacil_nucleo.motores.nativo import gerar_pdf_minimo
 from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_t2
 from mapasfacil_nucleo.progresso import RastreadorProgresso
-from mapasfacil_nucleo import jobs
+from mapasfacil_nucleo import jobs, vagas
 from mapasfacil_nucleo.workspace import watcher as workspace_watcher
 from mapasfacil_nucleo.quantitativos.calcular import calcular as calcular_quantitativos
 from mapasfacil_nucleo.quantitativos.png_tabela import renderizar_png_tabela
@@ -31,6 +32,19 @@ def _resolver_fonte_local(fonte: str, fontes_idx: dict[str, str]) -> str | None:
         return None
     chave = fonte.split(".", 1)[1]
     return fontes_idx.get(chave) or fontes_idx.get(chave.upper())
+
+
+def _recusar_arcpy_no_servidor() -> None:
+    """D24/W1-11: no servidor o `.mxd` é do motor binário — ArcPy nem é importado.
+
+    Chamado dentro do `try` do T1 para cair no fallback T2 pelo mesmo caminho do
+    desktop sem ArcMap.
+    """
+    if modo_servidor():
+        raise ErroNucleo(
+            "NU-127",
+            "ArcPy não roda no servidor — .mxd pelo motor binário.",
+        )
 
 
 def _escala_numerica(escala: Any) -> float | None:
@@ -135,14 +149,45 @@ def gerar_mapa(
 ) -> dict[str, Any]:
     """Gera os artefatos do MapSpec, reportando as 10 etapas de `job.progresso`.
 
+    Em modo servidor a geração passa por uma **vaga** (`flock`, W1-09): com
+    `MF_MAX_JOBS=2`, a terceira geração espera de verdade, avisando no `job.log`.
+    """
+    prog = progresso or RastreadorProgresso()
+
+    def _ao_esperar(segundos: float) -> None:
+        prog.log(f"aguardando vaga ({vagas.maximo()} mapas sendo gerados) — {segundos:.0f}s")
+
+    with vagas.vaga(
+        ao_esperar=_ao_esperar,
+        cancelado=lambda: jobs.cancelado(prog.job_id),
+    ):
+        return _gerar_sob_vaga(
+            mapspec,
+            guard,
+            fontes_idx,
+            comparar_baseline=comparar_baseline,
+            recibo=recibo,
+            prog=prog,
+        )
+
+
+def _gerar_sob_vaga(
+    mapspec: dict[str, Any],
+    guard: WorkspaceGuard,
+    fontes_idx: dict[str, str],
+    *,
+    comparar_baseline: bool,
+    recibo: dict[str, Any] | None,
+    prog: RastreadorProgresso,
+) -> dict[str, Any]:
+    """Corpo da geração, já com a vaga em mãos.
+
     A ordem de execução segue a ordem das etapas do contrato (F1-01): sem
     `progresso`, nada é emitido — o trabalho é o mesmo.
 
     Durante o job o watcher (A12) ignora pastas de saída para não emitir
     `workspace.mudou` a cada PNG/PDF intermediário.
     """
-    prog = progresso or RastreadorProgresso()
-
     resultado_val = validar(mapspec, fontes_locais=frozenset(fontes_idx))
     if not resultado_val["valido"]:
         primeiro = resultado_val["erros"][0]
@@ -293,8 +338,10 @@ def _gerar_mapa_corpo(
         escala = _escala_numerica(mapspec.get("escala"))
 
         # T1 (ArcMap): minimapa IBGE + queries + retângulo/L. Fallback T2 (patch).
+        # No servidor o ArcPy **nunca** roda (D24/W1-11): vai direto ao T2.
         mxd_info = None
         try:
+            _recusar_arcpy_no_servidor()
             from mapasfacil_nucleo.motores.minimapa_job import tentar_gerar_mxd_arcpy
 
             mxd_info = tentar_gerar_mxd_arcpy(

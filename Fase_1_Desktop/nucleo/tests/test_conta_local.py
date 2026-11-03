@@ -90,3 +90,6 @@ def test_esquecer_este_pc(pasta_contas: Path):
     assert r["resultado"]["esquecido"] is True
     assert not sessao.conectada()
     assert contas_servico.repositorio().buscar_por_email("z@y.com") is None
+
+
+pytestmark = pytest.mark.desktop  # conta local: não existe no modo servidor

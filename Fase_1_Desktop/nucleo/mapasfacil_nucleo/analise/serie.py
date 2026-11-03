@@ -22,7 +22,8 @@ from typing import Any
 from mapasfacil_nucleo.analise.identidade import IdentidadeImovel
 
 PERFIL = "harmonia"
-CONTRACT_VERSION = 2
+from mapasfacil_nucleo.mapspec.migrar import CONTRACT_ATUAL as CONTRACT_VERSION  # noqa: E402
+from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 
 
 @dataclass(frozen=True)
@@ -369,6 +370,7 @@ def montar_mapspec(
         "versao": 1,
         "titulo": titulo,
         "template": receita.template,
+        "folha": folha_do_template(receita.template) or folha_padrao(),
         "saidas": list(saidas),
         "imovel": identidade.para_mapspec(),
         "crs": crs,

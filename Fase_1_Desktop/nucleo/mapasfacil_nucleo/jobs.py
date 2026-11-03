@@ -108,6 +108,15 @@ def pedir_cancelamento(job_id: str | None = None) -> dict[str, Any]:
     return {"ok": True, "job_id": alvo_id, "processo_encerrado": morto}
 
 
+def cancelado(job_id: str | None = None) -> bool:
+    """`True` se o job foi cancelado. Usado pela espera de vaga (W1-09)."""
+    alvo = job_id or _job_atual
+    if not alvo:
+        return False
+    job = obter(alvo)
+    return bool(job and job.cancelado)
+
+
 def verificar_nao_cancelado(job_id: str | None) -> None:
     """Levanta `NU-050` se o job foi cancelado — pontos de checagem do motor."""
     if not job_id:

@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from mapasfacil_nucleo import doctor
+from mapasfacil_nucleo import __version__, doctor
+from mapasfacil_nucleo import projeto_servidor
+from mapasfacil_nucleo.config import modo_servidor
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.workspace import indice
@@ -53,6 +55,27 @@ def _ligar_watcher() -> None:
     )
 
 
+def _doctor_resumido() -> dict[str, Any]:
+    """O `abrir` devolve só o resumo do ambiente — e no servidor não sonda ArcMap.
+
+    `doctor.rodar` executa `tasklist` no Windows; no servidor não há ArcMap (D24), então
+    o resumo sai direto do modo: motor binário, sem sondagem de subprocesso.
+    """
+    if modo_servidor():
+        return {
+            "nucleo": __version__,
+            "pronto_para_mxd": True,
+            "motor_preferido": "binario",
+            "modo": "servidor",
+        }
+    resumo = doctor.rodar(sondar_arcpy=False)
+    return {
+        "nucleo": resumo["nucleo"],
+        "pronto_para_mxd": resumo["pronto_para_mxd"],
+        "motor_preferido": resumo["motor_preferido"],
+    }
+
+
 def abrir(caminho: str) -> dict[str, Any]:
     global _estado
     guard = WorkspaceGuard(caminho)
@@ -62,17 +85,18 @@ def abrir(caminho: str) -> dict[str, Any]:
         recibo_dados = parsear(guard.resolver(idx["recibo_car"])).para_dict()
 
     _estado = EstadoWorkspace(guard=guard, indice=idx, recibo=recibo_dados)
+    projeto_servidor.definir_raiz(guard.raiz)
     _ligar_watcher()
-    doctor_resumo = doctor.rodar(sondar_arcpy=False)
-    return {
+    retorno: dict[str, Any] = {
         "workspace": idx,
         "recibo": recibo_dados,
-        "doctor": {
-            "nucleo": doctor_resumo["nucleo"],
-            "pronto_para_mxd": doctor_resumo["pronto_para_mxd"],
-            "motor_preferido": doctor_resumo["motor_preferido"],
-        },
+        "doctor": _doctor_resumido(),
     }
+    projeto = projeto_servidor.atual()
+    if projeto:
+        # O agente e a web precisam saber em que folha o projeto nasceu (D36).
+        retorno["projeto"] = projeto
+    return retorno
 
 
 def reindexar(caminho: str | None = None) -> dict[str, Any]:

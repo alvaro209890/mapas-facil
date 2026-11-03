@@ -6,6 +6,9 @@ import re
 import unicodedata
 from typing import Any
 
+from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
+from mapasfacil_nucleo.config import pasta_saida
+from mapasfacil_nucleo.mapspec.migrar import CONTRACT_ATUAL
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria.catalogo import obter_modelo
 from mapasfacil_nucleo.galeria.estado import fontes_do_indice, papéis_presentes
@@ -263,13 +266,14 @@ def montar_mapspec(
 
     # 12. id ULID
     mapspec: dict[str, Any] = {
-        "contract_version": 2,
+        "contract_version": CONTRACT_ATUAL,
         "perfil": "harmonia",
         "id": novo_id(),
         "versao": 1,
         "parent_id": None,
         "titulo": titulo,
         "template": modelo["template"],
+        "folha": folha_do_template(modelo["template"]) or folha_padrao(),
         "saidas": saidas,
         "imovel": imovel,
         "crs": crs,
@@ -281,7 +285,7 @@ def montar_mapspec(
         "metadados": metadados,
         "tabela": tabela,
         "saida": {
-            "pasta": "Mapas",
+            "pasta": pasta_saida(versao=1),
             "nome_base": nome_base,
             "caminhos_relativos": True,
             "materializar_camadas_em": "SHP",
