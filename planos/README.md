@@ -28,6 +28,7 @@ mesmo commit.
 |---|---|---|
 | **1 — App desktop Windows** | [`../Fase_1_Desktop/planos/`](../Fase_1_Desktop/planos/README.md) | **principal** — é onde o `.mxd` nasce |
 | 2 — Site de distribuição | [`../Fase_2_Site/planos/`](../Fase_2_Site/planos/README.md) | landing + download (D21); sem login/mapa no site |
+| 3 — App web com chat de IA (planejada 2026-11-03) | [`../Fase_3_Web/planos/`](../Fase_3_Web/README.md) | site com login + chat + backend no server; `.mxd` binário sem ArcMap; decisões D22–D39 (o W0 as registra em `00-visao-e-duas-fases.md`) |
 
 ## Dados versionados
 

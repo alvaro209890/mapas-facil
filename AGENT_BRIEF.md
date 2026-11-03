@@ -4,6 +4,14 @@ Este repositório é documentação executável. O consumidor é um **agente de 
 Claude Code, Codex, cloud agent), não um leitor humano. Leia este arquivo inteiro antes de tocar
 em qualquer coisa.
 
+> **Fase 3 — app web com chat de IA (planejada em 2026-11-03).** O Mapas Fácil vira um site com
+> login e chat que cria/edita mapas, com backend no server-desktop e `.mxd` gerado sem ArcMap.
+> Planos em [`Fase_3_Web/`](Fase_3_Web/README.md) — comece por
+> [`Fase_3_Web/planos/16-protocolo-do-agente.md`](Fase_3_Web/planos/16-protocolo-do-agente.md).
+> As decisões D22–D39 de lá **revisam** D20, D21, AP-01 e AP-12 **só para a Fase 3**; o desktop
+> continua como está. O marco W0 registra essas revisões neste arquivo e em
+> `planos/00-visao-e-duas-fases.md`.
+
 ## Snapshot — o que falta (2026-07-29, noite)
 
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
