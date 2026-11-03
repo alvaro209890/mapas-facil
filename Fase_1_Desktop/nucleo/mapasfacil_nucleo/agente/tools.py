@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import copy
 import difflib
 import json
 import math
@@ -880,6 +881,19 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         progresso=progresso,
     )
 
+    # W5-15: o MapSpec da versão fica gravado ao lado dos artefatos, para
+    # `listar_versoes`/`restaurar_versao` funcionarem mesmo depois de o worker morrer.
+    pdf = resultado.get("pdf")
+    if pdf:
+        from pathlib import Path as _Path
+
+        from mapasfacil_nucleo import mapspec_store
+
+        try:
+            mapspec_store.salvar_na_pasta(mapspec, _Path(str(pdf)).parent)
+        except OSError:
+            pass  # não derruba a geração por causa do registro
+
     validacao = resultado.get("validacao_dados") or {}
     gerados = ctx.setdefault("mapas_gerados", [])
     artefatos = {
@@ -1196,6 +1210,169 @@ def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, 
 
 # --------------------------------------------------------------------------- registro
 
+# --- W5-12: tools do chat web (folha, versões, validação) -------------------
+
+_FORMATOS_FOLHA = ("A4", "A3", "A2", "A1", "A0")
+_ORIENTACOES = ("retrato", "paisagem")
+
+# O que cada check HARD significa para quem não é cartógrafo. Chave = id.
+_EXPLICACAO_HARD: dict[str, str] = {
+    "H01": "o arquivo do mapa (.mxd) não foi gerado",
+    "H02": "o PDF não foi gerado",
+    "H03": "a camada do imóvel não aparece no mapa",
+    "H06": "a escala pedida não cabe na folha; o mapa sairia com outra escala",
+    "H09": "as cores da legenda não batem com as do mapa",
+    "H10": "o mapa não tem escala gráfica legível",
+    "H12": "o texto do rodapé não cabe na folha",
+    "H14": "a imagem de fundo não foi encontrada",
+    "H17": "as áreas do imóvel não conferem com o recibo do CAR",
+}
+
+
+def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Troca o tamanho/orientação da folha mantendo o resto do mapa."""
+    formato = str(args.get("formato") or "").strip().upper()
+    orientacao = args.get("orientacao")
+    if formato not in _FORMATOS_FOLHA:
+        return _erro(
+            "NU-001",
+            f"Formato de folha inválido: {formato or '(vazio)'}.",
+            validos=list(_FORMATOS_FOLHA),
+        )
+    if orientacao is not None:
+        orientacao = str(orientacao).strip().lower()
+        if orientacao not in _ORIENTACOES:
+            return _erro(
+                "NU-001",
+                f"Orientação inválida: {orientacao}.",
+                validos=list(_ORIENTACOES),
+            )
+    escala_elementos = args.get("escala_elementos")
+
+    def mutar(candidato: dict[str, Any]) -> None:
+        folha = dict(candidato.get("folha") or {})
+        folha["formato"] = formato
+        if orientacao is not None:
+            folha["orientacao"] = orientacao
+        if escala_elementos is not None:
+            folha["escala_elementos"] = escala_elementos
+        folha.setdefault("orientacao", "paisagem")
+        folha.setdefault("escala_elementos", "proporcional")
+        candidato["folha"] = folha
+
+    return _editar(ctx, mutar)
+
+
+def tool_listar_versoes(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Versões já geradas do projeto, da mais nova para a mais antiga."""
+    from mapasfacil_nucleo import mapspec_store
+
+    versoes = mapspec_store.listar()
+    atual = (_mapspec_do_ctx(ctx) or {}).get("versao")
+    return _ok({"versoes": versoes, "atual": atual, "total": len(versoes)})
+
+
+def tool_restaurar_versao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Recria o mapa como estava na versão pedida — em versão NOVA, sem apagar nada."""
+    from mapasfacil_nucleo import mapspec_store
+
+    try:
+        alvo = int(args.get("versao"))
+    except (TypeError, ValueError):
+        return _erro("NU-001", "Informe 'versao' como número inteiro.")
+    antigo = mapspec_store.carregar(alvo)
+    if antigo is None:
+        existentes = [v["versao"] for v in mapspec_store.listar()]
+        return _erro(
+            "NU-001",
+            f"A versão {alvo} não tem mapa gerado; não há o que restaurar.",
+            versoes=existentes,
+        )
+    atual = _mapspec_do_ctx(ctx)
+    if atual is None:
+        return _erro("NU-201", "Não há MapSpec nesta conversa para receber a restauração.")
+
+    # Restauração não é edição: o conteúdo volta inteiro e o `parent_id` aponta
+    # para a versão de origem (o `_editar` apontaria para a versão corrente).
+    from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
+    from mapasfacil_nucleo.mapspec.validar import validar as validar_mapspec
+    from mapasfacil_nucleo.protocolo import novo_id
+
+    candidato = copy.deepcopy(antigo)
+    candidato["id"] = novo_id()
+    candidato["versao"] = int(atual.get("versao") or 1) + 1
+    candidato["parent_id"] = antigo.get("id")
+    resultado = validar_mapspec(candidato, fontes_locais=_fontes_locais())
+    if not resultado["valido"]:
+        return _erro(
+            "NU-201",
+            f"A versão {alvo} não pode ser restaurada nesta pasta: ela não valida no ambiente atual.",
+            erros=resultado["erros"][:5],
+        )
+    ctx["mapspec"] = candidato
+    diff = mapspec_diff(atual, candidato)
+    _emitir_mapspec_atualizado(ctx, candidato, diff)
+    resumo = resumo_versao(candidato, diff)
+    resumo["restaurada_de"] = alvo
+    return _ok(resumo)
+
+
+def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Explica em português o que a validação da última geração apontou."""
+    from mapasfacil_nucleo import mapspec_store
+
+    versao = args.get("versao")
+    pasta = mapspec_store.pasta_da_versao(int(versao)) if versao else None
+    if pasta is None:
+        ultima = mapspec_store.ultima()
+        if ultima is None:
+            return _erro("NU-001", "Nenhuma versão gerada ainda — não há validação para explicar.")
+        pasta = mapspec_store.pasta_da_versao(ultima)
+    arquivos = sorted(Path(str(pasta)).glob("*_validacao.json"))
+    if not arquivos:
+        return _erro("NU-001", f"A pasta {pasta.name} não tem relatório de validação.")
+    try:
+        relatorio = json.loads(arquivos[-1].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return _erro("NU-001", f"Não consegui ler o relatório de validação: {exc}")
+
+    checks = relatorio.get("checks") or {}
+    hard = [c for c in (checks.get("hard") or []) if isinstance(c, dict)]
+    soft = [c for c in (checks.get("soft") or []) if isinstance(c, dict)]
+    falhas = []
+    for check in hard:
+        if check.get("ok"):
+            continue
+        ident = str(check.get("id") or "")
+        falhas.append(
+            {
+                "id": ident,
+                "o_que_e": _EXPLICACAO_HARD.get(ident, check.get("mensagem") or "check sem descrição"),
+                "detalhe": check.get("mensagem"),
+            }
+        )
+    avisos = [
+        {"id": str(c.get("id") or ""), "detalhe": c.get("mensagem")}
+        for c in soft
+        if not c.get("ok")
+    ]
+    return _ok(
+        {
+            "versao": relatorio.get("versao") or (int(versao) if versao else mapspec_store.ultima()),
+            "conforme": not falhas,
+            "veredito": (
+                "O mapa passou nos checks obrigatórios."
+                if not falhas
+                else "O mapa NÃO passou nos checks obrigatórios — não é para dizer que está pronto."
+            ),
+            "falhas": falhas,
+            "avisos": avisos,
+            "motor": relatorio.get("motor"),
+            "confianca": relatorio.get("confianca"),
+        }
+    )
+
+
 _HANDLERS: dict[str, HandlerTool] = {
     # contexto
     "estado_do_projeto": tool_estado_do_projeto,
@@ -1227,6 +1404,11 @@ _HANDLERS: dict[str, HandlerTool] = {
     "gerar_mapa": tool_gerar_mapa,
     "gerar_planilha": tool_gerar_planilha,
     "analisar_referencia": tool_analisar_referencia,
+    # W5-12 — chat web
+    "definir_folha": tool_definir_folha,
+    "listar_versoes": tool_listar_versoes,
+    "restaurar_versao": tool_restaurar_versao,
+    "explicar_validacao": tool_explicar_validacao,
     "comparar_com_modelo": tool_comparar_com_modelo,
 }
 
@@ -1423,6 +1605,34 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
         ),
         "props": {"arquivo": {**_STR, "description": "caminho relativo à pasta do projeto"}},
         "obrig": ["arquivo"],
+    },
+    "definir_folha": {
+        "descricao": "Troca o tamanho/orientação da folha do mapa (A4 a A0), mantendo o resto.",
+        "props": {
+            "formato": {"type": "string", "enum": list(_FORMATOS_FOLHA)},
+            "orientacao": {"type": "string", "enum": list(_ORIENTACOES)},
+            "escala_elementos": {
+                "type": "string",
+                "enum": ["proporcional", "fixa"],
+                "description": "proporcional = textos e legendas acompanham o tamanho da folha",
+            },
+        },
+        "obrig": ["formato"],
+    },
+    "listar_versoes": {
+        "descricao": "Lista as versões já geradas do projeto (folha, escala, artefatos).",
+        "props": {},
+    },
+    "restaurar_versao": {
+        "descricao": "Recria o mapa como estava numa versão anterior, em versão nova. Nunca apaga arquivo.",
+        "props": {"versao": {"type": "integer", "description": "número da versão a restaurar"}},
+        "obrig": ["versao"],
+    },
+    "explicar_validacao": {
+        "descricao": "Explica em português o que a validação apontou (checks obrigatórios e avisos).",
+        "props": {
+            "versao": {"type": "integer", "description": "versão a explicar (padrão: a última)"}
+        },
     },
     "comparar_com_modelo": {
         "descricao": "Compara o PDF gerado com o PDF-modelo da série (diff raster).",

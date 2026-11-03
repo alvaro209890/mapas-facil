@@ -79,3 +79,30 @@ Decisões que custaram sangue:
 2. **`lifespan` encerra os workers no desligamento.** Antes, o subprocesso ficava órfão.
 3. **`SV-240` quando não há pool**: sem worker o chat responde 503 explicando, em vez de
    fingir que mandou a mensagem.
+
+## Adendo 2 — W5-15 e as tools do chat web (W5-12, 4 de 5)
+
+**`mapspec_store.py` (novo, W5-15).** Cada versão gerada deixa o seu `mapspec.json` ao lado
+dos artefatos — `Mapas/vNNN/mapspec.json` no servidor, `Mapas/_versoes/vNNN/` no desktop.
+`tool_gerar_mapa` grava na pasta do PDF assim que a geração termina, então o registro existe
+mesmo que o worker morra logo depois. `listar()` devolve versão, título, folha, orientação,
+escala, `parent_id` e os tipos de artefato presentes — sem geometria.
+
+**Tools (W5-12).**
+
+| Tool | Comportamento |
+|---|---|
+| `definir_folha` | troca `folha.formato`/`orientacao`/`escala_elementos`; formato fora de A4–A0 volta `NU-001` com a lista válida |
+| `listar_versoes` | versões da mais nova para a mais antiga + qual é a atual da conversa |
+| `restaurar_versao` | conteúdo volta inteiro numa **versão nova**, com `parent_id` = id da versão de origem; artefato antigo intacto; valida contra a pasta atual antes de aceitar |
+| `explicar_validacao` | lê o último `*_validacao.json` e traduz os checks HARD em português (`H17` = "as áreas do imóvel não conferem com o recibo do CAR"), separando falha de aviso |
+
+`sugerir_enquadramento` **não** foi feita: depende de `motores/enquadramento.py` (W11), que ainda
+não existe. Fica registrada como pendência do W5-12, não como tarefa cumprida.
+
+Comandos: `pytest tests/test_agente_tools_web.py` → **13 testes**; suíte do núcleo inteira
+**561 desktop** e **551 com `MAPASFACIL_MODO=servidor -m "not desktop"`** (eram 548/538).
+
+Dois ajustes que a implementação exigiu: `escala` no MapSpec v3 é **string**, não objeto
+(`_valor_escala` aceita os dois); e restaurar não pode passar por `_editar`, porque `nova_versao`
+sobrescreve o `parent_id` com a versão corrente — a restauração monta a versão à mão.
