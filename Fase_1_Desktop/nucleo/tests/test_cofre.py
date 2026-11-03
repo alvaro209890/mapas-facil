@@ -100,3 +100,34 @@ def test_testar_sema_so_existencia() -> None:
     assert out["ok"] is True
     assert out["modo"] == "existencia"
     assert "token-sema" not in json.dumps(out)
+
+
+def test_sem_dbus_nao_pendura_no_prompt_do_keyring(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Máquina sem sessão D-Bus: o cofre responde "não tem" em vez de abrir prompt e travar.
+
+    Foi medido no server em 03/11/2026: `cofre.existe()` ficou pendurado em
+    `secretstorage.util.exec_prompt` dentro do `doctor.rodar()`, travando o worker inteiro.
+    """
+    monkeypatch.delenv("DBUS_SESSION_BUS_ADDRESS", raising=False)
+    monkeypatch.setattr(cofre, "_backend", None, raising=False)
+    monkeypatch.setattr(cofre.sys, "platform", "linux")
+
+    assert cofre._tem_cofre_do_so() is False
+
+    backend = cofre._backend_ativo()
+    assert cofre._tem_cofre_do_so() is False
+    assert backend.get_password("servico", "chave") is None
+    assert cofre.existe("deepseek_api_key") is False
+
+
+def test_com_dbus_usa_o_backend_do_sistema(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DBUS_SESSION_BUS_ADDRESS", "unix:path=/run/user/1000/bus")
+    monkeypatch.setattr(cofre.sys, "platform", "linux")
+    assert cofre._tem_cofre_do_so() is True
+
+
+def test_windows_e_macos_tem_cofre_sem_dbus(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DBUS_SESSION_BUS_ADDRESS", raising=False)
+    for plataforma in ("win32", "darwin"):
+        monkeypatch.setattr(cofre.sys, "platform", plataforma)
+        assert cofre._tem_cofre_do_so() is True

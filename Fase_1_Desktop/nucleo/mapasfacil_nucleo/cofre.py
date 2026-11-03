@@ -10,6 +10,7 @@ Uso interno do núcleo: `usar(nome)` — só dentro do processo Python.
 from __future__ import annotations
 
 import os
+import sys
 import time
 from typing import Any, Protocol
 
@@ -73,9 +74,39 @@ def configurar_backend(backend: BackendCofre | None) -> None:
     _backend = backend
 
 
+class _CofreIndisponivel:
+    """Backend vazio para máquina sem cofre do SO (headless, sem sessão D-Bus).
+
+    Existe porque o `keyring` no Linux **não falha** quando não há Secret Service: ele abre um
+    prompt no D-Bus e espera para sempre. Num server sem sessão gráfica isso travava o worker
+    inteiro (medido em 03/11/2026: `cofre.existe()` pendurado em `secretstorage.util.exec_prompt`
+    durante o `doctor.rodar()` do `workspace.abrir()`). Melhor "não tem chave" do que um processo
+    em `ep_poll` até o timeout do job.
+    """
+
+    def get_password(self, servico: str, nome: str) -> str | None:  # noqa: ARG002
+        return None
+
+    def set_password(self, servico: str, nome: str, valor: str) -> None:  # noqa: ARG002
+        return None
+
+    def delete_password(self, servico: str, nome: str) -> None:  # noqa: ARG002
+        return None
+
+
+def _tem_cofre_do_so() -> bool:
+    """`False` em máquina sem sessão D-Bus/sem backend real de keyring."""
+    if os.environ.get("DBUS_SESSION_BUS_ADDRESS"):
+        return True
+    # macOS e Windows têm cofre nativo sem D-Bus.
+    return sys.platform in {"win32", "darwin"}
+
+
 def _backend_ativo() -> BackendCofre:
     if _backend is not None:
         return _backend
+    if not _tem_cofre_do_so():
+        return _CofreIndisponivel()
     try:
         import keyring
     except ImportError as exc:  # pragma: no cover - dep declarada no pyproject

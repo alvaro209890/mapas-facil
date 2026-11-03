@@ -9,6 +9,9 @@ Type=simple
 WorkingDirectory=/home/server/mapasfacil/codigo/Fase_3_Web/servidor
 EnvironmentFile=/home/server/mapasfacil/segredos/servidor.env
 Environment=MF_RAIZ=/home/server/mapasfacil
+# Sem isto o núcleo sobe em modo desktop e vai procurar o cofre do SO: num server sem sessão
+# D-Bus o `keyring` não falha, ele espera um prompt para sempre (medido em 03/11/2026).
+Environment=MAPASFACIL_MODO=servidor
 Environment=MF_HOST=127.0.0.1
 Environment=MF_PORTA=3130
 Environment=PYTHONUNBUFFERED=1

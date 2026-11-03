@@ -88,6 +88,12 @@ como caminhos; `MAPASFACIL_PDF_HQ` (já existe) continua controlando a qualidade
 
 Valores de alvo, não de contrato: o agente mede no W9 e atualiza a tabela com o medido.
 
+**Medido no `server-desktop` em 2026-11-03** (4 núcleos, `imovel_ficticio` sintético, **sem
+basemap** — por isso o PDF fica em 0,06 MB; com mosaico o tamanho cresce e é aí que a meta de MB
+vale): A4 **1,7 s** · A3 1,5 s · A2 1,6 s · A1 2,0 s · A0 **3,6 s**; RSS pico do processo
+**410 MB** (limite de 3 GB folgado). H15 verde nas cinco. Ou seja: o gargalo do deploy não é o
+motor nativo — é o download do mosaico.
+
 ### Qualidade vetorial (checks novos — detalhados em [W-10](10-inteligencia-cartografica.md))
 
 - Texto do título, metadados, legenda e grade **extraível** pelo PyMuPDF (`get_text`) — já é
