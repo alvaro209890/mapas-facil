@@ -25,7 +25,8 @@ login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop 
 - **Marcos fechados:** W0–W9 fechados (fundação, núcleo em modo servidor, ponte/pool, API/contas, upload/importação, SSE + chat, web base, palco motion com Folha SVG em mm reais, e motor PDF nativo A4–A0 com medição real no server: A4 1,7 s · A0 3,6 s · RSS 410 MB).
 - **W10 em andamento:** W10-01 e W10-02 fechados (`mxd_binario/cfbf.py` puro stdlib com 52 testes round-trip byte a byte contra os 47 MXDs do corpus de templates e referências).
 - **W12 no ar no `server-desktop`:** `mapasfacil-app.service` (`systemd --user`, active/enabled), banco `schema 2`, `/api/v1/saude` respondendo `{"ok":true,"versao":"0.1.0","schema":2,"espaco_disco_gb":1037.8,"spa":true}`, SPA buildada e servida com fallback e headers de cache imutáveis, `servidor.env` em 0600.
-- **Suítes completas medidas:** núcleo **1.015** testes verdes, servidor **205** testes verdes, web **191** testes verdes + typecheck 0 + build ok.
+- **Recursos novos (D40–D43, 2026-11-03):** tool `perguntar` em qualquer turno (W5-21), abertura automática do projeto com leitura do `.zip` e Plano B determinístico (W5-22), revisão visual com autocorreção determinística/visão e evento `revisao.visual` (W11-13), e clicar na folha para editar com `SV-242` e `ajustar_elemento` (W8-11).
+- **Suítes completas medidas:** núcleo **1.025** testes verdes, servidor **214** testes verdes, web **194** testes verdes + typecheck 0 + build ok.
 - **Pendências externas (Álvaro):** túnel + DNS `mapasfacil-app.cursar.space` na Cloudflare (para o app sair do loopback 3130 e receber o piloto) e as duas chaves geo opcionais (`MAPASFACIL_SEMA_AUTHKEY` e `MAPASFACIL_PLANET_API_KEY`). Bloqueios técnicos internos: W1-10 (`doctor.py`, ordem de não mexer) e W4-10 (SAD69 precisa de ZIP real do SIMCAR para calibrar Helmert).
 
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,

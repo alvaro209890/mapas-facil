@@ -86,13 +86,13 @@ Os três pilares pedidos pelo Álvaro:
 | W2 | Ponte e pool de workers | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W2.md`) |
 | W3 | API base: contas, sessões, projetos | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W3.md`) |
 | W4 | Importação do ZIP e indexação | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W4.md`); W4-10 (SAD69) pendente de ZIP real do SIMCAR |
-| W5 | Stream de eventos + chat relay | **fechado** em 2026-11-03: W5-01..W5-20 fechados, chave própria `mapasfacil-app` no 9Router, smoke medido (32 tools, raciocínio, stream, contexto, visão); W5-17 com 6/7 cassetes |
+| W5 | Stream de eventos + chat relay | **fechado** em 2026-11-03: W5-01..W5-22 fechados (incluindo tool `perguntar` W5-21 e abertura automática de projeto W5-22), chave própria `mapasfacil-app` no 9Router, smoke medido (33 tools, raciocínio, stream, contexto, visão) |
 | W6 | Frontend web base | **fechado** em 2026-11-03: W6-01..W6-10 (todas as telas, stores, roteador, modal de sessão expirada, SPA servida com fallback e assets immutable) |
 | W7 | Eventos de motion no núcleo | **fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W7.md`): `motion.py`, `palco.py`, 13 eventos, rota `/palco`, recortes PNG e roteiro `palco_dinamica.ndjson` |
-| W8 | Palco do mapa na web | **fechado** em 2026-11-03: `Palco.tsx` (4 modos, rAF), `Camera.ts` (MapLibre isolado), `Camadas.ts`, `Folha.tsx` (SVG mm reais com motion), `coreografia.ts` e `webgl.ts` (WB-001); web com **191 testes**, typecheck 0 e build ok |
+| W8 | Palco do mapa na web | **fechado** em 2026-11-03: `Palco.tsx` (4 modos, rAF), `Camera.ts` (MapLibre isolado), `Camadas.ts`, `Folha.tsx` (SVG mm reais com motion e clique interativo W8-11 / D43), `coreografia.ts` e `webgl.ts` (WB-001); web com **194 testes**, typecheck 0 e build ok |
 | W9 | PDF nativo A4–A0 | **fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W9.md`): perfil por folha (A4 × k), encaixe de borda, dpi do raster, grade, minimapa, PNG da tabela, H15/H16/S17, fonte Type 42; W9-10 medido no server (A4 1,7 s · A0 3,6 s · RSS 410 MB) |
 | W10 | Motor `.mxd` binário | **em andamento** — W10-01 (formatos e inventário) e W10-02 (`mxd_binario/cfbf.py` puro stdlib com 52 testes round-trip byte a byte contra os 47 MXDs do corpus) fechados |
-| W11 | Inteligência cartográfica | **W11-09** (`sugerir_enquadramento`) adiantado e fechado no padrão W-10 (10 passos, degraus redondos, Análise PH) |
+| W11 | Inteligência cartográfica | W11-09 (`sugerir_enquadramento`) e W11-13 (D42 — revisão visual com autocorreção, S21-S25, visão com tarjamento LGPD e evento `revisao.visual`) fechados |
 | W12 | Deploy no server e operação | **app de pé no server** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W12.md`): unit `mapasfacil-app.service` (`systemd --user`, active/enabled), schema 2, `/api/v1/saude` responde `spa:true`, `servidor.env` 0600, units/scripts de backup, saúde e pii; smoke ponta a ponta medido com o núcleo real. **Falta do Álvaro**: túnel + DNS na Cloudflare e as duas chaves geo opcionais
 
 **MVP utilizável** = W0–W8 + W9 (pelo menos A4 e A3) + W12. O pacote `MXD/ SHP/ Mapas/` sai
