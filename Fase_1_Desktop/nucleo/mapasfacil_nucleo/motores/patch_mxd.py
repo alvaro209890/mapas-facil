@@ -217,6 +217,106 @@ def _textos_do_mapspec(mapspec: dict[str, Any]) -> dict[str, str]:
     return textos
 
 
+
+
+def gerar_mxd_binario(
+    mapspec: dict[str, Any],
+    *,
+    guard: WorkspaceGuard,
+    bbox: tuple[float, float, float, float] | None = None,
+    escala: float | None = None,
+    ao_etapa: Callable[[str], Any] | None = None,
+) -> dict[str, Any] | None:
+    """W10-11: Motor MXD binário baseado em slots.json e gates de qualidade."""
+    from mapasfacil_nucleo.mxd_binario import DocumentoMxd, ManifestoSlots, verificar_todos
+
+    template_id = mapspec.get("template")
+    if not isinstance(template_id, str):
+        return None
+
+    try:
+        tpl = obter_template(template_id)
+    except ErroNucleo:
+        try:
+            tpl = obter_template(template_id.lower())
+        except ErroNucleo:
+            return None
+
+    origem = resolver_caminho_preparado(tpl)
+    candidatos_slots = [
+        origem.with_suffix(".slots.json"),
+        origem.parent / f"{template_id}.slots.json",
+        origem.parent / f"{template_id.lower()}.slots.json",
+        origem.parent / f"{tpl.get('id', '')}.slots.json",
+    ]
+    slots_json = None
+    for cand in candidatos_slots:
+        if cand.exists():
+            slots_json = cand
+            break
+    if slots_json is None:
+        return None
+
+    manifesto = ManifestoSlots.carregar(slots_json)
+    saida = mapspec.get("saida") or {}
+    nome_base = saida.get("nome_base", "mapa")
+    pasta_mxd = guard.resolver("MXD", escrita=True)
+    destino_mxd = pasta_mxd / f"{nome_base}.mxd"
+
+    if ao_etapa is not None:
+        ao_etapa("preparando_template")
+
+    doc = DocumentoMxd.abrir(origem)
+    imovel = mapspec.get("imovel") or {}
+    municipio_obj = imovel.get("municipio")
+    nome_mun = municipio_obj.get("nome") if isinstance(municipio_obj, dict) else str(municipio_obj or "")
+    uf_mun = municipio_obj.get("uf") if isinstance(municipio_obj, dict) else ""
+
+    valores: dict[str, Any] = {}
+    if mapspec.get("titulo"):
+        valores["titulo"] = mapspec["titulo"]
+    if imovel.get("nome"):
+        valores["rotulo_imovel"] = imovel["nome"]
+    if nome_mun:
+        valores["municipio"] = nome_mun
+    if uf_mun:
+        valores["uf"] = uf_mun
+    if escala:
+        valores["escala"] = escala
+    if bbox:
+        valores["df_principal"] = bbox
+
+    doc.aplicar(valores, manifesto=manifesto)
+
+    if ao_etapa is not None:
+        ao_etapa("aplicando_layout")
+
+    template_bytes = origem.read_bytes()
+    gerado_bytes = doc.obter_bytes()
+
+    gates = verificar_todos(template_bytes, gerado_bytes, manifesto, valores)
+    falhas = [g for g in gates if not g.ok]
+    if falhas:
+        # Se algum gate falhar, aplica D37: aviso emitido e mxd não é liberado
+        return {
+            "mxd": None,
+            "motor": "binario",
+            "confianca": "reprovado_gates",
+            "avisos": [f"[{f.codigo_erro}] {f.mensagem}" for f in falhas],
+        }
+
+    doc.salvar(destino_mxd)
+    if ao_etapa is not None:
+        ao_etapa("salvando_mxd")
+
+    return {
+        "mxd": destino_mxd.relative_to(guard.raiz).as_posix(),
+        "motor": "binario",
+        "confianca": "alta",
+        "avisos": [],
+    }
+
+
 def gerar_mxd_t2(
     mapspec: dict[str, Any],
     *,
@@ -225,11 +325,14 @@ def gerar_mxd_t2(
     escala: float | None = None,
     ao_etapa: Callable[[str], Any] | None = None,
 ) -> dict[str, Any]:
-    """T2 — copia o template preparado e aplica o patch binário.
+    """T2 — delega ao motor binário se houver slots.json, senão aplica patch legado.
 
     `ao_etapa(nome)` marca as etapas do contrato de `job.progresso` conforme elas
     terminam: `preparando_template`, `aplicando_layout`, `salvando_mxd`.
     """
+    res_bin = gerar_mxd_binario(mapspec, guard=guard, bbox=bbox, escala=escala, ao_etapa=ao_etapa)
+    if res_bin is not None:
+        return res_bin
     template_id = mapspec.get("template")
     if not isinstance(template_id, str):
         raise ErroNucleo("NU-205", "MapSpec sem template.")

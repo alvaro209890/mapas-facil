@@ -479,11 +479,14 @@ def _gerar_mapa_corpo(
                     "MXD gerado por patch T2 sem reposicionar o inset.",
                 )
         artefatos["mxd"] = mxd_info
-        resultado["mxd"] = mxd_info["mxd"]
+        resultado["mxd"] = mxd_info.get("mxd")
         prog.log(
             f".mxd gerado por '{mxd_info.get('motor')}' "
-            f"(confiança {mxd_info.get('confianca')}) · {mxd_info['mxd']}"
+            f"(confiança {mxd_info.get('confianca')}) · {mxd_info.get('mxd')}"
         )
+        if mxd_info.get("avisos"):
+            for aviso in mxd_info["avisos"]:
+                _avisar("MX-020", aviso)
         _avisar("NU-124", mxd_info.get("patch", {}).get("avisos", []))
         if mxd_info.get("minimapa"):
             prog.log(

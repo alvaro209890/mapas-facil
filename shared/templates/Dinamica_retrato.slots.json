@@ -1,0 +1,40 @@
+{
+  "template_id": "Dinamica_retrato",
+  "variante": { "formato": "A4", "orientacao": "retrato" },
+  "arquivo_sha256": "4b6ecf9116e0b7e28dfc55452d3a33946271ce94689cf932c027ea5e744e899b",
+  "streams": ["Mx Document", "PageLayout", "Maps"],
+  "slots": [
+    {
+      "id": "titulo",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.titulo",
+      "sentinela": "Fazenda Harmonia",
+      "streams": ["PageLayout", "Mx Document"]
+    },
+    {
+      "id": "municipio",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.imovel.municipio",
+      "sentinela": "Vila Rica",
+      "streams": ["PageLayout", "Mx Document"]
+    },
+    {
+      "id": "uf",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.imovel.uf",
+      "sentinela": "MT",
+      "streams": ["PageLayout", "Mx Document"]
+    },
+    {
+      "id": "escala",
+      "tipo": "numero",
+      "obrigatorio": false,
+      "origem": "enquadramento.escala",
+      "sentinela": 987654.0,
+      "streams": ["Mx Document"]
+    }
+  ]
+}
