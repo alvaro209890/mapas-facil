@@ -1,0 +1,244 @@
+/* Cena de entrada (W6-04) — tokens do produto, nada de cor solta. */
+
+.tela {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: var(--mf-bg);
+  overflow: hidden;
+}
+
+/* Fundo decorativo: grade que se desenha + contorno de MT.
+   É a única animação sem evento de job, e por isso mesmo respeita reduced-motion. */
+.fundo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.grade {
+  position: absolute;
+  inset: -20%;
+  background-image:
+    linear-gradient(to right, var(--mf-borda) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--mf-borda) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 68%);
+  -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 68%);
+  animation: grade-entra 1.6s ease-out both;
+}
+
+.contorno {
+  position: absolute;
+  inset: 12% 22%;
+  border: 1px solid var(--mf-acento-fraco);
+  border-radius: 42% 58% 51% 49% / 46% 41% 59% 54%;
+  box-shadow: 0 0 120px rgba(53, 199, 154, 0.08) inset;
+  animation: contorno-entra 2.4s ease-out both;
+}
+
+@keyframes grade-entra {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes contorno-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grade,
+  .contorno {
+    animation: none;
+  }
+}
+
+.painel {
+  position: relative;
+  z-index: 1;
+  width: min(27rem, 100%);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-3);
+  box-shadow: var(--mf-sombra);
+}
+
+.cabecalho {
+  margin-bottom: 1.25rem;
+}
+
+.titulo {
+  font-family: var(--mf-fonte-titulo, inherit);
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--mf-texto);
+}
+
+.subtitulo {
+  margin-top: 0.4rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--mf-texto-2);
+}
+
+.abas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 1rem;
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+}
+
+.aba {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mf-texto-2);
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--mf-raio-2) - 2px);
+  cursor: pointer;
+}
+
+.aba:hover {
+  color: var(--mf-texto);
+}
+
+.abaAtiva {
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+}
+
+.formulario {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+}
+
+.campo input {
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.campo input:focus-visible {
+  outline: 2px solid var(--mf-acento);
+  outline-offset: 1px;
+  border-color: var(--mf-acento);
+}
+
+.dica {
+  font-size: 0.75rem;
+  color: var(--mf-texto-3);
+}
+
+.dicaErro {
+  font-size: 0.75rem;
+  color: var(--mf-erro);
+}
+
+.erro {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: rgba(242, 85, 90, 0.1);
+  border: 1px solid rgba(242, 85, 90, 0.35);
+  border-radius: var(--mf-raio-1);
+}
+
+.erro strong {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--mf-erro);
+}
+
+.espera {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--mf-aviso);
+}
+
+.botao {
+  margin-top: 0.25rem;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #04150f;
+  background: var(--mf-acento);
+  border: 0;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--mf-acento-forte);
+}
+
+.botao:disabled {
+  color: var(--mf-texto-3);
+  background: var(--mf-superficie-3);
+  cursor: not-allowed;
+}
+
+.rodape {
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-3);
+  text-align: center;
+}
+
+.link {
+  padding: 0;
+  font: inherit;
+  color: var(--mf-acento);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* No celular o painel ocupa a tela e a cena de fundo fica mais discreta. */
+@media (max-width: 640px) {
+  .painel {
+    width: 100%;
+  }
+
+  .fundo {
+    opacity: 0.35;
+  }
+}

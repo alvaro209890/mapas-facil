@@ -112,7 +112,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W6-01 Herdados do desktop em `web/src/`: `estilos/` (tokens, reset, scrollbar e as fontes woff2 + licenças OFL), `herdados/` com 8 componentes de chat (+ CSS modules) e `timeline.ts`, todos com cabeçalho de proveniência; imports apontam para `herdados/tipos.ts` (não para as stores do desktop)
 - [x] W6-02 `api/cliente.ts` (fetch com `credentials: include`, CSRF nas mutações, `ErroHttp` com `o_que_fazer`, 401 avisando a sessão uma vez, falha de rede = `REDE`), `api/eventos.ts` (EventSource `mf`, dedupe por `seq`, estados conectado/reconectando/offline) e `api/tipos.ts` com guarda de contrato contra `eventos/vocabulario.py`; `api/ponteWeb.ts` entrou junto com as stores (W6-03)
 - [x] W6-03 Stores (`sessao`, `projetos`, `projetoAtivo`, `chat`, `job`, `palco`, `conexao`) + `api/ponteWeb.ts` com `despachar()` e `ligarProjeto()`; `seq` repetido é descartado no despachante. Testes: `estado/estado.test.ts` (16) e `estado/roteiro.test.ts` (4) — roteiro gravado de 16 eventos, replay sem duplicar
-- [ ] W6-04 `Entrar.tsx` + troca de senha
+- [x] W6-04 `Entrar.tsx` + troca de senha: abas Entrar/Criar conta, erro com o código do servidor (`SV-001`, `SV-003`, `SV-005` com contagem regressiva real de `detalhes.espera_s`, `SV-010` com a regra mostrada antes de enviar), `trocar_senha` obrigatório para conta criada pela CLI, roteador (`App.tsx`) com guarda de sessão e `volta=` só de caminho interno
 - [ ] W6-05 `Projetos.tsx`
 - [ ] W6-06 `NovoMapa/*` + `CartaoFolha.tsx`
 - [ ] W6-07 `Projeto.tsx`

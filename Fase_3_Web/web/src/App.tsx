@@ -1,26 +1,147 @@
 /**
- * Casca do app web — Fase 3.
+ * Casca do app web — rotas do W-06.
  *
- * W0 entrega só o esqueleto: o shell de verdade (rotas, login, projetos, palco)
- * chega no W6. Não há spinner nem dado inventado aqui.
+ * | URL | Tela | Sessão |
+ * |---|---|---|
+ * | `/entrar` | Entrar | não |
+ * | `/` | redireciona para `/projetos` | sim |
+ * | `/projetos` | lista | sim |
+ * | `/projetos/novo` | assistente | sim |
+ * | `/projetos/:id` | projeto (chat + palco) | sim |
+ * | `/projetos/:id/versoes/:n` | projeto na versão `n` | sim |
+ * | `/conta` | conta | sim |
+ * | `/admin` | admin | papel admin |
+ *
+ * Sem sessão → `/entrar?volta=<url>`. A sessão é perguntada **uma vez** no boot
+ * (`GET /auth/eu`); enquanto não se sabe, a tela não pisca login nem projeto.
  */
-export function App() {
+
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+
+import { useSessao } from "./estado/sessao";
+import { EmBreve } from "./telas/EmBreve";
+import { Entrar } from "./telas/Entrar";
+
+function Carregando() {
   return (
     <main
       style={{
         display: "grid",
         placeItems: "center",
-        minHeight: "100%",
-        padding: "2rem",
+        minHeight: "100vh",
+        color: "var(--mf-texto-3)",
+        fontSize: "0.875rem",
       }}
     >
-      <div style={{ maxWidth: "32rem", textAlign: "center" }}>
-        <h1 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Mapas Fácil</h1>
-        <p style={{ color: "#8b949e", lineHeight: 1.5 }}>
-          O app web está sendo construído. A API responde em{" "}
-          <code>/api/v1/saude</code> a partir do marco W3.
-        </p>
-      </div>
+      Carregando…
     </main>
+  );
+}
+
+/** Guarda de sessão: mantém a URL para voltar depois do login. */
+function Protegido({ children }: { children: React.ReactNode }) {
+  const estado = useSessao((s) => s.estado);
+  const local = useLocation();
+  if (estado === "desconhecida") return <Carregando />;
+  if (estado === "expirada") {
+    const volta = `${local.pathname}${local.search}`;
+    return <Navigate to={`/entrar?volta=${encodeURIComponent(volta)}`} replace />;
+  }
+  return <>{children}</>;
+}
+
+/** Só admin: papel conferido no dado do servidor, nunca no localStorage. */
+function SoAdmin({ children }: { children: React.ReactNode }) {
+  const usuario = useSessao((s) => s.usuario);
+  if (usuario?.papel !== "admin") return <Navigate to="/projetos" replace />;
+  return <>{children}</>;
+}
+
+/** Destino depois do login: só caminho interno (`volta=//evil.com` viraria redirect aberto). */
+export function depoisDoLogin(busca: string): string {
+  const volta = new URLSearchParams(busca).get("volta");
+  if (!volta || !volta.startsWith("/") || volta.startsWith("//")) return "/projetos";
+  return volta;
+}
+
+function TelaEntrar() {
+  const navegar = useNavigate();
+  const local = useLocation();
+  return <Entrar aoEntrar={() => navegar(depoisDoLogin(local.search), { replace: true })} />;
+}
+
+function Rotas() {
+  const estado = useSessao((s) => s.estado);
+  const carregar = useSessao((s) => s.carregar);
+
+  useEffect(() => {
+    if (estado === "desconhecida") void carregar();
+  }, [estado, carregar]);
+
+  return (
+    <Routes>
+      <Route path="/entrar" element={<TelaEntrar />} />
+      <Route path="/" element={<Navigate to="/projetos" replace />} />
+      <Route
+        path="/projetos"
+        element={
+          <Protegido>
+            <EmBreve titulo="Seus projetos" marco="W6-05" />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/projetos/novo"
+        element={
+          <Protegido>
+            <EmBreve titulo="Novo mapa" marco="W6-06" />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/projetos/:id"
+        element={
+          <Protegido>
+            <EmBreve titulo="Projeto" marco="W6-07" />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/projetos/:id/versoes/:numero"
+        element={
+          <Protegido>
+            <EmBreve titulo="Projeto" marco="W6-07" />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/conta"
+        element={
+          <Protegido>
+            <EmBreve titulo="Conta" marco="W6-08" />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <Protegido>
+            <SoAdmin>
+              <EmBreve titulo="Administração" marco="W6-08" />
+            </SoAdmin>
+          </Protegido>
+        }
+      />
+      <Route path="*" element={<Navigate to="/entrar" replace />} />
+    </Routes>
+  );
+}
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Rotas />
+    </BrowserRouter>
   );
 }

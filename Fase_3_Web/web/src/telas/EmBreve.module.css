@@ -1,0 +1,26 @@
+.tela {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem);
+}
+
+.titulo {
+  font-family: var(--mf-fonte-titulo, inherit);
+  font-size: 1.375rem;
+  color: var(--mf-texto);
+}
+
+.texto {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--mf-texto-2);
+}
+
+.texto strong {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-weight: 600;
+  color: var(--mf-acento);
+}
