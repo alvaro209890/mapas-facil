@@ -235,3 +235,31 @@ def test_memoria_de_trabalho_traz_folha_em_texto(ctx: dict[str, Any], pasta: Pat
     assert memoria["projeto"]["nome"] == "Boa Vista"
     assert memoria["projeto"]["folha_texto"] == "A3 paisagem"
     assert memoria["mapspec_atual"]["folha"].startswith("A")
+
+
+def test_explicar_validacao_traduz_avisos_soft_revisao_visual(ctx: dict[str, Any]):
+    """W11-13 (D42): explicar_validacao traduz os avisos da revisão visual (S21-S25)."""
+    from mapasfacil_nucleo import versoes
+    pasta = versoes.pasta_da_versao(1)
+    pasta.mkdir(parents=True, exist_ok=True)
+    rel = {
+        "versao": 1,
+        "motor": "nativo",
+        "confianca": "estrutural",
+        "checks": {
+            "hard": [{"id": "H02", "ok": True}],
+            "soft": [
+                {"id": "S21", "ok": False, "mensagem": "texto sobreposto a vetor"},
+                {"id": "S25", "ok": False, "mensagem": "colisao entre elementos"},
+            ],
+        },
+    }
+    (pasta / "mapa_validacao.json").write_text(json.dumps(rel), encoding="utf-8")
+    r = executar("explicar_validacao", {"versao": 1}, ctx)
+    assert r["ok"] is True
+    assert r["conforme"] is True  # soft não quebra conformidade hard
+    assert len(r["avisos"]) == 2
+    ids_avisos = [a["id"] for a in r["avisos"]]
+    assert "S21" in ids_avisos
+    assert "S25" in ids_avisos
+    assert "vetor" in r["avisos"][0]["o_que_e"]

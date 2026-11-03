@@ -269,3 +269,23 @@ redige diagnóstico, só repassa e contextualiza.
 - Dar HARD ao S12 (decisão P9: sempre SOFT).
 - Centrar o conteúdo no quadro inteiro em vez da faixa útil (o título tapa o topo do imóvel).
 - Escalas diferentes entre mapas da mesma série do mesmo imóvel.
+
+
+## W11-13 Revisão visual com autocorreção antes de entregar (D42)
+
+Depois de gerar o mapa e antes de liberar a versão, o sistema executa a revisão visual em até 2 rodadas:
+1. **Checks geométricos determinísticos (coordenadas da folha em mm):**
+   - **S21**: texto ou caixa posicionado sobre linhas de vetor no mapa (regra do escritório).
+   - **S22**: elemento cortado ou fora da margem útil da folha.
+   - **S23**: legenda inconsistente (itens inativos ou camadas ativas sem entrada).
+   - **S24**: quadrinho do minimapa de localização sem englobar o centroide do imóvel.
+   - **S25**: sobreposição indesejada entre elementos visuais do layout.
+2. **Visão com o Gemini (`ag/gemini-3.8-flash-high`):**
+   - Rasterização da página a ~150 dpi via PyMuPDF.
+   - **Tarjamento prévio:** retângulos pretos cobrindo CPFs, CNPJs e nomes de proprietários antes de codificar a imagem (LGPD / W-11).
+   - Resposta estruturada `{problemas: [{elemento_id, tipo, gravidade, sugestao}]}`.
+3. **Autocorreção em até 2 rodadas:**
+   - Deslocamento e reancoragem automática de elementos em conflito.
+   - Entrega garantida sem travar o download (D37) caso restem avisos.
+4. **Evento `revisao.visual`:**
+   - Fases `inicio`, `problema`, `corrigido`, `fim` para o palco animar.

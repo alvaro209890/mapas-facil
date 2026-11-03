@@ -68,6 +68,7 @@ EVENTOS: frozenset[str] = frozenset(
         "viewport.foco",
         "camada.renderizada",
         "layout.elemento",
+        "revisao.visual",
     }
 )
 

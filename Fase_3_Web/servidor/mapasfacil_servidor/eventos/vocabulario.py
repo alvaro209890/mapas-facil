@@ -25,6 +25,7 @@ EVENTOS_NUCLEO: frozenset[str] = frozenset(
         "viewport.foco",
         "camada.renderizada",
         "layout.elemento",
+        "revisao.visual",
     }
 )
 
@@ -54,6 +55,7 @@ EVENTOS_DE_JOB: frozenset[str] = frozenset(
         "camada.renderizada",
         "layout.elemento",
         "nucleo.res",
+        "revisao.visual",
     }
 )
 

@@ -175,3 +175,11 @@ rotas do app (introspecção do router) e falha se alguma rota com `{id}` não u
 - Responder 403 para projeto alheio (confirma que existe).
 - Logar corpo de requisição.
 - Guardar senha temporária no banco em claro "para mostrar depois".
+
+
+### Tarjamento prévio de imagem para visão de IA (W11-13 / D42)
+Antes de qualquer imagem rasterizada da folha ser despachada para o provedor de visão de IA (Gemini via 9Router), a função `tarjar_imagem_para_visao` detecta e aplica tarjas pretas opacas cobrindo:
+- Todo número com padrão de CPF (`\d{3}\.\d{3}\.\d{3}-\d{2}` ou 11 dígitos sequenciais);
+- Todo número com padrão de CNPJ;
+- Nomes de proprietários extraídos do recibo CAR.
+Nenhum dado pessoal é transmitido para servidores externos de IA.

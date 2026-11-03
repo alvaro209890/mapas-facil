@@ -161,6 +161,7 @@ export const EVENTOS_NUCLEO = [
   'viewport.foco',
   'camada.renderizada',
   'layout.elemento',
+  'revisao.visual',
 ] as const;
 
 export const EVENTOS_SERVIDOR = [

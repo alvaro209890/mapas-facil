@@ -906,6 +906,34 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
             pass  # não derruba a geração por causa do registro
 
     validacao = resultado.get("validacao_dados") or {}
+
+    # Revisão visual com autocorreção (Recurso C / W11-13 / D42)
+    from mapasfacil_nucleo.validacao.revisao_visual import executar_revisao_completa
+
+    layout_elementos = mapspec.get("elementos_layout_posicionados") or []
+    if not layout_elementos and mapspec.get("elementos_layout"):
+        for k, v in mapspec["elementos_layout"].items():
+            if v:
+                layout_elementos.append({"id": k, "tipo": k, "bbox_mm": [10.0, 10.0, 50.0, 30.0]})
+
+    rev_res = executar_revisao_completa(
+        mapspec=mapspec,
+        layout_elementos=layout_elementos,
+        emissor=emissor,
+        job_id=job_id,
+        folha_largura_mm=210.0,
+        folha_altura_mm=297.0,
+    )
+    if rev_res.get("problemas_restantes"):
+        for prob in rev_res["problemas_restantes"]:
+            validacao.setdefault("checks", {}).setdefault("soft", []).append(
+                {
+                    "id": prob["id"],
+                    "ok": False,
+                    "mensagem": prob["mensagem"],
+                    "sugestao": prob.get("sugestao"),
+                }
+            )
     gerados = ctx.setdefault("mapas_gerados", [])
     artefatos = {
         chave: resultado[chave]
@@ -1252,6 +1280,15 @@ _EXPLICACAO_HARD: dict[str, str] = {
     "H17": "as áreas do imóvel não conferem com o recibo do CAR",
 }
 
+_EXPLICACAO_SOFT: dict[str, str] = {
+    "S10": "tabela embutida com resolução do arquivo original",
+    "S21": "texto ou caixa posicionado sobre linhas de vetor no mapa",
+    "S22": "elemento do layout ultrapassando a margem da folha ou cortado",
+    "S23": "legenda com itens de camadas inativas ou ausentes",
+    "S24": "minimapa de localização sem conter o centroide do imóvel",
+    "S25": "sobreposição entre elementos visuais do layout",
+}
+
 
 def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Troca o tamanho/orientação da folha mantendo o resto do mapa."""
@@ -1513,7 +1550,11 @@ def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[s
             }
         )
     avisos = [
-        {"id": str(c.get("id") or ""), "detalhe": c.get("mensagem")}
+        {
+            "id": str(c.get("id") or ""),
+            "o_que_e": _EXPLICACAO_SOFT.get(str(c.get("id") or ""), "aviso de validação"),
+            "detalhe": c.get("mensagem"),
+        }
         for c in soft
         if not c.get("ok")
     ]
