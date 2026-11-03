@@ -97,10 +97,10 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W5-03 `eventos/vocabulario.py` (fechado; teste compara com o `protocolo.py` do núcleo)
 - [x] W5-10 `api/mensagens.py` (GET mensagens, POST 202 com `req_id`, POST cancelar)
 - [x] W5-11 Conversa principal (nasce no primeiro turno e fica na coluna `conversa_id`) + renomear acompanha o projeto
-- [ ] W5-12 5 tools novas
+- [x] W5-12 5 tools novas em `agente/tools.py` (`definir_folha`, `sugerir_enquadramento`, `listar_versoes`, `restaurar_versao`, `explicar_validacao`) + registro em `_HANDLERS` e schema JSON; `sugerir_enquadramento` reescrita no padrão W-10
 - [x] W5-13 Prompt web (`_BLOCO_WEB` em `agente/prompt.py`, entra só em modo servidor; 1.072 de 2.500 tokens)
 - [x] W5-14 Memória de trabalho com folha
-- [ ] W5-15 Edição a partir de versão anterior
+- [x] W5-15 Edição a partir de versão anterior (`restaurar_versao` via `mapspec_store.py`) para "voltar" preservando histórico
 - [x] W5-16 Provedor `openai_compat` (9Router, `ag/gemini-3.8-flash-high`, `high`) + smoke de tools + contexto real — **medido em 03/11**: chave própria `mapasfacil-app` criada no 9Router; `ferramentas/provedor_smoke.py` verde em tools (32 schemas, `finish_reason=tool_calls`, argumentos JSON), paralelo (2 tool calls no mesmo turno), resultado de tool de 6.257 chars lido até a sentinela, raciocínio (1.000 chars de `reasoning_content`), stream (46 pedaços, 5.465 chars, `stop`). Contexto: prompt de 180.000 chars (~45 mil tokens reais) aceito; `usage.prompt_tokens` do pool é **inflado** (14.842 para ~900 tokens), então `MAPASFACIL_CONTEXTO_MAX=40000` é margem medida, não o anunciado 1M
 - [~] W5-17 Os 7 roteiros como cassetes: **6 reproduzidos de verdade** (dinâmica, estilo, folha, qual folha, voltar, pergunta) em `tests/agente/cassetes/web_*.json` + `tests/test_agente_web_roteiros.py`; `web_hard` roda e chama `explicar_validacao`, mas **nenhum fixture sintético derruba check HARD hoje** — o caso do plano (H17, áreas × recibo) só existe a partir do W7/W9
 - [x] W5-18 Sugestões de início
@@ -116,9 +116,9 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W6-05 `Projetos.tsx`: busca com debounce de 250 ms, filtro Ativos/Lixeira, grade de cartões (auto-fill, 1 coluna no celular), selo de folha e de estado (com o código quando `erro`), silhueta na proporção do formato quando não há miniatura, menu renomear/lixeira/restaurar, atalho `N`, estado vazio honesto. **Sem barra de progresso no cartão**: o percentual real só existe no SSE do projeto aberto. Veio junto `GET /projetos/{id}/arquivos/{caminho}` (`api/arquivos.py`, allowlist `Mapas/`+`MXD/`, `SV-401`/`SV-402`, `Range` 206, `?anexo=true`) — sem ele o cartão não teria miniatura nem o PDF teria download
 - [x] W6-06 `NovoMapa/*` + `CartaoFolha.tsx`: 3 passos (folha → dados → resumo), cartão desenhado na proporção real (A0 = 16 folhas A4, paisagem gira), envio do `.zip` por partes com progresso real em partes, e **projeto criado só no fim** (falha no envio não deixa projeto vazio)
 - [x] W6-07 `Projeto.tsx`: divisor chat|palco, chat com a timeline herdada (bolha que junta deltas, cartão de tool único ou grupo, raciocínio, pergunta com chips) alimentado pelo SSE, "Parar" por `req_id`, sugestões do servidor, faixa de versões clicável (`/versoes/:n` na URL) e downloads por `/arquivos/{caminho}?anexo=true`. Palco é **desenho estático** da folha com o número da versão até o W8 — nada de mapa falso
-- [ ] W6-08 `Admin.tsx`, `Conta.tsx`
-- [ ] W6-09 Modal de sessão expirada
-- [ ] W6-10 `servidor/estaticos.py`
+- [x] W6-08 `Admin.tsx`, `Conta.tsx`: listagem e busca de usuários, auditoria, redefinição de senha e alteração de perfil/status de conta
+- [x] W6-09 Modal de sessão expirada (`SessaoExpirada.tsx`): camada sobre a tela que preserva o rascunho do chat e o estado da página sem navegar para fora
+- [x] W6-10 `servidor/estaticos.py`: SPA servida pelo FastAPI com fallback para `index.html`, `Cache-Control` imutável para assets com hash e `no-cache` para HTML
 
 ## W7 — Eventos de motion
 
