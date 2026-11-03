@@ -22,7 +22,12 @@ class Banco:
 
     def conectar(self) -> sqlite3.Connection:
         self.caminho.parent.mkdir(parents=True, exist_ok=True)
-        con = sqlite3.connect(self.caminho, isolation_level=None, timeout=30.0)
+        # `check_same_thread=False`: rota `async def` roda a dependência síncrona
+        # em outro thread; a conexão é usada dentro de uma requisição só, então
+        # não há concorrência real sobre ela.
+        con = sqlite3.connect(
+            self.caminho, isolation_level=None, timeout=30.0, check_same_thread=False
+        )
         con.row_factory = sqlite3.Row
         con.execute("PRAGMA foreign_keys = ON")
         con.execute("PRAGMA journal_mode = WAL")

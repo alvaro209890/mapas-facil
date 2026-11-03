@@ -8,7 +8,7 @@ ambiente nenhuma.
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Iterator
 
 from fastapi import Depends, Request
@@ -16,6 +16,7 @@ from fastapi import Depends, Request
 from ..auth import contas, limitador, sessoes
 from ..db import Banco
 from ..erros import ErroServidor
+from ..eventos.sse import Hub
 
 
 @dataclass
@@ -24,6 +25,7 @@ class AppState:
     admin_email: str | None = None
     limitador: limitador.Limitador | None = None
     config: object | None = None
+    hub: Hub = field(default_factory=Hub)
 
     def __post_init__(self) -> None:
         if self.limitador is None:

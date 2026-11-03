@@ -146,6 +146,16 @@ def criar_importacao(
 
     banco = estado.banco
     pool = getattr(estado, "pool", None)
+    raiz_projeto = raizes.projetos / projeto.id
+    hub = estado.hub
+
+    def _emitir(evento: str, dados: dict, *, job_id: str | None = None) -> None:
+        from ..eventos.log import LogEventos
+
+        envelope = LogEventos(raiz_projeto).registrar(
+            origem="servidor", evento=evento, dados=dados, job_id=job_id
+        )
+        hub.publicar(projeto.id, envelope)
 
     def _rodar() -> None:
         # Roda **depois** da resposta: erro aqui já está registrado em
@@ -153,17 +163,24 @@ def criar_importacao(
         # exceção não tratada (o Starlette estouraria "response already started").
         from ..erros import ErroServidor
 
+        _emitir("projeto.estado", {"estado": "importando"})
         try:
-            importacao_servico.importar(
+            resumo = importacao_servico.importar(
                 banco=banco,
                 raizes=raizes,
                 projeto=projeto,
                 upload_id=upload.id,
                 importacao_id=importacao_id,
                 pool=pool,
+                ao_progresso=lambda dados: _emitir("importacao.progresso", dados),
             )
-        except ErroServidor:
+        except ErroServidor as exc:
+            _emitir("projeto.estado", {"estado": "erro", "erro_codigo": exc.codigo})
             return
+        _emitir(
+            "projeto.estado",
+            {"estado": "pronto", "resumo": resumo if isinstance(resumo, dict) else None},
+        )
 
     tarefas.add_task(_rodar)
     return {"importacao_id": importacao_id}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import json
 import zipfile
 from pathlib import Path
 
@@ -453,3 +454,47 @@ def test_upload_maior_que_limite_sv103(tmp_path):
         )
     assert exc.value.codigo == "SV-103"
     assert exc.value.status_http == 413
+
+
+# --- SSE pela rota (W5-02) ------------------------------------------------
+
+
+def test_sse_entrega_eventos_da_importacao(ambiente):
+    """A rota devolve `text/event-stream` e os eventos gravados no log do projeto."""
+    cliente, cfg, _ = ambiente
+    csrf, projeto = entrar_e_criar(cliente)
+    upload_id = enviar_zip(cliente, csrf, zip_do_imovel())
+    importacao_id = cliente.post(
+        f"{API}/projetos/{projeto['id']}/importacao",
+        json={"upload_id": upload_id},
+        headers={"X-MF-CSRF": csrf},
+    ).json()["importacao_id"]
+    assert cliente.get(f"{API}/importacoes/{importacao_id}").json()["estado"] == "pronto"
+
+    eventos: list[dict] = []
+    with cliente.stream("GET", f"{API}/projetos/{projeto['id']}/eventos?desde=0") as resposta:
+        assert resposta.status_code == 200
+        assert resposta.headers["content-type"].startswith("text/event-stream")
+        for linha in resposta.iter_lines():
+            if not linha.startswith("data: "):
+                continue
+            eventos.append(json.loads(linha[6:]))
+            if len(eventos) >= 3:
+                break
+
+    nomes = [e["evento"] for e in eventos]
+    assert "projeto.estado" in nomes
+    assert eventos[0]["seq"] == 1
+    assert [e["seq"] for e in eventos] == sorted(e["seq"] for e in eventos)
+
+
+def test_sse_de_projeto_alheio_404(ambiente):
+    cliente, _, _ = ambiente
+    _csrf, projeto = entrar_e_criar(cliente)
+    cliente.post(f"{API}/auth/sair")
+    cliente.post(
+        f"{API}/auth/cadastrar",
+        json={"nome": "Bia", "email": "bia@imap.com.br", "senha": SENHA},
+    )
+    resposta = cliente.get(f"{API}/projetos/{projeto['id']}/eventos?desde=0")
+    assert resposta.status_code == 404

@@ -196,30 +196,48 @@ class LogEventos:
             return envelope
 
     def compactar(self, eventos: list[dict]) -> list[dict]:
-        """`desde=0` numa reabertura: só o essencial de cada job terminado (W-03)."""
-        por_job: dict[str, dict] = {}
-        sem_job: list[dict] = []
+        """`desde=0` numa reabertura: reduz o passado sem perder o que importa.
+
+        - job **terminado** (tem `nucleo.res`): só o último `job.progresso`, os
+          `camada.renderizada`, `layout.elemento`, `viewport.foco` e o próprio `nucleo.res`;
+        - job **em andamento**: reenviado inteiro (a tela precisa da sequência);
+        - `chat.delta` de turno terminado não volta: a mensagem final está em
+          `GET /mensagens`.
+        """
+        por_job: dict[str, list[dict]] = {}
         for evento in eventos:
             job_id = evento.get("job_id")
-            nome = evento.get("evento")
             if not job_id:
-                if nome in {"camada.renderizada", "layout.elemento", "viewport.foco"}:
-                    sem_job.append(evento)
                 continue
-            atual = por_job.get(job_id)
-            if nome == "job.progresso":
-                por_job[job_id] = {**(atual or {}), "progresso": evento}
-            elif nome in {"camada.renderizada", "layout.elemento", "viewport.foco", "nucleo.res"}:
-                chave = f"{nome}:{json.dumps(evento.get('dados'), sort_keys=True)[:80]}"
-                guardados = (atual or {}).get("eventos", {})
-                guardados[chave] = evento
-                por_job[job_id] = {**(atual or {}), "eventos": guardados}
-            # chat.delta de turno terminado não volta: a mensagem final está em /mensagens
+            por_job.setdefault(job_id, []).append(evento)
 
-        resultado: list[dict] = list(sem_job)
-        for dados in por_job.values():
-            if dados.get("progresso"):
-                resultado.append(dados["progresso"])
-            resultado.extend((dados.get("eventos") or {}).values())
+        terminados = {
+            job_id
+            for job_id, lista in por_job.items()
+            if any(e.get("evento") == "nucleo.res" for e in lista)
+        }
+
+        resultado: list[dict] = [e for e in eventos if not e.get("job_id")]
+        for job_id, lista in por_job.items():
+            if job_id not in terminados:
+                resultado.extend(lista)
+                continue
+            ultimo_progresso = None
+            guardados: list[dict] = []
+            vistos: set[tuple[str, str]] = set()
+            for evento in lista:
+                nome = evento.get("evento")
+                if nome == "job.progresso":
+                    ultimo_progresso = evento
+                elif nome in {"camada.renderizada", "layout.elemento", "viewport.foco", "nucleo.res"}:
+                    chave = (nome, json.dumps(evento.get("dados"), sort_keys=True))
+                    if chave in vistos:
+                        continue
+                    vistos.add(chave)
+                    guardados.append(evento)
+            if ultimo_progresso is not None:
+                resultado.append(ultimo_progresso)
+            resultado.extend(guardados)
+
         resultado.sort(key=lambda e: int(e["seq"]))
         return resultado
