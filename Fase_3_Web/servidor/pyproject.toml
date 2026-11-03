@@ -41,4 +41,5 @@ markers = [
   "anel1: teste puro, sem rede e sem disco compartilhado",
   "anel2: integração com fake_nucleo ou núcleo real local",
   "anel3: rodado ao vivo no server-desktop (não roda no CI)",
+  "nucleo_real: exige o pacote mapasfacil_nucleo instalado no interpretador apontado por MF_PYTHON_NUCLEO",
 ]

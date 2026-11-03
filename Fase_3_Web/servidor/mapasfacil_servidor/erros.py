@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import Any
 
 
-@dataclass(frozen=True)
+@dataclass
 class ErroServidor(Exception):
     codigo: str
     mensagem: str
@@ -38,6 +38,9 @@ class ErroServidor(Exception):
         if self.detalhes:
             erro["detalhes"] = self.detalhes
         return {"erro": erro}
+
+    # Sem `frozen`: exceção atravessa gerador/fixture e o Python grava
+    # `__traceback__` no objeto — com `frozen=True` isso estoura FrozenInstanceError.
 
     def __str__(self) -> str:  # pragma: no cover - só em log/terminal
         return f"{self.codigo}: {self.mensagem}"

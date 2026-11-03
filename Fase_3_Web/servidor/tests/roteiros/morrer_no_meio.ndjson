@@ -1,0 +1,4 @@
+# Roteiro: o worker morre no meio do job (kill -9 simulado).
+{"metodo": "ping", "resultado": {"pong": true}}
+{"metodo": "doctor.rodar", "resultado": {"modo": "servidor"}}
+{"metodo": "mapa.gerar", "morrer": true}

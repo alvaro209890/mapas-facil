@@ -56,12 +56,12 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W2 — Ponte
 
-- [ ] W2-01 `ponte/worker.py`
-- [ ] W2-02 `ponte/pool.py`
-- [ ] W2-03 `ponte/allowlist.py` + teste
-- [ ] W2-04 `ponte/fake_nucleo.py` + 3 roteiros
-- [ ] W2-05 Registro de versão no banco
-- [ ] W2-06 Integração com núcleo real
+- [x] W2-01 `ponte/worker.py`
+- [x] W2-02 `ponte/pool.py`
+- [x] W2-03 `ponte/allowlist.py` + teste
+- [x] W2-04 `ponte/fake_nucleo.py` + 4 roteiros
+- [x] W2-05 Registro de versão — `ponte/versao.py` monta o registro (artefatos, `conforme` pelos HARD, miniatura); o **insert** entra no W3, quando existir o schema
+- [x] W2-06 Integração com núcleo real (3 testes `nucleo_real`, rodados aqui contra o venv do núcleo)
 
 ## W3 — API base
 

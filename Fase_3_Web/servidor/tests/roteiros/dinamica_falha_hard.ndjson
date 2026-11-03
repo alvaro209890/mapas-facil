@@ -1,0 +1,4 @@
+# Roteiro: geracao que termina com erro tipado do nucleo.
+{"metodo": "ping", "resultado": {"pong": true}}
+{"metodo": "doctor.rodar", "resultado": {"modo": "servidor", "motor_mxd": "binario"}}
+{"metodo": "mapa.gerar", "eventos": [{"atraso": 0.01, "evento": "job.log", "dados": {"nivel": "erro", "texto": "HARD falhou"}}], "erro": {"codigo": "NU-500", "mensagem": "check HARD reprovado", "detalhes": {"check": "H05"}}}

@@ -1,0 +1,5 @@
+# Roteiro: handshake do worker + abertura de workspace.
+{"metodo": "ping", "resultado": {"pong": true}}
+{"metodo": "doctor.rodar", "resultado": {"modo": "servidor", "motor_mxd": "binario"}}
+{"metodo": "workspace.abrir", "resultado": {"workspace": {"shp": ["ATP.shp"]}, "recibo": null}}
+{"metodo": "workspace.inspecionar", "resultado": {"shp": ["ATP.shp"]}}

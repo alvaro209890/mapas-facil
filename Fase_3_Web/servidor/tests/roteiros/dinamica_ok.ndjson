@@ -1,0 +1,4 @@
+# Roteiro: geracao completa com progresso e um log.
+{"metodo": "ping", "resultado": {"pong": true}}
+{"metodo": "doctor.rodar", "resultado": {"modo": "servidor", "motor_mxd": "binario"}}
+{"metodo": "mapa.gerar", "eventos": [{"atraso": 0.01, "evento": "job.progresso", "dados": {"etapa": "validando_spec", "pct": 10}}, {"atraso": 0.01, "evento": "job.log", "dados": {"nivel": "info", "texto": "camadas materializadas"}}, {"atraso": 0.01, "evento": "job.progresso", "dados": {"etapa": "salvando_mxd", "pct": 90}}], "resultado": {"job_id": "01JOB", "artefatos": ["Mapas/v001/mapa.mxd"]}}
