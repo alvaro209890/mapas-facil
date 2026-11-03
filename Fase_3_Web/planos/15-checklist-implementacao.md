@@ -92,9 +92,9 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W5 — SSE + chat
 
-- [ ] W5-01 `eventos/log.py`
+- [x] W5-01 `eventos/log.py` (seq gravado antes de enviar, fsync 50/1 s, índice a cada 1.000 linhas, compactação para `desde=0`)
 - [ ] W5-02 `eventos/sse.py`
-- [ ] W5-03 `eventos/vocabulario.py`
+- [x] W5-03 `eventos/vocabulario.py` (fechado; teste compara com o `protocolo.py` do núcleo)
 - [ ] W5-10 `api/mensagens.py`
 - [ ] W5-11 Conversa principal + renomear
 - [ ] W5-12 5 tools novas
