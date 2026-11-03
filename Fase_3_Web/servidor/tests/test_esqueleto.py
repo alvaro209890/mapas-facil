@@ -136,17 +136,26 @@ def test_segredos_ignoram_comentario_e_aspas(tmp_path):
 
 @pytest.mark.anel1
 def test_comando_sem_corpo_responde_sv098(capsys, tmp_path, monkeypatch):
+    """O contrato do W0 sobrevive: comando sem corpo é `SV-098` e exit 3.
+
+    `migrar`, `limpar-lixeira` e `conta` ganharam corpo no W3, então o teste passa a
+    exercitar o mesmo contrato pelo caminho que ainda existe — uma ação de `conta`
+    fora da lista do parser não chega aqui, e `NaoImplementado` continua respondendo
+    o código certo para qualquer comando futuro.
+    """
+    from mapasfacil_servidor.erros import NaoImplementado
+
+    erro = NaoImplementado("exemplo", "W99")
+    assert erro.codigo == "SV-098"
+    assert erro.status_http == 501
+
     segredos = _arquivo_segredos(tmp_path)
     monkeypatch.setenv("MF_RAIZ", str(tmp_path))
     monkeypatch.setenv("MF_SEGREDOS", str(segredos))
-    for nome, extra in (
-        ("migrar", None),
-        ("limpar-lixeira", None),
-        ("conta", "listar"),
-    ):
-        argv = [nome] if extra is None else [nome, extra]
-        assert main(argv) == 3, nome
-        assert "SV-098" in capsys.readouterr().err
+    # ação inválida é recusada pelo argparse antes de qualquer efeito
+    with pytest.raises(SystemExit) as exc:
+        main(["conta", "apagar-tudo"])
+    assert exc.value.code == 2
 
 
 @pytest.mark.anel1

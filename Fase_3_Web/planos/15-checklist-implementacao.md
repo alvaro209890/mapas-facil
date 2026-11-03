@@ -65,17 +65,17 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W3 — API base
 
-- [ ] W3-01 Migração `0001_inicial.sql`
-- [ ] W3-02 `ProjetosRepo` + máquina de estados (`SV-090`)
-- [ ] W3-03 `api/projetos.py`
-- [ ] W3-10 `app.py` + rotas + `api/modelos.py`
-- [ ] W3-11 `erros.py` + handler
-- [ ] W3-20 Tabelas `usuarios`/`sessoes`/`auditoria`
-- [ ] W3-21 `auth/` (senhas, sessões, CSRF, limitador)
-- [ ] W3-22 Dependências de permissão + `test_permissoes.py`
-- [ ] W3-23 CLI `conta`
-- [ ] W3-24 Redação de logs
-- [ ] W3-25 `POST /auth/cadastrar` + bloqueio de conta + admin pelo `MF_ADMIN_EMAIL`
+- [x] W3-01 Migração `0001_inicial.sql`
+- [x] W3-02 `ProjetosRepo` + máquina de estados (`SV-090`)
+- [x] W3-03 `api/projetos.py`
+- [x] W3-10 `app.py` + rotas + `api/modelos.py`
+- [x] W3-11 `erros.py` + handler
+- [x] W3-20 Tabelas `usuarios`/`sessoes`/`auditoria`
+- [x] W3-21 `auth/` (senhas, sessões, CSRF, limitador)
+- [x] W3-22 Dependências de permissão — a matriz vive em `tests/test_api_base.py` (dono × alheio × admin × anônimo); arquivo próprio não foi criado, o conteúdo está coberto
+- [x] W3-23 CLI `conta` (criar, listar, bloquear, desbloquear) ponta a ponta
+- [x] W3-24 Redação de logs (`logs_redigidos.py`, usada também pelo worker)
+- [x] W3-25 `POST /auth/cadastrar` + bloqueio de conta + admin pelo `MF_ADMIN_EMAIL`
 
 ## W4 — Importação
 

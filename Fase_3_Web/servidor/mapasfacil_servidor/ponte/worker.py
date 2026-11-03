@@ -15,7 +15,6 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import os
-import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -43,19 +42,14 @@ _PASS_THROUGH = (
 ESPERA_ENCERRAR_S = 10.0
 ESPERA_CANCELAR_S = 30.0
 
-# Redação obrigatória nos logs de stderr (W-04, critério de aceite).
-_RE_CPF = re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b")
-_RE_CHAVE = re.compile(r"\b(sk|csk|pl)-[A-Za-z0-9_\-]{8,}")
-_RE_AUTHKEY = re.compile(r"(authkey=)[^&\s\"']+")
-_RE_BEARER = re.compile(r"(Bearer\s+)[A-Za-z0-9._\-]{8,}")
+# Redação obrigatória nos logs de stderr (W-04, critério de aceite): a regra vive em
+# `logs_redigidos` (W3-24) para valer em todo log do servidor, não só no do worker.
+from ..logs_redigidos import redigir as _redigir_compartilhado
 
 
 def redigir(texto: str) -> str:
     """Mascara CPF e chaves em texto de log. Nunca logar o valor original."""
-    texto = _RE_CPF.sub("***.***.***-**", texto)
-    texto = _RE_CHAVE.sub(lambda m: f"{m.group(1)}-***", texto)
-    texto = _RE_AUTHKEY.sub(r"\1***", texto)
-    return _RE_BEARER.sub(r"\1***", texto)
+    return _redigir_compartilhado(texto)
 
 
 def montar_env(

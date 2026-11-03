@@ -84,7 +84,7 @@ Os três pilares pedidos pelo Álvaro:
 | W0 | Fundação e alinhamento documental | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W0.md`) |
 | W1 | Núcleo em modo servidor + `MapSpec` v3 (`folha`) | **fechado com 1 pendência** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W1.md`); W1-10 (`doctor.py`) bloqueada pelo Álvaro |
 | W2 | Ponte e pool de workers | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W2.md`) |
-| W3 | API base: contas, sessões, projetos | não iniciado |
+| W3 | API base: contas, sessões, projetos | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W3.md`) |
 | W4 | Importação do ZIP e indexação | não iniciado |
 | W5 | Stream de eventos + chat relay | não iniciado |
 | W6 | Frontend: shell, login, projetos, assistente, chat | não iniciado |
