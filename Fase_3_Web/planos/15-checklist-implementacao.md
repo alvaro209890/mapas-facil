@@ -138,7 +138,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W8-01 `palco/Palco.tsx` (414 linhas + 351 de CSS): os 4 modos, um só relógio `requestAnimationFrame` consumindo os passos da coreografia — sem passo na fila, o palco fica parado
 - [x] W8-02 `palco/Camera.ts` (218): wrapper do MapLibre (`criar`/`flyTo`/`fitBounds`/`jumpTo`/`snapshot`/`destruir`) com `MapaLike` injetável para teste — nada de estado global
 - [x] W8-03 `palco/Camadas.ts` (357): source+layer por `camada_id`, `estilo` do evento traduzido para paint e ordem de pintura = ordem dos passos
-- [ ] W8-04 `Folha.tsx`
+- [x] W8-04 `Folha.tsx` em SVG com mm reais (viewBox proporcional à folha ISO A4–A0 retrato/paisagem), recorte PNG via `<image>`, texto via `<text>`, snapshot encaixado no quadro, ordem canônica `ORDEM_LAYOUT` e suporte a `prefers-reduced-motion`; 10 testes em `Folha.test.tsx`
 - [x] W8-05 `palco/coreografia.ts` (716 linhas: tokens de duração por tipo, compressão por fila pendente com 3 faixas, voos intermediários viram salto acima de 10 pendentes, ondas de 3 camadas, `replay()` determinístico) + `coreografia.test.ts` (13 testes, com os 3 roteiros)
 - [x] W8-06 `estado/palco.ts` evoluído (299 linhas): fila de eventos, passo corrente, `limpar()` ao trocar de job/versão, guarda contra evento de outro projeto, modo derivado (ocioso/mapa/folha/resultado) — `palco.test.ts` (16 testes)
 - [x] W8-07 `palco/webgl.ts` + aviso no palco: sem WebGL cai em folha+resultado com o código **WB-001** e a mensagem única
@@ -164,7 +164,7 @@ indicado; aqui fica o índice para o agente não se perder.
 ## W10 — `.mxd` binário
 
 - [x] W10-01 `docs/mxd-formato-binario.md` e `docs/arcmap-wms-crash.md` (de `C:\GIS\MXD_RE\docs`, autoria preservada `Hermes-windows | 2026-10-14`)
-- [ ] W10-02 `cfbf.py` + corpus
+- [x] W10-02 `mxd_binario/cfbf.py` (leitor/escritor MS-CFB v3 puro stdlib, FAT/MiniFAT, substituição de stream pequena e grande com crossover) + `tests/test_cfbf_corpus.py`: 52 testes round-trip byte a byte contra os 47 MXDs do corpus (`shared/templates` + `Referencias_IMAP/MXD`), validado contra `olefile`
 - [ ] W10-03 `blocos.py` + teste
 - [ ] W10-04 Spike S0
 - [ ] W10-05 Spikes S1–S11
