@@ -246,3 +246,16 @@ def test_env_do_worker_isola_estado_por_projeto(tmp_path):
     assert env["MAPASFACIL_DADOS"] == str(tmp_path / "p1" / ".estado")
     assert Path(env["MAPASFACIL_CHATS_DIR"]) == tmp_path / "p1" / ".estado" / "chats"
     assert env["MAPASFACIL_MODO"] == "servidor"
+
+
+def test_resposta_a_pergunta_sem_texto_e_aceita(ambiente):
+    """W5-21: clique num chip/opção envia corpo com `resposta` e texto vazio."""
+    cliente, _, _, _ = ambiente
+    csrf, projeto = cadastrar_e_projeto(cliente)
+    resposta = cliente.post(
+        f"{API}/projetos/{projeto['id']}/mensagens",
+        json={"resposta": {"pergunta_id": "p123", "selecionados": ["2020"]}},
+        headers={"X-MF-CSRF": csrf},
+    )
+    assert resposta.status_code == 202
+    assert "req_id" in resposta.json()

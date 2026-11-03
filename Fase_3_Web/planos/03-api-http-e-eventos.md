@@ -89,7 +89,7 @@ As 4 rotas de [W-02](02-projeto-folha-e-upload.md) §Upload por partes. Limite p
 | Método e rota | Corpo | Resposta |
 |---|---|---|
 | `GET /projetos/{id}/mensagens?antes=&limite=` | — | `{itens:[Mensagem], proximo}` (vem do `chat.carregar_anteriores` do núcleo, via ponte) |
-| `POST /projetos/{id}/mensagens` | `{texto, resposta?:{pergunta_id, opcao_id?, texto_livre?}}` | `202 {req_id}` — o conteúdo chega pelo SSE |
+| `POST /projetos/{id}/mensagens` | `{texto?, resposta?:{pergunta_id, opcao_id?, selecionados?:list[str], texto_livre?}, contexto?:{versao:int, elemento_id:str, tipo?:str, bbox_mm?:dict, coord_geo?:list}}` | `202 {req_id}` — o conteúdo chega pelo SSE; aceita resposta de pergunta e contexto de clique na folha (D40, D43) |
 | `POST /projetos/{id}/cancelar` | `{req_id}` | `202` (chama `chat.cancelar`/`mapa.cancelar`) |
 
 Regras: um turno por vez por projeto. `POST /mensagens` com turno em andamento → `409 SV-210`

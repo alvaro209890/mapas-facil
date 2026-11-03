@@ -1,0 +1,20 @@
+{
+  "versao": 1,
+  "descricao": "W5-21 (caso 2) · Camada cujo papel não foi reconhecido com segurança: pergunta se é ARL, APP ou outra.",
+  "passos": [
+    {
+      "texto": "A camada 'Poligono_Extra.shp' tem 34,5000 ha mas seu papel não está claro.",
+      "tool_calls": [
+        {
+          "id": "call_perguntar_papel",
+          "type": "function",
+          "function": {
+            "name": "perguntar",
+            "arguments": "{\"pergunta\": \"A camada 'Poligono_Extra.shp' (34,5000 ha) não teve seu papel identificado. Ela corresponde a:\", \"opcoes\": [{\"id\": \"ARL\", \"rotulo\": \"Reserva Legal (ARL)\"}, {\"id\": \"APP\", \"rotulo\": \"Área de Preservação Permanente (APP)\"}, {\"id\": \"outra\", \"rotulo\": \"Outra categoria\"}], \"multipla\": false, \"permitir_texto\": true, \"motivo\": \"papel_ambiguo\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    }
+  ]
+}

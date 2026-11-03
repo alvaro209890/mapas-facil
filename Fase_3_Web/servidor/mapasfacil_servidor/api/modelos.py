@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class Cadastro(BaseModel):
@@ -50,8 +50,20 @@ class UsuarioPatchAdmin(BaseModel):
 
 
 class MensagemNova(BaseModel):
-    texto: str = Field(min_length=1, max_length=8000)
+    texto: str = ""
     resposta: dict[str, Any] | None = None
+    contexto: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def conferir_conteudo(self) -> MensagemNova:
+        tem_texto = bool(self.texto and self.texto.strip())
+        tem_resposta = bool(self.resposta)
+        tem_contexto = bool(self.contexto)
+        if not (tem_texto or tem_resposta or tem_contexto):
+            raise ValueError("Mensagem vazia: informe 'texto', 'resposta' ou 'contexto'.")
+        if self.texto and len(self.texto) > 8000:
+            raise ValueError("Texto excede o limite de 8.000 caracteres.")
+        return self
 
 
 class Cancelamento(BaseModel):

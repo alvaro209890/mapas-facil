@@ -128,7 +128,32 @@ async def enviar_mensagem(
     raiz = _raiz(estado, projeto.id)
     hub = estado.hub
     req_id = uuid.uuid4().hex
-    texto = corpo.texto.strip()
+    texto = (corpo.texto or "").strip()
+    if corpo.resposta:
+        selecionados = corpo.resposta.get("selecionados") or []
+        opcao_id = corpo.resposta.get("opcao_id")
+        if opcao_id and opcao_id not in selecionados:
+            selecionados.append(opcao_id)
+        texto_livre = (corpo.resposta.get("texto_livre") or corpo.resposta.get("texto") or "").strip()
+        if selecionados:
+            texto_resp = f"Opção selecionada: {', '.join(str(s) for s in selecionados)}"
+            texto = f"{texto} " + texto_resp if texto else texto_resp if texto else texto_resp
+        elif texto_livre:
+            texto = f"{texto} " + texto_livre if texto else texto_livre if texto else texto_livre
+
+    if corpo.contexto:
+        elem_id = corpo.contexto.get("elemento_id")
+        tipo = corpo.contexto.get("tipo") or "elemento"
+        versao_ctx = corpo.contexto.get("versao")
+        coord = corpo.contexto.get("coord_geo")
+        extra_ctx = f"[O usuário apontou para: {tipo} (id: {elem_id})"
+        if versao_ctx is not None:
+            extra_ctx += f" da versão {versao_ctx}"
+        if coord:
+            extra_ctx += f" nas coordenadas {coord}"
+        extra_ctx += "]"
+        texto = extra_ctx + " " + texto if texto else extra_ctx if texto else extra_ctx
+
     conversa_id = _conversa_do_projeto(con, projeto.id)
     banco = estado.banco
 

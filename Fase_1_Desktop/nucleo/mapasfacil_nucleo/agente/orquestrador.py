@@ -222,6 +222,10 @@ def executar_turno(
         )
         for chamada in tool_calls:
             mensagens_llm.append(_rodar_tool(chamada, ctx=ctx, turno=turno, emissor=emissor))
+            if ctx.get("aguardando_pergunta"):
+                break
+        if ctx.get("aguardando_pergunta"):
+            break
 
     mapspec = ctx.get("mapspec") if isinstance(ctx.get("mapspec"), dict) else None
     if mapspec is not None:
@@ -237,6 +241,7 @@ def executar_turno(
         compact_usado=compact_usado,
         mapspec=mapspec,
         modelo_id=ctx.get("modelo_id"),
+        pergunta_pendente=ctx.get("pergunta_pendente"),
     )
     _limpar_cancelamento(conversation_id)
     if erro_final is not None:
@@ -379,6 +384,7 @@ def _fechar_turno(
     compact_usado: str | None,
     mapspec: dict[str, Any] | None,
     modelo_id: str | None,
+    pergunta_pendente: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Grava mensagem do assistente, traces, tokens e (se for a hora) o resumo."""
     tokens_turno = estimar_payload(mensagens_llm)
@@ -417,7 +423,7 @@ def _fechar_turno(
         compact_ate_seq=resumo_ate_seq,
     )
 
-    return {
+    ret = {
         "conversation_id": conversation_id,
         "message_id": msg_asst["message_id"],
         "seq": msg_asst["seq"],
@@ -430,6 +436,9 @@ def _fechar_turno(
         "modelo_id": modelo_id,
         "tokens_entrada_turno": tokens_turno,
     }
+    if pergunta_pendente:
+        ret["pergunta"] = pergunta_pendente
+    return ret
 
 
 __all__ = (

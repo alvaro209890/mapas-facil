@@ -1,0 +1,20 @@
+{
+  "versao": 1,
+  "descricao": "W5-21 (caso 4) · Dinâmica sem ano especificado: pergunta qual marco temporal gerar.",
+  "passos": [
+    {
+      "texto": "Para a Dinâmica, é preciso definir o ano de análise.",
+      "tool_calls": [
+        {
+          "id": "call_perguntar_ano",
+          "type": "function",
+          "function": {
+            "name": "perguntar",
+            "arguments": "{\"pergunta\": \"Qual marco temporal da Dinâmica você deseja gerar?\", \"opcoes\": [{\"id\": \"2000\", \"rotulo\": \"2000 (Landsat)\"}, {\"id\": \"2008\", \"rotulo\": \"2008 (Marco legal)\"}, {\"id\": \"atual\", \"rotulo\": \"Ano Atual (Recente)\"}, {\"id\": \"todos\", \"rotulo\": \"Série Completa\"}], \"multipla\": false, \"permitir_texto\": true, \"motivo\": \"ano_dinamica_indefinido\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    }
+  ]
+}

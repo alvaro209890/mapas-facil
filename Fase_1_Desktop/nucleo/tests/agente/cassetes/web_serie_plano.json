@@ -1,0 +1,20 @@
+{
+  "versao": 1,
+  "descricao": "W5-21 (caso 3) · Pedido de série com 4+ mapas: mostra o plano e pede confirmação em um único OK.",
+  "passos": [
+    {
+      "texto": "Montei o plano para gerar os 5 mapas da série histórica da dinâmica.",
+      "tool_calls": [
+        {
+          "id": "call_perguntar_serie",
+          "type": "function",
+          "function": {
+            "name": "perguntar",
+            "arguments": "{\"pergunta\": \"Identifiquei o pedido de série completa com 5 mapas (2000, 2008, 2013, 2018, 2026) em A4 retrato na escala única 1:50.000. Posso gerar todos?\", \"opcoes\": [{\"id\": \"sim\", \"rotulo\": \"Sim, gerar os 5 mapas\"}, {\"id\": \"ajustar\", \"rotulo\": \"Ajustar anos/folha\"}], \"multipla\": false, \"permitir_texto\": true, \"motivo\": \"serie_longa\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    }
+  ]
+}

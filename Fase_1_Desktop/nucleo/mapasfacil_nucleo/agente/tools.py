@@ -374,25 +374,17 @@ def _emitir_pergunta(
     pergunta: str,
     opcoes: list[dict[str, str]],
     permite_texto_livre: bool = True,
-) -> None:
-    """`chat.pergunta` (F1-06) — o agente não sabe decidir sozinho e pede ao usuário.
-
-    Payload fechado: `{pergunta, opcoes: [{id, rotulo}], permite_texto_livre}`. Sem
-    `Emissor` no ctx, não-op (mesma regra de `_emitir_mapspec_atualizado`). A
-    resposta do usuário (clique num chip ou texto livre) volta como mensagem
-    normal do próximo turno — não precisa de estado de "aguardando resposta"
-    no backend, o histórico da conversa já carrega a pergunta e a resposta.
-    """
-    emissor = ctx.get("emissor")
-    if emissor is None:
-        return
-    emissor.emitir(
-        "chat.pergunta",
+    motivo: str = "",
+) -> dict[str, Any]:
+    """Emite pergunta estruturada via tool_perguntar (D40 / W5-21)."""
+    return tool_perguntar(
         {
             "pergunta": pergunta,
             "opcoes": opcoes,
-            "permite_texto_livre": permite_texto_livre,
+            "permitir_texto": permite_texto_livre,
+            "motivo": motivo,
         },
+        ctx,
     )
 
 
@@ -479,6 +471,7 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
                 "(papel ATP). Qual desses arquivos é ele?"
             ),
             opcoes=candidatos,
+            motivo="perimetro_nao_reconhecido",
         )
         return _erro(
             "NU-233",
@@ -1421,6 +1414,70 @@ def tool_restaurar_versao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str
     return _ok(resumo)
 
 
+def tool_perguntar(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Faz uma pergunta estruturada ao usuário e aguarda resposta (D40 / W5-21)."""
+    import uuid
+
+    pergunta = str(args.get("pergunta") or "").strip()
+    if not pergunta:
+        return _erro("AG-210", "Parâmetro 'pergunta' é obrigatório.")
+    opcoes_raw = args.get("opcoes")
+    if not isinstance(opcoes_raw, list) or len(opcoes_raw) < 1 or len(opcoes_raw) > 6:
+        return _erro("AG-211", "Parâmetro 'opcoes' precisa ter entre 1 e 6 opções.")
+    opcoes: list[dict[str, str]] = []
+    for item in opcoes_raw:
+        if isinstance(item, str):
+            opcoes.append({"id": item, "rotulo": item})
+        elif isinstance(item, dict) and item.get("id") and item.get("rotulo"):
+            op = {"id": str(item["id"]), "rotulo": str(item["rotulo"])}
+            if item.get("descricao"):
+                op["descricao"] = str(item["descricao"])
+            opcoes.append(op)
+        else:
+            return _erro("AG-212", "Cada opção precisa ter 'id' e 'rotulo' (ou ser string).")
+
+    multipla = bool(args.get("multipla", False))
+    permitir_texto = bool(args.get("permitir_texto", True))
+    motivo = str(args.get("motivo") or "")
+
+    pergunta_id = uuid.uuid4().hex[:12]
+    ctx["aguardando_pergunta"] = True
+    ctx["pergunta_pendente"] = {
+        "pergunta_id": pergunta_id,
+        "pergunta": pergunta,
+        "opcoes": opcoes,
+        "multipla": multipla,
+        "permitir_texto": permitir_texto,
+        "motivo": motivo,
+    }
+
+    emissor = ctx.get("emissor")
+    if emissor is not None:
+        emissor.emitir(
+            "chat.pergunta",
+            {
+                "pergunta_id": pergunta_id,
+                "pergunta": pergunta,
+                "opcoes": opcoes,
+                "multipla": multipla,
+                "permitir_texto": permitir_texto,
+                "permite_texto_livre": permitir_texto,  # compatibilidade com F1-06
+                "motivo": motivo,
+            },
+        )
+
+    return _ok(
+        {
+            "pergunta_id": pergunta_id,
+            "pergunta": pergunta,
+            "opcoes": [op["id"] for op in opcoes],
+            "multipla": multipla,
+            "permitir_texto": permitir_texto,
+            "status": "aguardando_resposta",
+        }
+    )
+
+
 def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Explica em português o que a validação da última geração apontou."""
     from mapasfacil_nucleo import versoes
@@ -1514,6 +1571,7 @@ _HANDLERS: dict[str, HandlerTool] = {
     "listar_versoes": tool_listar_versoes,
     "restaurar_versao": tool_restaurar_versao,
     "explicar_validacao": tool_explicar_validacao,
+    "perguntar": tool_perguntar,
     "comparar_com_modelo": tool_comparar_com_modelo,
 }
 
@@ -1760,6 +1818,47 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
         "descricao": "Recria o mapa como estava numa versão anterior, em versão nova. Nunca apaga arquivo.",
         "props": {"versao": {"type": "integer", "description": "número da versão a restaurar"}},
         "obrig": ["versao"],
+    },
+    "perguntar": {
+        "descricao": (
+            "Faz uma pergunta estruturada com 2 a 6 opções de escolha ao usuário e encerra o "
+            "turno à espera da resposta. Use quando faltar dado essencial que mude o resultado "
+            "do mapa (qual perímetro entre vários, papel de camada incerto, confirmação de "
+            "série com 4+ mapas, ou parâmetro indefinido como ano). Nunca use em pedidos claros "
+            "nem repita perguntas já respondidas."
+        ),
+        "props": {
+            "pergunta": {"type": "string", "description": "Texto claro da pergunta para o usuário."},
+            "opcoes": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string", "description": "Identificador da opção"},
+                        "rotulo": {"type": "string", "description": "Texto exibido no botão/chip"},
+                        "descricao": {"type": "string", "description": "Detalhe opcional"},
+                    },
+                    "required": ["id", "rotulo"],
+                    "additionalProperties": False,
+                },
+                "minItems": 1,
+                "maxItems": 6,
+                "description": "Entre 2 e 6 opções estruturadas para o usuário clicar.",
+            },
+            "multipla": {
+                "type": "boolean",
+                "description": "True se o usuário puder marcar mais de uma opção (padrão False).",
+            },
+            "permitir_texto": {
+                "type": "boolean",
+                "description": "True se permitir digitar texto livre além dos botões (padrão True).",
+            },
+            "motivo": {
+                "type": "string",
+                "description": "Justificativa técnica do porquê a pergunta é necessária.",
+            },
+        },
+        "obrig": ["pergunta", "opcoes"],
     },
     "explicar_validacao": {
         "descricao": "Explica em português o que a validação apontou (checks obrigatórios e avisos).",

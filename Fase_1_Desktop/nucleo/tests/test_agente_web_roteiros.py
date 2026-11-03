@@ -33,6 +33,11 @@ ROTEIROS = (
     "web_hard",
     "web_voltar",
     "web_pergunta",
+    # W5-21: os 4 casos obrigatórios de perguntar
+    "web_pergunta_dois_cars",
+    "web_pergunta_camada_ambigua",
+    "web_serie_plano",
+    "web_pergunta_ano_dinamica",
 )
 
 
@@ -261,3 +266,65 @@ def test_web_pergunta_emite_pergunta_e_nao_gera_versao(tmp_path: Path, monkeypat
         configurar_provedor(None)
         conversas_servico.configurar_diretorio(None)
         workspace_servico.fechar()
+
+
+# ------------------------------------------------------------------ W5-21: perguntar
+
+
+def test_web_pergunta_dois_cars(amb):
+    resultado = _turno(amb, "web_pergunta_dois_cars", "gera o mapa da fazenda")
+    assert resultado["tools_usadas"] == ["perguntar"]
+    pergunta = resultado.get("pergunta")
+    assert pergunta is not None
+    assert pergunta["motivo"] == "multiplos_perimetros"
+    assert len(pergunta["opcoes"]) == 3
+    assert [op["id"] for op in pergunta["opcoes"]] == ["imovel_1", "imovel_2", "ambos"]
+    assert mapspec_da_conversa(amb["cid"]) is None
+    esquecer_conversa(amb["cid"])
+
+
+def test_web_pergunta_camada_ambigua(amb):
+    resultado = _turno(amb, "web_pergunta_camada_ambigua", "faz o mapa com todas as camadas")
+    assert resultado["tools_usadas"] == ["perguntar"]
+    pergunta = resultado.get("pergunta")
+    assert pergunta is not None
+    assert pergunta["motivo"] == "papel_ambiguo"
+    assert "ARL" in [op["id"] for op in pergunta["opcoes"]]
+    esquecer_conversa(amb["cid"])
+
+
+def test_web_serie_plano_pede_confirmacao(amb):
+    resultado = _turno(amb, "web_serie_plano", "faz a série completa da dinâmica com todos os anos")
+    assert resultado["tools_usadas"] == ["perguntar"]
+    pergunta = resultado.get("pergunta")
+    assert pergunta is not None
+    assert pergunta["motivo"] == "serie_longa"
+    assert "sim" in [op["id"] for op in pergunta["opcoes"]]
+    esquecer_conversa(amb["cid"])
+
+
+def test_web_pergunta_ano_dinamica_quando_omitido(amb):
+    resultado = _turno(amb, "web_pergunta_ano_dinamica", "faz o mapa da dinâmica")
+    assert resultado["tools_usadas"] == ["perguntar"]
+    pergunta = resultado.get("pergunta")
+    assert pergunta is not None
+    assert pergunta["motivo"] == "ano_dinamica_indefinido"
+    assert "2000" in [op["id"] for op in pergunta["opcoes"]]
+    esquecer_conversa(amb["cid"])
+
+
+def test_pedidos_claros_nao_chamam_perguntar(amb):
+    """Garante o critério de aceite do W5-21: pedido claro nunca faz pergunta."""
+    # Pedido claro com ano e folha: gera direto
+    res1 = _turno(amb, "web_dinamica", "faz a dinâmica 2026", versao=1)
+    assert "perguntar" not in res1["tools_usadas"]
+    assert res1.get("pergunta") is None
+
+    # Pedido claro de estilo: edita direto
+    res2 = _turno(amb, "web_estilo", "clareia a vegetação e tira a tabela", versao=2)
+    assert "perguntar" not in res2["tools_usadas"]
+
+    # Pedido de folha clara: troca direto
+    res3 = _turno(amb, "web_folha", "passa pra A3 paisagem", versao=3)
+    assert "perguntar" not in res3["tools_usadas"]
+    esquecer_conversa(amb["cid"])

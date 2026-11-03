@@ -1,0 +1,20 @@
+{
+  "versao": 1,
+  "descricao": "W5-21 (caso 1) · Mais de um perímetro/CAR no zip: agente pergunta qual usar.",
+  "passos": [
+    {
+      "texto": "Identifiquei dois perímetros no pacote. Qual deles você deseja mapear?",
+      "tool_calls": [
+        {
+          "id": "call_perguntar_perimetros",
+          "type": "function",
+          "function": {
+            "name": "perguntar",
+            "arguments": "{\"pergunta\": \"Encontrei dois imóveis no pacote. Qual deles você deseja mapear?\", \"opcoes\": [{\"id\": \"imovel_1\", \"rotulo\": \"Fazenda Esperança (CAR 1234)\"}, {\"id\": \"imovel_2\", \"rotulo\": \"Lote 45 (CAR 5678)\"}, {\"id\": \"ambos\", \"rotulo\": \"Ambos os imóveis\"}], \"multipla\": false, \"permitir_texto\": true, \"motivo\": \"multiplos_perimetros\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    }
+  ]
+}
