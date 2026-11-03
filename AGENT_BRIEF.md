@@ -21,9 +21,14 @@ login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop 
 [`15-checklist`](Fase_3_Web/planos/15-checklist-implementacao.md). Estado medido vai em
 `docs/fase3-rodada-*.md`. O desktop (Fase 1) e a landing (Fase 2) **não** mudam de escopo.
 
-**Estado da Fase 3 em 2026-11-03:** W0, W1 e W2 fechados (fundação, núcleo em modo servidor com
-`MapSpec` v3, ponte NDJSON + pool). W1-10 (`doctor.py` em modo servidor) está **bloqueada** por
-ordem do Álvaro de não mexer naquele arquivo. Núcleo: 548 testes verdes; servidor: 41.
+**Estado da Fase 3 em 2026-11-03 (fim da rodada):** W0–W6 **fechados** (fundação, núcleo em modo
+servidor com `MapSpec` v3 + folha, ponte NDJSON + pool, contas/projetos/API, upload e importação,
+SSE + chat, web completa com 118 testes) e **W7 fechado no núcleo/servidor** (palco com eventos
+reais: `motion.py`, `palco.py`, 13 eventos, rota `/palco`, recortes PNG, roteiro
+`palco_dinamica.ndjson`). **Medido no fim da rodada:** núcleo **665** testes, servidor **176**,
+web **118** + typecheck 0. Bloqueios vivos: W1-10 (`doctor.py`, ordem de não mexer), W4-10 (SAD69
+precisa de ZIP real do SIMCAR), W7-08 (basemap só se mede no server) e o W12 depende de `sudo` no
+server + túnel/DNS na Cloudflare (Álvaro).
 
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
 2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia

@@ -86,9 +86,9 @@ Os três pilares pedidos pelo Álvaro:
 | W2 | Ponte e pool de workers | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W2.md`) |
 | W3 | API base: contas, sessões, projetos | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W3.md`) |
 | W4 | Importação do ZIP e indexação | **quase fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W4.md`); faltam W4-03 (web) e W4-10 (SAD69) |
-| W5 | Stream de eventos + chat relay | **em andamento** — W5-01/02/03/10/11/12/13/14/15/18/19 fechados; W5-16 com cliente pronto e smoke pendente; W5-17 com 6 de 7 roteiros (2026-11-03) (`docs/fase3-rodada-2026-11-03-W5.md`); chat (W5-10..20) pendente |
-| W6 | **em andamento** — W6-01..W6-07 fechados em 2026-11-03 (web com 105 testes, typecheck e build verdes); faltam W6-08 (Admin/Conta), W6-09 (modal de sessão expirada) e W6-10 (`estaticos.py`) |
-| W7 | Eventos de motion no núcleo | não iniciado |
+| W5 | Stream de eventos + chat relay | **fechado** em 2026-11-03: W5-01..W5-20 fechados, chave própria `mapasfacil-app` no 9Router, smoke medido (32 tools, tool calls paralelos, raciocínio, stream, contexto) e visão verde (`docs/fase3-rodada-2026-11-03-w10-enquadramento-e-provider.md`); W5-17 com `web_hard` dependendo do H17 do W9 |
+| W6 | **fechado** em 2026-11-03 — W6-01..W6-10 (web com 118 testes, typecheck 0 e build verdes; SPA servida pelo FastAPI com assets immutable) |
+| W7 | Eventos de motion no núcleo | **núcleo/servidor fechado** em 2026-11-03 (`docs/fase3-rodada-2026-11-03-W7.md`): `motion.py`, `palco.py`, 13 eventos no protocolo, emissão real, rota `/palco`, recortes PNG e roteiro `palco_dinamica.ndjson`; pendem W7-08 (medir basemap no server) e a metade web (W8) |
 | W8 | Palco do mapa (câmera, camadas, folha) | não iniciado |
 | W9 | PDF nativo A4–A0 | não iniciado |
 | W10 | Motor `.mxd` binário | não iniciado |
