@@ -25,8 +25,15 @@ from .erros import ConfiguracaoInvalida, HostInvalido, SegredoAusente
 HOSTS_LOOPBACK = frozenset({"127.0.0.1", "localhost", "::1"})
 
 # Chaves que o `servidor.env` precisa ter (nomes, nunca valores).
-CHAVES_OBRIGATORIAS_SEGREDOS: tuple[str, ...] = (
-    "MAPASFACIL_PROVEDOR_CHAVE",
+#
+# 🔴 Só a chave do provedor de IA é obrigatória. As duas chaves geo **não** são: sem elas o app
+# sobe, gera mapa com as camadas locais do `.zip` e avisa; o que perde é o WFS autenticado da SEMA
+# e o WMTS da Planet. Antes, a ausência das duas impedia o boot inteiro (`SV-002`) — e as chaves
+# não existiam em cofre nenhum da frota (03/11/2026), o que travava deploy e piloto sem motivo.
+CHAVES_OBRIGATORIAS_SEGREDOS: tuple[str, ...] = ("MAPASFACIL_PROVEDOR_CHAVE",)
+
+# Chaves que mudam o que o app consegue fazer, mas não o boot.
+CHAVES_OPCIONAIS_SEGREDOS: tuple[str, ...] = (
     "MAPASFACIL_SEMA_AUTHKEY",
     "MAPASFACIL_PLANET_API_KEY",
 )
@@ -59,6 +66,8 @@ class Config:
     raciocinio: str = "high"
     # Chaves lidas do arquivo de segredos, por nome. Nunca logar este dicionário.
     segredos_lidos: dict[str, str] = field(default_factory=dict, repr=False)
+    # Nomes das chaves opcionais que faltaram; nunca valores.
+    segredos_ausentes: tuple[str, ...] = ()
 
     # Caminhos derivados -------------------------------------------------
     @property
@@ -248,8 +257,11 @@ def carregar(
             detalhes={"arquivo": str(cfg.segredos), "faltando": faltando},
         )
 
+    # Aviso só com NOMES: a tela de admin e o journal precisam saber qual fonte está fora.
+    ausentes = tuple(nome for nome in CHAVES_OPCIONAIS_SEGREDOS if not lidos.get(nome))
+
     # `replace` porque a Config é frozen; o dicionário fica fora do repr.
-    return Config(**{**cfg.__dict__, "segredos_lidos": lidos})
+    return Config(**{**cfg.__dict__, "segredos_lidos": lidos, "segredos_ausentes": ausentes})
 
 
 def raiz_padrao_sugerida() -> str:

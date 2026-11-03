@@ -11,6 +11,7 @@ from mapasfacil_servidor import __version__
 from mapasfacil_servidor.__main__ import main
 from mapasfacil_servidor.config import (
     CHAVES_OBRIGATORIAS_SEGREDOS,
+    CHAVES_OPCIONAIS_SEGREDOS,
     carregar,
     ler_segredos,
 )
@@ -32,7 +33,10 @@ def _env(tmp_path: Path, **extra: str) -> dict[str, str]:
     return base
 
 
-def _arquivo_segredos(tmp_path: Path, chaves=CHAVES_OBRIGATORIAS_SEGREDOS) -> Path:
+TODAS_AS_CHAVES = CHAVES_OBRIGATORIAS_SEGREDOS + CHAVES_OPCIONAIS_SEGREDOS
+
+
+def _arquivo_segredos(tmp_path: Path, chaves=TODAS_AS_CHAVES) -> Path:
     pasta = tmp_path / "segredos"
     pasta.mkdir(exist_ok=True)
     caminho = pasta / "servidor.env"
@@ -70,15 +74,45 @@ def test_sem_servidor_env_e_sv000_dizendo_o_arquivo(tmp_path):
 
 
 @pytest.mark.anel1
-def test_chave_faltando_no_arquivo_e_sv002_sem_valor(tmp_path):
-    _arquivo_segredos(tmp_path, chaves=("MAPASFACIL_PROVEDOR_CHAVE",))
+def test_chave_do_provedor_faltando_e_sv002_sem_valor(tmp_path):
+    """Sem a chave do provedor o app não tem chat: é a única obrigatória."""
+    _arquivo_segredos(
+        tmp_path,
+        chaves=("MAPASFACIL_SEMA_AUTHKEY", "MAPASFACIL_PLANET_API_KEY"),
+    )
     with pytest.raises(SegredoAusente) as exc:
         carregar(_env(tmp_path))
     erro = exc.value
     assert erro.codigo == "SV-002"
-    assert "MAPASFACIL_SEMA_AUTHKEY" in erro.mensagem
+    assert "MAPASFACIL_PROVEDOR_CHAVE" in erro.mensagem
     assert "valor-falso-de-teste" not in erro.mensagem
     assert "valor-falso-de-teste" not in str(erro)
+
+
+@pytest.mark.anel1
+def test_sem_as_chaves_geo_o_app_sobe_e_avisa(tmp_path):
+    """Faltar SEMA/Planet custa o WFS autenticado e o WMTS — não o boot.
+
+    Medido em 03/11/2026: exigir as duas travava o deploy inteiro, e elas não existem em
+    cofre nenhum da frota. O certo é subir, gerar mapa com as camadas do `.zip` e dizer
+    (só com nomes) qual fonte está fora.
+    """
+    _arquivo_segredos(tmp_path, chaves=("MAPASFACIL_PROVEDOR_CHAVE",))
+    cfg = carregar(_env(tmp_path))
+    assert set(cfg.segredos_ausentes) == {
+        "MAPASFACIL_SEMA_AUTHKEY",
+        "MAPASFACIL_PLANET_API_KEY",
+    }
+    # Nome pode aparecer; valor, nunca.
+    assert "valor-falso-de-teste" not in repr(cfg)
+    assert "valor-falso-de-teste" not in str(cfg.segredos_ausentes)
+
+
+@pytest.mark.anel1
+def test_com_as_chaves_geo_nada_ausente(tmp_path):
+    _arquivo_segredos(tmp_path)
+    cfg = carregar(_env(tmp_path))
+    assert cfg.segredos_ausentes == ()
 
 
 @pytest.mark.anel1

@@ -94,7 +94,7 @@ async def renomear(
                 await pool.chamar(
                     projeto.id,
                     "chat.renomear",
-                    {"conversa_id": conversa_id, "title": projeto.nome},
+                    {"conversation_id": conversa_id, "title": projeto.nome},
                 )
             except ErroServidor:
                 # Renomear o projeto não pode falhar porque a conversa não renomeou.

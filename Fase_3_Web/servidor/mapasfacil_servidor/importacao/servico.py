@@ -33,6 +33,21 @@ def registrar_importacao(
     return importacao_id
 
 
+def marcar_erro(banco: Any, importacao_id: str, *, codigo: str) -> None:
+    """Fecha a importação em erro. Usado quando uma exceção inesperada foge do fluxo.
+
+    Sem isto, `TypeError`/`KeyError` deixavam a linha em `rodando` para sempre e o front
+    ficava girando (aconteceu no smoke do server em 03/11/2026).
+    """
+    if banco is None:
+        return
+    con = banco.conectar()
+    try:
+        _atualizar(con, importacao_id, estado="erro", erro_codigo=codigo, fim=True)
+    finally:
+        con.commit()
+
+
 def _atualizar(
     con: sqlite3.Connection,
     importacao_id: str,
@@ -127,15 +142,20 @@ def importar(
         if pool is not None:
             import asyncio
 
-            def _pedido():
-                return pool.chamar(projeto.id, "workspace.abrir", {"pasta": str(pasta)})
+            async def _pedido():
+                # Precisa ser corrotina: o app entrega `chamar` como
+                # `asyncio.run_coroutine_threadsafe(pedido, laco).result()`, e passar o
+                # resultado já aguardado dava `TypeError: A coroutine object is required`
+                # (medido no smoke do server em 03/11/2026 — a importação ficava em
+                # "rodando" para sempre).
+                return await pool.chamar(projeto.id, "workspace.abrir", {"caminho": str(pasta)})
 
             try:
                 # `chamar` existe quando quem chama já está num event loop (o worker do
                 # núcleo pertence a esse loop — `asyncio.run` aqui criaria outro e
                 # quebraria os pipes). Sem ele, caminho síncrono de teste.
                 if chamar is not None:
-                    bruto = chamar(_pedido)
+                    bruto = chamar(_pedido())
                 else:
                     bruto = asyncio.run(_pedido())
                 resumo = bruto.get("workspace") or {}

@@ -94,7 +94,7 @@ async def listar_mensagens(
             projeto.id,
             "chat.carregar_anteriores",
             {
-                "conversa_id": conversa_id,
+                "conversation_id": conversa_id,
                 "antes_de_seq": antes if antes is not None else 10**9,
                 "limite": limite,
             },
@@ -177,7 +177,7 @@ async def enviar_mensagem(
                 await pool.chamar(
                     projeto.id,
                     "chat.enviar",
-                    {"conversa_id": conversa, "texto": texto},
+                    {"conversation_id": conversa, "mensagem": texto},
                     ao_evento=ao_evento,
                 )
                 _emitir(

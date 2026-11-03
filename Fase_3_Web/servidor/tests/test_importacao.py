@@ -498,3 +498,114 @@ def test_sse_de_projeto_alheio_404(ambiente):
     )
     resposta = cliente.get(f"{API}/projetos/{projeto['id']}/eventos?desde=0")
     assert resposta.status_code == 404
+
+
+# --- W4: a ponte de thread do app real (regressão de 03/11/2026) -------------
+
+
+class _PoolFalso:
+    """Dublê do pool: só precisa do `chamar` assíncrono que o serviço usa."""
+
+    def __init__(self) -> None:
+        self.pedidos: list[tuple] = []
+
+    async def chamar(self, projeto_id, cmd, payload):  # noqa: ANN001, ANN201
+        self.pedidos.append((projeto_id, cmd, tuple(sorted(payload))))
+        return {"workspace": {"arquivos": 7, "pasta": payload.get("pasta")}}
+
+
+def test_importacao_atravessa_ponte_de_thread_como_no_app(ambiente):
+    """`chamar` do app roda a corrotina em OUTRA thread (`run_coroutine_threadsafe`).
+
+    Regressão medida no smoke do server em 03/11/2026: o serviço montava `_pedido` como
+    função comum, o `run_coroutine_threadsafe` levantava
+    `TypeError: A coroutine object is required` e a importação ficava em `rodando` para
+    sempre — o teste ponta a ponta não pegava porque o `TestClient` não tem pool e cai no
+    caminho síncrono.
+    """
+    import asyncio
+    import threading
+
+    from mapasfacil_servidor.importacao import servico as servico_mod
+    from mapasfacil_servidor import projetos_repo
+
+    cliente, cfg, banco = ambiente
+    csrf, projeto = entrar_e_criar(cliente)
+    upload_id = enviar_zip(cliente, csrf, zip_do_imovel())
+
+    raizes = servico_mod.Raizes(
+        projetos=cfg.projetos,
+        uploads=cfg.uploads,
+        extraido_max_bytes=cfg.extraido_max_mb * 1024 * 1024,
+    )
+    con = banco.conectar()
+    importacao_id = servico_mod.registrar_importacao(
+        con, projeto_id=projeto["id"], upload_id=upload_id
+    )
+    con.commit()
+    dono = con.execute("SELECT usuario_id FROM projetos WHERE id = ?", (projeto["id"],)).fetchone()
+    linha = projetos_repo.exigir(con, projeto["id"], usuario_id=dono[0])
+
+    laco = asyncio.new_event_loop()
+    pronto = threading.Event()
+
+    def _rodar_laco():
+        asyncio.set_event_loop(laco)
+        laco.call_soon(pronto.set)
+        laco.run_forever()
+
+    ponte = threading.Thread(target=_rodar_laco, daemon=True)
+    ponte.start()
+    pronto.wait(5)
+
+    def _chamar(corrotina):
+        return asyncio.run_coroutine_threadsafe(corrotina, laco).result(timeout=30)
+
+    pool = _PoolFalso()
+    caixa: dict = {}
+
+    def _importar():
+        try:
+            caixa["resumo"] = servico_mod.importar(
+                banco=banco,
+                raizes=raizes,
+                projeto=linha,
+                upload_id=upload_id,
+                importacao_id=importacao_id,
+                pool=pool,
+                chamar=_chamar,
+            )
+        except BaseException as exc:  # noqa: BLE001 — o teste precisa ver o erro real
+            caixa["erro"] = exc
+
+    feitor = threading.Thread(target=_importar)
+    feitor.start()
+    feitor.join(60)
+    laco.call_soon_threadsafe(laco.stop)
+    ponte.join(5)
+
+    assert "erro" not in caixa, f"{type(caixa.get('erro')).__name__}: {caixa.get('erro')}"
+    assert caixa["resumo"]["arquivos"] == 7
+    assert pool.pedidos and pool.pedidos[0][1] == "workspace.abrir"
+    estado = servico_mod.estado(banco.conectar(), importacao_id)
+    assert estado["estado"] == "pronto"
+
+
+def test_excecao_inesperada_nao_deixa_importacao_em_rodando(ambiente):
+    """`marcar_erro` fecha a linha: o front nunca fica girando para sempre."""
+    from mapasfacil_servidor.importacao import servico as servico_mod
+
+    cliente, cfg, banco = ambiente
+    csrf, projeto = entrar_e_criar(cliente)
+    upload_id = enviar_zip(cliente, csrf, zip_do_imovel())
+    con = banco.conectar()
+    importacao_id = servico_mod.registrar_importacao(
+        con, projeto_id=projeto["id"], upload_id=upload_id
+    )
+    con.commit()
+
+    servico_mod.marcar_erro(banco, importacao_id, codigo="SV-240")
+
+    estado = servico_mod.estado(banco.conectar(), importacao_id)
+    assert estado["estado"] == "erro"
+    assert estado["erro_codigo"] == "SV-240"

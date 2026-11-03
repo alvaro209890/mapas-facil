@@ -16,6 +16,11 @@ from . import deps, modelos
 router = APIRouter(tags=["importacao"])
 
 
+def tipo_erro(exc: BaseException) -> str:
+    """Só o tipo da exceção — mensagem crua pode carregar caminho ou dado do usuário."""
+    return type(exc).__name__
+
+
 def _raizes(estado: deps.AppState) -> importacao_servico.Raizes:
     from ..config import Config
 
@@ -189,6 +194,18 @@ async def criar_importacao(
             resumo = await anyio.to_thread.run_sync(_importar)
         except ErroServidor as exc:
             _emitir("projeto.estado", {"estado": "erro", "erro_codigo": exc.codigo})
+            return
+        except Exception as exc:  # noqa: BLE001 — nada pode ficar em 'rodando' para sempre
+            import traceback
+
+            traceback.print_exc()
+            from ..importacao import servico as importacao_servico_mod
+
+            importacao_servico_mod.marcar_erro(banco, importacao_id, codigo="SV-240")
+            _emitir(
+                "projeto.estado",
+                {"estado": "erro", "erro_codigo": "SV-240", "detalhe": tipo_erro(exc)},
+            )
             return
         _emitir(
             "projeto.estado",

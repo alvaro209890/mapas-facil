@@ -131,4 +131,7 @@ def saude(
         "disco_livre_gb": round(livre, 1) if livre is not None else None,
         "schema": estado.banco.versao(),
         "nucleo": getattr(estado, "nucleo", None),
+        # Nomes das chaves opcionais que faltam: com elas fora, o app funciona com as camadas
+        # locais do `.zip` e perde o WFS autenticado da SEMA / o WMTS da Planet.
+        "segredos_ausentes": list(getattr(estado.config, "segredos_ausentes", ())),
     }
