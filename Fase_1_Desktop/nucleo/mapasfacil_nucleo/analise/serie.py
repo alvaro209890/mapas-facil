@@ -327,6 +327,7 @@ def montar_mapspec(
     crs: str = "EPSG:31982",
     mapspec_id: str | None = None,
     saidas: tuple[str, ...] = ("pdf",),
+    escala: int | None = None,
 ) -> dict[str, Any]:
     """Receita + imóvel → MapSpec válido no contrato v2.
 
@@ -374,7 +375,9 @@ def montar_mapspec(
         "saidas": list(saidas),
         "imovel": identidade.para_mapspec(),
         "crs": crs,
-        "escala": receita.escala,
+        # Escala única da série (W-10 passo 6) entra por aqui; sem ela, a receita decide
+        # (`"auto"` = o motor calcula pela folga do imóvel).
+        "escala": escala if escala is not None else receita.escala,
         "extent": None,
         "camadas": camadas,
         # Cadeia de recuo por ano: mosaico furado ou ano inexistente cai para o

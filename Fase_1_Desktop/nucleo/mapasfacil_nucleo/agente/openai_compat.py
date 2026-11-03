@@ -22,6 +22,8 @@ ENV_MODELO_CHAT = "MAPASFACIL_MODELO_CHAT"
 ENV_MODELO_RAPIDO = "MAPASFACIL_MODELO_RAPIDO"
 ENV_RACIOCINIO = "MAPASFACIL_RACIOCINIO"
 ENV_CONTEXTO_MAX = "MAPASFACIL_CONTEXTO_MAX"
+# Visão (W5-20): o mesmo Gemini do chat, por decisão do Álvaro em 2026-11-03.
+ENV_MODELO_VISAO = "MAPASFACIL_MODELO_VISAO"
 
 URL_PADRAO = "http://100.104.255.35:20128/v1"
 MODELO_PADRAO = "ag/gemini-3.8-flash-high"
@@ -83,6 +85,16 @@ def do_ambiente(ambiente: dict[str, str] | None = None) -> OpenAICompatProvedor:
         modelo=(env.get(ENV_MODELO_CHAT) or MODELO_PADRAO).strip(),
         reasoning_effort=(env.get(ENV_RACIOCINIO) or RACIOCINIO_PADRAO).strip(),
     )
+
+
+def modelo_visao(ambiente: dict[str, str] | None = None) -> str:
+    """Modelo que interpreta print/PDF de referência (`MAPASFACIL_MODELO_VISAO`).
+
+    O default é o **mesmo** modelo do chat: o 9Router repassa imagem ao
+    `ag/gemini-3.8-flash-high` (medido no W5-20), então não existe modelo de visão separado.
+    """
+    env = ambiente if ambiente is not None else os.environ
+    return (env.get(ENV_MODELO_VISAO) or env.get(ENV_MODELO_CHAT) or MODELO_PADRAO).strip()
 
 
 def modelo_rapido(ambiente: dict[str, str] | None = None) -> str:

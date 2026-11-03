@@ -1286,7 +1286,12 @@ def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
 
 
 def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    """Qual folha/orientação deixa o mapa mais detalhado para este imóvel (W-10/W5-12)."""
+    """Qual folha/orientação deixa o mapa mais detalhado para este imóvel (W-10/W5-12).
+
+    Devolve a tabela folha × orientação **e** o enquadramento resolvido da folha atual: escala
+    redonda, extent, CRS e deslocamento da faixa útil. É o que o agente usa para responder
+    "dá em A3 ou só em A2?" com número, não com opinião.
+    """
     from mapasfacil_nucleo.motores import enquadramento
 
     estado = _estado()
@@ -1298,17 +1303,57 @@ def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dic
     geom, _epsg = geometria
     xmin, ymin, xmax, ymax = geom.bounds
     bbox = {"xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax}
+
+    tipo = str(args.get("caixa") or "imovel").strip().lower()
+    if tipo not in enquadramento.TIPOS_CAIXA:
+        return _erro(
+            "AG-204",
+            f"Caixa de conteúdo desconhecida: {tipo!r}.",
+            tipos=list(enquadramento.TIPOS_CAIXA),
+        )
+
     formatos = args.get("formatos")
     if isinstance(formatos, list) and formatos:
         formatos = [str(f).upper() for f in formatos]
     else:
         formatos = list(_FORMATOS_FOLHA)
+
     linhas = enquadramento.sugerir(bbox, formatos=formatos)
+
+    # Enquadramento da folha que está no MapSpec agora (ou a melhor, se ainda não há folha).
+    folha_ctx = _folha_como_texto((_mapspec_do_ctx(ctx) or {}).get("folha")) or {}
+    formato_atual = str(folha_ctx.get("formato") or (linhas[0]["folha"] if linhas else "A4")).upper()
+    orientacao_atual = str(folha_ctx.get("orientacao") or "paisagem").lower()
+    atual = None
+    if linhas:
+        perfil = enquadramento.perfil_para(formato_atual, orientacao_atual)
+        try:
+            resolvido = enquadramento.enquadrar(
+                bbox,
+                perfil,
+                tipo=tipo,
+                escala_fixa=args.get("escala_fixa"),
+                alternativas=False,
+            )
+            atual = resolvido.para_dict()
+        except Exception as exc:  # NU-310 (não cabe) e NU-311/312 — viram resposta, não crash
+            codigo = getattr(exc, "codigo", "AG-205")
+            atual = {
+                "folha": formato_atual,
+                "orientacao": orientacao_atual,
+                "erro": codigo,
+                "mensagem": getattr(exc, "mensagem", str(exc)),
+                "detalhes": getattr(exc, "detalhes", None),
+            }
+
     return _ok(
         {
             "tabela": linhas,
             "melhor": linhas[0] if linhas else None,
-            "folha_atual": _folha_como_texto((_mapspec_do_ctx(ctx) or {}).get("folha")),
+            "atual": atual,
+            "folha_atual": folha_ctx,
+            "caixa": tipo,
+            "margem": enquadramento.MARGEM,
         }
     )
 
@@ -1671,13 +1716,31 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
         "obrig": ["formato"],
     },
     "sugerir_enquadramento": {
-        "descricao": "Tabela folha × orientação com a escala que cabe e o aproveitamento do quadro.",
+        "descricao": (
+            "Tabela folha × orientação com a escala redonda que cabe (margem de 15%) e o "
+            "aproveitamento do quadro, mais o enquadramento resolvido da folha atual."
+        ),
         "props": {
             "formatos": {
                 "type": "array",
                 "items": {"type": "string", "enum": list(_FORMATOS_FOLHA)},
                 "description": "folhas a comparar (padrão: A4 a A0)",
-            }
+            },
+            "caixa": {
+                "type": "string",
+                "enum": ["imovel", "imovel_mais_alvo", "area_tematica"],
+                "description": (
+                    "o que manda no zoom: imovel (padrão) · imovel_mais_alvo (TI/UC/TE, une a "
+                    "feição alvo) · area_tematica (DLA/AUAS, só a feição do tema)"
+                ),
+            },
+            "escala_fixa": {
+                "type": "integer",
+                "description": (
+                    "escala pedida pelo usuário; se cortar o imóvel, a tool explica e sugere a "
+                    "menor que cabe"
+                ),
+            },
         },
     },
     "listar_versoes": {

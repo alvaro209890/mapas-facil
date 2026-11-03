@@ -10,6 +10,19 @@ from jsonschema import Draft202012Validator
 from pyproj import CRS
 
 from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, PASTAS_ESCRITA, caminho_shared
+from mapasfacil_nucleo.motores.enquadramento import eh_degrau
+
+
+def escala_valida(valor: Any) -> bool:
+    """Escala aceita no `MapSpec`: a lista do escritório **ou** o resultado dos degraus (W-10).
+
+    A lista fechada existe para a escolha do usuário; o cálculo automático produz degraus
+    (1:65.000, 1:850.000) que a lista nunca teve. Sem esta segunda porta, o enquadramento
+    automático seria recusado pelo próprio validador.
+    """
+    if isinstance(valor, bool) or not isinstance(valor, int) or valor <= 0:
+        return False
+    return valor in ESCALAS_PERMITIDAS or eh_degrau(valor)
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import nome_base_ascii_valido
 
@@ -141,11 +154,15 @@ def validar_regras(
 
     escala = mapspec.get("escala")
     if escala is not None and escala != "auto":
-        if not isinstance(escala, int) or escala not in ESCALAS_PERMITIDAS:
+        if not escala_valida(escala):
             erros.append(
                 _erro(
                     "NU-220",
-                    f"Escala {escala!r} não está na lista permitida.",
+                    (
+                        f"Escala {escala!r} não é permitida: use uma da lista do escritório ou "
+                        "uma escala redonda do enquadramento (múltiplo de 500 até 1:10.000, de "
+                        "5.000 até 1:200.000, de 50.000 até 1:1.000.000, de 100.000 acima)."
+                    ),
                     "escala",
                 )
             )

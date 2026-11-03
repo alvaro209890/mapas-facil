@@ -27,6 +27,8 @@ from mapasfacil_nucleo.analise.identidade import IdentidadeImovel, identificar
 from mapasfacil_nucleo.analise.progresso import RastreadorProgressoSerie
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
+from mapasfacil_nucleo.motores import enquadramento
+from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 from mapasfacil_nucleo.motores.gerar import gerar_mapa
 from mapasfacil_nucleo.workspace.shapefile import (
     _abrir_reader,
@@ -84,6 +86,34 @@ class ResultadoMapa:
             "anatomia_ok": (self.anatomia or {}).get("ok"),
             "anatomia_falhas": (self.anatomia or {}).get("falhas"),
         }
+
+
+def _folga_base(receitas: list[Any]) -> float:
+    """Folga do grupo do imóvel: a menor das receitas (contexto usa 3.0 e 6.0)."""
+    return min((r.folga_extent for r in receitas), default=1.12)
+
+
+def _escala_unica_da_serie(
+    receitas: list[Any], bbox: tuple[float, float, float, float]
+) -> int | None:
+    """Escala redonda única do grupo base — a que a PH usa em todos os mapas do bloco."""
+    base = _folga_base(receitas)
+    do_grupo = [r for r in receitas if r.folga_extent == base]
+    if not do_grupo:
+        return None
+    caixa = {"xmin": bbox[0], "ymin": bbox[1], "xmax": bbox[2], "ymax": bbox[3]}
+    escalas = []
+    for receita in do_grupo:
+        folha = folha_do_template(receita.template) or folha_padrao()
+        escalas.append(
+            enquadramento.escala_do_enquadramento(
+                caixa,
+                str(folha.get("formato") or "A4"),
+                str(folha.get("orientacao") or "paisagem"),
+                folga=base,
+            )
+        )
+    return max(escalas)
 
 
 def _geometria_do_atp(guard: WorkspaceGuard, atp_rel: str) -> BaseGeometry:
@@ -161,6 +191,13 @@ def executar(
     else:
         preparacao = _preparacao_do_disco(guard)
 
+    # W-10 passo 6 — mesma escala em toda a série. Os mapas do imóvel (a folga base da
+    # receita) saem todos na escala calculada uma vez; os mapas de contexto (folga maior:
+    # TI/UC/TE) mantêm a escala própria, que é o que dá o entorno deles.
+    escala_serie = _escala_unica_da_serie(receitas, bbox)
+    if escala_serie is not None and ao_progresso:
+        ao_progresso("enquadramento", f"1:{escala_serie}", 0, 0)
+
     resultados: list[ResultadoMapa] = []
     for indice, receita in enumerate(receitas, start=1):
         if ao_progresso:
@@ -179,6 +216,7 @@ def executar(
                 progresso.rastreador_do_mapa(receita, indice) if progresso else None
             ),
             pasta_rel=pasta_saida_rel,
+            escala=escala_serie if _folga_base(receitas) == receita.folga_extent else None,
         )
         resultados.append(resultado_mapa)
         if progresso:
@@ -201,6 +239,7 @@ def executar(
             progresso.artefato_compilado(compilado["pdf"], compilado["paginas"])
 
     relatorio = {
+        "enquadramento": {"escala_serie": escala_serie, "folga_base": _folga_base(receitas)},
         "imovel": identidade.para_ndjson(),
         "preparacao": preparacao.para_ndjson(),
         "mapas": [r.para_ndjson() for r in resultados],

@@ -101,11 +101,11 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W5-13 Prompt web (`_BLOCO_WEB` em `agente/prompt.py`, entra só em modo servidor; 1.072 de 2.500 tokens)
 - [x] W5-14 Memória de trabalho com folha
 - [ ] W5-15 Edição a partir de versão anterior
-- [ ] W5-16 Provedor `openai_compat` (9Router, `ag/gemini-3.8-flash-high`, `high`) + smoke de tools + contexto real
+- [x] W5-16 Provedor `openai_compat` (9Router, `ag/gemini-3.8-flash-high`, `high`) + smoke de tools + contexto real — **medido em 03/11**: chave própria `mapasfacil-app` criada no 9Router; `ferramentas/provedor_smoke.py` verde em tools (32 schemas, `finish_reason=tool_calls`, argumentos JSON), paralelo (2 tool calls no mesmo turno), resultado de tool de 6.257 chars lido até a sentinela, raciocínio (1.000 chars de `reasoning_content`), stream (46 pedaços, 5.465 chars, `stop`). Contexto: prompt de 180.000 chars (~45 mil tokens reais) aceito; `usage.prompt_tokens` do pool é **inflado** (14.842 para ~900 tokens), então `MAPASFACIL_CONTEXTO_MAX=40000` é margem medida, não o anunciado 1M
 - [~] W5-17 Os 7 roteiros como cassetes: **6 reproduzidos de verdade** (dinâmica, estilo, folha, qual folha, voltar, pergunta) em `tests/agente/cassetes/web_*.json` + `tests/test_agente_web_roteiros.py`; `web_hard` roda e chama `explicar_validacao`, mas **nenhum fixture sintético derruba check HARD hoje** — o caso do plano (H17, áreas × recibo) só existe a partir do W7/W9
 - [x] W5-18 Sugestões de início
 - [x] W5-19 Regras do escritório no prompt (dentro do `_BLOCO_WEB`: dinâmicas intermediárias sem quantitativo, outubro/Planet a partir de 2016, um processo = um mapa, pacote `MXD/ SHP/ Mapas/` e revínculo dos shapes)
-- [ ] W5-20 Visão pelo Gemini via 9Router — **obrigatória** (decisão 2026-11-03): `MAPASFACIL_MODELO_VISAO=ag/gemini-3.8-flash-high`, mesmo modelo do chat
+- [x] W5-20 Visão pelo Gemini via 9Router — **obrigatória** (decisão 2026-11-03): `MAPASFACIL_MODELO_VISAO=ag/gemini-3.8-flash-high`, mesmo modelo do chat — **medido em 03/11**: payload `image_url` (print sintético de mapa, 16 KB, sem dado de cliente) voltou 200 e o modelo descreveu imóvel, TI, escala e legenda; `openai_compat.modelo_visao()` criado
 
 ## W6 — Frontend
 
