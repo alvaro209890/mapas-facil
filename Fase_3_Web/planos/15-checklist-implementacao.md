@@ -177,7 +177,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [ ] W10-09 G4 automatizado
 - [x] W10-10 `pacote.py` + rota `GET /versoes/{n}/pacote.zip`: montador de pacote de entrega com MXD/, SHP/, Mapas/ e LEIA-ME.txt (com instruções de Repair Data Source); política D37 preservando entrega quando MXD não for conforme; endpoint REST no servidor com testes (tests/test_mxd_pacote.py e test_pacote_zip.py)
 - [x] W10-11 `motores/gerar.py`: `motor="binario"`, avisos `MX-020/021/030` no relatório; T2 antigo passa a delegar ao binário quando houver `.slots.json` (tests/test_mxd_binario_gerar.py, 2 testes verdes)
-- [ ] W10-12 H18–H20
+- [x] W10-12 Checks H18, H19, H20 em `validacao/saida.py`: H18 (.mxd sem segredo ou authkey), H19 (.mxd estruturalmente íntegro e sem sentinelas órfãs via G1), H20 (dados vetoriais e raster relativos ao pacote); integrados em `executar_checks_saida` (tests/test_validacao_saida.py, 6 testes verdes)
 - [ ] W10-13 Laboratório REA (Frida nas leituras de stream do ArcMap + pares A/A′ da fábrica; descompilação em sala limpa liberada)
 - [ ] W10-14 Checklist da fábrica (lições das skills) + teste do pacote em caminho com espaço/acento
 

@@ -82,3 +82,36 @@ def test_executar_checks_saida_nativo(tmp_path: Path) -> None:
     rel = executar_checks_saida(mapspec, pdf_path=pdf, motor="nativo")
     h09 = next(c for c in rel["checks"]["hard"] if c["id"] == "H09")
     assert h09["ok"] is True
+
+
+def test_checks_h18_h19_h20_mxd(tmp_path: Path) -> None:
+    """W10-12: valida checks H18 (sem segredo), H19 (estrutural) e H20 (dados relativos)."""
+    from mapasfacil_nucleo.config import raiz_repositorio
+    mxd_base = raiz_repositorio() / "shared" / "templates" / "Dinamica_retrato.mxd"
+    if not mxd_base.exists():
+        pytest.skip("Template base não encontrado")
+
+    pdf = tmp_path / "mapa.pdf"
+    escrever_pdf_cor_solido(pdf, rgb=(40, 80, 120))
+
+    mapspec = {"titulo": "Mapa Dinâmica"}
+    rel = executar_checks_saida(
+        mapspec,
+        pdf_path=pdf,
+        mxd_path=mxd_base,
+        pasta_pacote=tmp_path,
+        motor="binario",
+    )
+
+    ids = {c["id"] for c in rel["checks"]["hard"]}
+    assert "H18" in ids
+    assert "H19" in ids
+    assert "H20" in ids
+
+    h18 = next(c for c in rel["checks"]["hard"] if c["id"] == "H18")
+    h19 = next(c for c in rel["checks"]["hard"] if c["id"] == "H19")
+    h20 = next(c for c in rel["checks"]["hard"] if c["id"] == "H20")
+
+    assert h18["ok"] is True
+    assert h19["ok"] is True
+    assert h20["ok"] is True

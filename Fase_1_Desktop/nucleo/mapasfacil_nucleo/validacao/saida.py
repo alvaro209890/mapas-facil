@@ -8,6 +8,70 @@ import pymupdf as fitz
 
 from mapasfacil_nucleo.validacao.comparar_pdf import rasterizar_pdf
 
+
+def verificar_h18_mxd_sem_segredo(mxd_path_ou_bytes: Path | bytes) -> dict[str, Any]:
+    """H18: garante ausência de authkeys, tokens ou senhas no arquivo .mxd."""
+    from mapasfacil_nucleo.mxd_binario.gates import PADROES_SEGREDO
+    from mapasfacil_nucleo.mxd_binario.cfbf import CompoundFile
+
+    dados = mxd_path_ou_bytes if isinstance(mxd_path_ou_bytes, bytes) else mxd_path_ou_bytes.read_bytes()
+    try:
+        cf = CompoundFile.de_bytes(dados)
+        for st_nome in cf.streams:
+            st_bytes = cf.obter_stream(st_nome)
+            for padrao in PADROES_SEGREDO:
+                if padrao.search(st_bytes):
+                    return _check(
+                        "H18",
+                        False,
+                        f"Possível segredo ou authkey detectado no .mxd (stream '{st_nome}')",
+                    )
+        return _check("H18", True, ".mxd sem segredo ou authkey")
+    except Exception as exc:
+        return _check("H18", False, f"Falha ao inspecionar segredos no .mxd: {exc}")
+
+
+def verificar_h19_mxd_estrutural(mxd_path_ou_bytes: Path | bytes) -> dict[str, Any]:
+    """H19: garante que o .mxd é estruturalmente íntegro e sem sentinelas órfãs (G1)."""
+    from mapasfacil_nucleo.mxd_binario.gates import verificar_g1
+
+    dados = mxd_path_ou_bytes if isinstance(mxd_path_ou_bytes, bytes) else mxd_path_ou_bytes.read_bytes()
+    res = verificar_g1(dados)
+    if res.ok:
+        return _check("H19", True, ".mxd estruturalmente íntegro e sem sentinelas órfãs")
+    return _check("H19", False, f"Falha de integridade estrutural no .mxd: {res.mensagem}")
+
+
+def verificar_h20_dados_relativos_no_pacote(
+    mxd_path_ou_bytes: Path | bytes,
+    pasta_pacote: Path | None = None,
+) -> dict[str, Any]:
+    """H20: garante que as fontes de dados (shapefiles/rasters) do .mxd são relativas ao pacote."""
+    from mapasfacil_nucleo.mxd_binario.cfbf import CompoundFile
+
+    dados = mxd_path_ou_bytes if isinstance(mxd_path_ou_bytes, bytes) else mxd_path_ou_bytes.read_bytes()
+    # Detecta caminhos absolutos de dados vetoriais ou raster (ex: C:\...\dados.shp ou /home/.../raster.tif)
+    padrao_absoluto_dados = re.compile(
+        rb"(?:[A-Za-z]\x00:\x00\\\x00|\x00/\x00(?:home|media)\x00/\x00)[^\x00]*?\x00\.\x00(?:s\x00h\x00p|t\x00i\x00f|i\x00m\x00g|g\x00d\x00b)",
+        re.IGNORECASE,
+    )
+    try:
+        cf = CompoundFile.de_bytes(dados)
+        for st_nome in ("Maps", "Mx Document"):
+            if cf.tem_stream(st_nome):
+                st_bytes = cf.obter_stream(st_nome)
+                match = padrao_absoluto_dados.search(st_bytes)
+                if match:
+                    achado = match.group(0).decode("utf-16le", errors="ignore")
+                    return _check(
+                        "H20",
+                        False,
+                        f"Caminho absoluto de dado detectado no .mxd: '{achado}' (stream '{st_nome}')",
+                    )
+        return _check("H20", True, "Fontes de dados do .mxd relativas ao pacote")
+    except Exception as exc:
+        return _check("H20", False, f"Falha ao validar caminhos no .mxd: {exc}")
+
 # Typos e títulos de outras séries vistos no acervo Harmonia (F1-09 / S11).
 LISTA_NEGRA_S11 = (
     "concolidada",
@@ -220,6 +284,8 @@ def executar_checks_saida(
     mapspec: dict[str, Any],
     *,
     pdf_path: Path | None = None,
+    mxd_path: Path | None = None,
+    pasta_pacote: Path | None = None,
     template: dict[str, Any] | None = None,
     relatorio_arcpy: dict[str, Any] | None = None,
     motor: str = "nativo",
@@ -234,6 +300,11 @@ def executar_checks_saida(
         h_pdf, s_pdf = verificar_pdf(pdf_path, mapspec, template=template)
         hard.extend(h_pdf)
         soft.extend(s_pdf)
+
+    if mxd_path is not None and mxd_path.is_file():
+        hard.append(verificar_h18_mxd_sem_segredo(mxd_path))
+        hard.append(verificar_h19_mxd_estrutural(mxd_path))
+        hard.append(verificar_h20_dados_relativos_no_pacote(mxd_path, pasta_pacote=pasta_pacote))
 
     confianca = "arcpy" if motor == "arcpy" and relatorio_arcpy else "estrutural"
     if motor == "arcpy" and relatorio_arcpy and (relatorio_arcpy.get("quebradas") or []):
