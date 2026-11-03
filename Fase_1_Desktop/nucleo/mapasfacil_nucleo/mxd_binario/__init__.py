@@ -20,6 +20,7 @@ from .cfbf import (
     ler,
 )
 from .documento import DocumentoMxd
+from .gates import ResultadoGate, verificar_g1, verificar_g2, verificar_g3, verificar_todos
 from .slots import DefinicaoSlot, ErroSlot, ManifestoSlots
 
 __all__ = [
@@ -41,4 +42,9 @@ __all__ = [
     "DefinicaoSlot",
     "ManifestoSlots",
     "ErroSlot",
+    "ResultadoGate",
+    "verificar_g1",
+    "verificar_g2",
+    "verificar_g3",
+    "verificar_todos",
 ]

@@ -172,7 +172,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W10-04 Spike S0: mapeamento empírico das streams nos 21 templates; comprovação da prioridade e presença simultânea em `Mx Document` e `PageLayout`/`Maps`; relatório em `docs/mxd-binario-spikes.md`
 - [x] W10-05 Spikes S1–S11: textos com expansão/encolhimento dinâmico, envelopes/escalas, caminhos relativos de shapefiles/rasters no pacote, nomes de camada no TOC, e materialização no pacote (relatório em `docs/mxd-binario-spikes.md`)
 - [x] W10-06 `slots.py` e `documento.py`: carregamento de `.slots.json`, aplicação de slots (texto, número, envelope, caminho, consulta) com ajuste de delta em cascata, API `DocumentoMxd.abrir -> aplicar -> obter_bytes/salvar` (tests/test_mxd_documento.py, 4 testes verdes)
-- [ ] W10-07 `gates.py` + sabotagem
+- [x] W10-07 `gates.py` (G1–G3) + `tests/test_gates_mxd.py` com casos de sabotagem: G1 estrutural via olefile e árvore de blocos (reprova sentinela órfã MX-012 e corrupção MX-013), G2 semântico (reprova segredo/authkey MX-040 e caminho absoluto MX-050), G3 diferencial (reprova mutação fora de slot MX-013); 6 testes verdes
 - [ ] W10-08 Fábrica + MANIFEST `variantes`
 - [ ] W10-09 G4 automatizado
 - [ ] W10-10 `pacote.py` + rota
