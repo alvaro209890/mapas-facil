@@ -79,16 +79,16 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W4 — Importação
 
-- [ ] W4-01 `importacao/partes.py`
-- [ ] W4-02 `api/uploads.py`
-- [ ] W4-03 `web/src/api/upload.ts`
-- [ ] W4-04 `importacao/extrair.py`
-- [ ] W4-05 Rota de importação + estados + eventos
-- [ ] W4-06 Indexação e resumo
-- [ ] W4-07 Reimportação
-- [ ] W4-08 `fixtures/gerar_zip_sintetico.py`
-- [ ] W4-09 Teste de CPF
-- [ ] W4-10 SAD69 → SIRGAS 2000 na indexação
+- [x] W4-01 `importacao/upload.py` (nome do plano era `partes.py`)
+- [x] W4-02 `api/importacao.py` (upload + importação no mesmo módulo)
+- [ ] W4-03 `web/src/api/upload.ts` — trilha B (web), não iniciada
+- [x] W4-04 `importacao/extrair.py`
+- [x] W4-05 Rota de importação + estados (eventos por SSE ficam no W5; hoje o estado é `GET /importacoes/{id}`)
+- [x] W4-06 Indexação e resumo (`workspace.abrir` pela ponte; sem worker, resumo sai com aviso `SV-123`)
+- [x] W4-07 Reimportação (`entrada.anterior/<carimbo>/`)
+- [x] W4-08 `fixtures/gerar_zip_sintetico.py` (ZIP válido, `testzip()` = None)
+- [x] W4-09 Teste de CPF (varre respostas da API e as tabelas `projetos`/`importacoes`/`auditoria`)
+- [ ] W4-10 SAD69 → SIRGAS 2000 — **pendente de propósito**: o núcleo só conhece EPSG:4326/4674 (`geo/area.py`, `geo/distancia.py`); criar `geo/crs.py` com a transformação oficial Helmert precisa do `.zip` real do SIMCAR para validar o deslocamento de ~60 m
 
 ## W5 — SSE + chat
 
