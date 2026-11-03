@@ -116,3 +116,35 @@ def test_pdf_de_folha_maior_nao_estoura_de_tamanho(anatomias: dict[str, dict]) -
 
 if __name__ == "__main__":  # pragma: no cover - conveniência de depuração
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+# --- W9-09: fontes embutidas e texto extraível em toda folha ------------------------
+
+
+def _fontes_da_pagina(pdf: Path) -> list[tuple]:
+    import pymupdf as fitz
+
+    with fitz.open(pdf) as doc:
+        return doc.get_page_fonts(0, full=True)
+
+
+@pytest.mark.parametrize("formato", FOLHAS)
+def test_texto_e_extraivel_em_toda_folha(anatomias: dict[str, dict], formato: str) -> None:
+    """H03 vale em qualquer papel: o título continua sendo texto, não desenho."""
+    import pymupdf as fitz
+
+    pdf = Path(anatomias[formato]["pdf"])
+    with fitz.open(pdf) as doc:
+        texto = doc[0].get_text()
+    assert texto.strip(), f"{formato}: PDF sem texto extraível"
+    assert "DINÂMICA" in texto.upper() or "DINAMICA" in texto.upper(), f"{formato}: título não está no texto"
+    assert "METADADOS" in texto.upper(), f"{formato}: bloco de metadados não está no texto"
+
+
+@pytest.mark.parametrize("formato", FOLHAS)
+def test_fontes_embutidas_em_toda_folha(anatomias: dict[str, dict], formato: str) -> None:
+    """PDF para gráfica: nenhuma fonte pode viajar fora (senão a máquina do cliente troca)."""
+    fontes = _fontes_da_pagina(Path(anatomias[formato]["pdf"]))
+    assert fontes, f"{formato}: página sem fonte declarada"
+    nao_embutidas = [f for f in fontes if not (f[1] or "").strip() or (f[1] or "").lower() == "n/a"]
+    assert not nao_embutidas, f"{formato}: fontes não embutidas: {[f[3] for f in nao_embutidas]}"

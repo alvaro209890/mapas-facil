@@ -331,6 +331,55 @@ Algoritmo de `escala: "auto"`:
 6. gravar a escala resolvida no `MapSpec` da versão, para reexecução dar o mesmo resultado;
 7. o texto `Escala: 1:60.000` do bloco de metadados é derivado deste valor, nunca digitado à mão.
 
+## Folhas maiores (D31) — A4 é medido, o resto é derivado
+
+A A4 é o **gabarito medido** do acervo. A3, A2, A1 e A0 não são remedidos: são a A4
+multiplicada por `k`, que é o que o ArcMap faz com "escalar elementos proporcionalmente".
+
+| Folha | `k` = largura_retrato / 210 | Quadro do mapa, retrato (mm) | Quadro, paisagem (mm) |
+|---|---|---|---|
+| A4 | 1,0000 | 196,5 × 252,0 | 285,5 × 163,7 |
+| A3 | 1,4143 | 277,9 × 356,4 | 403,8 × 231,5 |
+| A2 | 2,0000 | 393,0 × 504,0 | 571,0 × 327,4 |
+| A1 | 2,8286 | 555,8 × 712,8 | 807,6 × 463,0 |
+| A0 | 4,0048 | 786,9 × 1009,2 | 1143,0 × 655,0 |
+
+O que escala por `k`:
+
+- todas as caixas do perfil (mapa, título, rosa, minimapa, metadados, legenda, logo, tabela);
+- os tamanhos de fonte (`pt_titulo`, `pt_metadados`, `pt_legenda`, `pt_grade`, título da legenda);
+- as espessuras de linha e os halos de rótulo;
+- a resolução pedida ao raster do mosaico (até o teto da §Raster).
+
+O que **não** escala:
+
+- **a escala do mapa** — ela é recalculada pelo enquadramento: papel maior ⇒ quadro maior ⇒
+  denominador menor, ou seja, **mais detalhe** no mesmo desenho;
+- **a contagem de rótulos da grade** — 4 a 8 por eixo em qualquer folha (`S07`); o passo é que
+  engrossa;
+- os textos e o número de linhas do bloco de metadados (a quebra é recalculada na largura nova).
+
+⚠️ **Encaixe de borda.** As folhas ISO não têm razão √2 exata (A3 é 297 × 420 mm, e
+297 × 1,41428 = 420,043 mm). Caixa que no perfil medido encosta na borda do papel tem de
+continuar encostada — senão o minimapa, que termina em 297,0 mm na A4, vazaria 0,04 mm em A3 e
+0,41 mm em A0 e o recorte da página comeria parte dele. Nenhuma caixa interna é deformada: o
+encaixe só age em coordenada que já era borda na A4.
+
+### Raster do mosaico por folha
+
+Alvo de **300 dpi efetivos no papel** dentro do quadro do mapa, com teto de pixels no lado maior:
+
+| Folha | Pixels a 300 dpi (retrato) | Teto | dpi resultante |
+|---|---|---|---|
+| A4 | ~2.980 | — | 300 |
+| A3 | ~4.210 | — | 300 |
+| A2 | ~5.950 | — | 300 |
+| A1 | ~8.420 | 7.000 | ≈ 249 |
+| A0 | ~11.900 | 9.000 | ≈ 226 |
+
+Se a resolução nativa do mosaico for menor que a pedida, **não** reamostrar para cima além de
+2×: grava na resolução nativa ×2 e registra o aviso `S17`.
+
 ## Checklist de conformidade
 
 Roda depois de exportar o PDF; relatório vai para `validacao.json`. **HARD bloqueia a entrega**;
@@ -352,6 +401,7 @@ SOFT conclui com ressalva.
 | `H12` | Query de município correta | `definitionQuery` da camada de municípios = município do imóvel | HARD |
 | `H13` | `.mxd` reabre | reabrir e listar camadas sem exceção | HARD |
 | `H14` | `TOTAL GERAL` presente quando há tabela | última linha da imagem da tabela com faixa verde | HARD |
+| `H15` | Página no tamanho da folha pedida | largura e altura do PDF = `folha_mm(formato, orientacao)` ±1 mm; orientação trocada reprova | HARD |
 | `S01` | Retângulo do minimapa centrado | distância centro-do-retângulo ↔ centroide do imóvel < 1 mm de página | SOFT |
 | `S02` | Linha-guia do minimapa conectada | linha vermelha toca retângulo e moldura | SOFT |
 | `S03` | Município identificado no minimapa | há feição em laranja e rótulo | SOFT |
@@ -363,6 +413,7 @@ SOFT conclui com ressalva.
 | `S09` | Camada externa não vazia | WFS retornou > 0 feições após o recorte | SOFT |
 | `S10` | Tabela em resolução suficiente | PNG da tabela ≥ 400 dpi efetivos | SOFT |
 | `S11` | Sem texto herdado de outra análise | nenhum `TEXT_ELEMENT` cita município/fazenda diferentes do `MapSpec` | SOFT |
+| `S17` | Raster do mosaico suficiente para a folha | dpi efetivo do raster ≥ 220 ou aviso registrado (ver §Raster do D31) | SOFT |
 
 `S11` merece destaque: na análise Harmonia sobraram textos de matrícula, distâncias e até o
 título `Alertas MAPBIOMAS` num mapa PRODES, herdados do `.mxd` copiado. É o erro mais provável
@@ -390,6 +441,7 @@ Marcar conforme o motor for cobrindo cada item. Vale para os dois motores (ArcPy
 - [ ] Definition query de município e de UF reescritas por imóvel
 - [ ] Logo IMAP no canto inferior direito
 - [ ] Nenhum texto herdado de análise anterior (varredura `S11`)
+- [ ] Folhas A4–A0 derivadas por `k` (D31), com `H15` verde e `S17` avaliado
 - [ ] Os 21 PDFs-modelo reproduzidos e comparados por raster (tolerância 0,3%)
 
 ## Apêndice — o perfil Trevisol (descartado)
