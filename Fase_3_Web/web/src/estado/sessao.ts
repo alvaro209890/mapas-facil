@@ -18,6 +18,11 @@ interface LojaSessao {
   csrf: string | null;
   /** Conta criada pelo admin: o primeiro acesso exige senha nova. */
   precisaTrocarSenha: boolean;
+  /**
+   * Já houve sessão nesta aba. Serve para distinguir "nunca entrou" (vai para `/entrar`) de
+   * "sessão expirou no meio do trabalho" (modal por cima, rascunho preservado — W6-09).
+   */
+  jaEntrou: boolean;
   erro: string | null;
   carregando: boolean;
   carregar: () => Promise<void>;
@@ -36,6 +41,7 @@ function aplicarSessao(sessao: Sessao): Partial<LojaSessao> {
     usuario: sessao.usuario,
     csrf: sessao.csrf,
     precisaTrocarSenha: Boolean(sessao.usuario.trocar_senha ?? sessao.trocar_senha),
+    jaEntrou: true,
     erro: null,
   };
 }
@@ -45,6 +51,7 @@ export const useSessao = create<LojaSessao>((set, get) => ({
   usuario: null,
   csrf: null,
   precisaTrocarSenha: false,
+  jaEntrou: false,
   erro: null,
   carregando: false,
 
@@ -110,6 +117,7 @@ export const useSessao = create<LojaSessao>((set, get) => ({
       // Sair é best-effort: se o servidor não responder, a sessão local morre do mesmo jeito.
     }
     definirCsrf(null);
+    // `jaEntrou` continua `true`: o modal de sessão expirada assume, sem trocar a tela.
     set({ estado: 'expirada', usuario: null, csrf: null, precisaTrocarSenha: false });
   },
 

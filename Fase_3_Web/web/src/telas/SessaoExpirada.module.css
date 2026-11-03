@@ -1,0 +1,78 @@
+/* Modal de sessão expirada (W6-09): camada, nunca troca de tela. */
+
+.fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(4, 6, 8, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.caixa {
+  display: grid;
+  gap: 0.7rem;
+  width: min(24rem, 100%);
+  padding: 1.25rem;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-3);
+  box-shadow: var(--mf-sombra-alta);
+}
+
+.caixa h2 {
+  font-size: 1.0625rem;
+  color: var(--mf-texto);
+}
+
+.texto {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--mf-texto-2);
+}
+
+.formulario {
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+}
+
+.formulario input {
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.principal {
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #04150f;
+  background: var(--mf-acento);
+  border: 0;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.principal:disabled {
+  color: var(--mf-texto-3);
+  background: var(--mf-superficie-3);
+  cursor: not-allowed;
+}
+
+.erro {
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: rgba(242, 85, 90, 0.1);
+  border: 1px solid rgba(242, 85, 90, 0.35);
+  border-radius: var(--mf-raio-1);
+}

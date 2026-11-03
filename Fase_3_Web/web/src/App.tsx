@@ -20,10 +20,12 @@ import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import { useSessao } from "./estado/sessao";
-import { EmBreve } from "./telas/EmBreve";
 import { Entrar } from "./telas/Entrar";
 import { NovoMapa } from "./telas/NovoMapa/NovoMapa";
+import { Conta } from "./telas/Conta";
 import { Projeto } from "./telas/Projeto";
+import { SessaoExpirada } from "./telas/SessaoExpirada";
+import { Admin } from "./telas/Admin";
 import { Projetos } from "./telas/Projetos";
 
 function Carregando() {
@@ -45,12 +47,14 @@ function Carregando() {
 /** Guarda de sessão: mantém a URL para voltar depois do login. */
 function Protegido({ children }: { children: React.ReactNode }) {
   const estado = useSessao((s) => s.estado);
+  const jaEntrou = useSessao((s) => s.jaEntrou);
   const local = useLocation();
   if (estado === "desconhecida") return <Carregando />;
-  if (estado === "expirada") {
+  if (estado === "expirada" && !jaEntrou) {
     const volta = `${local.pathname}${local.search}`;
     return <Navigate to={`/entrar?volta=${encodeURIComponent(volta)}`} replace />;
   }
+  // Sessão expirada com trabalho na tela: o modal cobre a página, o texto do chat fica.
   return <>{children}</>;
 }
 
@@ -122,7 +126,7 @@ function Rotas() {
         path="/conta"
         element={
           <Protegido>
-            <EmBreve titulo="Conta" marco="W6-08" />
+            <Conta />
           </Protegido>
         }
       />
@@ -131,7 +135,7 @@ function Rotas() {
         element={
           <Protegido>
             <SoAdmin>
-              <EmBreve titulo="Administração" marco="W6-08" />
+              <Admin />
             </SoAdmin>
           </Protegido>
         }
@@ -145,6 +149,7 @@ export function App() {
   return (
     <BrowserRouter>
       <Rotas />
+      <SessaoExpirada />
     </BrowserRouter>
   );
 }

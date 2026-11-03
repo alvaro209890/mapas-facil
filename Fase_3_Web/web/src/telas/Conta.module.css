@@ -1,0 +1,171 @@
+/* Conta (W6-08). */
+
+.tela {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.cabecalho {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.voltar {
+  font-size: 0.75rem;
+  color: var(--mf-texto-3);
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--mf-acento);
+}
+
+.titulo {
+  font-family: var(--mf-fonte-titulo, inherit);
+  font-size: 1.375rem;
+  color: var(--mf-texto);
+}
+
+.subtitulo {
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+}
+
+.bloco {
+  display: grid;
+  gap: 0.6rem;
+  padding: clamp(0.85rem, 2vw, 1.25rem);
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-3);
+}
+
+.bloco h2 {
+  font-size: 0.9375rem;
+  color: var(--mf-texto);
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+}
+
+.formulario input {
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+}
+
+.formulario small {
+  grid-column: 2;
+}
+
+.formulario button,
+.formulario div {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.principal {
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #04150f;
+  background: var(--mf-acento);
+  border: 0;
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.principal:disabled {
+  color: var(--mf-texto-3);
+  background: var(--mf-superficie-3);
+  cursor: not-allowed;
+}
+
+.secundario {
+  justify-self: start;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--mf-erro);
+  background: transparent;
+  border: 1px solid var(--mf-erro);
+  border-radius: var(--mf-raio-1);
+  cursor: pointer;
+}
+
+.abas {
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-self: start;
+  padding: 0.25rem;
+  background: var(--mf-superficie-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+}
+
+.aba {
+  padding: 0.35rem 0.85rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--mf-texto-2);
+  text-transform: capitalize;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--mf-raio-2) - 2px);
+  cursor: pointer;
+}
+
+.abaAtiva {
+  color: var(--mf-texto);
+  background: var(--mf-superficie-3);
+}
+
+.dica {
+  font-size: 0.75rem;
+  color: var(--mf-texto-3);
+}
+
+.dicaErro {
+  font-size: 0.75rem;
+  color: var(--mf-erro);
+}
+
+.ok {
+  font-size: 0.8125rem;
+  color: var(--mf-ok);
+}
+
+.erro {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+  background: rgba(242, 85, 90, 0.1);
+  border: 1px solid rgba(242, 85, 90, 0.35);
+  border-radius: var(--mf-raio-1);
+}
+
+@media (max-width: 640px) {
+  .formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario small,
+  .formulario button,
+  .formulario div {
+    grid-column: 1;
+  }
+}
