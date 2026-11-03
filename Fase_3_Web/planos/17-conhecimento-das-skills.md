@@ -149,7 +149,12 @@ As lições acima viram tarefas nos planos donos; aqui ficam só as novas que n�
 ## Critérios de aceite
 
 - [ ] Cada linha das tabelas §1–§7 tem dono: a tarefa correspondente está no [checklist](15-checklist-implementacao.md).
-- [ ] Nenhum arquivo do repositório contém trecho copiado de skill com segredo: `grep -rEn "PLAK[0-9a-f]{16,}|api_key=[A-Za-z0-9]{8,}|authkey=[A-Za-z0-9-]{8,}" Fase_3_Web Fase_1_Desktop/nucleo` → vazio.
+- [ ] Nenhum arquivo do repositório contém trecho copiado de skill com segredo:
+  `grep -rEn "(^|[^[:alnum:]_])(api_key|authkey)=[A-Za-z0-9_-]{12,}|PLAK[0-9a-f]{16,}" Fase_3_Web Fase_1_Desktop/nucleo/mapasfacil_nucleo` → vazio.
+  🔴 **`Fase_1_Desktop/nucleo/tests/` fica fora do padrão de propósito**: `test_conversas_redator.py`
+  e `test_contexto_vazamento.py` contêm chaves **falsas** para provar que o redator as apaga.
+  O job `guardas` do CI usa exatamente esse recorte — sem ele o guarda acusaria para sempre um
+  fixture legítimo.
 
 ## Anti-padrões
 

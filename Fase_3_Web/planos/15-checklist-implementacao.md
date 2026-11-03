@@ -28,14 +28,14 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W0 — Fundação
 
-- [ ] W0-01 D22–D39 em `planos/00-visao-e-duas-fases.md` (tabela de decisões + "Fora da v1" revisado)
-- [ ] W0-02 `AGENT_BRIEF.md`: AP-01 e AP-12 com a revisão da Fase 3; seção "Fase 3" no snapshot
-- [ ] W0-03 `planos/README.md`: linha da Fase 3
-- [ ] W0-04 `Fase_3_Web/servidor/` esqueleto (`pyproject.toml`, `mapasfacil_servidor/__init__.py`, `__main__.py --version`, `config.py`, `erros.py`)
-- [ ] W0-05 `Fase_3_Web/deploy/`, `Fase_3_Web/fixtures/` com README
-- [ ] W0-10 `Fase_3_Web/web/` Vite + React 19 + TS estrito
-- [ ] W0-20 `deploy/scripts/preflight.sh` + `docs/fase3-w0-preflight.md`
-- [ ] W0-30 `.github/workflows/fase3.yml` (`guardas`, `desktop`)
+- [x] W0-01 D22–D39 em `planos/00-visao-e-duas-fases.md` (tabela de decisões + "Fora da v1" revisado)
+- [x] W0-02 `AGENT_BRIEF.md`: AP-01 e AP-12 com a revisão da Fase 3; seção "Fase 3" no snapshot
+- [x] W0-03 `planos/README.md`: linha da Fase 3
+- [x] W0-04 `Fase_3_Web/servidor/` esqueleto (`pyproject.toml`, `mapasfacil_servidor/__init__.py`, `__main__.py --version`, `config.py`, `erros.py`)
+- [x] W0-05 `Fase_3_Web/deploy/`, `Fase_3_Web/fixtures/` com README
+- [x] W0-10 `Fase_3_Web/web/` Vite + React 19 + TS estrito
+- [x] W0-20 `deploy/scripts/preflight.sh` + `docs/fase3-w0-preflight.md`
+- [x] W0-30 `.github/workflows/fase3.yml` (`guardas`, `desktop`)
 - [x] W0-40 P1–P10 respondidas pelo Álvaro e registradas em W-00 (2026-11-03, na conversa de planejamento)
 
 ## W1 — Núcleo em modo servidor + `MapSpec` v3

@@ -66,7 +66,7 @@ Somente leitura; imprime uma tabela OK/FALTA e termina ≠ 0 se faltar algo obri
 | `loginctl show-user server -p Linger` | `Linger=yes` (units `--user` sobem sem login) | pedir `loginctl enable-linger server` |
 | `cloudflared` | `cloudflared --version` | pedir instalação |
 | Segredos | `segredos/servidor.env` existe, `0600`, tem as 3 chaves | o Álvaro cria (o agente nunca vê o valor) |
-| 9Router (IA) | `curl -sS http://100.104.255.35:20128/v1/models -H "Authorization: Bearer $(grep ^MAPASFACIL_PROVEDOR_CHAVE= segredos/servidor.env | cut -d= -f2-)"` lista `ag/gemini-3.8-flash-high` — o script **nunca** imprime a chave, só o resultado | VPS fora do ar ou chave errada: avisar o Álvaro (o 9Router central não tem reserva) |
+| 9Router (IA) | `curl -sS http://100.104.255.35:20128/v1/models -H "Authorization: Bearer $(grep -m1 '^MAPASFACIL_PROVEDOR_CHAVE=' segredos/servidor.env \| cut -d= -f2-)"` lista `ag/gemini-3.8-flash-high` — o script **nunca** imprime a chave, só o resultado | VPS fora do ar ou chave errada: avisar o Álvaro (o 9Router central não tem reserva) |
 | Saída para APIs geo | `curl` de status no SEMA WFS (`planos/03-wfs-e-servicos-geo.md`), Planet e GeoServer da IMAP (`wms.cursar.space`, serviço virtual de uma camada) | investigar rede/DNS (o `/etc/hosts` do server tem bloqueios pós-incidente) |
 
 Tudo que precisa de `sudo` vira **pedido ao Álvaro** com o comando exato — o agente não tem e

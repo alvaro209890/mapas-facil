@@ -51,6 +51,11 @@ Ana:   → versão 2, mesmos arquivos com sufixo _v2, os anteriores intactos
 
 ## As duas fases
 
+> **Nota (2026-11-03):** existe uma **Fase 3** — app web com login e chat de IA, backend no
+> server-desktop — em [`../Fase_3_Web/`](../Fase_3_Web/README.md), com as decisões D22–D39 no fim
+> deste arquivo. As duas fases descritas abaixo continuam valendo como estão; a Fase 3 não
+> substitui nenhuma das duas.
+
 O produto tem duas metades, com prioridades **muito** diferentes. Elas vivem em pastas separadas
 neste repositório e podem ser desenvolvidas por pessoas/agentes diferentes.
 
@@ -169,8 +174,8 @@ no mesmo commit.
 |---|---|
 | **Cobrança, planos, trial** | a v1 valida o produto, não o modelo de negócio |
 | **Quota, rate limit de produto, feature flag de cobrança** | D18: autenticado = ilimitado. Rate limit de *abuso* nos endpoints de auth não conta |
-| **Sync de conversas para a nuvem** | D20: local-only; espelho nuvem **adiado** e opt-in — **não** é a v1 do site (D21 = só distribuição) |
-| **Login / mapa / chat no site** | D21: site = distribuição; produto = desktop |
+| **Sync de conversas para a nuvem** | ~~D20: local-only~~ — **revisto pela Fase 3 (D26)**: na web as conversas vivem no servidor; o desktop continua local-only e não há sync entre os dois |
+| **Login / mapa / chat no site** | ~~D21: site = distribuição; produto = desktop~~ — **revisto pela Fase 3 (D22, D34)**: a landing da Fase 2 continua só distribuição, mas o **app web** ganha hostname próprio (`mapasfacil-app.cursar.space`) com login, chat e geração de mapa |
 | **Marketplace/compartilhamento de modelos de galeria** | modelo novo exige template preparado no ArcMap |
 | **Multi-conta simultânea, times, organizações** | uma conta por instalação |
 | Agente/app em Linux ou macOS | `arcpy` é Windows-only; o núcleo Python roda em Linux, mas sem `.mxd` |
@@ -249,6 +254,34 @@ alternativa descartada registrada, para que nenhum agente reabra a discussão so
 | D19 | Eventos de construção parcial (`job.artefato_parcial`) são **contrato novo a implementar** no núcleo (M8). Até lá, a animação usa só `job.progresso` — **nunca** loader falso | simular progresso na UI enquanto o núcleo não reporta | [F1-16](../Fase_1_Desktop/planos/16-design-system-dark.md) |
 | D20 | Conversas **local-only** na v1; espelho na conta é **adiado** e opt-in (não é a v1 do site) | sync automático para a conta | [F1-17](../Fase_1_Desktop/planos/17-persistencia-de-conversas.md) |
 | D21 | Site Fase 2 v1 = **distribuição** (landing + download); sem login e sem mapa no site | chat/mapa/conta nuvem no site na v1 | [F2-00](../Fase_2_Site/planos/00-visao-e-escopo.md) |
+
+### D22–D39 — Fase 3: app web com chat de IA (2026-11-03)
+
+Fechadas com o Álvaro na rodada de planejamento da Fase 3. O texto completo, com o contexto e as
+respostas P1–P10, está em
+[`../Fase_3_Web/planos/00-visao-e-decisoes.md`](../Fase_3_Web/planos/00-visao-e-decisoes.md).
+A coluna **Revisa** diz o que cada uma muda deste documento — nada além disso é revisado.
+
+| # | Decisão | Revisa |
+|---|---|---|
+| D22 | Existe uma **Fase 3**: app web com login + chat de IA que cria/edita mapas, backend no server-desktop. A landing de distribuição (Fase 2) continua; o desktop (Fase 1) continua | D21 (só para o app web; a landing segue D21) |
+| D23 | O backend **não reimplementa regra geo**: hospeda o núcleo `mapasfacil_nucleo` como processo filho por projeto, no mesmo NDJSON por stdio que o Electron usa | — |
+| D24 | No servidor, `.mxd` só sai do **motor binário** (patch de template + `mxd_binario`); ArcMap/ArcPy **nunca** rodam no servidor | AP-01 do `AGENT_BRIEF.md` |
+| D25 | **Um projeto = um mapa** (ou uma série). O projeto nasce com `folha` (A4–A0) e `orientacao`; a entrada é **um** `.zip`; há **uma** conversa principal | — |
+| D26 | Projetos, conversas e versões da Fase 3 ficam **no servidor**; o desktop continua local-only | D20 e AP-12, só para a Fase 3 |
+| D27 | **Cadastro aberto** (nome, e-mail, senha com Argon2id), sem confirmação de e-mail; a única trava é o admin bloquear a conta. Sem OAuth | F2-05 (adiado) → W-11 |
+| D28 | Metadados do backend em **SQLite WAL**, um processo uvicorn. Postgres só se houver mais de uma instância | — |
+| D29 | Eventos para o navegador por **SSE** com replay por `Last-Event-ID`; comandos por `POST`. Sem WebSocket na v1 | — |
+| D30 | Toda animação do palco é **consequência de evento real**; o vocabulário ganha `viewport.foco`, `camada.renderizada` e `layout.elemento` | reforça AP-07 |
+| D31 | Folhas maiores que A4 = **perfil A4 medido escalado por igual** (mesma razão √2); nenhum layout novo é inventado | H02 vira H02 (A4) + H15 (folha do `MapSpec`) |
+| D32 | Templates `.mxd` por folha são **fabricados uma vez no Windows** e entram no servidor com `sha256` no MANIFEST; o servidor só remonta | — |
+| D33 | A IA do servidor é o **9Router central da VPS** (`http://100.104.255.35:20128/v1`), `ag/gemini-3.8-flash-high`, `reasoning_effort: high`, com chave própria do Mapas Fácil. A **visão usa o mesmo modelo** (`MAPASFACIL_MODELO_VISAO`) | BYOK do desktop continua só no desktop |
+| D34 | Hostname do app: **`mapasfacil-app.cursar.space`** (um nível — o certificado `*.cursar.space` não cobre dois níveis); API no mesmo host em `/api/v1` | D21 (só para o app web) |
+| D35 | Dado de cliente **nunca** entra no git; testes usam ZIPs sintéticos de `Fase_3_Web/fixtures/` | reforça AP-03/AP-09 |
+| D36 | O `MapSpec` sobe para `contract_version: 3` com bloco obrigatório `folha`; v2 é migrado na leitura | [`02-mapspec-contrato.md`](02-mapspec-contrato.md) |
+| D37 | **Pacote sempre liberado**: PDF, XLSX e o pacote ArcMap (`.zip` com `MXD/`, `SHP/`, `Mapas/`) sem validação manual. Check HARD falho marca a versão "não conforme" e a IA explica — **não** bloqueia download; G4 é teste de desenvolvimento | AP "HARD bloqueia a entrega" |
+| D38 | Enquadramento = **"zoom na camada"** como no ArcMap (medido na Análise PH): faixa útil, margem, escala redonda para cima, a mesma escala na série, sem lista fixa | H05 e a lista fixa de escalas |
+| D39 | Regras do escritório no núcleo: série Dinâmica só com AC/AVN/tabela em 2000, 2008 e atual; imagem por ano (SEMA até 2015, Planet de outubro a partir de 2016); AC/AVN em hachura sobre satélite; nenhum texto cobre linha de shapefile | — |
 
 ### Como um agente lê estas decisões
 

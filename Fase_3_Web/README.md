@@ -81,7 +81,7 @@ Os três pilares pedidos pelo Álvaro:
 
 | Marco | Nome | Estado |
 |---|---|---|
-| W0 | Fundação e alinhamento documental | não iniciado |
+| W0 | Fundação e alinhamento documental | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W0.md`) |
 | W1 | Núcleo em modo servidor + `MapSpec` v3 (`folha`) | não iniciado |
 | W2 | Ponte e pool de workers | não iniciado |
 | W3 | API base: contas, sessões, projetos | não iniciado |

@@ -105,3 +105,6 @@ ArcGIS*.zip
 
 # Dados de teste locais (imóveis reais + modelos do acervo), 134 MB.
 Testes/
+
+# TypeScript build info (incremental)
+*.tsbuildinfo

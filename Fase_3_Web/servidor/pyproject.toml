@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mapasfacil-servidor"
+version = "0.1.0"
+description = "Backend web do Mapas Fácil (FastAPI + pool de workers do núcleo) — Fase 3"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "Mapas Fácil" }]
+# Versões fixadas exatamente (W-01): nunca `^` nem `~`.
+# `mapasfacil-nucleo` NÃO entra aqui: ele é instalado por caminho no venv
+# (`pip install -e Fase_1_Desktop/nucleo`), para o servidor e o desktop usarem o
+# mesmo código. O servidor importa só `mapasfacil_nucleo.contas.senha` e utilitários puros.
+dependencies = [
+  "fastapi==0.162.0",
+  "uvicorn[standard]==0.54.0",
+  "python-multipart==0.0.33",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.2.0",
+  "pytest-asyncio==1.4.1.post1",
+  "httpx==0.28.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mapasfacil_servidor*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+  "anel1: teste puro, sem rede e sem disco compartilhado",
+  "anel2: integração com fake_nucleo ou núcleo real local",
+  "anel3: rodado ao vivo no server-desktop (não roda no CI)",
+]

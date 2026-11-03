@@ -14,6 +14,13 @@ em qualquer coisa.
 
 ## Snapshot — o que falta (2026-07-29, noite)
 
+**Fase 3 — app web (planejada 2026-11-03, em implementação):** o Mapas Fácil ganha um **site com
+login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop e `.mxd` gerado
+**sem ArcMap** pelo motor binário. Planos e checklist vivo em
+[`Fase_3_Web/`](Fase_3_Web/README.md) — marcos W0–W12, tarefas `WNN-MM` no
+[`15-checklist`](Fase_3_Web/planos/15-checklist-implementacao.md). Estado medido vai em
+`docs/fase3-rodada-*.md`. O desktop (Fase 1) e a landing (Fase 2) **não** mudam de escopo.
+
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
 2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia
 `tipologia_paisagem` sem sha256, mas os 25 templates agora são `pronto` — corrigido com
@@ -323,7 +330,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 
 | # | Não faça | Por quê |
 |---|---|---|
-| AP-01 | Gerar `.mxd` em servidor Linux | `arcpy` é Windows-only; o servidor **nunca** promete `.mxd` |
+| AP-01 | Gerar `.mxd` em servidor Linux **com ArcPy** | `arcpy` é Windows-only. **Revisado pela Fase 3 (D24):** no servidor o `.mxd` sai **só** do motor binário (`mxd_binario`, remontagem de template), que nunca chama ArcMap/ArcPy |
 | AP-02 | Deixar a IA escrever código, `arcpy`, SQL ou `definitionQuery` livre | ameaça A1/A4; o contrato é `MapSpec` declarativo validado por schema |
 | AP-03 | Commitar segredo (chave, token, `secrets.local.json`, `.mxd` com `authkey`) | incidente 2026-07-25; rodar `ferramentas/chaves_mxd.py verificar` |
 | AP-04 | Inventar camada, estilo ou template fora do catálogo/MANIFEST | validador rejeita; `NU-210` |
@@ -334,7 +341,7 @@ Violar qualquer um destes é motivo de rejeição do trabalho, mesmo que "funcio
 | AP-09 | Gravar CPF em chat, transcript, log ou prompt — **ou versionar recibo do CAR** | LGPD; o parser descarta CPF na entrada, e os recibos do acervo estão no `.gitignore` porque o repo é público |
 | AP-10 | Chamar o provedor de IA sem passar pelo pipeline de compressão | estoura contexto e custo; `IA-040` |
 | AP-11 | Ler/escrever disco fora do `fsguard` | ameaça A2 |
-| AP-12 | Sincronizar chats para nuvem na v1 | **D20**: local-only |
+| AP-12 | Sincronizar chats para nuvem na v1 **do desktop** | **D20**: local-only no desktop. **Revisado pela Fase 3 (D26):** na web do Mapas Fácil as conversas vivem no servidor; os dois mundos **não** sincronizam entre si |
 | AP-13 | Escrever estimativa em dias/semanas em plano | ordem é por dependência técnica |
 | AP-14 | Abrir porta HTTP no PC do usuário para o sidecar **ou para login** | transporte é stdio NDJSON; auth local é IPC+SQLite (D12) — **sem** loopback OAuth |
 | AP-15 | Marcar tarefa como feita sem atualizar a linha do gap analysis e o checklist F1-13 | o repositório mente e o próximo agente se perde |
