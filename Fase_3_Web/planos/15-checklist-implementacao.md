@@ -146,6 +146,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W8-07 `palco/webgl.ts` + aviso no palco: sem WebGL cai em folha+resultado com o código **WB-001** e a mensagem única
 - [x] W8-08 `palco/tokens.ts` (durações/easings do plano) + `useReducedMotion.ts` aplicado em todos os passos (movimento reduzido ⇒ salto, sem voo)
 - [x] W8-09 modo `ocioso` mostra a versão aberta e o perímetro indexado, sem animação inventada
+- [x] W8-11 Clicar na folha para editar (D43): elementos da folha clicáveis a partir do `layout.elemento` (id, tipo, bbox_mm); hover destaca, clique seleciona e suporta teclado (Tab e Enter); clique no quadro do mapa envia `coord_geo`; `POST /mensagens` recebe `contexto: {versao, elemento_id, tipo, bbox_mm, coord_geo}`; servidor valida existência do elemento/versão (`SV-242`); tools de edição (`alternar_elemento`, `editar_camada`, `ajustar_elemento`) aceitam `elemento_id`
 - [ ] W8-10 Testes visuais
 
 ## W9 — PDF A4–A0

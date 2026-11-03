@@ -638,7 +638,7 @@ def tool_remover_camada(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, 
 
 
 def tool_editar_camada(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    camada_id = args.get("id") or args.get("camada_id")
+    camada_id = args.get("elemento_id") or args.get("id") or args.get("camada_id")
     erro = _camada_existente(ctx, camada_id)
     if erro:
         return erro
@@ -658,6 +658,10 @@ def tool_editar_camada(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
             for chave in ("estilo", "legenda", "rotulo_texto", "nome_no_mxd"):
                 if chave in args:
                     camada[chave] = args[chave]
+            if "rotulos" in args:
+                camada["rotulos"] = bool(args["rotulos"])
+                if not args["rotulos"]:
+                    camada.pop("rotulo_texto", None)
             if "ordem" in args:
                 camada["ordem"] = int(args["ordem"])
             if "filtro" in args:
@@ -755,8 +759,47 @@ def tool_editar_metadados(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str
     return _editar(ctx, mutar)
 
 
+def tool_ajustar_elemento(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Ajusta propriedades de um elemento de layout apontado pelo usuário (D43 / Recurso D)."""
+    elemento_id = str(args.get("elemento_id") or args.get("elemento") or "").strip()
+    if elemento_id == "titulo_caixa":
+        elemento_id = "titulo"
+    elif elemento_id == "rosa":
+        elemento_id = "norte"
+    if not elemento_id:
+        return _erro("NU-001", "Parâmetro 'elemento_id' é obrigatório.")
+    acao = str(args.get("acao") or "aumentar").lower()
+    valor = args.get("valor")
+
+    def mutar(spec: dict[str, Any]) -> None:
+        elementos = spec.setdefault("elementos_layout", {})
+        ajustes = spec.setdefault("ajustes_layout", {})
+        ajuste_elem = ajustes.setdefault(elemento_id, {})
+        if acao == "aumentar":
+            escala = float(ajuste_elem.get("escala", 1.0)) * 1.2
+            ajuste_elem["escala"] = round(escala, 2)
+            elementos[elemento_id] = True
+        elif acao == "diminuir":
+            escala = float(ajuste_elem.get("escala", 1.0)) * 0.8
+            ajuste_elem["escala"] = round(escala, 2)
+            elementos[elemento_id] = True
+        elif acao == "ocultar":
+            elementos[elemento_id] = False
+        elif acao == "mostrar":
+            elementos[elemento_id] = True
+        elif acao == "mover":
+            if isinstance(valor, (list, tuple)) and len(valor) == 2:
+                ajuste_elem["delta_mm"] = [float(valor[0]), float(valor[1])]
+
+    return _editar(ctx, mutar)
+
+
 def tool_alternar_elemento(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
-    elemento = args.get("elemento")
+    elemento = args.get("elemento_id") or args.get("elemento")
+    if elemento == "titulo_caixa":
+        elemento = "titulo"
+    elif elemento == "rosa":
+        elemento = "norte"
     if not isinstance(elemento, str) or elemento not in ELEMENTOS_LAYOUT:
         return _erro(
             CODIGO_CATALOGO,
@@ -1599,6 +1642,7 @@ _HANDLERS: dict[str, HandlerTool] = {
     "definir_escala": tool_definir_escala,
     "definir_tabela": tool_definir_tabela,
     "editar_metadados": tool_editar_metadados,
+    "ajustar_elemento": tool_ajustar_elemento,
     "alternar_elemento": tool_alternar_elemento,
     "definir_titulo": tool_definir_titulo,
     # fluxo
@@ -1767,6 +1811,23 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
             "valor": _STR,
         },
         "obrig": ["rotulo"],
+    },
+    "ajustar_elemento": {
+        "descricao": (
+            "Ajusta propriedades visuais de um elemento do layout apontado pelo usuário "
+            "(aumentar, diminuir, mover, ocultar, mostrar). Use quando o usuário clicar na "
+            "folha e pedir 'aumenta isso', 'move isso', 'oculta isso'."
+        ),
+        "props": {
+            "elemento_id": {"type": "string", "description": "Identificador do elemento (ex: 'legenda', 'tabela', 'titulo')"},
+            "acao": {
+                "type": "string",
+                "enum": ["aumentar", "diminuir", "mover", "ocultar", "mostrar"],
+                "description": "Ação a aplicar sobre o elemento",
+            },
+            "valor": {"description": "Valor opcional para a ação (ex: [dx, dy] em mm para mover)"},
+        },
+        "obrig": ["elemento_id", "acao"],
     },
     "alternar_elemento": {
         "descricao": "Liga/desliga um elemento de layout (tabela, minimapa, legenda…).",

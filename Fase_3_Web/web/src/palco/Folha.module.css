@@ -47,3 +47,21 @@
 .textoElemento {
   user-select: none;
 }
+
+
+.elementoClicavel {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.elementoClicavel:hover,
+.elementoClicavel:focus-visible {
+  filter: drop-shadow(0 0 2.5px var(--mf-acento, #388bfd));
+  opacity: 0.95;
+}
+
+.elementoSelecionado {
+  outline: 1.5px solid var(--mf-acento, #388bfd);
+  filter: drop-shadow(0 0 3px var(--mf-acento, #388bfd));
+}

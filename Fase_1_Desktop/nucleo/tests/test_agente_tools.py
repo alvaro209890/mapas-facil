@@ -279,3 +279,18 @@ def test_resultado_de_tool_respeita_teto(ctx: dict[str, Any]):
         resultado = executar(nome, {}, dict(ctx))
         texto = json.dumps(resultado, ensure_ascii=False, default=str)
         assert limites.estimar_tokens(texto) <= limites.RESULTADO_TOOL_MAX
+
+
+def test_ajustar_elemento_aumenta_legenda(ctx: dict[str, Any]):
+    """W8-11: ajustar_elemento aumenta escala da legenda apontada pelo usuário."""
+    r = executar("ajustar_elemento", {"elemento_id": "legenda", "acao": "aumentar"}, ctx)
+    assert r["ok"] is True
+    assert ctx["mapspec"]["ajustes_layout"]["legenda"]["escala"] == 1.2
+    assert ctx["mapspec"]["versao"] > 1
+
+
+def test_alternar_elemento_com_elemento_id(ctx: dict[str, Any]):
+    """W8-11: alternar_elemento aceita elemento_id em vez de elemento."""
+    r = executar("alternar_elemento", {"elemento_id": "tabela", "ligado": False}, ctx)
+    assert r["ok"] is True
+    assert ctx["mapspec"]["elementos_layout"]["tabela"] is False

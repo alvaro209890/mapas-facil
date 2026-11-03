@@ -192,3 +192,14 @@ proporcionalmente (D31).
 - Calcular área/escala no navegador para mostrar no rótulo.
 - Reordenar camadas no palco diferente da ordem dos eventos.
 - Carregar o GeoJSON original (não simplificado) do projeto no navegador.
+
+
+### W8-11 Clicar na folha para editar (D43)
+- Prévia da folha (`Folha.tsx`) com áreas clicáveis a partir de `layout.elemento`:
+  - Hover destaca o elemento (`.elementoClicavel:hover`);
+  - Clique seleciona e chama `aoSelecionarElemento({ id, tipo, bbox_mm, coord_geo? })`;
+  - Acessível via teclado (`tabIndex={0}`, `role="button"`, Enter seleciona) e toque mobile;
+  - Clique dentro do quadro do mapa envia também coordenada relativa/geográfica (`coord_geo`);
+  - `POST /projetos/{id}/mensagens` envia `contexto: {versao, elemento_id, tipo, bbox_mm, coord_geo?}`;
+  - Validação rigorosa no servidor: se o elemento ou a versão não existirem, devolve `SV-242`;
+  - Tools de edição no núcleo (`alternar_elemento`, `editar_camada`, `ajustar_elemento`) aceitam `elemento_id`.

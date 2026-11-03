@@ -146,6 +146,31 @@ async def enviar_mensagem(
         tipo = corpo.contexto.get("tipo") or "elemento"
         versao_ctx = corpo.contexto.get("versao")
         coord = corpo.contexto.get("coord_geo")
+
+        # Validação do contexto apontado (Recurso D / W8-11 / D43)
+        if versao_ctx is not None:
+            linha_v = con.execute(
+                "SELECT numero FROM versoes WHERE projeto_id = ? AND numero = ?",
+                (projeto.id, int(versao_ctx)),
+            ).fetchone()
+            if linha_v is None:
+                raise ErroServidor(
+                    "SV-242",
+                    f"Versão {versao_ctx} não encontrada para este projeto.",
+                    status_http=400,
+                )
+            ELEMENTOS_VALIDOS = {
+                "titulo", "titulo_caixa", "legenda", "minimapa", "tabela",
+                "norte", "rosa", "escala_grafica", "metadados", "creditos",
+                "logo", "grade", "grade_linhas", "quadro_mapa", "mapa",
+            }
+            if elem_id and str(elem_id).lower() not in ELEMENTOS_VALIDOS:
+                raise ErroServidor(
+                    "SV-242",
+                    f"Elemento '{elem_id}' não existe no layout da versão {versao_ctx}.",
+                    status_http=400,
+                )
+
         extra_ctx = f"[O usuário apontou para: {tipo} (id: {elem_id})"
         if versao_ctx is not None:
             extra_ctx += f" da versão {versao_ctx}"

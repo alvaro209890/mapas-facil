@@ -259,3 +259,86 @@ def test_resposta_a_pergunta_sem_texto_e_aceita(ambiente):
     )
     assert resposta.status_code == 202
     assert "req_id" in resposta.json()
+
+
+def test_mensagem_com_contexto_valido_enviada(ambiente):
+    """W8-11: mensagem com contexto de clique na folha é aceita e repassada."""
+    cliente, _, banco, _ = ambiente
+    csrf, projeto = cadastrar_e_projeto(cliente)
+
+    # Cria versão 1 no banco para o projeto
+    con = banco.conectar()
+    con.execute(
+        "INSERT INTO versoes (projeto_id, numero, pasta, criada_em) "
+        "VALUES (?, 1, 'Mapas/v001', datetime('now'))",
+        (projeto["id"],),
+    )
+    con.close()
+
+    resposta = cliente.post(
+        f"{API}/projetos/{projeto['id']}/mensagens",
+        json={
+            "texto": "aumenta isso",
+            "contexto": {
+                "versao": 1,
+                "elemento_id": "legenda",
+                "tipo": "legenda",
+                "bbox_mm": [131.8, 266.0, 172.0, 295.0],
+            },
+        },
+        headers={"X-MF-CSRF": csrf},
+    )
+    assert resposta.status_code == 202
+    assert "req_id" in resposta.json()
+
+
+def test_mensagem_com_contexto_versao_inexistente_retorna_sv242(ambiente):
+    """W8-11: clicar em elemento de versão inexistente devolve SV-242."""
+    cliente, _, _, _ = ambiente
+    csrf, projeto = cadastrar_e_projeto(cliente)
+
+    resposta = cliente.post(
+        f"{API}/projetos/{projeto['id']}/mensagens",
+        json={
+            "texto": "muda isso",
+            "contexto": {
+                "versao": 999,
+                "elemento_id": "legenda",
+            },
+        },
+        headers={"X-MF-CSRF": csrf},
+    )
+    assert resposta.status_code == 400
+    dados = resposta.json()
+    assert dados["erro"]["codigo"] == "SV-242"
+    assert "Versão 999 não encontrada" in dados["erro"]["mensagem"]
+
+
+def test_mensagem_com_contexto_elemento_invalido_retorna_sv242(ambiente):
+    """W8-11: elemento desconhecido no layout devolve SV-242."""
+    cliente, _, banco, _ = ambiente
+    csrf, projeto = cadastrar_e_projeto(cliente)
+
+    con = banco.conectar()
+    con.execute(
+        "INSERT INTO versoes (projeto_id, numero, pasta, criada_em) "
+        "VALUES (?, 1, 'Mapas/v001', datetime('now'))",
+        (projeto["id"],),
+    )
+    con.close()
+
+    resposta = cliente.post(
+        f"{API}/projetos/{projeto['id']}/mensagens",
+        json={
+            "texto": "remove isso",
+            "contexto": {
+                "versao": 1,
+                "elemento_id": "bussola_alienigena",
+            },
+        },
+        headers={"X-MF-CSRF": csrf},
+    )
+    assert resposta.status_code == 400
+    dados = resposta.json()
+    assert dados["erro"]["codigo"] == "SV-242"
+    assert "bussola_alienigena" in dados["erro"]["mensagem"]

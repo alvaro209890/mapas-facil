@@ -42,6 +42,13 @@ export interface ElementoFolhaDados {
   visivel?: boolean | undefined;
 }
 
+export interface ElementoSelecionado {
+  id: string;
+  tipo: string;
+  bbox_mm: CaixaMm;
+  coord_geo?: [number, number] | undefined;
+}
+
 export interface PropriedadesFolha {
   formato?: FormatoFolha | string | undefined;
   orientacao?: Orientacao | string | undefined;
@@ -52,6 +59,8 @@ export interface PropriedadesFolha {
   reduzirMovimento?: boolean | undefined;
   fatorPx?: number | undefined;
   className?: string | undefined;
+  elementoSelecionado?: string | null | undefined;
+  aoSelecionarElemento?: ((elemento: ElementoSelecionado) => void) | undefined;
 }
 
 /** Ordem canônica em que o motor nativo desenha a folha (motion.py / ORDEM_LAYOUT). */
@@ -230,6 +239,8 @@ export function Folha({
   reduzirMovimento: reduzirMovimentoProp,
   fatorPx = 1,
   className,
+  elementoSelecionado,
+  aoSelecionarElemento,
 }: PropriedadesFolha) {
   const reducaoDetectada = useReducedMotion();
   const reduzir = reduzirMovimentoProp ?? reducaoDetectada;
@@ -298,8 +309,33 @@ export function Folha({
           data-testid="papel-folha"
         />
 
-        {/* Quadro do Mapa (fundo escuro + snapshot do mapa quando disponível) */}
-        <g id="camada-quadro-mapa" data-elemento="quadro-mapa">
+        {/* Quadro do Mapa (fundo escuro + snapshot do mapa quando disponível; clicável) */}
+        <g
+          id="camada-quadro-mapa"
+          data-elemento="quadro-mapa"
+          tabIndex={0}
+          role="button"
+          aria-label="Quadro do mapa"
+          className={`${estilos.elementoClicavel} ${elementoSelecionado === 'quadro-mapa' ? estilos.elementoSelecionado : ''}`}
+          onClick={() => {
+            aoSelecionarElemento?.({
+              id: 'quadro_mapa',
+              tipo: 'mapa',
+              bbox_mm: caixaMapa,
+              coord_geo: [Number((caixaMapa.x0 + larguraMapa / 2).toFixed(2)), Number((caixaMapa.y0 + alturaMapa / 2).toFixed(2))],
+            });
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              aoSelecionarElemento?.({
+                id: 'quadro_mapa',
+                tipo: 'mapa',
+                bbox_mm: caixaMapa,
+              });
+            }
+          }}
+        >
           {snapshotMapa ? (
             <image
               href={snapshotMapa}
@@ -355,11 +391,35 @@ export function Folha({
                   transition: { duration: 0.36, ease: [0.2, 0.8, 0.2, 1] as const },
                 };
 
+            const estaSelecionado = elementoSelecionado === el.elemento;
             return (
               <motion.g
                 key={el.elemento}
                 id={`elemento-${el.elemento}`}
                 data-elemento={el.elemento}
+                tabIndex={0}
+                role="button"
+                aria-label={`Elemento ${el.elemento}`}
+                className={`${estilos.elementoClicavel} ${estaSelecionado ? estilos.elementoSelecionado : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  aoSelecionarElemento?.({
+                    id: el.elemento,
+                    tipo: el.elemento,
+                    bbox_mm: caixa,
+                  });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    aoSelecionarElemento?.({
+                      id: el.elemento,
+                      tipo: el.elemento,
+                      bbox_mm: caixa,
+                    });
+                  }
+                }}
                 {...propsAnimacao}
                 style={{
                   transformOrigin: `${centroX}px ${centroY}px`,

@@ -283,4 +283,90 @@ describe('Folha (W8-04)', () => {
       expect(ordemObtida).toEqual(['grade', 'norte', 'logo', 'tabela']);
     });
   });
+
+  describe('8. Interatividade de clique e acessibilidade (W8-11 / D43)', () => {
+    it('clique em elemento da folha dispara aoSelecionarElemento com id e bbox', () => {
+      const aoSelecionar = vi.fn();
+      const elementos: Record<string, ElementoFolhaDados> = {
+        legenda: {
+          elemento: 'legenda',
+          caixa_mm: { x0: 130, y0: 260, x1: 170, y1: 290 },
+        },
+      };
+
+      const { container } = render(
+        <Folha
+          formato="A4"
+          orientacao="retrato"
+          elementos={elementos}
+          elementosVisiveis={['legenda']}
+          aoSelecionarElemento={aoSelecionar}
+        />,
+      );
+
+      const elLegenda = container.querySelector('#elemento-legenda');
+      expect(elLegenda).toBeInTheDocument();
+      expect(elLegenda).toHaveAttribute('tabindex', '0');
+      expect(elLegenda).toHaveAttribute('role', 'button');
+
+      // Simula clique
+      elLegenda?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(aoSelecionar).toHaveBeenCalledTimes(1);
+      expect(aoSelecionar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'legenda',
+          tipo: 'legenda',
+          bbox_mm: { x0: 130, y0: 260, x1: 170, y1: 290 },
+        }),
+      );
+    });
+
+    it('teclado Enter seleciona o elemento com foco', () => {
+      const aoSelecionar = vi.fn();
+      const elementos: Record<string, ElementoFolhaDados> = {
+        titulo_caixa: {
+          elemento: 'titulo_caixa',
+          caixa_mm: { x0: 20, y0: 10, x1: 100, y1: 30 },
+          conteudo: 'TITULO TESTE',
+        },
+      };
+
+      const { container } = render(
+        <Folha
+          formato="A4"
+          orientacao="retrato"
+          elementos={elementos}
+          elementosVisiveis={['titulo_caixa']}
+          aoSelecionarElemento={aoSelecionar}
+        />,
+      );
+
+      const elTitulo = container.querySelector('#elemento-titulo_caixa');
+      elTitulo?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(aoSelecionar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'titulo_caixa',
+        }),
+      );
+    });
+
+    it('elemento selecionado recebe classe de destaque', () => {
+      const elementos: Record<string, ElementoFolhaDados> = {
+        legenda: { elemento: 'legenda' },
+      };
+
+      const { container } = render(
+        <Folha
+          formato="A4"
+          orientacao="retrato"
+          elementos={elementos}
+          elementosVisiveis={['legenda']}
+          elementoSelecionado="legenda"
+        />,
+      );
+
+      const elLegenda = container.querySelector('#elemento-legenda');
+      expect(elLegenda?.getAttribute('class')).toContain('elementoSelecionado');
+    });
+  });
 });
