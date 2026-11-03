@@ -16,6 +16,8 @@ COR_FUNDO = (255, 255, 255)
 
 # Modelo Harmonia: ~3210 × 472 px para 13,59 × 2,00 cm → ≥ 600 dpi efetivos
 DPI_ALVO = 600
+MAXIMO_PIXELS = 80_000_000
+"""Teto de pixels do PNG da tabela (~240 MB de RGB). Acima disso o dpi cai para caber."""
 LARGURA_CM = 13.59
 ALTURA_LINHA_PX = 72
 PADDING = 12
@@ -84,8 +86,15 @@ def renderizar_png_tabela(
     destino: Path,
     *,
     dpi: int = DPI_ALVO,
+    largura_cm: float | None = None,
 ) -> dict[str, Any]:
-    """Gera PNG da tabela de quantitativos (≥ 600 dpi efetivos) — F1-08."""
+    """Gera PNG da tabela de quantitativos (≥ 600 dpi efetivos) — F1-08.
+
+    `largura_cm` é a largura que a tabela ocupa **no papel** (W9-07): em A0 a caixa da tabela
+    é 4× a da A4, então o PNG precisa de 4× os pixels para manter os mesmos 600 dpi efetivos —
+    senão a tabela imprime borrada justamente na folha grande, que é a que vai para a parede.
+    Fontes, altura de linha e padding crescem na mesma proporção.
+    """
     colunas = list(dados.get("colunas") or [])
     linhas = list(dados.get("linhas") or [])
     if not colunas:
@@ -98,15 +107,30 @@ def renderizar_png_tabela(
     n_linhas_dados = len(linhas) + (1 if tem_total else 0)
     n_linhas_visuais = 1 + n_linhas_dados  # cabeçalho + dados
 
-    largura_px = max(math.ceil(LARGURA_CM / 2.54 * dpi), 3210)
-    altura_px = max(ALTURA_LINHA_PX * n_linhas_visuais + PADDING * 2, 200)
+    largura_alvo_cm = float(largura_cm) if largura_cm and largura_cm > 0 else LARGURA_CM
+    escala = largura_alvo_cm / LARGURA_CM
+    largura_px = max(math.ceil(largura_alvo_cm / 2.54 * dpi), 3210)
+    altura_linha_px = int(round(ALTURA_LINHA_PX * escala))
+    padding = int(round(PADDING * escala))
+    altura_px = max(altura_linha_px * n_linhas_visuais + padding * 2, 200)
+
+    # Teto de memória: em A0 com 20 classes a conta acima passaria de 400 MB de RGB. Acima do
+    # teto, reduz a resolução até caber — e o `dpi_efetivo` devolvido já cai junto, então o
+    # aviso NU-123 dispara em vez de o worker ser morto pelo OOM.
+    if largura_px * altura_px > MAXIMO_PIXELS:
+        fator = math.sqrt(MAXIMO_PIXELS / (largura_px * altura_px))
+        largura_px = max(int(largura_px * fator), 3210)
+        altura_px = max(int(altura_px * fator), 200)
+        escala *= fator
+        altura_linha_px = int(round(ALTURA_LINHA_PX * escala))
+        padding = int(round(PADDING * escala))
 
     img = Image.new("RGB", (largura_px, altura_px), COR_FUNDO)
     draw = ImageDraw.Draw(img)
 
-    fonte_cab = _fonte(22, negrito=True)
-    fonte_cel = _fonte(20)
-    fonte_total = _fonte(20, negrito=True)
+    fonte_cab = _fonte(int(round(22 * escala)), negrito=True)
+    fonte_cel = _fonte(int(round(20 * escala)))
+    fonte_total = _fonte(int(round(20 * escala)), negrito=True)
 
     pesos = [2.0] + [1.5] + [1.0] * max(0, len(colunas) - 2)
     pesos = pesos[: len(colunas)]
@@ -120,11 +144,11 @@ def renderizar_png_tabela(
     x = 0
     for col_idx, nome in enumerate(colunas):
         w = larguras[col_idx]
-        draw.rectangle([x, y, x + w, y + ALTURA_LINHA_PX], fill=COR_CABECALHO, outline=COR_BORDA)
+        draw.rectangle([x, y, x + w, y + altura_linha_px], fill=COR_CABECALHO, outline=COR_BORDA)
         texto = _quebrar_cabecalho(str(nome))
         tw, th = _medir_texto(draw, texto, fonte_cab)
         draw.multiline_text(
-            (x + (w - tw) / 2, y + (ALTURA_LINHA_PX - th) / 2),
+            (x + (w - tw) / 2, y + (altura_linha_px - th) / 2),
             texto,
             fill=COR_TEXTO_CLARO,
             font=fonte_cab,
@@ -132,7 +156,7 @@ def renderizar_png_tabela(
             spacing=4,
         )
         x += w
-    y += ALTURA_LINHA_PX
+    y += altura_linha_px
 
     # Linhas de dados
     for linha in linhas:
@@ -141,23 +165,23 @@ def renderizar_png_tabela(
             w = larguras[col_idx]
             valor = linha[col_idx] if col_idx < len(linha) else None
             texto = _formatar_valor(valor, casas) if col_idx > 0 else str(valor or "—")
-            draw.rectangle([x, y, x + w, y + ALTURA_LINHA_PX], fill=COR_FUNDO, outline=COR_BORDA)
+            draw.rectangle([x, y, x + w, y + altura_linha_px], fill=COR_FUNDO, outline=COR_BORDA)
             fonte = fonte_cel
             tw, th = _medir_texto(draw, texto, fonte)
             if col_idx == 0:
-                tx = x + PADDING
+                tx = x + padding
             else:
-                tx = x + w - tw - PADDING
-            draw.text((tx, y + (ALTURA_LINHA_PX - th) / 2), texto, fill=COR_TEXTO, font=fonte)
+                tx = x + w - tw - padding
+            draw.text((tx, y + (altura_linha_px - th) / 2), texto, fill=COR_TEXTO, font=fonte)
             x += w
-        y += ALTURA_LINHA_PX
+        y += altura_linha_px
 
     # TOTAL GERAL
     if tem_total:
         x = 0
         for col_idx in range(len(colunas)):
             w = larguras[col_idx]
-            draw.rectangle([x, y, x + w, y + ALTURA_LINHA_PX], fill=COR_TOTAL, outline=COR_BORDA)
+            draw.rectangle([x, y, x + w, y + altura_linha_px], fill=COR_TOTAL, outline=COR_BORDA)
             if col_idx == 0:
                 texto = "TOTAL GERAL"
             elif col_idx == 1:
@@ -173,14 +197,14 @@ def renderizar_png_tabela(
                         tem_num = True
                 texto = _formatar_valor(round(soma, casas) if tem_num else None, casas)
             tw, th = _medir_texto(draw, texto, fonte_total)
-            tx = x + PADDING if col_idx == 0 else x + w - tw - PADDING
-            draw.text((tx, y + (ALTURA_LINHA_PX - th) / 2), texto, fill=COR_TEXTO_CLARO, font=fonte_total)
+            tx = x + padding if col_idx == 0 else x + w - tw - padding
+            draw.text((tx, y + (altura_linha_px - th) / 2), texto, fill=COR_TEXTO_CLARO, font=fonte_total)
             x += w
 
     destino.parent.mkdir(parents=True, exist_ok=True)
     img.save(destino, format="PNG", dpi=(dpi, dpi))
 
-    dpi_efetivo = largura_px / (LARGURA_CM / 2.54)
+    dpi_efetivo = largura_px / (largura_alvo_cm / 2.54)
     return {
         "png": str(destino),
         "largura_px": largura_px,

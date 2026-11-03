@@ -154,7 +154,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W9-04 `grade_dms.escolher_passo`: correção real — varrimento pequeno demais para 4 rótulos caía no passo de 1° e o mapa ficava **sem grade**; agora vale "pelo menos uma linha". Teste `tests/test_grade_por_folha.py` prova 4–8 rótulos por eixo em 5 folhas × 2 orientações × 7 escalas (S07)
 - [ ] W9-05 Minimapa
 - [ ] W9-06 Basemap por folha + S17
-- [ ] W9-07 PNG da tabela
+- [x] W9-07 `png_tabela.renderizar_png_tabela(..., largura_cm=)`: o PNG cresce com a caixa da tabela no papel — A4 3.211 px (600 dpi), A2 4.796 px, A0 19.248 px, sempre ~600 dpi efetivos; teto de 80 MPix reduz a resolução e dispara `NU-123` em vez de estourar a memória (A0 com 22 classes → 377 dpi com aviso) — `tests/test_png_tabela_folha.py` (8)
 - [x] W9-08 `anatomia.esperada_para_folha(golden_a4, folha)` (A4 × `k`), `conferir_folha()` = check **H15** (papel ±1 mm, com orientação trocada detectada) e `comparar(..., fator=k)` escalando a tolerância — `tests/test_anatomia_folha.py` (26) e `tests/test_golden_anatomia_folhas.py` (9, com render real de A4/A3/A0: H15 verde nas três e anatomia de A3/A0 conferida contra A4 × k)
 - [ ] W9-09 Fontes embutidas e texto extraível
 - [ ] W9-10 Medição real

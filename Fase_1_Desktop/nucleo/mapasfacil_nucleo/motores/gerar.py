@@ -411,7 +411,16 @@ def _gerar_mapa_corpo(
         pasta_saida = guard.resolver((mapspec.get("saida") or {}).get("pasta", "Mapas"), escrita=True)
         nome_base = (mapspec.get("saida") or {}).get("nome_base", "mapa")
         png_path = pasta_saida / "recursos" / "tabela_quantitativos.png"
-        meta_png = renderizar_png_tabela(quant, png_path)
+        # Largura da tabela NO PAPEL (W9-07): a mesma tabela em A0 precisa de 4x os pixels
+        # para manter os 600 dpi efetivos. O perfil já vem escalado pela folha do MapSpec.
+        largura_tabela_cm = None
+        try:
+            from mapasfacil_nucleo.motores import perfil_pagina as _pp
+
+            largura_tabela_cm = _pp.perfil_para(mapspec.get("folha")).tabela.largura / 10.0
+        except Exception:  # noqa: BLE001 - tabela sem perfil ainda tem o padrão A4
+            largura_tabela_cm = None
+        meta_png = renderizar_png_tabela(quant, png_path, largura_cm=largura_tabela_cm)
         rel_png = str(png_path.relative_to(guard.raiz))
         resultado["png_tabela"] = rel_png
         artefatos["png_tabela"] = {**meta_png, "png": rel_png}
