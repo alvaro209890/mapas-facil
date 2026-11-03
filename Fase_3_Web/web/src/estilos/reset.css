@@ -1,0 +1,70 @@
+/* Reset mínimo. Tudo que é cor, fonte ou espaço vem de tokens.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mf-bg);
+  color: var(--mf-texto);
+  font-family: var(--mf-fonte-ui);
+  font: var(--mf-fs-corpo) var(--mf-fonte-ui);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden; /* a janela não rola; cada painel rola por dentro */
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mf-acento);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--mf-acento-fraco);
+}
+
+/* Números de área/coordenada alinham em coluna (F1-16). */
+.mf-num {
+  font-family: var(--mf-fonte-mono);
+  font-variant-numeric: tabular-nums;
+}

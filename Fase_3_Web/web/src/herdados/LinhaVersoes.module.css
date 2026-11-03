@@ -1,0 +1,134 @@
+/* A6 — linha-versoes. Crossfade do card de diff em --mf-dur-3; linhas mudadas
+   piscam uma vez em --mf-acento-fraco. Tudo reinicia via `key` (remount), nunca
+   por setInterval. */
+
+.raiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mf-e2);
+  border-top: 1px solid var(--mf-borda);
+  padding-top: var(--mf-e2);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e1);
+}
+
+.seta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto-2);
+}
+
+.seta:disabled {
+  opacity: 0.35;
+}
+
+.seta:not(:disabled):hover {
+  border-color: var(--mf-borda-forte);
+  color: var(--mf-texto);
+}
+
+.marcadores {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.marcador {
+  padding: 2px var(--mf-e2);
+  border: 1px solid transparent;
+  border-radius: var(--mf-raio-1);
+  background: transparent;
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  transition: color var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.marcador[data-ativo="true"] {
+  border-color: var(--mf-acento);
+  color: var(--mf-acento-forte);
+  background: var(--mf-acento-fraco);
+}
+
+.marcador:not([data-ativo="true"]):hover {
+  color: var(--mf-texto);
+}
+
+.diffCard {
+  animation: mf-crossfade var(--mf-dur-3) var(--mf-ease-ambos) both;
+}
+
+@keyframes mf-crossfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cabecalho {
+  margin: 0 0 var(--mf-e1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto);
+}
+
+.idCurto {
+  font-family: var(--mf-fonte-mono);
+  color: var(--mf-texto-3);
+}
+
+.semAlteracao {
+  margin: 0;
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-3);
+}
+
+.diffLista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diffLinha {
+  padding: 2px var(--mf-e1);
+  border-radius: var(--mf-raio-1);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  color: var(--mf-texto-2);
+  animation: mf-flash var(--mf-dur-3) var(--mf-ease-saida) both;
+}
+
+@keyframes mf-flash {
+  from {
+    background: var(--mf-acento-fraco);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diffCard,
+  .diffLinha {
+    animation: none;
+  }
+}

@@ -32,3 +32,34 @@ tinha `nucleo.res` no lado errado e faltava `workspace.mudou`.
   substitui `chamar()` pelas rotas REST.
 - TS estrito com `exactOptionalPropertyTypes` é chato de propósito: `ErroApi` e os campos do
   `ErroHttp` precisam declarar `| undefined` explicitamente. Melhor descobrir aqui do que na tela.
+
+## W6-01 — design system e componentes herdados
+
+Copiado de `Fase_1_Desktop/app/src/` para `web/src/` **com cabeçalho de proveniência** em cada
+arquivo:
+
+| Origem | Destino | O quê |
+|---|---|---|
+| `estilos/tokens.css`, `reset.css`, `scrollbar.css` | `web/src/estilos/` | tokens do tema escuro e base |
+| `estilos/fontes/` | `web/src/estilos/fontes/` | Space Grotesk + IBM Plex (woff2) e as **licenças OFL** |
+| `componentes/` | `web/src/herdados/` | BolhaMarkdown, BlocoRaciocinio, IndicadorPensando, CartaoPergunta, CartaoTool, GrupoTools, CampoEntrada, LinhaVersoes (+ `.module.css`) |
+| `chat/timeline.ts` | `web/src/herdados/timeline.ts` | redução de eventos do turno em blocos |
+
+Diferenças assumidas (e só elas): os imports de `../estado/*` passaram a apontar para
+`herdados/tipos.ts`, que declara **apenas tipos** — a web não herda as stores do desktop (W6-03
+vai escrever as suas). Dependências novas no `package.json`, com versão exata:
+`lucide-react 0.469.0`, `react-markdown 10.1.0`, `remark-gfm 4.0.1`.
+
+Dois ajustes que o TypeScript estrito do web exigiu e o desktop não:
+
+- `src/tipos/estilos.d.ts` declara `*.module.css` (sem isso, TS2307 em todo componente);
+- em `LinhaVersoes`, `versoes[indiceExibido]` é `VersaoMapspec | undefined` de verdade
+  (`noUncheckedIndexedAccess`) — agora há guarda explícita antes de desenhar o cartão de diff.
+
+`main.tsx` passou a importar na ordem **fontes → tokens → reset → scrollbar → base**.
+
+Comandos: `pnpm test` → **5 arquivos, 32 testes**; `pnpm typecheck` → exit 0;
+`pnpm build` → 822 ms. O teste `herdados.test.tsx` não checa "copiei os arquivos": ele
+**renderiza** bolha markdown com tabela, cartão de tool, grupo de tools, cartão de pergunta com
+opções clicáveis e o bloco de raciocínio, além de acumular dois deltas no mesmo bloco da timeline
+e cancelar tool pendente no fim do turno.

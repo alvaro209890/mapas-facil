@@ -2,6 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App.tsx";
+// Ordem importa: fontes → tokens → reset → scrollbar → base (W6-01).
+import "./estilos/fontes/fontes.css";
+import "./estilos/tokens.css";
+import "./estilos/reset.css";
+import "./estilos/scrollbar.css";
 import "./estilos/base.css";
 
 const raiz = document.getElementById("raiz");

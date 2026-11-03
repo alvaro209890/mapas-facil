@@ -15,7 +15,10 @@
   "dependencies": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "zustand": "5.0.2"
+    "zustand": "5.0.2",
+    "lucide-react": "0.469.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
   },
   "devDependencies": {
     "@testing-library/dom": "10.4.0",
@@ -31,6 +34,8 @@
     "vitest": "3.2.7"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

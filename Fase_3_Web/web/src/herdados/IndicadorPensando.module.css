@@ -1,0 +1,51 @@
+/* A1 — três pontos oscilando 0,35 ↔ 1 em 1.400 ms, defasagem de 160 ms (F1-16). */
+
+.raiz {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-e2);
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-peq) var(--mf-fonte-ui);
+  margin: 0;
+}
+
+.pontos {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.ponto {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
+  animation: pulso 1400ms ease-in-out infinite;
+}
+
+.ponto:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.ponto:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+@keyframes pulso {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Reduced-motion: pontos estáticos, só o rótulo (F1-16 §A1). O bloco global de
+   tokens.css já limita duração; aqui desligamos a repetição de vez. */
+@media (prefers-reduced-motion: reduce) {
+  .ponto {
+    animation: none;
+    opacity: 0.6;
+  }
+}

@@ -1,5 +1,5 @@
-/* Base mínima do app web. Os tokens completos vêm do desktop no W6
-   (`src/estilos/tokens.css`, copiado com cabeçalho de proveniência). */
+/* Base mínima do app web. Os tokens e as fontes vêm do desktop (W6-01):
+   `estilos/tokens.css` e `estilos/fontes/` — ambos herdados com proveniência. */
 
 * {
   box-sizing: border-box;

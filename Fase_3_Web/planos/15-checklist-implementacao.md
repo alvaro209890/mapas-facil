@@ -109,7 +109,7 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W6 — Frontend
 
-- [ ] W6-01 Cópia de tokens, fontes, motion e componentes com proveniência
+- [x] W6-01 Herdados do desktop em `web/src/`: `estilos/` (tokens, reset, scrollbar e as fontes woff2 + licenças OFL), `herdados/` com 8 componentes de chat (+ CSS modules) e `timeline.ts`, todos com cabeçalho de proveniência; imports apontam para `herdados/tipos.ts` (não para as stores do desktop)
 - [x] W6-02 `api/cliente.ts` (fetch com `credentials: include`, CSRF nas mutações, `ErroHttp` com `o_que_fazer`, 401 avisando a sessão uma vez, falha de rede = `REDE`), `api/eventos.ts` (EventSource `mf`, dedupe por `seq`, estados conectado/reconectando/offline) e `api/tipos.ts` com guarda de contrato contra `eventos/vocabulario.py`. **Falta `api/ponteWeb.ts`** (entra com as stores herdadas, W6-03)
 - [ ] W6-03 Stores
 - [ ] W6-04 `Entrar.tsx` + troca de senha
