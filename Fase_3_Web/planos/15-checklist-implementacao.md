@@ -139,8 +139,8 @@ indicado; aqui fica o índice para o agente não se perder.
 - [ ] W8-02 `Camera.ts`
 - [ ] W8-03 `Camadas.ts`
 - [ ] W8-04 `Folha.tsx`
-- [ ] W8-05 `coreografia.ts` + testes
-- [ ] W8-06 `estado/palco.ts`
+- [x] W8-05 `palco/coreografia.ts` (716 linhas: tokens de duração por tipo, compressão por fila pendente com 3 faixas, voos intermediários viram salto acima de 10 pendentes, ondas de 3 camadas, `replay()` determinístico) + `coreografia.test.ts` (13 testes, com os 3 roteiros)
+- [x] W8-06 `estado/palco.ts` evoluído (299 linhas): fila de eventos, passo corrente, `limpar()` ao trocar de job/versão, guarda contra evento de outro projeto, modo derivado (ocioso/mapa/folha/resultado) — `palco.test.ts` (16 testes)
 - [ ] W8-07 Fallback sem WebGL
 - [ ] W8-08 Tokens de motion
 - [ ] W8-09 Modo ocioso
