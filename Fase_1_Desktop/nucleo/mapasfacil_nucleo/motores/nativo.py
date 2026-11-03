@@ -681,6 +681,16 @@ def gerar_pdf_minimo(
             "mensagem": f"Bloco de metadados com {linhas_meta} linha(s)",
         },
         {
+            "id": "H16",
+            "ok": not perfil_pagina.caixas_fora_da_pagina(perfil),
+            "mensagem": (
+                "Todos os blocos dentro da página"
+                if not perfil_pagina.caixas_fora_da_pagina(perfil)
+                else "Blocos fora da página: "
+                + ", ".join(c["caixa"] for c in perfil_pagina.caixas_fora_da_pagina(perfil))
+            ),
+        },
+        {
             "id": "H12",
             "ok": bool(grade.get("x")) and bool(grade.get("y")) or not _ligado(mapspec, "grade"),
             "mensagem": "Grade DMS com rótulos nos dois eixos",

@@ -270,6 +270,54 @@ def por_formato(formato_pagina: dict | None) -> PerfilPagina:
     return RETRATO
 
 
+CAIXAS_DO_LAYOUT: tuple[str, ...] = (
+    "mapa",
+    "titulo",
+    "rosa",
+    "minimapa",
+    "metadados",
+    "legenda",
+    "logo",
+    "tabela",
+)
+"""Todas as caixas que o motor posiciona; é o conjunto que o check H16 varre."""
+
+
+def caixas_fora_da_pagina(perfil: PerfilPagina, *, tolerancia_mm: float = 0.5) -> list[dict]:
+    """Caixas que vazam a página (check **H16**, W9-12/W-17).
+
+    Elemento que passa da borda é cortado pela impressora e some — foi o caso da caixa de
+    distâncias nas análises antigas. Devolve lista vazia quando está tudo dentro.
+    """
+    fora: list[dict] = []
+    for nome in CAIXAS_DO_LAYOUT:
+        caixa = getattr(perfil, nome, None)
+        if caixa is None:
+            continue
+        excessos = {
+            "x0": caixa.x0,
+            "y0": caixa.y0,
+            "x1": caixa.x1 - perfil.largura_mm,
+            "y1": caixa.y1 - perfil.altura_mm,
+        }
+        pior = max(
+            max(0.0, -caixa.x0),
+            max(0.0, -caixa.y0),
+            max(0.0, caixa.x1 - perfil.largura_mm),
+            max(0.0, caixa.y1 - perfil.altura_mm),
+        )
+        # Só conta o que efetivamente sai: coordenada negativa ou maior que a página.
+        vaza = (
+            caixa.x0 < -tolerancia_mm
+            or caixa.y0 < -tolerancia_mm
+            or caixa.x1 > perfil.largura_mm + tolerancia_mm
+            or caixa.y1 > perfil.altura_mm + tolerancia_mm
+        )
+        if vaza:
+            fora.append({"caixa": nome, "excesso_mm": excessos, "pior_mm": round(pior, 2)})
+    return fora
+
+
 def _escalar(caixa: Caixa, k: float) -> Caixa:
     return Caixa(caixa.x0 * k, caixa.y0 * k, caixa.x1 * k, caixa.y1 * k)
 

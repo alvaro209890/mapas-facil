@@ -318,6 +318,25 @@ def _passo_linha(pt: float, altura_caixa_mm: float) -> float:
     return (pt * 0.3528 * ENTRELINHA) / max(altura_caixa_mm, 1e-6)
 
 
+def pt_metadados_efetivo(perfil: PerfilPagina, n_linhas: int, *, piso: float = 0.6) -> float:
+    """Corpo do bloco de METADADOS pelo número de linhas (W9-12 / W-17 §5).
+
+    A lição da skill é "16 pt que desce para 14 com 6 linhas e 12 com 5" — na prática, a regra
+    que importa é **o bloco não estourar a caixa**. Aqui o corte é derivado da geometria real
+    do perfil: reduz de 10% em 10% até caber, com piso para o texto não virar letra miúda.
+    Com 4–6 linhas nada muda (o perfil medido já cabe), então o golden da A4 fica igual.
+    """
+    base = perfil.pt_metadados
+    limite = 0.98 * perfil.metadados.altura
+    pt = base
+    while pt > base * piso:
+        passo = _passo_linha(pt, perfil.metadados.altura) * perfil.metadados.altura
+        if passo * (n_linhas + 0.6) <= limite:
+            break
+        pt *= 0.9
+    return max(pt, base * piso)
+
+
 def bloco_metadados(
     fig: Figure,
     perfil: PerfilPagina,
@@ -332,7 +351,9 @@ def bloco_metadados(
     """
     ax = _eixo(fig, perfil, perfil.metadados, zorder=25)
     linhas = [p for p in pares if str(p.get("valor") or "").strip()]
-    passo = _passo_linha(perfil.pt_metadados, perfil.metadados.altura)
+    # W9-12: 7 linhas ou mais não cabem no corpo medido — encolhe até caber.
+    pt_corpo = pt_metadados_efetivo(perfil, len(linhas))
+    passo = _passo_linha(pt_corpo, perfil.metadados.altura)
     # Ancorado na **base** da caixa, como no modelo: um bloco com menos linhas
     # sobe a partir do rodapé, em vez de esticar para preencher a caixa.
     y = passo * (len(linhas) + 0.6)
@@ -343,7 +364,7 @@ def bloco_metadados(
         titulo,
         ha="center",
         va="center",
-        fontsize=perfil.pt_metadados + perfil.escalado(1.0),
+        fontsize=pt_corpo + perfil.escalado(1.0),
         fontweight="bold",
         color="black",
     )

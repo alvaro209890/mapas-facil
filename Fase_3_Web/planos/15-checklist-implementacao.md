@@ -156,10 +156,10 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W9-06 `basemap.largura_para_folha(perfil)` (A4 2.321 px/300 dpi, A2 4.642, A1 5.449/249, A0 7.002/226 — igual à tabela do plano), `avaliar_resolucao()` e check **S17** no relatório — `tests/test_basemap_folha.py` (12). Falta só medir no server com mosaico real (W9-10)
 - [x] W9-07 `png_tabela.renderizar_png_tabela(..., largura_cm=)`: o PNG cresce com a caixa da tabela no papel — A4 3.211 px (600 dpi), A2 4.796 px, A0 19.248 px, sempre ~600 dpi efetivos; teto de 80 MPix reduz a resolução e dispara `NU-123` em vez de estourar a memória (A0 com 22 classes → 377 dpi com aviso) — `tests/test_png_tabela_folha.py` (8)
 - [x] W9-08 `anatomia.esperada_para_folha(golden_a4, folha)` (A4 × `k`), `conferir_folha()` = check **H15** (papel ±1 mm, com orientação trocada detectada) e `comparar(..., fator=k)` escalando a tolerância — `tests/test_anatomia_folha.py` (26) e `tests/test_golden_anatomia_folhas.py` (9, com render real de A4/A3/A0: H15 verde nas três e anatomia de A3/A0 conferida contra A4 × k)
-- [ ] W9-09 Fontes embutidas e texto extraível
+- [x] W9-09 `matplotlib.rcParams["pdf.fonttype"] = 42`: o default do matplotlib gerava **Type 3** (fonte não embutida, `n/a` no `get_fonts`) — agora o PDF leva a fonte embutida de verdade e o texto continua extraível em A4/A3/A0 (`tests/test_golden_anatomia_folhas.py`). O golden de anatomia da A4 foi **regenerado uma vez** por causa da mudança de rasterização do glifo (0,72% de pixels, só texto), com a anatomia em mm inalterada
 - [ ] W9-10 Medição real
 - [ ] W9-11 Comum `01-padrao`: "Folhas maiores"
-- [ ] W9-12 Regras de layout das skills no motor nativo
+- [~] W9-12 em 2026-11-03: **feito** — legenda abaixo do quadro (regra PH de 0,5 cm no retrato; 3,5 mm medidos no paisagem, preservados), legenda encolhendo até caber (já existia), `pt_metadados_efetivo()` reduzindo o corpo do bloco a partir de 7 linhas (antes estourava a caixa em toda folha), check **H16** (`caixas_fora_da_pagina`) no relatório e hachura de AC/AVN conferida no catálogo — `tests/test_blocos_layout_regras.py` (82). **Falta**: quadro cadastral 2×4 em PNG (W-17 §8, dado pessoal) e a redução de corpo por célula do nome longo
 
 ## W10 — `.mxd` binário
 
