@@ -1158,6 +1158,17 @@ def tool_analisar_referencia(args: dict[str, Any], ctx: dict[str, Any]) -> dict[
 # --------------------------------------------------------------------------- memória
 
 
+def _folha_como_texto(folha: Any) -> str | None:
+    """`{formato, orientacao}` → "A3 paisagem", do jeito que a IA fala com o usuário."""
+    if not isinstance(folha, dict):
+        return None
+    formato = str(folha.get("formato") or "").strip().upper()
+    if not formato:
+        return None
+    orientacao = str(folha.get("orientacao") or "paisagem").strip().lower()
+    return f"{formato} {orientacao}"
+
+
 def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, Any]:
     indice = _indice()
     recibo = _recibo()
@@ -1184,6 +1195,7 @@ def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, 
             "versao": mapspec.get("versao"),
             "template": mapspec.get("template"),
             "camadas": len(mapspec.get("camadas") or []),
+            "folha": _folha_como_texto(mapspec.get("folha")),
         }
     memoria = {
         "pasta": pasta,
@@ -1200,6 +1212,7 @@ def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, 
         memoria["projeto"] = {
             "nome": projeto_servidor.get("nome"),
             "folha": projeto_servidor.get("folha"),
+            "folha_texto": _folha_como_texto(projeto_servidor.get("folha")),
         }
     # garante teto
     texto = json.dumps(memoria, ensure_ascii=False, sort_keys=True)
@@ -1235,7 +1248,7 @@ def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
     orientacao = args.get("orientacao")
     if formato not in _FORMATOS_FOLHA:
         return _erro(
-            "NU-001",
+            "AG-201",
             f"Formato de folha inválido: {formato or '(vazio)'}.",
             validos=list(_FORMATOS_FOLHA),
         )
@@ -1243,7 +1256,7 @@ def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
         orientacao = str(orientacao).strip().lower()
         if orientacao not in _ORIENTACOES:
             return _erro(
-                "NU-001",
+                "AG-201",
                 f"Orientação inválida: {orientacao}.",
                 validos=list(_ORIENTACOES),
             )
@@ -1279,12 +1292,12 @@ def tool_restaurar_versao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str
     try:
         alvo = int(args.get("versao"))
     except (TypeError, ValueError):
-        return _erro("NU-001", "Informe 'versao' como número inteiro.")
+        return _erro("AG-203", "Informe 'versao' como número inteiro.")
     antigo = mapspec_store.carregar(alvo)
     if antigo is None:
         existentes = [v["versao"] for v in mapspec_store.listar()]
         return _erro(
-            "NU-001",
+            "AG-203",
             f"A versão {alvo} não tem mapa gerado; não há o que restaurar.",
             versoes=existentes,
         )
@@ -1326,15 +1339,15 @@ def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[s
     if pasta is None:
         ultima = mapspec_store.ultima()
         if ultima is None:
-            return _erro("NU-001", "Nenhuma versão gerada ainda — não há validação para explicar.")
+            return _erro("AG-203", "Nenhuma versão gerada ainda — não há validação para explicar.")
         pasta = mapspec_store.pasta_da_versao(ultima)
     arquivos = sorted(Path(str(pasta)).glob("*_validacao.json"))
     if not arquivos:
-        return _erro("NU-001", f"A pasta {pasta.name} não tem relatório de validação.")
+        return _erro("AG-203", f"A pasta {pasta.name} não tem relatório de validação.")
     try:
         relatorio = json.loads(arquivos[-1].read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        return _erro("NU-001", f"Não consegui ler o relatório de validação: {exc}")
+        return _erro("AG-203", f"Não consegui ler o relatório de validação: {exc}")
 
     checks = relatorio.get("checks") or {}
     hard = [c for c in (checks.get("hard") or []) if isinstance(c, dict)]

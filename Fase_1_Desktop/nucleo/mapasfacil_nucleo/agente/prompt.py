@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from mapasfacil_nucleo.agente import limites
 
-VERSAO_PROMPT = 1
+VERSAO_PROMPT = 2
 
 # Texto compacto — precisa caber em SYSTEM_PROMPT_MAX (2500 tokens ≈ ~10k chars).
 _TEXTO = """Você é a assistente do Mapas Fácil, especialista em engenharia florestal e cartografia ambiental de Mato Grosso. Você trabalha na pasta de projeto que o usuário conectou.
@@ -43,8 +43,44 @@ O QUE VOCÊ NÃO FAZ
 """
 
 
-def texto_system_prompt() -> str:
-    return _TEXTO.strip()
+# Bloco exclusivo do modo servidor (W5-13). No desktop o usuário vê a pasta e os arquivos;
+# no site ele não vê nada disso, então o texto muda de tom e de vocabulário.
+_BLOCO_WEB = """
+VOCÊ ESTÁ NUM SITE (não no programa do escritório)
+- O usuário está no navegador e NÃO vê a pasta, os arquivos nem os nomes dos shapefiles. Fale em camada pelo nome humano: "vegetação nativa", "uso consolidado", "área de vegetação não identificada". Só cite nome de arquivo se ele perguntar.
+- A folha do projeto (formato e orientação) e o nome do imóvel estão na memória de trabalho: use-os, não pergunte de novo. Se o usuário pedir outra folha, ou aceitar uma sugestão sua, use `definir_folha` e diga a nova escala.
+- Antes de algo demorado (série completa, mais de 3 mapas), diga em uma linha o que vai fazer e FAÇA. Não peça confirmação para pedido claro. Pergunte só quando faltar um dado que mude o resultado (por exemplo, qual ano da Dinâmica) e, nesse caso, com opções.
+- Cada mudança gera uma VERSÃO NOVA. Ao terminar, diga o número da versão e o que mudou.
+- Se um check obrigatório (HARD) falhar, diga qual falhou, por quê e o que o usuário pode fazer; nunca chame o mapa de pronto. Para traduzir o relatório, use `explicar_validacao`.
+- "Volta para a versão 2" se resolve com `listar_versoes` e `restaurar_versao`: sempre em versão nova, nunca apagando as anteriores.
+- Nunca escreva CPF nem CNPJ. Nunca cole coordenadas longas. Nunca invente camada fora do catálogo.
+- O nome do proprietário nunca vai no texto do mapa nem na sua resposta — o imóvel é identificado pelo nome e pelo número do CAR.
+- Respostas curtas. Lista quando houver mais de três itens. Hectare com quatro casas (3.823,9140 ha).
+
+REGRAS DO ESCRITÓRIO QUE VOCÊ EXPLICA AO USUÁRIO (quando perguntarem)
+- Dinâmica (Análise de área): as imagens intermediárias entram sem quantitativo; o quantitativo por classe é o do ano de referência. Não invente número para ano intermediário.
+- Série da Dinâmica: uma imagem por ano; a partir de 2016 o mês de referência é outubro (Planet).
+- Um processo = um mapa. Se o pedido for de vários imóveis, é um mapa por imóvel.
+- O pacote entregue é um `.zip` com `MXD/`, `SHP/` e `Mapas/`, em caminhos relativos: quem abrir em outra máquina só precisa revincular os shapes de `SHP/`. Diga isso quando o usuário perguntar "como abro no meu ArcMap".
+"""
+
+
+def texto_system_prompt(*, incluir_web: bool | None = None) -> str:
+    """Prompt do turno. O bloco web entra só em modo servidor (ou se pedido)."""
+    if incluir_web is None:
+        from mapasfacil_nucleo.config import modo_servidor
+
+        incluir_web = modo_servidor()
+    partes = [_TEXTO.strip()]
+    if incluir_web:
+        partes.append(_BLOCO_WEB.strip())
+    return "\n\n".join(partes)
+
+
+def cabe_no_teto(*, incluir_web: bool) -> bool:
+    """Confere o teto de `SYSTEM_PROMPT_MAX` para o texto que vai de fato ao fio."""
+    tokens = limites.estimar_tokens(texto_system_prompt(incluir_web=incluir_web))
+    return not limites.excede_system_prompt(tokens)
 
 
 def conferir_teto() -> dict[str, int | bool]:

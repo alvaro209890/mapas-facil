@@ -106,3 +106,31 @@ Comandos: `pytest tests/test_agente_tools_web.py` → **13 testes**; suíte do n
 Dois ajustes que a implementação exigiu: `escala` no MapSpec v3 é **string**, não objeto
 (`_valor_escala` aceita os dois); e restaurar não pode passar por `_editar`, porque `nova_versao`
 sobrescreve o `parent_id` com a versão corrente — a restauração monta a versão à mão.
+
+## Adendo 3 — W5-13, W5-14 e W5-19 (prompt e memória de trabalho)
+
+**W5-13 — bloco web do prompt.** `agente/prompt.py` ganhou `_BLOCO_WEB`, anexado por
+`texto_system_prompt()` **só quando `modo_servidor()`**. Ele cobre os sete pontos obrigatórios do
+plano e muda o vocabulário: o usuário está no navegador, não vê pasta nem `.shp`, e a IA fala em
+"vegetação nativa", não em `AVN.shp`. Custo medido: **1.072 de 2.500 tokens** com o bloco, contra
+~600 sem ele — `cabe_no_teto(incluir_web=...)` deixa isso verificável em teste.
+`VERSAO_PROMPT` subiu para **2**.
+
+**W5-19 — regras do escritório.** Entraram no mesmo bloco, como texto que a IA **explica** quando
+perguntarem: dinâmicas intermediárias sem quantitativo (o número é o do ano de referência), série
+com uma imagem por ano e outubro como mês de referência a partir de 2016, um processo = um mapa,
+e o pacote `MXD/ SHP/ Mapas/` com caminhos relativos — "como abro no meu ArcMap" tem resposta
+pronta (revincular os shapes de `SHP/`). O nome do proprietário não vai no texto do mapa nem na
+resposta.
+
+**W5-14 — memória de trabalho.** `montar_memoria_trabalho()` já trazia `projeto.nome` e
+`projeto.folha` desde o W1; agora traz também `folha_texto` ("A3 paisagem", do jeito que a IA fala)
+e `mapspec_atual.folha`, para o agente comparar a folha do projeto com a da versão corrente sem
+deduzir nada.
+
+**Códigos de erro alinhados ao plano:** as tools novas devolvem `AG-201` (formato/orientação
+inválidos) e `AG-203` (versão inexistente / sem relatório de validação) em vez de `NU-001`
+genérico.
+
+Comandos: núcleo **564 testes desktop** e **554 em modo servidor** (eram 561/551); app desktop
+**180 testes, 27 arquivos**, verde e sem alteração.

@@ -90,7 +90,7 @@ def test_definir_folha_muda_formato_e_incrementa_versao(ctx: dict[str, Any]):
 def test_definir_folha_recusa_formato_invalido(ctx: dict[str, Any]):
     saida = executar("definir_folha", {"formato": "A7"}, ctx)
     assert saida["ok"] is False
-    assert saida["codigo"] == "NU-001"
+    assert saida["codigo"] == "AG-201"
     assert ctx["mapspec"]["folha"]["formato"] != "A7"
 
 
@@ -104,7 +104,7 @@ def test_listar_versoes_sem_nada_gerado(ctx: dict[str, Any]):
 def test_restaurar_versao_sem_mapa_gerado_recusa(ctx: dict[str, Any]):
     saida = executar("restaurar_versao", {"versao": 1}, ctx)
     assert saida["ok"] is False
-    assert saida["codigo"] == "NU-001"
+    assert saida["codigo"] == "AG-203"
 
 
 def test_restaurar_versao_cria_versao_nova_sem_apagar_artefato(ctx: dict[str, Any], pasta: Path):
@@ -134,7 +134,7 @@ def test_explicar_validacao_sem_relatorio(ctx: dict[str, Any]):
     mapspec_store.salvar({**ctx["mapspec"], "versao": 1})
     saida = executar("explicar_validacao", {}, ctx)
     assert saida["ok"] is False
-    assert saida["codigo"] == "NU-001"
+    assert saida["codigo"] == "AG-203"
 
 
 def _escrever_relatorio(ctx: dict[str, Any], checks: dict[str, Any]) -> None:
@@ -179,3 +179,59 @@ def test_explicar_validacao_conforme_quando_tudo_ok(ctx: dict[str, Any]):
 def test_as_quatro_tools_entram_no_schema_do_provedor():
     nomes = {s["function"]["name"] for s in schemas_openai()}
     assert {"definir_folha", "listar_versoes", "restaurar_versao", "explicar_validacao"} <= nomes
+
+
+# ------------------------------------------------------- W5-13: bloco web do prompt
+
+
+def test_prompt_web_entra_so_no_modo_servidor(monkeypatch: pytest.MonkeyPatch):
+    from mapasfacil_nucleo.agente import prompt
+
+    monkeypatch.delenv("MAPASFACIL_MODO", raising=False)
+    desktop = prompt.texto_system_prompt()
+    monkeypatch.setenv("MAPASFACIL_MODO", "servidor")
+    web = prompt.texto_system_prompt()
+
+    assert "VOCÊ ESTÁ NUM SITE" not in desktop
+    assert "VOCÊ ESTÁ NUM SITE" in web
+    assert len(web) > len(desktop)
+    assert prompt.cabe_no_teto(incluir_web=True) is True
+
+
+def test_prompt_web_tem_os_sete_pontos_obrigatorios():
+    from mapasfacil_nucleo.agente import prompt
+
+    texto = prompt.texto_system_prompt(incluir_web=True)
+    # 1 site/nome humano · 2 folha · 3 não pedir confirmação · 4 versão nova
+    assert "NÃO vê a pasta" in texto
+    assert "folha do projeto" in texto
+    assert "FAÇA" in texto
+    assert "VERSÃO NOVA" in texto
+    # 5 HARD · 6 CPF/catálogo · 7 formato pt-BR
+    assert "HARD" in texto
+    assert "CPF" in texto and "catálogo" in texto
+    assert "3.823,9140" in texto
+    # regras do escritório (W5-19 fica junto, no mesmo bloco)
+    assert "intermediárias" in texto
+    assert "outubro" in texto
+    assert "MXD/" in texto
+
+
+# --------------------------------------------- W5-14: folha e imóvel na memória
+
+
+def test_memoria_de_trabalho_traz_folha_em_texto(ctx: dict[str, Any], pasta: Path):
+    from mapasfacil_nucleo.agente.tools import montar_memoria_trabalho
+    from mapasfacil_nucleo.projeto_servidor import definir_raiz
+    import json as _json
+
+    (pasta / ".servidor").mkdir(exist_ok=True)
+    (pasta / ".servidor" / "projeto.json").write_text(
+        _json.dumps({"id": "p1", "nome": "Boa Vista", "folha": {"formato": "A3", "orientacao": "paisagem"}}),
+        encoding="utf-8",
+    )
+    definir_raiz(pasta)
+    memoria = montar_memoria_trabalho(ctx["mapspec"])
+    assert memoria["projeto"]["nome"] == "Boa Vista"
+    assert memoria["projeto"]["folha_texto"] == "A3 paisagem"
+    assert memoria["mapspec_atual"]["folha"].startswith("A")

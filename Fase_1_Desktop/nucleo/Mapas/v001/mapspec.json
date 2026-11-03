@@ -1,0 +1,147 @@
+{
+  "versao": 1,
+  "salvo_em": "2026-11-03T12:31:21-03:00",
+  "mapspec": {
+    "contract_version": 3,
+    "perfil": "harmonia",
+    "id": "01M6H0JH6D8AE4DGJ2JQ0FCZQZ",
+    "versao": 1,
+    "parent_id": null,
+    "titulo": "Dinâmica de uso do solo",
+    "template": "dinamica_retrato",
+    "folha": {
+      "formato": "A4",
+      "orientacao": "retrato",
+      "escala_elementos": "proporcional"
+    },
+    "saidas": [
+      "pdf",
+      "xlsx"
+    ],
+    "imovel": {
+      "nome": "Fazenda Harmonia",
+      "car": "MT102042/2017",
+      "matricula": null,
+      "area_total_ha": 3823.9033,
+      "municipio": {
+        "nome": "Vila Rica",
+        "uf": "MT",
+        "ibge": "5108600"
+      },
+      "geometria": "local.ATP"
+    },
+    "crs": "EPSG:31982",
+    "escala": "auto",
+    "extent": null,
+    "camadas": [
+      {
+        "id": "perimetro",
+        "nome_no_mxd": "Fazenda Harmonia",
+        "fonte": "local.ATP",
+        "estilo": "perimetro_imovel",
+        "legenda": "Fazenda Harmonia",
+        "ordem": 10,
+        "rotulo_texto": "Fazenda Harmonia"
+      },
+      {
+        "id": "avn",
+        "nome_no_mxd": "Área de vegetação nativa",
+        "fonte": "local.AVN",
+        "estilo": "avn",
+        "legenda": "Área de vegetação nativa",
+        "ordem": 30
+      },
+      {
+        "id": "ac",
+        "nome_no_mxd": "Área consolidada",
+        "fonte": "local.AC",
+        "estilo": "ac",
+        "legenda": "Área consolidada",
+        "ordem": 40
+      },
+      {
+        "id": "auas",
+        "nome_no_mxd": "Área Derivada de Desmate Após 2008",
+        "fonte": "local.AUAS",
+        "estilo": "auas",
+        "legenda": "Área Derivada de Desmate Após 2008",
+        "ordem": 20
+      },
+      {
+        "id": "lim_municipios_mt",
+        "nome_no_mxd": "Limite municipal",
+        "fonte": "catalogo.lim_municipios_mt",
+        "estilo": "limite_municipal",
+        "legenda": "Limite municipal",
+        "ordem": 90,
+        "filtro": {
+          "campo": "nome",
+          "operador": "=",
+          "valor": "Vila Rica"
+        }
+      }
+    ],
+    "basemap": {
+      "tipo": "planet_mensal",
+      "mosaico": "global_monthly_2026_03_mosaic",
+      "fallback": [
+        "mosaico_sema",
+        "esri_world_imagery"
+      ]
+    },
+    "elementos_layout": {
+      "titulo_caixa": true,
+      "norte": true,
+      "grade": true,
+      "grade_linhas": false,
+      "escala_grafica": false,
+      "minimapa": true,
+      "metadados": true,
+      "legenda": true,
+      "logo": true,
+      "tabela": true,
+      "creditos": false
+    },
+    "metadados": [
+      {
+        "rotulo": "Satélite/Sensor",
+        "valor": "PLANET"
+      },
+      {
+        "rotulo": "Data da imagem",
+        "valor": "auto"
+      },
+      {
+        "rotulo": "Fonte",
+        "valor": "WMS-SEMA"
+      },
+      {
+        "rotulo": "Datum",
+        "valor": "auto"
+      },
+      {
+        "rotulo": "Escala",
+        "valor": "auto"
+      }
+    ],
+    "tabela": {
+      "titulo_bloco": null,
+      "colunas": [
+        "Propriedade",
+        "Área total da propriedade (ha)",
+        "Área de vegetação nativa (ha)",
+        "Área consolidada (ha)",
+        "Área Derivada de Desmate Após 2008 (ha)"
+      ],
+      "linhas": [],
+      "total_geral": true,
+      "casas_decimais": 4
+    },
+    "saida": {
+      "pasta": "Mapas/v001",
+      "nome_base": "Dinamica_de_uso_do_solo_2026",
+      "caminhos_relativos": true,
+      "materializar_camadas_em": "SHP"
+    }
+  }
+}

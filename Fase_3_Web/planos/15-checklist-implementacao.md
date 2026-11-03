@@ -98,13 +98,13 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W5-10 `api/mensagens.py` (GET mensagens, POST 202 com `req_id`, POST cancelar)
 - [x] W5-11 Conversa principal (nasce no primeiro turno e fica na coluna `conversa_id`) + renomear acompanha o projeto
 - [ ] W5-12 5 tools novas
-- [ ] W5-13 Prompt web
-- [ ] W5-14 Memória de trabalho com folha
+- [x] W5-13 Prompt web (`_BLOCO_WEB` em `agente/prompt.py`, entra só em modo servidor; 1.072 de 2.500 tokens)
+- [x] W5-14 Memória de trabalho com folha
 - [ ] W5-15 Edição a partir de versão anterior
 - [ ] W5-16 Provedor `openai_compat` (9Router, `ag/gemini-3.8-flash-high`, `high`) + smoke de tools + contexto real
 - [ ] W5-17 7 roteiros de conversa
 - [ ] W5-18 Sugestões de início
-- [ ] W5-19 Regras do escritório no prompt (explicar, não aplicar)
+- [x] W5-19 Regras do escritório no prompt (dentro do `_BLOCO_WEB`: dinâmicas intermediárias sem quantitativo, outubro/Planet a partir de 2016, um processo = um mapa, pacote `MXD/ SHP/ Mapas/` e revínculo dos shapes)
 - [ ] W5-20 Visão pelo Gemini via 9Router — **obrigatória** (decisão 2026-11-03): `MAPASFACIL_MODELO_VISAO=ag/gemini-3.8-flash-high`, mesmo modelo do chat
 
 ## W6 — Frontend

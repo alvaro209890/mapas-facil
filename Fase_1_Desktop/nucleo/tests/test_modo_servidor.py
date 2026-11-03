@@ -151,6 +151,8 @@ def test_projeto_do_servidor_entra_na_memoria(modo_servidor_env, tmp_path, monke
     assert memoria["projeto"] == {
         "nome": "Fazenda Fictícia",
         "folha": {"formato": "A3", "orientacao": "paisagem", "escala_elementos": "proporcional"},
+        # W5-14: a mesma folha em texto, do jeito que a IA fala com o usuário.
+        "folha_texto": "A3 paisagem",
     }
 
     # No desktop o mesmo projeto não aparece.
