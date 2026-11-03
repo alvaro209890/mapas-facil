@@ -163,7 +163,7 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W10 — `.mxd` binário
 
-- [ ] W10-01 Documentação do formato no repo
+- [x] W10-01 `docs/mxd-formato-binario.md` e `docs/arcmap-wms-crash.md` (de `C:\GIS\MXD_RE\docs`, autoria preservada `Hermes-windows | 2026-10-14`)
 - [ ] W10-02 `cfbf.py` + corpus
 - [ ] W10-03 `blocos.py` + teste
 - [ ] W10-04 Spike S0
