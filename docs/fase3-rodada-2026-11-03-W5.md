@@ -209,3 +209,44 @@ existia `agente/mapspec_store.py`, que guarda o MapSpec **vivo da conversa**. Do
 mesmo nome foi erro meu de leitura, não do plano.
 
 Comandos: núcleo **572 testes desktop** e **562 em modo servidor** (eram 564/554).
+
+## Adendo 6 — W5-16 (cliente do 9Router) e o pool que faltava em produção
+
+**`agente/openai_compat.py`.** O 9Router fala o mesmo protocolo do DeepSeek
+(`/v1/chat/completions`, SSE, tool calling, `reasoning_content`), então o cliente novo
+**herda** o parser já provado em vez de reescrevê-lo. O que ele acrescenta:
+
+| Item | Como ficou |
+|---|---|
+| endpoint | `base_url` + `/chat/completions`, sem duplicar barra |
+| raciocínio | `reasoning_effort` no corpo, padrão `high` (o 9Router ignora `max` em silêncio) |
+| modelo | `MAPASFACIL_MODELO_CHAT`, padrão `ag/gemini-3.8-flash-high` |
+| montagem | `do_ambiente()` lê o `servidor.env`; sem chave → `IA-001` (erro de config, não de rede) |
+| `modelo_rapido()` / `contexto_max()` | título e `compact_summary` no mesmo modelo; teto medido, `None` enquanto não medido |
+
+O gancho `_extras_do_corpo()` foi adicionado ao `DeepSeekProvedor` (devolve `{}` lá) para o
+cliente novo injetar o campo sem copiar a montagem do corpo.
+
+**Provas no fio, com `urlopen` falso (10 testes):** o corpo leva `model`,
+`reasoning_effort`, `stream`, `tools` e `tool_choice=auto` e **não** leva `temperature`; o
+SSE entrega texto, raciocínio e tool calls montadas por índice — argumentos partidos em dois
+pedaços chegam como JSON válido (`{"saidas": ["pdf"]}`); `finish_reason=length` marca
+`truncado`; `cancelar()` corta o stream; `do_ambiente()` sem chave dá `IA-001`.
+`MAPASFACIL_PROVEDOR=openai_compat` já é o caminho do `_obter_provedor()` no orquestrador.
+
+**🔴 Gap de produção encontrado e fechado:** `app_do_ambiente()` subia **sem pool**
+(`pool=None`), então todo chat responderia `SV-240` e nenhuma geração aconteceria — o pool só
+existia nos testes. Agora `pool_de(cfg, banco)` monta o pool com:
+
+- comando `MF_PYTHON_NUCLEO -m mapasfacil_nucleo stdio`;
+- ambiente do filho com as chaves **do arquivo de segredos** (nunca `os.environ` do servidor),
+  a configuração do provedor e `MAPASFACIL_SESSAO_SERVIDOR` = **dono do projeto**;
+- `MAPASFACIL_VAGAS_DIR`/`MAPASFACIL_MAX_JOBS` e estado em `.estado/` dentro do projeto.
+
+Comandos: servidor **144 testes** (eram 140), com 4 novos provando o ambiente do worker e que
+a chave não vaza pelo ambiente do servidor. Núcleo segue verde: **572 desktop / 562 modo
+servidor**.
+
+**Continua bloqueado (precisa do Álvaro):** o smoke ao vivo no 9Router — as 32 tools no
+`-high`, raciocínio no `chat.raciocinio`, stream longo e a medição real de contexto para
+`MAPASFACIL_CONTEXTO_MAX` — porque exige a **chave dedicada do Mapas Fácil**.

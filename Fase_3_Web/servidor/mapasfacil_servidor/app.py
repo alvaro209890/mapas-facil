@@ -103,8 +103,61 @@ def _disco_gb(config: object | None) -> float | None:
         return None
 
 
+def _dono_do_projeto(banco: Banco, projeto_id: str) -> str:
+    """Usuário dono do projeto — é ele que vai como sessão do worker do núcleo."""
+    con = banco.conectar()
+    try:
+        linha = con.execute(
+            "SELECT usuario_id FROM projetos WHERE id = ?", (projeto_id,)
+        ).fetchone()
+    finally:
+        con.close()
+    return linha["usuario_id"] if linha else "sistema"
+
+
+def pool_de(cfg, banco: Banco, *, cmd_base: list[str] | None = None):
+    """Constrói o pool de workers do núcleo (W2) com o ambiente do `servidor.env`.
+
+    Sem isto o app sobe sem worker e todo chat responde `SV-240`. O ambiente do filho
+    carrega **só** o que o núcleo precisa: as chaves do arquivo de segredos e a configuração
+    do provedor de IA (9Router / `openai_compat`, W5-16); nada de `os.environ` do servidor.
+    """
+    from .ponte import pool as pool_mod
+    from .ponte.worker import montar_env
+
+    segredos = {nome: valor for nome, valor in (cfg.segredos_lidos or {}).items() if valor}
+    # Configuração do provedor: não é segredo, mas também não vem do ambiente do filho.
+    provedor = {
+        "MAPASFACIL_PROVEDOR": cfg.provedor,
+        "MAPASFACIL_PROVEDOR_URL": cfg.provedor_url,
+        "MAPASFACIL_MODELO_CHAT": cfg.modelo_chat,
+        "MAPASFACIL_MODELO_RAPIDO": cfg.modelo_rapido,
+        "MAPASFACIL_MODELO_VISAO": cfg.modelo_visao,
+        "MAPASFACIL_RACIOCINIO": cfg.raciocinio,
+    }
+
+    def env_por_projeto(projeto_id: str, raiz_projeto) -> dict:
+        return montar_env(
+            projeto_raiz=raiz_projeto,
+            usuario_id=_dono_do_projeto(banco, projeto_id),
+            segredos=segredos,
+            vagas_dir=cfg.vagas,
+            max_jobs=cfg.max_jobs,
+            extra=provedor,
+        )
+
+    return pool_mod.Pool(
+        raiz_projetos=cfg.projetos,
+        cmd_base=cmd_base or [str(cfg.python_nucleo), "-m", "mapasfacil_nucleo", "stdio"],
+        max_workers=cfg.max_workers,
+        timeout_req_s=float(cfg.timeout_req_s),
+        worker_ocioso_s=float(cfg.worker_ocioso_s),
+        env_por_projeto=env_por_projeto,
+    )
+
+
 def app_do_ambiente() -> FastAPI:
-    """App de produção: lê a config do ambiente e migra o banco."""
+    """App de produção: lê a config do ambiente, migra o banco e sobe o pool de workers."""
     from . import config as config_mod
 
     cfg = config_mod.carregar()
@@ -115,7 +168,8 @@ def app_do_ambiente() -> FastAPI:
         admin_email=cfg.admin_email,
         origem=cfg.url_publica,
         config=cfg,
+        pool=pool_de(cfg, banco),
     )
 
 
-__all__ = ["create_app", "app_do_ambiente", "json"]
+__all__ = ["create_app", "app_do_ambiente", "pool_de", "json"]

@@ -35,6 +35,10 @@ class DeepSeekProvedor:
         self._cancelado = False
         self._resposta: Any = None
 
+    def _extras_do_corpo(self) -> dict[str, Any]:
+        """Campos extras do corpo da requisição. O DeepSeek puro não usa nenhum."""
+        return {}
+
     def cancelar(self) -> None:
         self._cancelado = True
         resp = self._resposta
@@ -62,6 +66,8 @@ class DeepSeekProvedor:
         if tools:
             corpo["tools"] = tools
             corpo["tool_choice"] = "auto"
+        # Gancho para o cliente OpenAI-compatível (9Router) acrescentar `reasoning_effort`.
+        corpo.update(self._extras_do_corpo())
         dados = json.dumps(corpo).encode("utf-8")
         req = urllib.request.Request(
             self.endpoint,

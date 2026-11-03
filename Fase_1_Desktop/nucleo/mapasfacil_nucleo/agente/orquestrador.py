@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 from dataclasses import dataclass, field
@@ -88,6 +89,11 @@ def esquecer_conversa(conversation_id: str) -> None:
 def _obter_provedor() -> ProvedorIA:
     if _provedor_override is not None:
         return _provedor_override
+    # Modo servidor: o provedor é o 9Router num formato OpenAI-compatível (W5-16 / D33).
+    if (os.environ.get("MAPASFACIL_PROVEDOR") or "").strip() == "openai_compat":
+        from mapasfacil_nucleo.agente import openai_compat
+
+        return openai_compat.do_ambiente()
     chave = ler_chave_deepseek()
     if not chave:
         raise ErroNucleo(
