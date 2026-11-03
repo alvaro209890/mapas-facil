@@ -204,6 +204,61 @@ if [ "$SOMA_REDE" -eq 1 ]; then
   esac
 fi
 
+# 12. Peças de deploy (W12) ---------------------------------------------------
+# Onde está o código: no server ele mora em `$MF_RAIZ/codigo`; rodando do clone local, ao lado
+# do script. O preflight roda nos dois lugares e não pode confundir "não publicado ainda" com
+# "arquivo faltando".
+CODIGO_DIR="${MF_CODIGO:-}"
+if [ -z "$CODIGO_DIR" ] || [ ! -d "$CODIGO_DIR" ]; then
+  if [ -d "${MF_RAIZ:-$MF_RAIZ_ESPERADA}/codigo/Fase_3_Web" ]; then
+    CODIGO_DIR="${MF_RAIZ:-$MF_RAIZ_ESPERADA}/codigo"
+  else
+    VIZINHO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)"
+    if [ -d "$VIZINHO/servidor" ]; then
+      CODIGO_DIR="$VIZINHO"
+    else
+      CODIGO_DIR=""
+    fi
+  fi
+fi
+LOCK="$CODIGO_DIR/servidor/requirements.lock"
+if [ -z "$CODIGO_DIR" ] || [ ! -d "$CODIGO_DIR/servidor" ]; then
+  registrar AVISO "código publicado" "não achei o código nesta máquina (esperado em ${MF_RAIZ:-$MF_RAIZ_ESPERADA}/codigo) — primeiro deploy ainda não aconteceu"
+fi
+if [ -z "$CODIGO_DIR" ] || [ ! -d "$CODIGO_DIR/servidor" ]; then
+  : # já avisado acima; não cobra o lock de um código que não está aqui
+elif [ -f "$LOCK" ]; then
+  # Toda linha `pacote==versao` precisa de ao menos um `--hash=sha256:` depois dela.
+  FALTA_HASH="$(awk '/^[A-Za-z0-9_.-]+==/ {if (anterior != "" && !tem) print anterior; anterior=$1; tem=0; next} /--hash=sha256:/ {tem=1} END {if (anterior != "" && !tem) print anterior}' "$LOCK")"
+  if [ -n "$FALTA_HASH" ]; then
+    registrar FALTA "requirements.lock" "sem hash em: $(echo "$FALTA_HASH" | tr '
+' ' ')"
+  else
+    registrar OK "requirements.lock" "$(grep -cE '^[A-Za-z0-9_.-]+==' "$LOCK") pacotes, todos com hash"
+  fi
+else
+  registrar FALTA "requirements.lock" "ausente — sem ele o deploy não é reprodutível"
+fi
+
+WEB_DIR="${CODIGO_DIR%/}/web"
+# `CODIGO_DIR` é a raiz do código (`<mf>/codigo`), com `servidor/` e `web/` dentro.
+if [ -d "$WEB_DIR" ]; then
+  if [ -f "$WEB_DIR/pnpm-lock.yaml" ] && ! command -v pnpm >/dev/null 2>&1; then
+    registrar AVISO "gerenciador do SPA" "o repo usa pnpm-lock.yaml e o pnpm não está no PATH (corepack enable resolve)"
+  elif [ -f "$WEB_DIR/pnpm-lock.yaml" ] || [ -f "$WEB_DIR/package-lock.json" ]; then
+    registrar OK "gerenciador do SPA" "lockfile presente"
+  else
+    registrar FALTA "gerenciador do SPA" "sem lockfile em web/ — build não reprodutível"
+  fi
+fi
+
+RELEASES="${MF_RAIZ:-$MF_RAIZ_ESPERADA}/releases/atual"
+if [ -e "$RELEASES" ]; then
+  registrar OK "releases/atual" "-> $(readlink -f "$RELEASES" 2>/dev/null | sed "s|${MF_RAIZ:-$MF_RAIZ_ESPERADA}/releases/||")"
+else
+  registrar AVISO "releases/atual" "ainda não existe (primeiro deploy cria)"
+fi
+
 # Saída ----------------------------------------------------------------------
 echo
 echo "Mapas Fácil — preflight da Fase 3 ($(date '+%Y-%m-%d %H:%M %Z'))"
