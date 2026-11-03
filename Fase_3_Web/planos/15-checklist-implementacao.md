@@ -169,9 +169,9 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W10-01 `docs/mxd-formato-binario.md` e `docs/arcmap-wms-crash.md` (de `C:\GIS\MXD_RE\docs`, autoria preservada `Hermes-windows | 2026-10-14`)
 - [x] W10-02 `mxd_binario/cfbf.py` (leitor/escritor MS-CFB v3 puro stdlib, FAT/MiniFAT, substituição de stream pequena e grande com crossover) + `tests/test_cfbf_corpus.py`: 52 testes round-trip byte a byte contra os 47 MXDs do corpus (`shared/templates` + `Referencias_IMAP/MXD`), validado contra `olefile`
 - [x] W10-03 `blocos.py` + teste: percorrer PageLayout/Maps/Mx Document dos 21 templates sem erro; extrair camadas e textos auditados; testar árvore de blocos com pai/filho e ajuste de delta uint64 (tests/test_mxd_blocos.py, 25 testes verdes)
-- [ ] W10-04 Spike S0
-- [ ] W10-05 Spikes S1–S11
-- [ ] W10-06 `slots.py`, `documento.py`
+- [x] W10-04 Spike S0: mapeamento empírico das streams nos 21 templates; comprovação da prioridade e presença simultânea em `Mx Document` e `PageLayout`/`Maps`; relatório em `docs/mxd-binario-spikes.md`
+- [x] W10-05 Spikes S1–S11: textos com expansão/encolhimento dinâmico, envelopes/escalas, caminhos relativos de shapefiles/rasters no pacote, nomes de camada no TOC, e materialização no pacote (relatório em `docs/mxd-binario-spikes.md`)
+- [x] W10-06 `slots.py` e `documento.py`: carregamento de `.slots.json`, aplicação de slots (texto, número, envelope, caminho, consulta) com ajuste de delta em cascata, API `DocumentoMxd.abrir -> aplicar -> obter_bytes/salvar` (tests/test_mxd_documento.py, 4 testes verdes)
 - [ ] W10-07 `gates.py` + sabotagem
 - [ ] W10-08 Fábrica + MANIFEST `variantes`
 - [ ] W10-09 G4 automatizado

@@ -160,6 +160,16 @@ class CompoundFile:
         """Abre e decodifica um arquivo CFBF a partir do caminho informado."""
         return ler(caminho)
 
+    def tem_stream(self, nome: str) -> bool:
+        """Verifica se a stream informada existe no documento."""
+        return nome in self.streams
+
+    @classmethod
+    def de_bytes(cls, dados: bytes) -> CompoundFile:
+        """Decodifica um arquivo CFBF a partir de bytes em memória."""
+        import io
+        return ler(io.BytesIO(dados))
+
     def obter_stream(self, nome: str) -> bytes:
         """Obtém o conteúdo binário de uma stream pelo nome."""
         if nome not in self.streams:
@@ -359,9 +369,7 @@ class CompoundFile:
         )
         struct.pack_into("<109I", cabecalho, 76, *difat_cabecalho)
 
-        caminho_dest = Path(destino)
-        caminho_dest.parent.mkdir(parents=True, exist_ok=True)
-        with open(caminho_dest, "wb") as f:
+        def _gravar_conteudo(f):
             f.write(cabecalho)
             for s in setores_principais:
                 f.write(s)
@@ -370,30 +378,44 @@ class CompoundFile:
             for s in setores_difat:
                 f.write(s)
 
+        if hasattr(destino, "write"):
+            _gravar_conteudo(destino)
+        else:
+            caminho_dest = Path(destino)
+            caminho_dest.parent.mkdir(parents=True, exist_ok=True)
+            with open(caminho_dest, "wb") as f:
+                _gravar_conteudo(f)
+
 
 # --- Função de Leitura ---
 
 
-def ler(caminho: str | Path) -> CompoundFile:
-    """Lê um arquivo CFBF v3 (.mxd) e retorna a instância de CompoundFile correspondente.
-
-    Args:
-        caminho: Caminho para o arquivo .mxd no sistema de arquivos.
+def ler(origem: str | Path | Any) -> CompoundFile:
+    """Lê um arquivo CFBF v3 (.mxd) a partir de arquivo ou buffer BytesIO.
 
     Returns:
         Instância de CompoundFile com streams decodificadas e hierarquia preservada.
-
-    Raises:
-        FileNotFoundError: Se o arquivo informado não existir.
-        AssinaturaInvalidaError: Se o arquivo não contiver a assinatura mágica do CFBF.
-        VersaoNaoSuportadaError: Se o arquivo não utilizar setores de 512 bytes (CFBF v3).
-        CorrupcaoEstruturalError: Se houver loops ou inconsistências na FAT ou diretório.
     """
-    p = Path(caminho)
-    if not p.is_file():
-        raise FileNotFoundError(f"Arquivo não encontrado: {p}")
+    import io
+    if isinstance(origem, (str, Path)):
+        p = Path(origem)
+        if not p.is_file():
+            raise FileNotFoundError(f"Arquivo não encontrado: {p}")
+        f_ctx = open(p, "rb")
+        nome_arqv = p.name
+        caminho_origem = p
+    elif hasattr(origem, "read"):
+        f_ctx = origem
+        nome_arqv = getattr(origem, "name", "memoria.mxd")
+        caminho_origem = None
+    elif isinstance(origem, bytes):
+        f_ctx = io.BytesIO(origem)
+        nome_arqv = "memoria.mxd"
+        caminho_origem = None
+    else:
+        raise ValueError(f"Origem inválida para leitura CFBF: {type(origem)}")
 
-    with open(p, "rb") as f:
+    def _processar(f):
         cabecalho = f.read(TAMANHO_CABECALHO)
         if len(cabecalho) < TAMANHO_CABECALHO:
             raise AssinaturaInvalidaError(
@@ -562,4 +584,10 @@ def ler(caminho: str | Path) -> CompoundFile:
                 # Alocada em setores normais da FAT regular
                 streams_por_sid[entrada.sid] = ler_cadeia_fat(entrada.setor_inicio, tam)
 
-        return CompoundFile(entradas, streams_por_sid, caminho_origem=p)
+        return CompoundFile(entradas, streams_por_sid, caminho_origem=caminho_origem)
+
+    if hasattr(f_ctx, "__enter__"):
+        with f_ctx as f:
+            return _processar(f)
+    else:
+        return _processar(f_ctx)

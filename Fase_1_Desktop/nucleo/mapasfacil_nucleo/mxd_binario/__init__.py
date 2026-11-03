@@ -19,6 +19,8 @@ from .cfbf import (
     VersaoNaoSuportadaError,
     ler,
 )
+from .documento import DocumentoMxd
+from .slots import DefinicaoSlot, ErroSlot, ManifestoSlots
 
 __all__ = [
     "CompoundFile",
@@ -35,4 +37,8 @@ __all__ = [
     "inspecionar_textos_layout",
     "inspecionar_camadas_maps",
     "inspecionar_dataframes_maps",
+    "DocumentoMxd",
+    "DefinicaoSlot",
+    "ManifestoSlots",
+    "ErroSlot",
 ]
