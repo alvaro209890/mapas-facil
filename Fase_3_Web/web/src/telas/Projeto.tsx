@@ -25,6 +25,7 @@ import { CartaoPergunta } from '../herdados/CartaoPergunta';
 import { CartaoTool } from '../herdados/CartaoTool';
 import { GrupoTools } from '../herdados/GrupoTools';
 import { IndicadorPensando } from '../herdados/IndicadorPensando';
+import { Palco } from '../palco/Palco';
 import { useChat } from '../estado/chat';
 import { useConexao } from '../estado/conexao';
 import { useProjetoAtivo } from '../estado/projetoAtivo';
@@ -318,21 +319,7 @@ export function Projeto() {
 
         {/* --------------------------------------------------------- palco */}
         <section className={estilos.palco} aria-label="Mapa">
-          <div className={estilos.palcoDesenho}>
-            <span className={estilos.palcoFolha} aria-hidden="true">
-              <span className={estilos.palcoTitulo} />
-              <span className={estilos.palcoMapa} />
-              <span className={estilos.palcoLegenda} />
-            </span>
-            <p className={estilos.palcoTexto}>
-              {versao
-                ? `Versão ${versao.numero}${versao.conforme ? '' : ' · não conforme'}`
-                : 'Nenhuma versão gerada ainda'}
-            </p>
-            <p className={estilos.dica}>
-              O mapa interativo entra no marco W8. Aqui já ficam as versões e os downloads.
-            </p>
-          </div>
+          <Palco versao={versao} />
 
           <div className={estilos.faixaVersoes} role="list" aria-label="Versões">
             {versoes.length === 0 && <span className={estilos.dica}>sem versões</span>}

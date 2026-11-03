@@ -45,8 +45,18 @@ echo "== 5/8 migrações"
 echo "== 6/8 build do SPA"
 (
   cd "$CODIGO/Fase_3_Web/web"
-  npm ci --silent
-  npm run build --silent
+  # O repo versiona pnpm-lock.yaml (não package-lock.json): o gerenciador tem de ser o pnpm,
+  # senão o `npm ci` recusa ou instala árvore diferente da conferida.
+  if [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then
+    pnpm install --frozen-lockfile --silent
+    pnpm run build --silent
+  elif [ -f package-lock.json ]; then
+    npm ci --silent
+    npm run build --silent
+  else
+    echo "sem lockfile em $PWD — recusando build não reprodutível" >&2
+    exit 1
+  fi
 )
 DEST="$BASE/releases/$TAG/web-dist"
 mkdir -p "$DEST"
