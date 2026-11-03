@@ -91,23 +91,74 @@ def _shapefile_em(destino: Path, nome: str, pontos: list[tuple[float, float]]) -
     return [f"{nome}{ext}" for ext in (".shp", ".shx", ".dbf", ".prj", ".cpg")]
 
 
-def montar_pasta(destino: Path) -> dict[str, bytes]:
+PRJ_SAD69 = (
+    'PROJCS["SAD69_UTM_zone_22S",GEOGCS["GCS_South_American_1969",'
+    'DATUM["D_South_American_1969",SPHEROID["GRS_1967_Truncated",6378160.0,298.25]],'
+    'PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],'
+    'PROJECTION["Transverse_Mercator"],PARAMETER["False_Easting",500000.0],'
+    'PARAMETER["False_Northing",10000000.0],PARAMETER["Central_Meridian",-51.0],'
+    'PARAMETER["Scale_Factor",0.9996],PARAMETER["Latitude_Of_Origin",0.0],'
+    'UNIT["Meter",1.0]]'
+)
+def _shapefile_linha_em(destino: Path, nome: str, pontos: list[tuple[float, float]], prj_texto: str) -> list[str]:
+    import shapefile
+    destino.mkdir(parents=True, exist_ok=True)
+    escritor = shapefile.Writer(str(destino / nome))
+    escritor.field("NOME", "C", size=60)
+    escritor.line([pontos])
+    escritor.record("Rio Ficticio")
+    escritor.close()
+    (destino / f"{nome}.prj").write_text(prj_texto, encoding="utf-8")
+    (destino / f"{nome}.cpg").write_text("ISO-8859-1", encoding="utf-8")
+    return [f"{nome}{ext}" for ext in (".shp", ".shx", ".dbf", ".prj", ".cpg")]
+
+
+def montar_pasta(
+    destino: Path,
+    *,
+    datum: str = "SIRGAS_2000",
+    incluir_hidro: bool = False,
+    dois_imoveis: bool = False,
+) -> dict[str, bytes]:
     """Monta o conteúdo do pacote numa pasta e devolve nome → bytes."""
+    prj_usado = PRJ_SAD69 if datum == "SAD69" else PRJ
     arquivos_do_shp = _shapefile_em(destino / "CAR", "ATP", UTM)
+    if datum == "SAD69":
+        (destino / "CAR" / "ATP.prj").write_text(PRJ_SAD69, encoding="utf-8")
+
+    nomes = [f"CAR/{nome}" for nome in arquivos_do_shp]
+
+    if incluir_hidro:
+        pontos_rio = [(600000.0, 8300500.0), (601000.0, 8300500.0)]
+        shps_rio = _shapefile_linha_em(destino / "CAR", "RIO_LINHA", pontos_rio, prj_usado)
+        nomes += [f"CAR/{nome}" for nome in shps_rio]
+
+    if dois_imoveis:
+        utm2 = [(602000.0, 8300000.0), (602000.0, 8301000.0), (603000.0, 8301000.0), (603000.0, 8300000.0)]
+        shps_imovel2 = _shapefile_em(destino / "CAR", "LOTE_45", utm2)
+        if datum == "SAD69":
+            (destino / "CAR" / "LOTE_45.prj").write_text(PRJ_SAD69, encoding="utf-8")
+        nomes += [f"CAR/{nome}" for nome in shps_imovel2]
+
     (destino / "CAR - Recibo.pdf").write_bytes(RECIBO_PDF)
     (destino / "LEIA-ME.txt").write_text(LEIA_ME, encoding="utf-8")
-
-    nomes = [f"CAR/{nome}" for nome in arquivos_do_shp] + ["CAR - Recibo.pdf", "LEIA-ME.txt"]
+    nomes += ["CAR - Recibo.pdf", "LEIA-ME.txt"]
     return {nome: (destino / nome).read_bytes() for nome in nomes}
 
 
-def gerar(destino: Path) -> Path:
+def gerar(
+    destino: Path,
+    *,
+    datum: str = "SIRGAS_2000",
+    incluir_hidro: bool = False,
+    dois_imoveis: bool = False,
+) -> Path:
     destino = Path(destino)
     if destino.suffix.lower() != ".zip":
         destino = destino / "imovel_ficticio.zip"
     destino.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
-        arquivos = montar_pasta(Path(tmp))
+        arquivos = montar_pasta(Path(tmp), datum=datum, incluir_hidro=incluir_hidro, dois_imoveis=dois_imoveis)
         with zipfile.ZipFile(destino, "w", zipfile.ZIP_DEFLATED) as zf:
             for nome, dados in arquivos.items():
                 zf.writestr(nome, dados)

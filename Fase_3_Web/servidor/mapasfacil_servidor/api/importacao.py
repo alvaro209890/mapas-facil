@@ -211,6 +211,21 @@ async def criar_importacao(
             "projeto.estado",
             {"estado": "pronto", "resumo": resumo if isinstance(resumo, dict) else None},
         )
+        if pool is not None:
+            try:
+                from ..chat.abertura import disparar_abertura_projeto
+
+                await disparar_abertura_projeto(
+                    banco=banco,
+                    pool=pool,
+                    hub=estado.hub,
+                    projeto_id=projeto.id,
+                    importacao_id=importacao_id,
+                    resumo=resumo if isinstance(resumo, dict) else {},
+                )
+            except Exception:  # pragma: no cover
+                import traceback
+                traceback.print_exc()
 
     tarefas.add_task(_rodar)
     return {"importacao_id": importacao_id}
