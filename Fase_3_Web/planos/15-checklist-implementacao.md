@@ -155,7 +155,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [ ] W9-05 Minimapa
 - [ ] W9-06 Basemap por folha + S17
 - [ ] W9-07 PNG da tabela
-- [ ] W9-08 Anatomia por folha + H15
+- [x] W9-08 `anatomia.esperada_para_folha(golden_a4, folha)` (A4 × `k`), `conferir_folha()` = check **H15** (papel ±1 mm, com orientação trocada detectada) e `comparar(..., fator=k)` escalando a tolerância — `tests/test_anatomia_folha.py` (26) e `tests/test_golden_anatomia_folhas.py` (9, com render real de A4/A3/A0: H15 verde nas três e anatomia de A3/A0 conferida contra A4 × k)
 - [ ] W9-09 Fontes embutidas e texto extraível
 - [ ] W9-10 Medição real
 - [ ] W9-11 Comum `01-padrao`: "Folhas maiores"

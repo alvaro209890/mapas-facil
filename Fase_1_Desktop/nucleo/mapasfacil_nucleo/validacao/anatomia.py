@@ -296,8 +296,14 @@ def comparar(
     gerado: dict[str, Any],
     *,
     tolerancia_mm: float = 6.0,
+    fator: float = 1.0,
 ) -> dict[str, Any]:
-    """Confronta duas anatomias e diz onde o gerado saiu do padrão medido."""
+    """Confronta duas anatomias e diz onde o gerado saiu do padrão medido.
+
+    `fator` é o `k` da folha (W9-08): a tolerância acompanha o papel — 6 mm em A4 são
+    24 mm em A0, senão a comparação fica impossível justamente na folha grande.
+    """
+    tolerancia_mm = round(tolerancia_mm * fator, 3)
     itens: list[dict[str, Any]] = []
 
     def _check(id_: str, chave: str, descricao: str, campos: tuple[str, ...] = ("x0", "y0", "x1", "y1")) -> None:
@@ -417,4 +423,84 @@ def comparar(
         "itens": itens,
         "ok": all(i["ok"] for i in itens),
         "falhas": [i["id"] for i in itens if not i["ok"]],
+    }
+
+
+# --- W9-08: anatomia esperada por folha (A4 × k) e o check H15 --------------------
+
+TOLERANCIA_FOLHA_MM = 1.0
+"""H15: a página do PDF tem de estar no tamanho da folha pedida, ±1 mm."""
+
+
+def _escalar_caixa(caixa: dict[str, float] | None, k: float) -> dict[str, float] | None:
+    if not caixa:
+        return None
+    return {chave: round(valor * k, 2) for chave, valor in caixa.items()}
+
+
+def esperada_para_folha(golden: dict[str, Any], folha: dict[str, Any]) -> dict[str, Any]:
+    """Anatomia **esperada** de qualquer folha: a do A4 multiplicada por `k` (D31).
+
+    Nada é remedido em A3–A0 — o gabarito do acervo é A4 e o resto é o mesmo desenho
+    em papel maior. O que **não** escala: a contagem de rótulos DMS (4–8 por eixo em
+    qualquer folha, W9-04) e os textos.
+    """
+    from mapasfacil_nucleo.motores import folhas as folhas_mod
+
+    formato = str((folha or {}).get("formato") or folhas_mod.FORMATO_PADRAO).upper()
+    orientacao = str((folha or {}).get("orientacao") or folhas_mod.ORIENTACAO_PADRAO)
+    k = folhas_mod.fator_k(formato)
+    largura, altura = folhas_mod.folha_mm(formato, orientacao)
+
+    esperada = {chave: valor for chave, valor in golden.items()}
+    esperada["pagina_mm"] = {"largura": largura, "altura": altura}
+    esperada["orientacao"] = orientacao
+    esperada["quadro_mapa"] = _escalar_caixa(golden.get("quadro_mapa"), k)
+    esperada["metadados"] = _escalar_caixa(golden.get("metadados"), k)
+    esperada["legenda"] = _escalar_caixa(golden.get("legenda"), k)
+    titulo = dict(golden.get("titulo") or {})
+    titulo["caixa_mm"] = _escalar_caixa(titulo.get("caixa_mm"), k)
+    esperada["titulo"] = titulo
+    esperada["rotulos_dms"] = golden.get("rotulos_dms")
+    esperada["folha"] = {"formato": formato, "orientacao": orientacao}
+    esperada["fator"] = k
+    return esperada
+
+
+def conferir_folha(
+    medida: dict[str, Any],
+    folha: dict[str, Any],
+    *,
+    tolerancia_mm: float = TOLERANCIA_FOLHA_MM,
+) -> dict[str, Any]:
+    """Check **H15** — a página do PDF está no papel pedido (e na orientação certa)."""
+    from mapasfacil_nucleo.motores import folhas as folhas_mod
+
+    formato = str((folha or {}).get("formato") or folhas_mod.FORMATO_PADRAO).upper()
+    orientacao = str((folha or {}).get("orientacao") or folhas_mod.ORIENTACAO_PADRAO)
+    esperado_l, esperado_a = folhas_mod.folha_mm(formato, orientacao)
+    pagina = (medida or {}).get("pagina_mm") or {}
+    largura = float(pagina.get("largura") or 0.0)
+    altura = float(pagina.get("altura") or 0.0)
+    dl = round(largura - esperado_l, 2)
+    da = round(altura - esperado_a, 2)
+    ok = abs(dl) <= tolerancia_mm and abs(da) <= tolerancia_mm
+    if ok:
+        mensagem = f"Página {largura:.1f}×{altura:.1f} mm = {formato} {orientacao}"
+    elif abs(largura - esperado_a) <= tolerancia_mm and abs(altura - esperado_l) <= tolerancia_mm:
+        mensagem = (
+            f"Página {largura:.1f}×{altura:.1f} mm está em {formato} mas com a orientação "
+            f"trocada (esperado {esperado_l:.1f}×{esperado_a:.1f})"
+        )
+    else:
+        mensagem = (
+            f"Página {largura:.1f}×{altura:.1f} mm fora do papel "
+            f"{formato} {orientacao} ({esperado_l:.1f}×{esperado_a:.1f} mm, tolerância {tolerancia_mm} mm)"
+        )
+    return {
+        "id": "H15",
+        "ok": ok,
+        "mensagem": mensagem,
+        "delta_mm": {"largura": dl, "altura": da},
+        "esperado_mm": [esperado_l, esperado_a],
     }
