@@ -47,13 +47,20 @@ AMOSTRAS = 240
 
 
 def escolher_passo(span_graus: float) -> int:
-    """Passo em segundos que rende de 4 a 8 rótulos no intervalo."""
+    """Passo em segundos que rende de 4 a 8 rótulos no intervalo.
+
+    Quando o varrimento é pequeno demais para 4 rótulos (imóvel de 200 m em 1:2.000 dá
+    poucos segundos de arco), a meta de 4–8 é fisicamente impossível: aí vale a regra de
+    baixo — **pelo menos 1 linha de grade**, com o passo mais fino que caiba. Antes
+    disto, um varrimento de 7″ caía no passo de 1° (nenhuma linha visível).
+    """
     span_seg = max(abs(span_graus) * 3600.0, 1e-9)
     melhor = PASSOS_SEGUNDOS[-1]
     melhor_custo = math.inf
     for passo in PASSOS_SEGUNDOS:
         n = span_seg / passo
-        if n < 2:
+        if n < 1:
+            # Passo maior que o quadro: nem uma linha cruzaria o mapa.
             continue
         dentro = ALVO_MIN <= n <= ALVO_MAX
         # Fora da faixa alvo o custo explode, mas nunca vira infinito: extensões

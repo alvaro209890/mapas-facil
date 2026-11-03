@@ -614,7 +614,8 @@ def gerar_pdf_minimo(
     if ao_preview is not None:
         ao_preview(_salvar_preview(fig, guard, 2), "aplicando_layout")
 
-    fig.savefig(pdf_path, format="pdf", dpi=DPI_PDF)
+    # dpi do raster por folha (W-09 §Raster): 300 dpi até A2, com teto de pixels em A1/A0.
+    fig.savefig(pdf_path, format="pdf", dpi=perfil.dpi_raster(DPI_PDF))
     png_pagina = pasta / f"{nome_base}_pagina.png"
     fig.savefig(png_pagina, format="png", dpi=150)
     plt.close(fig)
@@ -760,10 +761,12 @@ def _perfil_do_mapspec(mapspec: dict[str, Any]) -> perfil_pagina.PerfilPagina:
     medido em `shared/padrao-imap/anatomia_serie.json`. Só quem não é da série
     cai no perfil genérico por orientação.
     """
+    folha = mapspec.get("folha")
     medido = perfil_pagina.por_template(mapspec.get("template"))
     if medido is not None:
-        return medido
-    return perfil_pagina.obter(_orientacao(mapspec))
+        # O modelo da série manda no layout e na orientação; a folha só diz o tamanho.
+        return perfil_pagina.escalar_perfil(medido, folha)
+    return perfil_pagina.perfil_para(folha or {"orientacao": _orientacao(mapspec)})
 
 
 def _orientacao(mapspec: dict[str, Any]) -> str:

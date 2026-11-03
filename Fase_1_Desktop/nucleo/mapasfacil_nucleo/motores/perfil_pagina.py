@@ -79,12 +79,38 @@ class PerfilPagina:
     # de largura desloca a âncora do bloco inteiro.
     titulo_metadados: str = "METADADOS IMAGEM"
 
+    # Fator da folha em relação à A4 (D31). 1,0 = A4; A0 ≈ 4,0048. Serve para quem
+    # precisa escalar uma grandeza que não vive aqui (espessura de linha do motor,
+    # dpi do raster, raio de marcador).
+    fator: float = 1.0
+    formato: str = "A4"
+
     @property
     def figsize_pol(self) -> tuple[float, float]:
         return (self.largura_mm / 25.4, self.altura_mm / 25.4)
 
     def fracao(self, caixa: Caixa) -> tuple[float, float, float, float]:
         return caixa.fracao(self.largura_mm, self.altura_mm)
+
+    def escalado(self, valor: float) -> float:
+        """Grandeza em pt/mm que cresce junto com o papel (D31)."""
+        return valor * self.fator
+
+    def dpi_raster(self, alvo: int = 300) -> int:
+        """dpi do raster dentro do quadro do mapa para esta folha (W-09 §Raster).
+
+        Alvo de 300 dpi efetivos no papel, com teto de pixels no lado maior para não
+        estourar memória: A1 para em 7.000 px (≈249 dpi) e A0 em 9.000 px (≈227 dpi).
+        A4 sai exatamente 300 — o gabarito não muda.
+        """
+        lado_mm = max(self.mapa.largura, self.mapa.altura)
+        if lado_mm <= 0:
+            return int(alvo)
+        lado_pol = lado_mm / 25.4
+        teto = TETO_PX_LADO_MAIOR.get(self.formato)
+        if not teto:
+            return int(alvo)
+        return max(72, min(int(alvo), int(teto / lado_pol)))
 
 
 # Série Dinâmica — A4 retrato 210 × 297 mm.
@@ -135,6 +161,13 @@ PAISAGEM = PerfilPagina(
 )
 
 PERFIS: dict[str, PerfilPagina] = {"retrato": RETRATO, "paisagem": PAISAGEM}
+
+TETO_PX_LADO_MAIOR: dict[str, int] = {"A1": 7000, "A0": 9000}
+"""Teto de pixels do lado maior do raster, por folha (W-09 §Raster).
+
+A4–A2 cabem nos 300 dpi de verdade; A1 e A0 param nestes tetos — reamostrar além disso
+só engorda o PDF (imagem borrada grande é pior que imagem nítida pequena).
+"""
 
 PREFIXO_SERIE = "serie_"
 """Template da série `Análise de área`: o layout vem do modelo medido, não do MXD."""
@@ -235,3 +268,114 @@ def por_formato(formato_pagina: dict | None) -> PerfilPagina:
     if isinstance(mm, (list, tuple)) and len(mm) == 2 and float(mm[0]) > float(mm[1]):
         return PAISAGEM
     return RETRATO
+
+
+def _escalar(caixa: Caixa, k: float) -> Caixa:
+    return Caixa(caixa.x0 * k, caixa.y0 * k, caixa.x1 * k, caixa.y1 * k)
+
+
+def _escalar_com_borda(
+    caixa: Caixa,
+    k: float,
+    base_largura: float,
+    base_altura: float,
+    largura: float,
+    altura: float,
+) -> Caixa:
+    """`k` vezes a caixa, mas **caixa encostada na borda continua encostada**.
+
+    As folhas ISO não têm razão exatamente √2 (210 × 297 mm não é 1,4142135…): A3 é
+    297 × 420 e 297 · (297/210) = 420,043. Sem o encaixe, o minimapa — que no perfil
+    medido termina exatamente em 297,0 mm — vazaria 0,04 mm para fora do papel em A3 e
+    0,41 mm em A0, e o recorte da página comeria parte dele. O encaixe só age em
+    coordenada que já era borda na A4; nenhuma caixa interna é deformada.
+    """
+    def _ajustar(valor: float, base_pagina: float, pagina: float) -> float:
+        if abs(valor) < 1e-9:
+            return 0.0
+        if abs(valor - base_pagina) < 1e-9:
+            return pagina
+        return valor * k
+
+    return Caixa(
+        _ajustar(caixa.x0, base_largura, largura),
+        _ajustar(caixa.y0, base_altura, altura),
+        _ajustar(caixa.x1, base_largura, largura),
+        _ajustar(caixa.y1, base_altura, altura),
+    )
+
+
+def escalar_perfil(base: PerfilPagina, folha: dict | None) -> PerfilPagina:
+    """Escala **qualquer** perfil para a folha pedida (W9-01/W9-02).
+
+    Serve tanto para o perfil genérico por orientação quanto para o perfil **medido** de um
+    modelo da série: o modelo continua mandando no layout e na orientação, a folha só diz
+    o tamanho do papel. A4 devolve o próprio objeto, sem tocar em número.
+    """
+    from mapasfacil_nucleo.motores import folhas as folhas_mod
+
+    dados = folha if isinstance(folha, dict) else {}
+    formato = str(dados.get("formato") or folhas_mod.FORMATO_PADRAO).upper()
+    escala_elementos = str(dados.get("escala_elementos") or folhas_mod.ESCALA_ELEMENTOS[0])
+    if escala_elementos not in folhas_mod.ESCALA_ELEMENTOS:
+        from mapasfacil_nucleo.erros import ErroNucleo
+
+        raise ErroNucleo(
+            "NU-303",
+            f"escala_elementos {escala_elementos!r} ainda não existe. Use "
+            f"{folhas_mod.ESCALA_ELEMENTOS[0]!r}.",
+            {"escala_elementos": escala_elementos, "permitidas": list(folhas_mod.ESCALA_ELEMENTOS)},
+        )
+
+    k = folhas_mod.fator_k(formato)
+    largura, altura = folhas_mod.folha_mm(formato, base.orientacao)
+    if abs(k - 1.0) < 1e-9 and (abs(largura - base.largura_mm) < 1e-9 and abs(altura - base.altura_mm) < 1e-9):
+        return base
+
+    borda = lambda c: _escalar_com_borda(  # noqa: E731 - legibilidade local
+        c, k, base.largura_mm, base.altura_mm, largura, altura
+    )
+    return PerfilPagina(
+        id=f"{formato}:{base.orientacao}",
+        orientacao=base.orientacao,
+        largura_mm=largura,
+        altura_mm=altura,
+        mapa=borda(base.mapa),
+        titulo=borda(base.titulo),
+        rosa=borda(base.rosa),
+        minimapa=borda(base.minimapa),
+        metadados=borda(base.metadados),
+        legenda=borda(base.legenda),
+        logo=borda(base.logo),
+        tabela=borda(base.tabela),
+        crs_padrao=base.crs_padrao,
+        titulo_legenda=base.titulo_legenda,
+        titulo_metadados=base.titulo_metadados,
+        pt_titulo=base.pt_titulo * k,
+        pt_metadados=base.pt_metadados * k,
+        pt_legenda=base.pt_legenda * k,
+        pt_grade=base.pt_grade * k,
+        pt_legenda_titulo=base.pt_legenda_titulo * k,
+        fator=k,
+        formato=formato,
+    )
+
+
+def perfil_para(folha: dict | None) -> PerfilPagina:
+    """Perfil da página para a `folha` do `MapSpec` (W9-01, D31).
+
+    A4 devolve **o próprio perfil medido**, sem tocar em número: o gabarito do acervo
+    continua sendo a verdade. As demais folhas são o A4 multiplicado por `k`, que é o
+    que o ArcMap faz com "escalar elementos proporcionalmente". A escala do mapa **não**
+    entra aqui: ela é recalculada pelo enquadramento (folha maior ⇒ quadro maior ⇒
+    denominador menor, mais detalhe no mesmo papel).
+
+    `folha.escala_elementos` só aceita `"proporcional"` na v1; `"legivel"` é futuro e
+    levanta `NU-303` em vez de ser ignorado em silêncio.
+    """
+    dados = folha if isinstance(folha, dict) else {}
+    orientacao = str(dados.get("orientacao") or ORIENTACAO_PADRAO)
+    return escalar_perfil(obter(orientacao), dados)
+
+
+ORIENTACAO_PADRAO = "retrato"
