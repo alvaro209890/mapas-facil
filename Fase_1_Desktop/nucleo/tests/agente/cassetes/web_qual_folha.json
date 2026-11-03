@@ -1,0 +1,25 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'qual folha fica melhor?': sugere enquadramento, sem gerar versão.",
+  "passos": [
+    {
+      "texto": "Vou medir o imóvel contra cada folha.",
+      "tool_calls": [
+        {
+          "id": "call_sugerir_enquadramento",
+          "type": "function",
+          "function": {
+            "name": "sugerir_enquadramento",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Pela área do imóvel: A4 paisagem a 1:30.000 aproveita 64% do quadro; A3 paisagem desce para 1:22.000 e mostra mais detalhe. Recomendo A3 paisagem se você for imprimir em A3; senão A4 paisagem resolve.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

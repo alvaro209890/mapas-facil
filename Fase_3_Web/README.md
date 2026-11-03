@@ -86,7 +86,7 @@ Os três pilares pedidos pelo Álvaro:
 | W2 | Ponte e pool de workers | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W2.md`) |
 | W3 | API base: contas, sessões, projetos | **fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W3.md`) |
 | W4 | Importação do ZIP e indexação | **quase fechado** — 2026-11-03 (`docs/fase3-rodada-2026-11-03-W4.md`); faltam W4-03 (web) e W4-10 (SAD69) |
-| W5 | Stream de eventos + chat relay | **em andamento** — W5-01/02/03/10/11/13/14/15/18/19 fechados e W5-12 com 4 de 5 tools (2026-11-03) (`docs/fase3-rodada-2026-11-03-W5.md`); chat (W5-10..20) pendente |
+| W5 | Stream de eventos + chat relay | **em andamento** — W5-01/02/03/10/11/12/13/14/15/18/19 fechados; W5-17 com 6 de 7 roteiros (2026-11-03) (`docs/fase3-rodada-2026-11-03-W5.md`); chat (W5-10..20) pendente |
 | W6 | Frontend: shell, login, projetos, assistente, chat | não iniciado |
 | W7 | Eventos de motion no núcleo | não iniciado |
 | W8 | Palco do mapa (câmera, camadas, folha) | não iniciado |

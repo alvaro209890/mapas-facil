@@ -1,0 +1,53 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'clareia a vegetação e tira a tabela': editar_camada → alternar_elemento → gerar.",
+  "passos": [
+    {
+      "texto": "Aplicando a paleta de tipologia na vegetação.",
+      "tool_calls": [
+        {
+          "id": "call_editar_camada",
+          "type": "function",
+          "function": {
+            "name": "editar_camada",
+            "arguments": "{\"id\": \"avn\", \"estilo\": \"tipologia\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Tirando a tabela do layout.",
+      "tool_calls": [
+        {
+          "id": "call_alternar_elemento",
+          "type": "function",
+          "function": {
+            "name": "alternar_elemento",
+            "arguments": "{\"elemento\": \"tabela\", \"ligado\": false}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Gerando a nova versão.",
+      "tool_calls": [
+        {
+          "id": "call_gerar_mapa",
+          "type": "function",
+          "function": {
+            "name": "gerar_mapa",
+            "arguments": "{\"saidas\": [\"pdf\"]}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Versão nova gerada, com a vegetação mais clara e sem a tabela.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

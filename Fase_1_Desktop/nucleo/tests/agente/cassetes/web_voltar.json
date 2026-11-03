@@ -1,0 +1,39 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'volta pra versão 1': listar_versoes → restaurar_versao.",
+  "passos": [
+    {
+      "texto": "Vendo o que já foi gerado.",
+      "tool_calls": [
+        {
+          "id": "call_listar_versoes",
+          "type": "function",
+          "function": {
+            "name": "listar_versoes",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Voltando para a versão 1 — em versão nova, sem apagar as outras.",
+      "tool_calls": [
+        {
+          "id": "call_restaurar_versao",
+          "type": "function",
+          "function": {
+            "name": "restaurar_versao",
+            "arguments": "{\"versao\": 1}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Restaurado: a versão atual voltou ao conteúdo da versão 1, como versão nova.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

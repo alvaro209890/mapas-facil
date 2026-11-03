@@ -1,4 +1,8 @@
-"""Persistência do MapSpec por versão de saída (W5-15).
+"""Persistência do MapSpec por versão de saída (W5-15) — `versoes.py`.
+
+⚠️ Não confundir com `agente/mapspec_store.py`, que guarda o MapSpec **vivo da conversa**
+(`chats/mapspecs/<conversation_id>.json`). Este aqui guarda o MapSpec de cada versão
+**gerada**, ao lado dos artefatos.
 
 Por que existe: a web precisa responder "volta pra versão 1" sem depender de a
 conversa ainda estar na memória de um worker. Cada versão gerada deixa o seu

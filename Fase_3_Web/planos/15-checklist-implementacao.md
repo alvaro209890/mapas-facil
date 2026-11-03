@@ -102,7 +102,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W5-14 Memória de trabalho com folha
 - [ ] W5-15 Edição a partir de versão anterior
 - [ ] W5-16 Provedor `openai_compat` (9Router, `ag/gemini-3.8-flash-high`, `high`) + smoke de tools + contexto real
-- [ ] W5-17 7 roteiros de conversa
+- [~] W5-17 Os 7 roteiros como cassetes: **6 reproduzidos de verdade** (dinâmica, estilo, folha, qual folha, voltar, pergunta) em `tests/agente/cassetes/web_*.json` + `tests/test_agente_web_roteiros.py`; `web_hard` roda e chama `explicar_validacao`, mas **nenhum fixture sintético derruba check HARD hoje** — o caso do plano (H17, áreas × recibo) só existe a partir do W7/W9
 - [x] W5-18 Sugestões de início
 - [x] W5-19 Regras do escritório no prompt (dentro do `_BLOCO_WEB`: dinâmicas intermediárias sem quantitativo, outubro/Planet a partir de 2016, um processo = um mapa, pacote `MXD/ SHP/ Mapas/` e revínculo dos shapes)
 - [ ] W5-20 Visão pelo Gemini via 9Router — **obrigatória** (decisão 2026-11-03): `MAPASFACIL_MODELO_VISAO=ag/gemini-3.8-flash-high`, mesmo modelo do chat

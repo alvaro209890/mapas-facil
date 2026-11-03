@@ -1,0 +1,39 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'passa pra A3 paisagem': definir_folha → gerar.",
+  "passos": [
+    {
+      "texto": "Trocando a folha para A3 paisagem.",
+      "tool_calls": [
+        {
+          "id": "call_definir_folha",
+          "type": "function",
+          "function": {
+            "name": "definir_folha",
+            "arguments": "{\"formato\": \"A3\", \"orientacao\": \"paisagem\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Gerando na folha nova.",
+      "tool_calls": [
+        {
+          "id": "call_gerar_mapa",
+          "type": "function",
+          "function": {
+            "name": "gerar_mapa",
+            "arguments": "{\"saidas\": [\"pdf\"]}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Versão nova em A3 paisagem, escala 1:22.000.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

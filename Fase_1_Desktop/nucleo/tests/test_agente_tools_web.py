@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-from mapasfacil_nucleo import mapspec_store
+from mapasfacil_nucleo import versoes as mapspec_store
 from mapasfacil_nucleo.agente.tools import executar, schemas_openai
 from mapasfacil_nucleo.galeria.montar import montar_mapspec
 from mapasfacil_nucleo.workspace import servico as workspace_servico

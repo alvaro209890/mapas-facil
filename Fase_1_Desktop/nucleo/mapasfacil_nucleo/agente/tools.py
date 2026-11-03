@@ -22,7 +22,7 @@ from mapasfacil_nucleo.agente.edicao import EdicaoInvalida, descrever_diff, nova
 from mapasfacil_nucleo.agente.visao import servico as visao_servico
 from mapasfacil_nucleo.camadas import clip as clip_camadas
 from mapasfacil_nucleo.camadas.resolver import resolver_camada
-from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared, pasta_saida
+from mapasfacil_nucleo.config import ESCALAS_PERMITIDAS, caminho_shared, modo_servidor, pasta_saida
 from mapasfacil_nucleo.mapspec.migrar import CONTRACT_ATUAL
 from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 from mapasfacil_nucleo.conversas.redator import redigir
@@ -865,6 +865,15 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     if estado is None:
         return _erro("NU-040", "Nenhuma pasta conectada.")
 
+    # Modo servidor: a pasta de saída é a da versão que o servidor mandou gerar
+    # (`MAPASFACIL_VERSAO_SAIDA`), não a que ficou gravada no MapSpec quando ele nasceu —
+    # senão toda geração cai em `Mapas/v001` e a segunda sobrescreve a primeira.
+    if modo_servidor():
+        from mapasfacil_nucleo.config import versao_saida as _versao_saida
+
+        mapspec = copy.deepcopy(mapspec)
+        mapspec.setdefault("saida", {})["pasta"] = pasta_saida(versao=_versao_saida())
+
     saidas = args.get("saidas")
     if saidas is not None:
         if not isinstance(saidas, list) or not saidas:
@@ -887,10 +896,10 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     if pdf:
         from pathlib import Path as _Path
 
-        from mapasfacil_nucleo import mapspec_store
+        from mapasfacil_nucleo import versoes
 
         try:
-            mapspec_store.salvar_na_pasta(mapspec, _Path(str(pdf)).parent)
+            versoes.salvar_na_pasta(mapspec, _Path(str(pdf)).parent)
         except OSError:
             pass  # não derruba a geração por causa do registro
 
@@ -1276,26 +1285,54 @@ def tool_definir_folha(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, A
     return _editar(ctx, mutar)
 
 
+def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Qual folha/orientação deixa o mapa mais detalhado para este imóvel (W-10/W5-12)."""
+    from mapasfacil_nucleo.motores import enquadramento
+
+    estado = _estado()
+    if estado is None:
+        return _erro("AG-202", "Nenhuma pasta conectada — sem perímetro não há enquadramento.")
+    geometria = _geometria_imovel(estado)
+    if geometria is None:
+        return _erro("AG-202", "A pasta não tem o perímetro do imóvel (ATP) para calcular o enquadramento.")
+    geom, _epsg = geometria
+    xmin, ymin, xmax, ymax = geom.bounds
+    bbox = {"xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax}
+    formatos = args.get("formatos")
+    if isinstance(formatos, list) and formatos:
+        formatos = [str(f).upper() for f in formatos]
+    else:
+        formatos = list(_FORMATOS_FOLHA)
+    linhas = enquadramento.sugerir(bbox, formatos=formatos)
+    return _ok(
+        {
+            "tabela": linhas,
+            "melhor": linhas[0] if linhas else None,
+            "folha_atual": _folha_como_texto((_mapspec_do_ctx(ctx) or {}).get("folha")),
+        }
+    )
+
+
 def tool_listar_versoes(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Versões já geradas do projeto, da mais nova para a mais antiga."""
-    from mapasfacil_nucleo import mapspec_store
+    from mapasfacil_nucleo import versoes
 
-    versoes = mapspec_store.listar()
+    lista = versoes.listar()
     atual = (_mapspec_do_ctx(ctx) or {}).get("versao")
-    return _ok({"versoes": versoes, "atual": atual, "total": len(versoes)})
+    return _ok({"versoes": lista, "atual": atual, "total": len(lista)})
 
 
 def tool_restaurar_versao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Recria o mapa como estava na versão pedida — em versão NOVA, sem apagar nada."""
-    from mapasfacil_nucleo import mapspec_store
+    from mapasfacil_nucleo import versoes
 
     try:
         alvo = int(args.get("versao"))
     except (TypeError, ValueError):
         return _erro("AG-203", "Informe 'versao' como número inteiro.")
-    antigo = mapspec_store.carregar(alvo)
+    antigo = versoes.carregar(alvo)
     if antigo is None:
-        existentes = [v["versao"] for v in mapspec_store.listar()]
+        existentes = [v["versao"] for v in versoes.listar()]
         return _erro(
             "AG-203",
             f"A versão {alvo} não tem mapa gerado; não há o que restaurar.",
@@ -1332,15 +1369,15 @@ def tool_restaurar_versao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str
 
 def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Explica em português o que a validação da última geração apontou."""
-    from mapasfacil_nucleo import mapspec_store
+    from mapasfacil_nucleo import versoes
 
     versao = args.get("versao")
-    pasta = mapspec_store.pasta_da_versao(int(versao)) if versao else None
+    pasta = versoes.pasta_da_versao(int(versao)) if versao else None
     if pasta is None:
-        ultima = mapspec_store.ultima()
+        ultima = versoes.ultima()
         if ultima is None:
             return _erro("AG-203", "Nenhuma versão gerada ainda — não há validação para explicar.")
-        pasta = mapspec_store.pasta_da_versao(ultima)
+        pasta = versoes.pasta_da_versao(ultima)
     arquivos = sorted(Path(str(pasta)).glob("*_validacao.json"))
     if not arquivos:
         return _erro("AG-203", f"A pasta {pasta.name} não tem relatório de validação.")
@@ -1371,7 +1408,7 @@ def tool_explicar_validacao(args: dict[str, Any], ctx: dict[str, Any]) -> dict[s
     ]
     return _ok(
         {
-            "versao": relatorio.get("versao") or (int(versao) if versao else mapspec_store.ultima()),
+            "versao": relatorio.get("versao") or (int(versao) if versao else versoes.ultima()),
             "conforme": not falhas,
             "veredito": (
                 "O mapa passou nos checks obrigatórios."
@@ -1419,6 +1456,7 @@ _HANDLERS: dict[str, HandlerTool] = {
     "analisar_referencia": tool_analisar_referencia,
     # W5-12 — chat web
     "definir_folha": tool_definir_folha,
+    "sugerir_enquadramento": tool_sugerir_enquadramento,
     "listar_versoes": tool_listar_versoes,
     "restaurar_versao": tool_restaurar_versao,
     "explicar_validacao": tool_explicar_validacao,
@@ -1631,6 +1669,16 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
             },
         },
         "obrig": ["formato"],
+    },
+    "sugerir_enquadramento": {
+        "descricao": "Tabela folha × orientação com a escala que cabe e o aproveitamento do quadro.",
+        "props": {
+            "formatos": {
+                "type": "array",
+                "items": {"type": "string", "enum": list(_FORMATOS_FOLHA)},
+                "description": "folhas a comparar (padrão: A4 a A0)",
+            }
+        },
     },
     "listar_versoes": {
         "descricao": "Lista as versões já geradas do projeto (folha, escala, artefatos).",

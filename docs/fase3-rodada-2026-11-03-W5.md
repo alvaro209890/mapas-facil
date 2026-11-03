@@ -162,3 +162,50 @@ loop durante o `unzip`.
 
 Comandos: `pytest tests/test_sugestoes.py tests/test_importacao.py` → 34 testes; suíte do servidor
 inteira → **140 testes, 0 falhas** (eram 129).
+
+## Adendo 5 — W5-17 (roteiros), W5-12 completo e o núcleo do enquadramento
+
+**`motores/enquadramento.py` (núcleo do W-10, antecipado porque o W5-12 dependia dele).**
+Dado o retângulo do imóvel e uma folha, devolve a **menor escala redonda** em que ele cabe,
+com margem de 8 %, mais o **aproveitamento** do quadro em %. Escala redonda sai de
+`config.ESCALAS_PERMITIDAS` — nunca uma escala inventada. `sugerir()` devolve a tabela
+folha × orientação da mais aproveitada para a menos. Exemplo medido, imóvel de 6 × 4 km:
+A4 paisagem 1:30.000 (63,7 %), A3 paisagem 1:22.000 (59,3 %), A4 retrato 1:40.000 (35,9 %).
+O que **fica** para o W11 completo: composição do quadro, qual camada manda no zoom e a
+tabela por classe.
+
+**`sugerir_enquadramento` (W5-12 fechou).** Usa o perímetro do workspace
+(`_geometria_imovel`) e devolve a mesma tabela; sem perímetro responde `AG-202`. São
+**32 tools** registradas — as 27 antigas + as 5 do chat web, como o plano previu.
+
+**Os 7 roteiros (W5-17), 6 reproduzidos de verdade.** Cassetes em
+`tests/agente/cassetes/web_*.json` + `tests/test_agente_web_roteiros.py`, todos pelo
+`FakeProvedor` (CI sem rede e sem chave). O teste de cada roteiro afirma a **sequência de
+tools** e o **estado final**:
+
+| Roteiro | Sequência afirmada | Estado final |
+|---|---|---|
+| `web_dinamica` | estado → recibo → galeria → validar → gerar | v1 em A4, `saidas ⊇ {pdf, xlsx}` |
+| `web_estilo` | editar_camada → alternar_elemento → gerar | `elementos_layout.tabela = false`, duas versões novas no turno |
+| `web_folha` | definir_folha → gerar | v+1 em A3 paisagem, escala ≤ a anterior |
+| `web_qual_folha` | sugerir_enquadramento | **nenhuma** versão nova, resposta cita escala |
+| `web_voltar` | listar_versoes → restaurar_versao | v3 com `parent_id` da v1; `v001` e `v002` continuam no disco |
+| `web_pergunta` | criar_mapa | pergunta emitida, nenhum MapSpec gravado |
+| `web_hard` | galeria → editar_camada → gerar → explicar_validacao | roda de verdade, mas **nenhum HARD falha** hoje |
+
+`web_hard` é a exceção declarada: o caso do plano (AUAS fora da ATP + recibo divergente, check
+**H17**) depende de um check que **ainda não existe** no núcleo — entra no W7/W9. O teste afirma
+essa realidade (lista de HARD falhos vazia) e **falha de propósito** no dia em que um HARD começar
+a falhar, obrigando a revisar a promessa da IA. Nada foi marcado como pronto por causa de texto
+de cassete.
+
+**Bug real que o W5-17 desenterrou:** toda geração caía em `Mapas/v001`, porque a pasta de saída
+ficava gravada no MapSpec quando ele **nasceu** (`galeria/montar.py`) e ninguém a atualizava. Agora
+`tool_gerar_mapa` reescreve `saida.pasta` com a versão corrente (`MAPASFACIL_VERSAO_SAIDA`) antes
+de gerar — sem isso a segunda versão sobrescrevia a primeira e "voltar para a v1" devolvia a v2.
+
+**Colisão de nome consertada:** o módulo novo de versões passou a se chamar `versoes.py`; já
+existia `agente/mapspec_store.py`, que guarda o MapSpec **vivo da conversa**. Dois arquivos com o
+mesmo nome foi erro meu de leitura, não do plano.
+
+Comandos: núcleo **572 testes desktop** e **562 em modo servidor** (eram 564/554).

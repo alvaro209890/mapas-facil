@@ -1,0 +1,25 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · perímetro não reconhecido: criar_mapa emite chat.pergunta com opções.",
+  "passos": [
+    {
+      "texto": "Preciso saber qual arquivo é o perímetro.",
+      "tool_calls": [
+        {
+          "id": "call_criar_mapa",
+          "type": "function",
+          "function": {
+            "name": "criar_mapa",
+            "arguments": "{\"template\": \"dinamica_2026_retrato\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Não reconheci qual arquivo é o perímetro do imóvel. Qual desses é ele?",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

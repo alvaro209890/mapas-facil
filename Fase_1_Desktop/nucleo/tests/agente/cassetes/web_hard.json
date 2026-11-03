@@ -1,0 +1,67 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'recorta só uma classe': galeria → filtro → gerar → explicar_validacao.",
+  "passos": [
+    {
+      "texto": "Montando pelo modelo da Dinâmica.",
+      "tool_calls": [
+        {
+          "id": "call_usar_modelo_da_galeria",
+          "type": "function",
+          "function": {
+            "name": "usar_modelo_da_galeria",
+            "arguments": "{\"modelo_id\": \"dinamica_2026_retrato\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Aplicando o recorte pedido.",
+      "tool_calls": [
+        {
+          "id": "call_editar_camada",
+          "type": "function",
+          "function": {
+            "name": "editar_camada",
+            "arguments": "{\"id\": \"avn\", \"filtro\": {\"campo\": \"CLASSE\", \"operador\": \"=\", \"valor\": \"INEXISTENTE\"}}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Gerando o mapa.",
+      "tool_calls": [
+        {
+          "id": "call_gerar_mapa",
+          "type": "function",
+          "function": {
+            "name": "gerar_mapa",
+            "arguments": "{\"saidas\": [\"pdf\"]}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Conferindo o relatório de validação.",
+      "tool_calls": [
+        {
+          "id": "call_explicar_validacao",
+          "type": "function",
+          "function": {
+            "name": "explicar_validacao",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Mapa gerado. O relatório de validação não apontou nenhum check obrigatório falhando — mas se apontasse, eu diria qual falhou antes de chamar de pronto.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}

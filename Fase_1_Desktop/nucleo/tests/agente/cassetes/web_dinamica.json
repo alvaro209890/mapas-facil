@@ -1,0 +1,81 @@
+{
+  "versao": 1,
+  "descricao": "W5-17 · 'faz a dinâmica 2026': estado → recibo → galeria → validar → gerar.",
+  "passos": [
+    {
+      "texto": "Olhando a pasta.",
+      "tool_calls": [
+        {
+          "id": "call_estado_do_projeto",
+          "type": "function",
+          "function": {
+            "name": "estado_do_projeto",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Lendo o recibo do CAR.",
+      "tool_calls": [
+        {
+          "id": "call_ler_recibo_car",
+          "type": "function",
+          "function": {
+            "name": "ler_recibo_car",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Vou montar pelo modelo da Dinâmica.",
+      "tool_calls": [
+        {
+          "id": "call_usar_modelo_da_galeria",
+          "type": "function",
+          "function": {
+            "name": "usar_modelo_da_galeria",
+            "arguments": "{\"modelo_id\": \"dinamica_2026_retrato\"}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Conferindo o mapa antes de gerar.",
+      "tool_calls": [
+        {
+          "id": "call_validar_mapspec",
+          "type": "function",
+          "function": {
+            "name": "validar_mapspec",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Gerando o PDF e a planilha.",
+      "tool_calls": [
+        {
+          "id": "call_gerar_mapa",
+          "type": "function",
+          "function": {
+            "name": "gerar_mapa",
+            "arguments": "{\"saidas\": [\"pdf\", \"xlsx\"]}"
+          }
+        }
+      ],
+      "finish_reason": "tool_calls"
+    },
+    {
+      "texto": "Pronto: versão gerada com PDF e planilha de quantitativos.",
+      "tool_calls": [],
+      "finish_reason": "stop"
+    }
+  ]
+}
