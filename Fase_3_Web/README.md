@@ -108,3 +108,5 @@ O W10 amplia para todas as folhas e para os demais pontos variáveis do layout.
 - Animação só amarrada a evento real do núcleo (AP-07). Sem spinner falso, sem timer fingindo etapa.
 - A IA edita `MapSpec`; nunca escreve código, `arcpy`, SQL ou URL (AP-02).
 - O servidor **nunca** roda ArcMap/ArcPy (AP-01 revisado por D24).
+
+> Trilha B (web) começou em 2026-11-03 pelo W6-02 (cliente HTTP, SSE e tipos).

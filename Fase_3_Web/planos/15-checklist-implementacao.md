@@ -110,7 +110,7 @@ indicado; aqui fica o índice para o agente não se perder.
 ## W6 — Frontend
 
 - [ ] W6-01 Cópia de tokens, fontes, motion e componentes com proveniência
-- [ ] W6-02 `api/cliente.ts`, `eventos.ts`, `ponteWeb.ts`, `tipos.ts`
+- [x] W6-02 `api/cliente.ts` (fetch com `credentials: include`, CSRF nas mutações, `ErroHttp` com `o_que_fazer`, 401 avisando a sessão uma vez, falha de rede = `REDE`), `api/eventos.ts` (EventSource `mf`, dedupe por `seq`, estados conectado/reconectando/offline) e `api/tipos.ts` com guarda de contrato contra `eventos/vocabulario.py`. **Falta `api/ponteWeb.ts`** (entra com as stores herdadas, W6-03)
 - [ ] W6-03 Stores
 - [ ] W6-04 `Entrar.tsx` + troca de senha
 - [ ] W6-05 `Projetos.tsx`
