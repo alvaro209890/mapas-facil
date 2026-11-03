@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import sqlite3
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, Query, Response
+from fastapi.responses import FileResponse
 
 from .. import projetos_repo
 from ..auth import contas, sessoes
 from ..erros import ErroServidor
+from ..pacote import OpcoesPacote, montar_pacote_zip
 from . import deps, modelos
 
 router = APIRouter(prefix="/projetos", tags=["projetos"])
@@ -151,3 +154,42 @@ def versoes(
         con, projeto_id, usuario_id=usuario.id, admin=_admin(usuario)
     )
     return {"itens": projetos_repo.versoes(con, projeto.id)}
+
+
+@router.get("/{projeto_id}/versoes/{versao}/pacote.zip")
+def baixar_pacote_zip(
+    projeto_id: str,
+    versao: int,
+    con: sqlite3.Connection = Depends(deps.pegar_con),
+    usuario: contas.Usuario = Depends(deps.pegar_usuario),
+) -> FileResponse:
+    """Download do pacote de entrega completo (MXD/SHP/Mapas) de uma versão (W10-10)."""
+    projeto = projetos_repo.exigir(
+        con, projeto_id, usuario_id=usuario.id, admin=_admin(usuario)
+    )
+    linha_versao = con.execute(
+        "SELECT * FROM versoes WHERE projeto_id = ? AND numero = ?",
+        (projeto.id, versao),
+    ).fetchone()
+    if not linha_versao:
+        raise ErroServidor("SV-240", "Versão não encontrada.", status_http=404)
+
+    pasta_versao = Path(linha_versao["pasta"])
+    nome_limpo = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in projeto.nome).strip("_")
+    nome_zip = f"{nome_limpo or 'projeto'}_v{versao:03d}.zip"
+    caminho_zip = pasta_versao / nome_zip
+
+    if not caminho_zip.exists():
+        opcoes = OpcoesPacote(
+            nome_imovel=projeto.nome,
+            nome_template="Mapa",
+            versao=versao,
+            mxd_conforme=bool(linha_versao["conforme"]),
+        )
+        montar_pacote_zip(pasta_versao, caminho_zip, opcoes)
+
+    return FileResponse(
+        path=caminho_zip,
+        media_type="application/zip",
+        filename=nome_zip,
+    )

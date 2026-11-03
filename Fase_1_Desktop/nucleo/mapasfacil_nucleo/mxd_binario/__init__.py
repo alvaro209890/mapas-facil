@@ -21,6 +21,7 @@ from .cfbf import (
 )
 from .documento import DocumentoMxd
 from .gates import ResultadoGate, verificar_g1, verificar_g2, verificar_g3, verificar_todos
+from .pacote import OpcoesPacote, montar_pacote_zip
 from .slots import DefinicaoSlot, ErroSlot, ManifestoSlots
 
 __all__ = [
@@ -47,4 +48,6 @@ __all__ = [
     "verificar_g2",
     "verificar_g3",
     "verificar_todos",
+    "OpcoesPacote",
+    "montar_pacote_zip",
 ]
