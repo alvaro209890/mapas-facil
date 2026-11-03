@@ -238,6 +238,24 @@ def _extent(
 # --------------------------------------------------------------------------- #
 
 
+def _bbox_4326(extent: tuple[float, float, float, float], epsg: int) -> list[float] | None:
+    """Extent projetado → `[oeste, sul, leste, norte]` em graus (o palco desenha em 4326)."""
+    try:
+        from pyproj import Transformer
+
+        transformer = Transformer.from_crs(f"EPSG:{epsg}", "EPSG:4326", always_xy=True)
+        oeste, sul = transformer.transform(extent[0], extent[1])
+        leste, norte = transformer.transform(extent[2], extent[3])
+        return [
+            round(min(oeste, leste), 6),
+            round(min(sul, norte), 6),
+            round(max(oeste, leste), 6),
+            round(max(sul, norte), 6),
+        ]
+    except Exception:  # noqa: BLE001 — sem pyproj o palco perde o foco, o PDF não
+        return None
+
+
 def _formatar_escala(escala: float | None) -> str:
     if not escala:
         return ""
@@ -364,6 +382,7 @@ def gerar_pdf_minimo(
     fontes_idx: dict[str, str],
     png_tabela: Path | None = None,
     ao_preview: Callable[[str, str], None] | None = None,
+    progresso: Any = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Desenha o mapa no padrão Harmonia e exporta PDF (+ PNG da página).
 
@@ -382,6 +401,73 @@ def gerar_pdf_minimo(
 
     camadas = _carregar_camadas(mapspec, fontes_idx, guard, epsg)
     extent, escala = _extent(mapspec, camadas, perfil)
+
+    # Palco (W7): o `enquadramento` é emitido quando a escala deixou de ser dúvida; a `folha`
+    # quando o mapa já é página. Daqui para baixo cada elemento posicionado vira
+    # `layout.elemento` — nesta ordem, que é a ordem de desenho.
+    motion_mod = None
+    folha_dict: dict[str, Any] = {}
+    palco_layout: dict[str, Any] | None = None
+    bbox_4326: list[float] | None = None
+    if progresso is not None and getattr(progresso, "emite_eventos", False) and progresso.job_id:
+        from mapasfacil_nucleo import motion as motion_mod
+
+        folha_dict = {
+            "formato": str((mapspec.get("folha") or {}).get("formato") or "A4").upper(),
+            "orientacao": perfil.orientacao,
+            "largura_mm": perfil.largura_mm,
+            "altura_mm": perfil.altura_mm,
+        }
+        bbox_4326 = _bbox_4326(extent, epsg)
+        if bbox_4326 is not None:
+            quadro = (perfil.mapa.largura, perfil.mapa.altura)
+            try:
+                progresso.foco(
+                    "enquadramento",
+                    bbox_4326,
+                    _formatar_escala(escala) or "escala automática",
+                    "calculo_escala",
+                    escala=int(round(escala)) if escala else None,
+                    crs_mapa=f"EPSG:{epsg}",
+                    quadro_mm=quadro,
+                )
+                progresso.foco(
+                    "folha",
+                    bbox_4326,
+                    f"{folha_dict['formato']} {folha_dict['orientacao']}",
+                    "perfil_pagina",
+                    quadro_mm=quadro,
+                )
+            except Exception as exc:  # noqa: BLE001 — palco nunca derruba o PDF
+                progresso.log(f"palco: foco de enquadramento/folha recusado ({exc})")
+        ligados = [
+            e
+            for e in motion_mod.elementos_na_ordem(motion_mod.ELEMENTOS)
+            if _ligado(mapspec, e, padrao=(e != "grade_linhas"))
+        ]
+        if not (png_tabela is not None and _deve_sobrepor_tabela(mapspec)):
+            ligados = [e for e in ligados if e != "tabela"]
+        palco_layout = {"total": len(ligados), "n": 0, "ligados": set(ligados)}
+
+    def _elemento(nome: str, *, conteudo: Any = None, caminho: Any = None) -> None:
+        """Emite `layout.elemento` se o elemento foi ligado neste MapSpec."""
+        if palco_layout is None or progresso is None or motion_mod is None:
+            return
+        if nome not in palco_layout["ligados"]:
+            return
+        palco_layout["n"] += 1
+        try:
+            progresso.elemento(
+                elemento=nome,
+                sequencia=palco_layout["n"],
+                total=palco_layout["total"],
+                folha=folha_dict,
+                caixa_mm=motion_mod.caixa_do_elemento(perfil, nome),
+                conteudo=conteudo,
+                caminho=caminho,
+            )
+        except Exception as exc:  # noqa: BLE001
+            progresso.log(f"palco: elemento {nome} recusado ({exc})")
 
     fig = plt.figure(figsize=perfil.figsize_pol)
     fig.patch.set_facecolor("white")
@@ -416,6 +502,31 @@ def gerar_pdf_minimo(
                 "tentativas": info_basemap.get("tentativas", []),
             }
 
+    if (progresso is not None and getattr(progresso, "emite_eventos", False) and progresso.job_id and info_basemap.get("ok") and bbox_4326 is not None):
+        # W7-08: o palco mostra o MESMO mosaico que foi para o PDF, recortado em PNG 1600 px.
+        try:
+            from mapasfacil_nucleo import palco as palco_mod
+
+            pasta_raster = palco_mod.pasta_do_job(guard, str(progresso.job_id), palco_mod.SUBP_RASTER)
+            info_raster = palco_mod.gravar_raster(
+                Path(str(info_basemap["caminho"])),
+                pasta_raster / "basemap.png",
+                bbox_4326=bbox_4326,
+            )
+            progresso.camada(
+                camada_id="basemap",
+                papel="basemap",
+                nome="Imagem de satelite",
+                geometria="raster",
+                caminho=palco_mod.relativo(info_raster["caminho"], guard),
+                bbox=info_raster["bbox_4326"],
+                n_feicoes=0,
+                estilo={"preenchimento": None, "contorno": "#000000", "espessura_pt": 0.0},
+                etapa="aplicando_layout",
+            )
+        except Exception as exc:  # noqa: BLE001
+            progresso.log("palco: raster do basemap indisponivel (%s)" % exc)
+
     desenhadas = _plotar(ax, camadas)
 
     # Rótulo do imóvel: só o nome, branco com halo, acima das hachuras.
@@ -437,13 +548,18 @@ def gerar_pdf_minimo(
         blocos.moldura_e_grade(
             ax, perfil, grade, com_linhas=_ligado(mapspec, "grade_linhas", padrao=False)
         )
+        _elemento("grade")
+        if _ligado(mapspec, "grade_linhas", padrao=False):
+            _elemento("grade_linhas")
     else:
         blocos.moldura_e_grade(ax, perfil, {"x": [], "y": []})
 
     if _ligado(mapspec, "titulo_caixa"):
         blocos.caixa_titulo(fig, perfil, str(mapspec.get("titulo") or ""))
+        _elemento("titulo_caixa", conteudo=str(mapspec.get("titulo") or ""))
     if _ligado(mapspec, "norte"):
         blocos.rosa_dos_ventos(fig, perfil)
+        _elemento("norte")
 
     metadados = _resolver_metadados(mapspec, epsg=epsg, escala=escala, basemap=info_basemap)
     linhas_meta = 0
@@ -451,11 +567,13 @@ def gerar_pdf_minimo(
         linhas_meta = blocos.bloco_metadados(
             fig, perfil, metadados, titulo=getattr(perfil, "titulo_metadados", "METADADOS IMAGEM")
         )
+        _elemento("metadados", conteudo={"linhas": linhas_meta})
 
     itens_legenda = _itens_legenda(camadas)
     n_legenda = 0
     if _ligado(mapspec, "legenda"):
         n_legenda = blocos.bloco_legenda(fig, perfil, itens_legenda)
+        _elemento("legenda", conteudo={"itens": n_legenda})
 
     info_minimapa: dict[str, Any] = {}
     if _ligado(mapspec, "minimapa"):
@@ -472,13 +590,26 @@ def gerar_pdf_minimo(
             shp_ufs=ibge_mod.shapefile_ufs(),
         )
 
+    if _ligado(mapspec, "minimapa") and info_minimapa:
+        _elemento(
+            "minimapa",
+            conteudo={
+                "municipio": info_minimapa.get("municipio"),
+                "uf": info_minimapa.get("uf"),
+            },
+        )
+
     logo_ok = False
     if _ligado(mapspec, "logo"):
         logo_ok = blocos.bloco_logo(fig, perfil, raiz_repositorio() / LOGO_PADRAO)
+        if logo_ok:
+            _elemento("logo")
 
     tabela_ok = False
     if png_tabela is not None and _deve_sobrepor_tabela(mapspec):
         tabela_ok = _sobrepor_png_tabela(fig, perfil, png_tabela)
+        if tabela_ok:
+            _elemento("tabela")
 
     if ao_preview is not None:
         ao_preview(_salvar_preview(fig, guard, 2), "aplicando_layout")
@@ -487,6 +618,33 @@ def gerar_pdf_minimo(
     png_pagina = pasta / f"{nome_base}_pagina.png"
     fig.savefig(png_pagina, format="png", dpi=150)
     plt.close(fig)
+
+    # W7-06: recortes por elemento, a partir da própria página renderizada. O palco procura
+    # `layout/<elemento>.png` por convenção; sem o arquivo, mostra um bloco com o nome.
+    if palco_layout is not None and progresso is not None and getattr(progresso, "emite_eventos", False):
+        from mapasfacil_nucleo import palco as palco_mod
+
+        try:
+            pasta_layout = palco_mod.pasta_do_job(
+                guard, str(progresso.job_id), palco_mod.SUBP_LAYOUT
+            )
+        except Exception as exc:  # noqa: BLE001
+            progresso.log("palco: pasta de layout indisponivel (%s)" % exc)
+            pasta_layout = None
+        if pasta_layout is not None:
+            for nome in sorted(palco_layout["ligados"]):
+                try:
+                    caixa = motion_mod.caixa_do_elemento(perfil, nome)
+                    palco_mod.gravar_recorte_elemento(
+                        png_pagina,
+                        pasta_layout / ("%s.png" % nome),
+                        caixa_mm=caixa,
+                        largura_mm=perfil.largura_mm,
+                        altura_mm=perfil.altura_mm,
+                        dpi=150,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    progresso.log("palco: recorte de %s falhou (%s)" % (nome, exc))
 
     hard = [
         {"id": "H09", "ok": desenhadas > 0, "mensagem": "Mapa contém geometrias desenhadas"},

@@ -260,3 +260,44 @@ def extent_municipio(
     half_w = (maxx - minx) / 2.0 * padding
     half_h = (maxy - miny) / 2.0 * padding
     return cx - half_w, cy - half_h, cx + half_w, cy + half_h
+
+@lru_cache(maxsize=8)
+def _extent_uf_cache(nome_uf: str, shp_path: str, padding: float) -> tuple[float, float, float, float] | None:
+    reader = shapefile.Reader(shp_path)
+    fields = [f[0] for f in reader.fields[1:]]
+    nome_i = fields.index("nome") if "nome" in fields else 0
+    geoms = []
+    for sr in reader.iterShapeRecords():
+        if str(sr.record[nome_i]) != nome_uf:
+            continue
+        try:
+            geoms.append(shape(sr.shape.__geo_interface__))
+        except Exception:
+            continue
+    if not geoms:
+        return None
+    minx, miny, maxx, maxy = unary_union(geoms).bounds
+    cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    half_w = (maxx - minx) / 2.0 * padding
+    half_h = (maxy - miny) / 2.0 * padding
+    return (cx - half_w, cy - half_h, cx + half_w, cy + half_h)
+
+
+def extent_uf(
+    sigla: str | None,
+    *,
+    root: Path | None = None,
+    padding: float = 1.0,
+) -> tuple[float, float, float, float] | None:
+    """BBox WGS84 (xmin, ymin, xmax, ymax) da UF, a partir da malha versionada no repo.
+
+    É o `viewport.foco` de nível `estado` (W7): a câmera do palco começa mostrando o estado de
+    verdade, não um retângulo inventado. UF sem malha devolve `None` — quem chama não emite.
+    """
+    nome_uf = UF_SIGLA_PARA_NOME.get(str(sigla or "").upper())
+    if not nome_uf:
+        return None
+    shp = shapefile_ufs(root)
+    if not shp.is_file():
+        return None
+    return _extent_uf_cache(nome_uf, str(shp), float(padding))

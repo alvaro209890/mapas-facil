@@ -1,0 +1,25 @@
+{
+  "job_id": "01JOBPALCO0000000000000000",
+  "eventos": 33,
+  "por_evento": {
+    "job.progresso": 11,
+    "viewport.foco": 5,
+    "job.log": 4,
+    "job.artefato_parcial": 5,
+    "camada.renderizada": 2,
+    "layout.elemento": 6
+  },
+  "sha256": "08e58ada14fca79438c7cac379e32874fc5938cc0ff21a27e1478fc05856ef79",
+  "assets": [
+    "palco_dinamica/camadas/avn.geojson",
+    "palco_dinamica/camadas/perimetro.geojson",
+    "palco_dinamica/layout/creditos.png",
+    "palco_dinamica/layout/escala_grafica.png",
+    "palco_dinamica/layout/grade.png",
+    "palco_dinamica/layout/legenda.png",
+    "palco_dinamica/layout/logo.png",
+    "palco_dinamica/layout/metadados.png",
+    "palco_dinamica/layout/norte.png",
+    "palco_dinamica/layout/titulo_caixa.png"
+  ]
+}

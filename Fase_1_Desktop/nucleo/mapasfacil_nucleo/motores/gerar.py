@@ -120,6 +120,48 @@ def _resolver_bbox_utm(
     return min(tx), min(ty), max(tx), max(ty)
 
 
+def _municipio_imovel(mapspec: dict[str, Any]) -> tuple[str, str]:
+    """`(nome_municipio, sigla_uf)` do MapSpec — vazio quando o laudo não tem município."""
+    mun = (mapspec.get("imovel") or {}).get("municipio") or {}
+    if isinstance(mun, dict):
+        return str(mun.get("nome") or "").strip(), str(mun.get("uf") or "MT").strip().upper()
+    return str(mun or "").strip(), "MT"
+
+
+def _foco_estado(mapspec: dict[str, Any], prog: RastreadorProgresso) -> None:
+    """`viewport.foco` nível `estado` — a câmera do palco parte do estado do imóvel."""
+    from mapasfacil_nucleo.camadas import ibge as ibge_mod
+
+    _nome_mun, uf = _municipio_imovel(mapspec)
+    try:
+        extent = ibge_mod.extent_uf(uf)
+    except Exception as exc:  # noqa: BLE001 — malha ausente não pode derrubar o job
+        prog.log(f"palco: sem malha da UF {uf} ({exc})")
+        return
+    if not extent:
+        prog.log(f"palco: sem malha da UF {uf} — câmera começa no município")
+        return
+    prog.foco("estado", extent, ibge_mod.uf_sigla_para_nome(uf) or uf, "ibge")
+
+
+def _foco_municipio(mapspec: dict[str, Any], prog: RastreadorProgresso) -> None:
+    """`viewport.foco` nível `municipio` — entra antes de resolver as camadas locais."""
+    from mapasfacil_nucleo.camadas import ibge as ibge_mod
+
+    nome, uf = _municipio_imovel(mapspec)
+    if not nome:
+        return
+    try:
+        extent = ibge_mod.extent_municipio(nome=nome)
+    except Exception as exc:  # noqa: BLE001
+        prog.log(f"palco: sem extent de {nome}/{uf} ({exc})")
+        return
+    if not extent:
+        prog.log(f"palco: município {nome}/{uf} fora da malha do repo")
+        return
+    prog.foco("municipio", extent, f"{nome}/{uf}", "ibge")
+
+
 def _recibo_do_guard(guard: WorkspaceGuard) -> dict[str, Any] | None:
     """Lê o recibo CAR do workspace, se o índice o apontar."""
     from mapasfacil_nucleo.workspace import indice as indice_mod
@@ -194,6 +236,7 @@ def _gerar_sob_vaga(
         raise ErroNucleo(primeiro["codigo"], primeiro["mensagem"], {"erros": resultado_val["erros"]})
     jobs.verificar_nao_cancelado(prog.job_id)
     prog.concluir("validando_spec")
+    _foco_estado(mapspec, prog)
 
     workspace_watcher.pausar_pastas_saida(True)
     try:
@@ -252,8 +295,58 @@ def _gerar_mapa_corpo(
         c.get("id"): c.get("ordem") for c in mapspec.get("camadas") or [] if c.get("id")
     }
 
+    camadas_cfg = {c.get("id"): c for c in mapspec.get("camadas") or [] if c.get("id")}
+    palco_estado: dict[str, Any] = {}
+
+    def _publicar_no_palco(camada_id: str, total: int, destino_rel: str) -> None:
+        """GeoJSON + `viewport.foco(imovel)` + `camada.renderizada` (W7-04/W7-07).
+
+        Palco é acessório do job: qualquer falha aqui vira `job.log`, nunca derruba o mapa —
+        o PDF é o contrato, o palco é a vitrine.
+        """
+        if not (prog.emite_eventos and prog.job_id):
+            return
+        from mapasfacil_nucleo import palco as palco_mod
+        from mapasfacil_nucleo.motores import estilos as estilos_mod
+
+        cfg = camadas_cfg.get(camada_id) or {}
+        nome = str(cfg.get("nome_no_mxd") or cfg.get("legenda") or camada_id)
+        try:
+            pasta = palco_mod.pasta_do_job(guard, str(prog.job_id), palco_mod.SUBP_GEOMETRIAS)
+            info = palco_mod.gravar_geojson(
+                guard.resolver(destino_rel),
+                pasta / f"{camada_id}.geojson",
+                bbox_imovel_4326=palco_estado.get("bbox_imovel"),
+                propriedades={"camada_id": camada_id, "nome": nome, "papel": camada_id},
+            )
+        except Exception as exc:  # noqa: BLE001
+            prog.log(f"palco: camada {camada_id} sem GeoJSON ({type(exc).__name__}: {exc})")
+            return
+
+        if camada_id == "perimetro" and not palco_estado.get("imovel_emitido"):
+            palco_estado["bbox_imovel"] = tuple(info["bbox_4326"])
+            palco_estado["imovel_emitido"] = True
+            prog.foco("imovel", info["bbox_4326"], nome, "geometria_local")
+
+        try:
+            prog.camada(
+                camada_id=camada_id,
+                papel=camada_id,
+                nome=nome,
+                geometria=info["geometria"],
+                total=total,
+                caminho=palco_mod.relativo(info["caminho"], guard),
+                bbox=info["bbox_4326"],
+                estilo=estilos_mod.obter(cfg.get("estilo")),
+                n_feicoes=info["n_feicoes"],
+                area_ha=info["area_ha"],
+                ordem_mapspec=cfg.get("ordem"),
+            )
+        except Exception as exc:  # noqa: BLE001
+            prog.log(f"palco: evento de {camada_id} recusado ({exc})")
+
     def _camada_pronta(camada_id: str, i: int, total: int, destino_rel: str) -> None:
-        """Uma camada materializada: `job.progresso` (item) + artefato `camada`."""
+        """Uma camada materializada: `job.progresso` (item) + artefato `camada` + palco."""
         prog.item("resolvendo_camadas_locais", camada_id, indice=i, total=total)
         prog.artefato(
             "camada",
@@ -263,6 +356,9 @@ def _gerar_mapa_corpo(
             camada_id=camada_id,
             ordem=ordem_por_camada.get(camada_id),
         )
+        _publicar_no_palco(camada_id, total, destino_rel)
+
+    _foco_municipio(mapspec, prog)
 
     precisa_shp = bool(saida_cfg.get("materializar_camadas_em")) or "mxd" in saidas
     if precisa_shp:
@@ -396,6 +492,7 @@ def _gerar_mapa_corpo(
             guard=guard,
             fontes_idx=fontes_idx,
             png_tabela=png_path,
+            progresso=prog,
             # Sem canal de eventos ninguém vê preview: não rasteriza (custo à toa).
             ao_preview=(
                 (

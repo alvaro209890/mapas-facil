@@ -10,6 +10,9 @@ from .db import Banco
 
 DIAS_LIXEIRA = 30
 HORAS_UPLOAD = 24
+# Palco: assets de `.preview` de job velho não servem para nada (o evento já foi consumido)
+# e crescem rápido (GeoJSON por camada). 7 dias cobre uma investigação de suporte.
+DIAS_PREVIEW = 7
 
 
 def limpar_lixeira(banco: Banco, cfg: object, *, dias: int = DIAS_LIXEIRA) -> dict:
@@ -47,4 +50,20 @@ def limpar_lixeira(banco: Banco, cfg: object, *, dias: int = DIAS_LIXEIRA) -> di
             except OSError:  # pragma: no cover - arquivo travado
                 continue
 
-    return {"projetos": apagados, "uploads": uploads}
+    previews = 0
+    projetos_dir = Path(str(getattr(cfg, "projetos", ""))) if getattr(cfg, "projetos", None) else None
+    if projetos_dir is not None and projetos_dir.is_dir():
+        limite_s = time.time() - DIAS_PREVIEW * 86400
+        for projeto in projetos_dir.iterdir():
+            preview = projeto / "Mapas" / ".preview"
+            if not preview.is_dir():
+                continue
+            for job in preview.iterdir():
+                try:
+                    if job.is_dir() and job.stat().st_mtime < limite_s:
+                        shutil.rmtree(job, ignore_errors=True)
+                        previews += 1
+                except OSError:  # pragma: no cover - pasta travada
+                    continue
+
+    return {"projetos": apagados, "uploads": uploads, "previews": previews}

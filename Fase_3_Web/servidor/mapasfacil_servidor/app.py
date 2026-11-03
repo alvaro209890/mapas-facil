@@ -16,7 +16,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from . import __version__
-from .api import admin, arquivos, auth, deps, eventos, importacao, mensagens, projetos, sugestoes
+from .api import admin, arquivos, auth, deps, eventos, importacao, mensagens, palco, projetos, sugestoes
 from .db import Banco
 from .erros import ErroServidor
 from .estaticos import montar_estaticos, pasta_dist
@@ -81,6 +81,7 @@ def create_app(
     app.include_router(sugestoes.router, prefix=API)
     app.include_router(admin.router, prefix=API)
     app.include_router(arquivos.router, prefix=API)
+    app.include_router(palco.router, prefix=API)
 
     # A SPA é montada **depois** dos routers: a rota curinga do front não pode engolir
     # `/api/v1/...`. Sem build (`web/dist` ausente) nada é montado e a API segue sozinha.

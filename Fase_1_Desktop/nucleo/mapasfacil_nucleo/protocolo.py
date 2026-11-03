@@ -64,6 +64,10 @@ EVENTOS: frozenset[str] = frozenset(
         "chat.pergunta",
         "mapspec.atualizado",
         "aviso",
+        # Palco da web (W7 / W-03 §Os três eventos novos): câmera, acendimento e folha.
+        "viewport.foco",
+        "camada.renderizada",
+        "layout.elemento",
     }
 )
 

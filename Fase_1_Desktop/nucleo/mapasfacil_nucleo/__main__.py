@@ -572,6 +572,8 @@ def main_cli() -> None:
     sub.add_parser("stdio", help="Loop NDJSON (padrão do Electron)")
     folhas_parser = sub.add_parser("folhas", help="Tabela de folhas A4–A0 (mm e fator k)")
     folhas_parser.add_argument("--json", action="store_true", help="Saída JSON (espelho do servidor/web)")
+    estilos_parser = sub.add_parser("estilos", help="Estilos oficiais do perfil Harmonia (Web/W7-09)")
+    estilos_parser.add_argument("--json", action="store_true", help="Saída JSON")
     doctor_parser = sub.add_parser("doctor", help="Diagnóstico do ambiente")
     doctor_parser.add_argument("--json", action="store_true", help="Saída JSON")
     doctor_parser.add_argument(
@@ -597,6 +599,24 @@ def main_cli() -> None:
                 print(
                     f"{nome}: {largura:.0f} × {altura:.0f} mm (retrato) · "
                     f"k={info['fator_k']:.4f}"
+                )
+        return
+    if args.comando == "estilos":
+        from mapasfacil_nucleo.motores import estilos as estilos_mod
+
+        dados = estilos_mod.para_dict() if hasattr(estilos_mod, "para_dict") else {
+            "estilos": {k: dict(v) for k, v in estilos_mod.ESTILOS.items()},
+            "padrao": dict(estilos_mod.PADRAO),
+        }
+        if args.json:
+            print(json.dumps(dados, ensure_ascii=False, indent=2))
+        else:
+            for nome in dados["estilos"]:
+                item = dados["estilos"][nome]
+                print(
+                    f"{nome}: linha={item.get('cor_linha')} "
+                    f"preenchimento={item.get('cor_preenchimento') or 'vazado'} "
+                    f"hachura={item.get('hachura') or '-'} largura={item.get('largura')}"
                 )
         return
     if args.comando == "doctor":

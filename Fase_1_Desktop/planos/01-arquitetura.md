@@ -146,6 +146,9 @@ Quem implementar os outros eventos reaproveita esse canal.
 | `chat.tool` | `{trace_id, tool, fase, args_resumo?, resultado_resumo?, ms?, ok?}` | tool chamada/concluída | **existe** (M7) |
 | `mapspec.atualizado` | `{id, versao, diff}` | nova versão do MapSpec do turno | **existe** (H6) — `agente/tools.py` (`_editar`, `criar_mapa`, `usar_modelo_da_galeria`) via `ctx["emissor"]`; `diff` = operações de `mapspec.diff` + `resumo` em português |
 | `aviso` | `{codigo, mensagem, job_id?}` | não-fatal; o job continua | **existe** — `RastreadorProgresso.aviso`; o mesmo aviso vai para o evento **e** para o `validacao.json` |
+| `viewport.foco` | `{job_id, nivel, bbox_4326, rotulo, origem, etapa, escala?, crs_mapa?, quadro_mm?}` | o núcleo passou a saber onde está o assunto do mapa | **existe** (W7) — `motion.montar_dados_viewport`; nível anda só para frente (`estado → municipio → imovel → enquadramento → folha`) |
+| `camada.renderizada` | `{job_id, camada_id, papel, nome, geometria, sequencia, total, ordem_desenho, caminho, bbox_4326?, estilo, n_feicoes, area_ha?, etapa}` | uma camada ficou pronta para desenhar | **existe** (W7) — ordem de acendimento = `motion.PRIORIDADE_PAPEL` (é a ordem de pintura do PDF); GeoJSON simplificado em `Mapas/.preview/<job>/` |
+| `layout.elemento` | `{job_id, elemento, sequencia, total, folha, caixa_mm, conteudo?, caminho?, etapa}` | o motor nativo posicionou um elemento da folha | **existe** (W7) — `motion.montar_dados_layout`; `caixa_mm` em mm reais do `perfil_pagina` |
 
 ### Etapas reportadas em `job.progresso`
 

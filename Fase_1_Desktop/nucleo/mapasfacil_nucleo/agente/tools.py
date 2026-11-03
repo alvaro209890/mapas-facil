@@ -881,14 +881,23 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         mapspec = {**mapspec, "saidas": list(saidas)}
 
     emissor = ctx.get("emissor")
-    progresso = RastreadorProgresso(emissor.emitir) if emissor is not None else None
-    resultado = gerar_mapa_fn(
-        mapspec,
-        estado.guard,
-        workspace_servico.fontes_idx(estado),
-        recibo=_recibo(),
-        progresso=progresso,
-    )
+    # O job precisa de id também quando a geração vem de uma tool do chat: é o id que amarra
+    # os eventos do palco (`viewport.foco`, `camada.renderizada`, `layout.elemento`) ao job —
+    # sem ele o palco da web não teria o que animar (W7).
+    from mapasfacil_nucleo import jobs as jobs_mod
+
+    job_id = jobs_mod.registrar()
+    progresso = RastreadorProgresso(emissor.emitir, job_id=job_id) if emissor is not None else None
+    try:
+        resultado = gerar_mapa_fn(
+            mapspec,
+            estado.guard,
+            workspace_servico.fontes_idx(estado),
+            recibo=_recibo(),
+            progresso=progresso,
+        )
+    finally:
+        jobs_mod.liberar(job_id)
 
     # W5-15: o MapSpec da versão fica gravado ao lado dos artefatos, para
     # `listar_versoes`/`restaurar_versao` funcionarem mesmo depois de o worker morrer.

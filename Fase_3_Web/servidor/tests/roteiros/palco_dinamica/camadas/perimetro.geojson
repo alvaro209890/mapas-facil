@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","name":"Fazenda Harmonia","features":[{"type":"Feature","properties":{"camada_id":"perimetro","nome":"Fazenda Harmonia","papel":"perimetro","area_ha":1600.0},"geometry":{"type":"Polygon","coordinates":[[[-51.0,-18.088709],[-50.962196,-18.088705],[-50.962204,-18.052551],[-51.0,-18.052555],[-51.0,-18.088709]]]}}]}

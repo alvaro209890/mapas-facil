@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","name":"Área de vegetação nativa","features":[{"type":"Feature","properties":{"camada_id":"avn","nome":"Área de vegetação nativa","papel":"avn","area_ha":225.0},"geometry":{"type":"Polygon","coordinates":[[[-51.0,-18.088709],[-50.985824,-18.088708],[-50.985825,-18.075151],[-51.0,-18.075151],[-51.0,-18.088709]]]}}]}

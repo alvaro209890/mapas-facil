@@ -91,6 +91,9 @@ class RastreadorProgresso:
         self._pct = 0
         self._concluidas = -1
         self._linhas_log = 0
+        # Palco (W7): último nível de câmera e contador de camadas deste job.
+        self._nivel_viewport: str | None = None
+        self._camadas_emitidas = 0
 
     @property
     def job_id(self) -> str | None:
@@ -217,6 +220,92 @@ class RastreadorProgresso:
         )
         if self._emitir is not None:
             self._emitir(EVENTO_ARTEFATO, dados)
+        return dados
+
+    # ------------------------------------------------------------------ palco
+    @property
+    def etapa_corrente(self) -> str | None:
+        """Etapa em curso: a seguinte à última concluída (`None` fora do job)."""
+        indice = self._concluidas + 1
+        if indice >= len(ETAPAS):
+            return None
+        return ETAPAS[indice].id
+
+    @property
+    def nivel_viewport(self) -> str | None:
+        return self._nivel_viewport
+
+    def foco(
+        self,
+        nivel: str,
+        bbox: Any,
+        rotulo: str,
+        origem: str,
+        *,
+        etapa: str | None = None,
+        escala: int | None = None,
+        crs_mapa: str | None = None,
+        quadro_mm: Any = None,
+    ) -> dict[str, Any]:
+        """Emite `viewport.foco` — a câmera do palco só anda com isto (AP-07).
+
+        `etapa` sai do próprio rastreador quando não é passada: o evento sempre pertence a uma
+        etapa observável do `job.progresso`. Fora de job (indexação) basta não passar `nivel`
+        de enquadramento/folha.
+        """
+        from mapasfacil_nucleo.motion import EVENTO_VIEWPORT, montar_dados_viewport
+
+        dados = montar_dados_viewport(
+            nivel,
+            bbox,
+            rotulo,
+            origem,
+            job_id=self._job_id,
+            etapa=etapa if etapa is not None else self.etapa_corrente,
+            escala=escala,
+            crs_mapa=crs_mapa,
+            quadro_mm=quadro_mm,
+            nivel_anterior=self._nivel_viewport,
+        )
+        self._nivel_viewport = nivel
+        if self._emitir is not None:
+            self._emitir(EVENTO_VIEWPORT, dados)
+        return dados
+
+    def camada(self, **kwargs: Any) -> dict[str, Any]:
+        """Emite `camada.renderizada` — uma camada ficou pronta para desenhar.
+
+        `sequencia` é contada aqui (1-based); `total` vem do emissor e pode crescer depois
+        (externas que chegam da rede), nunca encolher: se encolher, o `total` anterior é mantido
+        para a UI não mostrar "3 de 2".
+        """
+        from mapasfacil_nucleo.motion import EVENTO_CAMADA, montar_dados_camada
+
+        total = int(kwargs.pop("total", 0)) or (self._camadas_emitidas + 1)
+        self._camadas_emitidas += 1
+        total = max(total, self._camadas_emitidas)
+        dados = montar_dados_camada(
+            sequencia=self._camadas_emitidas,
+            total=total,
+            job_id=self._job_id,
+            etapa=kwargs.pop("etapa", self.etapa_corrente) or "resolvendo_camadas_locais",
+            **kwargs,
+        )
+        if self._emitir is not None:
+            self._emitir(EVENTO_CAMADA, dados)
+        return dados
+
+    def elemento(self, **kwargs: Any) -> dict[str, Any]:
+        """Emite `layout.elemento` — o motor posicionou um elemento da folha."""
+        from mapasfacil_nucleo.motion import EVENTO_LAYOUT, montar_dados_layout
+
+        dados = montar_dados_layout(
+            job_id=self._job_id,
+            etapa=kwargs.pop("etapa", None) or "aplicando_layout",
+            **kwargs,
+        )
+        if self._emitir is not None:
+            self._emitir(EVENTO_LAYOUT, dados)
         return dados
 
     def _despachar(self, etapa: str, pct: int, item: str | None) -> dict[str, Any]:

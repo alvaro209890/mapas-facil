@@ -122,16 +122,16 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W7 — Eventos de motion
 
-- [ ] W7-01 `nucleo/motion.py`
-- [ ] W7-02 `EVENTOS` + plano F1-01
-- [ ] W7-03 `RastreadorProgresso.foco/camada/elemento`
-- [ ] W7-04 Pontos de emissão
-- [ ] W7-05 Rota de palco + limpeza
-- [ ] W7-06 Recortes PNG de elementos
-- [ ] W7-07 `nucleo/palco.py` (GeoJSON simplificado)
-- [ ] W7-08 Raster do basemap para o palco
-- [ ] W7-09 `estilos --json`
-- [ ] W7-10 Roteiros reais gravados
+- [x] W7-01 `nucleo/motion.py` — `montar_dados_viewport/camada/layout`, `PRIORIDADE_PAPEL`, `NIVEIS_VIEWPORT`, `ELEMENTO_PARA_CAIXA`, `ORDEM_LAYOUT`; contrato em `tests/test_motion_contrato.py` (28 testes)
+- [x] W7-02 `EVENTOS` (13) + `planos/01-arquitetura.md` §Eventos com os 3 novos, no mesmo commit
+- [x] W7-03 `RastreadorProgresso.foco/camada/elemento` — contador de camadas próprio, `total` que só cresce, e recusa de nível voltando
+- [x] W7-04 Pontos de emissão em `gerar.py` (estado/município via malha IBGE do repo, camadas + imóvel), `nativo.py` (enquadramento, folha, layout.elemento) e `agente/tools.py` (job_id também na tool do chat)
+- [x] W7-05 `GET /projetos/{id}/palco/{job}/{sub}/{arquivo}` (allowlist `camadas|layout|raster`, `.geojson|.png`, cache privado 1 h) + `.preview` de job com mais de 7 dias apagado na manutenção — `tests/test_palco_api.py` (12 testes)
+- [x] W7-06 `palco.gravar_recorte_elemento` recorta a página renderizada pela caixa do elemento (150 dpi) para `Mapas/.preview/<job>/layout/<elemento>.png`
+- [x] W7-07 `nucleo/palco.py::gravar_geojson` — EPSG:4326, 6 casas, teto 2 MB/20.000 vértices dobrando a tolerância, área em CRS projetado
+- [~] W7-08 `palco.gravar_raster` (PNG 1600 px + `bbox_4326`) ligado no `nativo` — **não exercitado** porque o fixture sintético não tem basemap; medir no anel 3 (server)
+- [x] W7-09 `python -m mapasfacil_nucleo estilos [--json]`
+- [~] W7-10 `servidor/tests/roteiros/palco_dinamica.ndjson` + `palco_dinamica/` (33 eventos, 5 focos, 2 camadas, 6 elementos, 10 assets) gravados por `gerar_palco.py` de um job real; `serie_analise` fica para o W9 e o `dinamica_falha_hard` do palco depende do H17 (W9)
 
 ## W8 — Palco
 
