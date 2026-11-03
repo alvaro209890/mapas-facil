@@ -110,8 +110,11 @@ else
 fi
 
 # 8. Fontes ------------------------------------------------------------------
-if fc-list 2>/dev/null | grep -qi "Liberation Sans"; then
-  registrar OK "fonte Liberation" "instalada"
+# ⚠️ `fc-list | grep -q` mente sob `pipefail`: o `grep -q` sai no primeiro acerto, o `fc-list`
+# morre com SIGPIPE (141) e a pipeline inteira é "falha". Já deu falso negativo com as fontes
+# instaladas. `fc-match` imprime uma linha só e não tem esse problema.
+if fc-match "Liberation Sans" 2>/dev/null | grep -qi "^Liberation"; then
+  registrar OK "fonte Liberation" "instalada ($(fc-match -f '%{family}' 'Liberation Sans'))"
 else
   registrar FALTA "fonte Liberation" "pedir: sudo apt install fonts-liberation"
 fi
@@ -145,7 +148,9 @@ fi
 # 12. Segredos (só nomes, nunca valores) ------------------------------------
 SEGREDOS="${MF_SEGREDOS:-$MF_RAIZ_ESPERADA/segredos/servidor.env}"
 if [ -f "$SEGREDOS" ]; then
-  MODO="$(stat -c '%a' "$SEGREDOS" 2>/dev/null)"
+  # `-L` porque, quando o `MF_RAIZ` é NTFS (`fuseblk`), o arquivo real mora no ext4 e o caminho
+  # dentro do projeto é symlink: `stat` sem `-L` lê 777 do link, não o 600 do destino.
+  MODO="$(stat -Lc '%a' "$SEGREDOS" 2>/dev/null)"
   if [ "$MODO" = "600" ]; then
     registrar OK "servidor.env" "$SEGREDOS (0600)"
   else

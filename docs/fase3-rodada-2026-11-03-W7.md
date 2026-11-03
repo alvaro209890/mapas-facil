@@ -63,6 +63,16 @@ vai no papel.
 | W7-10 completo | `palco_dinamica` feito dos mapas de dinâmica; `serie_analise` precisa do W9 e o `dinamica_falha_hard` do palco depende do check H17 (W9). |
 | W8-01…10 | é a trilha da web (palco em React/MapLibre) — próximo marco. |
 
+## Achados do preflight (medidos no server, 03/11)
+
+| Antes | Depois | Causa |
+|---|---|---|
+| FALTA `fonte Liberation` | **OK** (`Liberation Sans`) | `fc-list \| grep -q` sob `set -o pipefail`: o `grep -q` sai no primeiro acerto, o `fc-list` morre com SIGPIPE (141) e a pipeline inteira é "falha". Trocado por `fc-match` (uma linha, sem SIGPIPE). |
+| FALTA `servidor.env` "modo 777" | **OK 0600** | o caminho dentro do projeto é **symlink** para o ext4; `stat` sem `-L` lia 777 do link. Agora `stat -Lc`. |
+
+Preflight atual: **9 OK, 1 FALTA** — `MAPASFACIL_SEMA_AUTHKEY` e `MAPASFACIL_PLANET_API_KEY`, que
+**não estão em nenhum cofre** acessível daqui (nem no do server, nem no do Windows). São do Álvaro.
+
 ## Testes ao fim da rodada
 
 | Suíte | Resultado |
