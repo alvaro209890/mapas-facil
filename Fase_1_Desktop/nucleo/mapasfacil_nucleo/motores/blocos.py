@@ -706,7 +706,7 @@ def bloco_minimapa(
         del x_fig, y_fig
         px_dado = ax.transData.transform((lon + lado_x / 2, lat + lado_y / 2))
         px_fig = fig.transFigure.inverted().transform(px_dado)
-        alvo_x, alvo_y = mm_para_figura(perfil, perfil.mapa.x0 + 1.5, perfil.mapa.y1)
+        alvo_x, alvo_y = mm_para_figura(perfil, perfil.mapa.x0 + perfil.escalado(1.5), perfil.mapa.y1)
         ax_pagina = eixo_pagina(fig)
         ax_pagina.plot(
             [px_fig[0], px_fig[0], alvo_x],

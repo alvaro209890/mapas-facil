@@ -36,6 +36,29 @@ class MiniMapaLayout:
     altura_pagina_mm: float = 297.0
 
 
+def layout_de_perfil(perfil: object) -> "MiniMapaLayout":
+    """Layout do minimapa para a folha do perfil (W9-05 / D31).
+
+    O retângulo localizador e a caixa crescem com o papel: em A0 o quadradinho de 3,5 mm do
+    A4 tem de virar 14 mm, senão some no meio de um mapa de 800 mm — e o `S01` (retângulo
+    centrado no centroid) continua valendo porque o cálculo é relativo à caixa.
+    """
+    caixa_mm_mapa = getattr(perfil, "mapa", None)
+    caixa_mm_mini = getattr(perfil, "minimapa", None)
+    if caixa_mm_mapa is None or caixa_mm_mini is None:
+        return MiniMapaLayout()
+    return MiniMapaLayout(
+        mapa=RetanguloPagina(
+            caixa_mm_mapa.x0, caixa_mm_mapa.y0, caixa_mm_mapa.x1, caixa_mm_mapa.y1
+        ),
+        minimapa=RetanguloPagina(
+            caixa_mm_mini.x0, caixa_mm_mini.y0, caixa_mm_mini.x1, caixa_mm_mini.y1
+        ),
+        lado_retangulo_mm=float(getattr(perfil, "escalado", lambda v: v)(3.5)),
+        altura_pagina_mm=float(getattr(perfil, "altura_mm", 297.0)),
+    )
+
+
 def map_xy_para_pagina_mm(
     *,
     map_x: float,

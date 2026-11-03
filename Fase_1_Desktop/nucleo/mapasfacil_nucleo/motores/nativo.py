@@ -491,6 +491,10 @@ def gerar_pdf_minimo(
         extent=extent,
         epsg=epsg,
         pasta_saida=pasta_nome,
+        # W9-06: a resolução do recorte acompanha a folha (300 dpi até A2, teto em A1/A0) e o
+        # `quadro_mm` permite medir o dpi efetivo para o aviso S17.
+        largura=basemap_mod.largura_para_folha(perfil),
+        quadro_mm=(perfil.mapa.largura, perfil.mapa.altura),
     )
     if info_basemap.get("ok"):
         try:
@@ -716,6 +720,16 @@ def gerar_pdf_minimo(
                 f"Basemap {info_basemap.get('fonte')} aplicado"
                 if info_basemap.get("ok")
                 else f"Sem imagem de fundo: {info_basemap.get('motivo')}"
+            ),
+        },
+        {
+            "id": "S17",
+            "ok": (not info_basemap.get("ok"))
+            or not info_basemap.get("aviso_resolucao"),
+            "mensagem": (
+                f"Mosaico com {info_basemap.get('dpi_efetivo')} dpi efetivos no papel"
+                if info_basemap.get("ok")
+                else "Sem mosaico para medir resolução"
             ),
         },
     ]

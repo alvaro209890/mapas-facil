@@ -40,6 +40,56 @@ APELIDOS: dict[str, str] = {
 }
 
 
+DPI_MINIMO_AVISO = 220
+"""Abaixo disto o mosaico esticado fica visivelmente mole no papel — vira o aviso `S17`."""
+
+FATOR_MAXIMO_REAMOSTRAGEM = 2
+"""Nunca pedir mais que o dobro da resolução nativa: imagem borrada grande é pior que nítida pequena."""
+
+
+def largura_para_folha(perfil) -> int:
+    """Pixels de largura do `GetMap` para a folha do perfil (W9-06).
+
+    A4 fica em ~2.320 px a 300 dpi (o padrão de 1.600 era meio-termo); A1/A0 param no
+    teto de pixels do lado maior, senão a memória e o peso do PDF estouram.
+    """
+    from mapasfacil_nucleo.motores import perfil_pagina as pp
+
+    if perfil is None:
+        return LARGURA_PADRAO
+    largura_mm = max(perfil.mapa.largura, 1.0)
+    altura_mm = max(perfil.mapa.altura, 1.0)
+    dpi = perfil.dpi_raster()
+    largura_px = int(round(largura_mm / 25.4 * dpi))
+    altura_px = int(round(altura_mm / 25.4 * dpi))
+    teto = pp.TETO_PX_LADO_MAIOR.get(getattr(perfil, "formato", "A4"))
+    if teto:
+        lado = max(largura_px, altura_px)
+        if lado > teto:
+            fator = teto / lado
+            largura_px = int(round(largura_px * fator))
+    return max(LARGURA_PADRAO, largura_px)
+
+
+def avaliar_resolucao(
+    largura_px: int, quadro_mm: tuple[float, float] | None
+) -> dict[str, Any]:
+    """dpi efetivo do raster no papel e se ele dispara o aviso `S17` (W-09 §Raster)."""
+    largura_do_quadro = (quadro_mm or (None, None))[0]
+    dpi = dpi_efetivo(largura_px, largura_do_quadro) if largura_do_quadro else None
+    return {
+        "dpi_efetivo": dpi,
+        "aviso_resolucao": bool(dpi is not None and dpi < DPI_MINIMO_AVISO),
+    }
+
+
+def dpi_efetivo(largura_px: int, quadro_mm: float) -> float | None:
+    """dpi que o raster entrega no papel, dado o número de pixels e a largura do quadro."""
+    if not largura_px or not quadro_mm:
+        return None
+    return round(largura_px / (quadro_mm / 25.4), 1)
+
+
 MAXIMO_SEM_DADO = 0.12
 """Acima disto a cena está furada demais para servir de fundo (12% da imagem)."""
 
@@ -188,6 +238,7 @@ def buscar(
     epsg: int,
     pasta_saida: str = "Mapas",
     largura: int = LARGURA_PADRAO,
+    quadro_mm: tuple[float, float] | None = None,
 ) -> dict[str, Any]:
     """Baixa a imagem de fundo do extent. Sempre devolve envelope, nunca levanta.
 
@@ -316,6 +367,7 @@ def buscar(
             # quem escreve o metadado precisa saber para não mentir a data.
             "ano_exato": camada.get("ano_exato", True),
             "bytes": len(imagem),
+            **avaliar_resolucao(largura, quadro_mm),
             "origem_acervo": origem_acervo,
             "tentativas": tentativas,
         }
