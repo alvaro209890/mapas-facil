@@ -38,6 +38,8 @@ chmod 600 /home/server/segredos-mapasfacil/servidor.env
 
 ## 2. Túnel e DNS do `mapasfacil-app` (bloqueia o site no ar)
 
+> ✅ **CONCLUÍDO em 03/11/2026 pelo Hermes-aws:** Túnel `mapasfacil-app` criado na Cloudflare Zero Trust (ID `51b1f4d2-bce8-4e7e-8a9f-1489040e3f93`), DNS `mapasfacil-app.cursar.space` apontado via CNAME proxied e serviço `mapasfacil-app-tunnel.service` ativo no `server-desktop`. URL pública `https://mapasfacil-app.cursar.space` respondendo 200 OK com `spa:true`.
+
 O túnel é **novo e só deste app** — não reaproveita nem edita túnel de outro serviço da frota.
 
 ```bash

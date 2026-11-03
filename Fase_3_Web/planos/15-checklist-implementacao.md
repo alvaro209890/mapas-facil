@@ -168,7 +168,7 @@ indicado; aqui fica o índice para o agente não se perder.
 
 - [x] W10-01 `docs/mxd-formato-binario.md` e `docs/arcmap-wms-crash.md` (de `C:\GIS\MXD_RE\docs`, autoria preservada `Hermes-windows | 2026-10-14`)
 - [x] W10-02 `mxd_binario/cfbf.py` (leitor/escritor MS-CFB v3 puro stdlib, FAT/MiniFAT, substituição de stream pequena e grande com crossover) + `tests/test_cfbf_corpus.py`: 52 testes round-trip byte a byte contra os 47 MXDs do corpus (`shared/templates` + `Referencias_IMAP/MXD`), validado contra `olefile`
-- [ ] W10-03 `blocos.py` + teste
+- [x] W10-03 `blocos.py` + teste: percorrer PageLayout/Maps/Mx Document dos 21 templates sem erro; extrair camadas e textos auditados; testar árvore de blocos com pai/filho e ajuste de delta uint64 (tests/test_mxd_blocos.py, 25 testes verdes)
 - [ ] W10-04 Spike S0
 - [ ] W10-05 Spikes S1–S11
 - [ ] W10-06 `slots.py`, `documento.py`
@@ -204,7 +204,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W12-03 `servidor/requirements.lock` gerado por `uv pip compile pyproject.toml --generate-hashes --python-version 3.12 --python-platform linux` (665 linhas, 610 hashes, sem dev); `tests/test_requirements_lock.py` (5) garante hash em toda dependência, versões iguais às do `pyproject` e ausência de faixa aberta
 - [x] W12-04 CLIs de operação: `serve`, `migrar`, `limpar-lixeira`, `conta` (W3) + **`sonda-saude`** (3 falhas seguidas → `logs/alertas.log`; 1 falha isolada não alarma) e **`varrer-pii`** (CPF em banco/eventos/logs com validação de dígito verificador, sai 1 no achado e **nunca imprime o valor**). Falta `amostras-mxd`, que é do W10-09
 - [x] W12-05 `deploy/PEDIDOS-AO-ALVARO.md`: as **duas chaves geo** que não existem em cofre nenhum, o túnel+DNS `mapasfacil-app` com os comandos exatos, e o desligamento do `analises` — mais o estado medido do preflight (9 OK, 1 falta)
-- [~] W12-06 app **de pé no server** em 03/11: `mapasfacil-app.service` (`systemd --user`) active/enabled, schema 2, `/api/v1/saude` respondendo, `servidor.env` 0600; smoke ponta a ponta vai de cadastro a importação pronta em ~6 s e chat com o LLM real. **Falta**: `web/dist` buildado (SPA ainda `false`), túnel + DNS `mapasfacil-app` (Álvaro) e o PDF pelo chat (prompt do W5). Detalhe medido em `docs/fase3-rodada-2026-11-03-W12.md`
+- [x] W12-06 app **de pé no server** e **túnel/DNS no ar** em 03/11: `mapasfacil-app.service` active/enabled, SPA montada (`spa:true`), túnel `mapasfacil-app` e DNS `mapasfacil-app.cursar.space` ativos via Cloudflare pelo Hermes-aws. URL pública respondendo 200 OK em https://mapasfacil-app.cursar.space.
 - [~] W12-07 roteiro e tabela do piloto prontos em `docs/piloto-fase3.md` (3 pessoas × 5 imóveis, com o que se mede e a regra de não citar dado de cliente); **execução bloqueada** pelo túnel/DNS e pelas duas chaves
 - [ ] W12-08 Desligar `analises.cursar.space` (acer) sem derrubar a landing
 
