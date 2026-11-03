@@ -21,6 +21,10 @@ login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop 
 [`15-checklist`](Fase_3_Web/planos/15-checklist-implementacao.md). Estado medido vai em
 `docs/fase3-rodada-*.md`. O desktop (Fase 1) e a landing (Fase 2) **não** mudam de escopo.
 
+**Estado da Fase 3 em 2026-11-03:** W0, W1 e W2 fechados (fundação, núcleo em modo servidor com
+`MapSpec` v3, ponte NDJSON + pool). W1-10 (`doctor.py` em modo servidor) está **bloqueada** por
+ordem do Álvaro de não mexer naquele arquivo. Núcleo: 548 testes verdes; servidor: 41.
+
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
 2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia
 `tipologia_paisagem` sem sha256, mas os 25 templates agora são `pronto` — corrigido com
