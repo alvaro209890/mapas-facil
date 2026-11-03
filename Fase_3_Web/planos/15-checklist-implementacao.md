@@ -200,7 +200,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W12-03 `servidor/requirements.lock` gerado por `uv pip compile pyproject.toml --generate-hashes --python-version 3.12 --python-platform linux` (665 linhas, 610 hashes, sem dev); `tests/test_requirements_lock.py` (5) garante hash em toda dependência, versões iguais às do `pyproject` e ausência de faixa aberta
 - [x] W12-04 CLIs de operação: `serve`, `migrar`, `limpar-lixeira`, `conta` (W3) + **`sonda-saude`** (3 falhas seguidas → `logs/alertas.log`; 1 falha isolada não alarma) e **`varrer-pii`** (CPF em banco/eventos/logs com validação de dígito verificador, sai 1 no achado e **nunca imprime o valor**). Falta `amostras-mxd`, que é do W10-09
 - [x] W12-05 `deploy/PEDIDOS-AO-ALVARO.md`: as **duas chaves geo** que não existem em cofre nenhum, o túnel+DNS `mapasfacil-app` com os comandos exatos, e o desligamento do `analises` — mais o estado medido do preflight (9 OK, 1 falta)
-- [ ] W12-06 Primeiro deploy `web-v0.1.0` + vault
+- [~] W12-06 app **de pé no server** em 03/11: `mapasfacil-app.service` (`systemd --user`) active/enabled, schema 2, `/api/v1/saude` respondendo, `servidor.env` 0600; smoke ponta a ponta vai de cadastro a importação pronta em ~6 s e chat com o LLM real. **Falta**: `web/dist` buildado (SPA ainda `false`), túnel + DNS `mapasfacil-app` (Álvaro) e o PDF pelo chat (prompt do W5). Detalhe medido em `docs/fase3-rodada-2026-11-03-W12.md`
 - [~] W12-07 roteiro e tabela do piloto prontos em `docs/piloto-fase3.md` (3 pessoas × 5 imóveis, com o que se mede e a regra de não citar dado de cliente); **execução bloqueada** pelo túnel/DNS e pelas duas chaves
 - [ ] W12-08 Desligar `analises.cursar.space` (acer) sem derrubar a landing
 
@@ -208,5 +208,5 @@ indicado; aqui fica o índice para o agente não se perder.
 
 - [x] W17-01 Avisar o Álvaro da chave da Planet em claro na skill `analise-auas-planet` (2026-11-03)
 - [~] W12-20 `varrer-pii` implementado e testado (`mapasfacil_servidor/pii.py` + `tests/test_cli_varrer_pii.py`, 17) e `mapasfacil-app-pii.{service,timer}` (03:10 diário) no `deploy/`; falta a medição do critério do W-00 (importar `imovel_ficticio.zip` no server e conferir **zero** achados)
-- [ ] W12-21 Permissão do `servidor.env`
+- [x] W12-21 `servidor.env` em `600` e diretório em `700` (medido no server em 03/11: `/home/server/segredos-mapasfacil/servidor.env`), fora do git, com symlink em `mapasfacil/segredos/`
 - [ ] W12-22 Revisão de segurança final
