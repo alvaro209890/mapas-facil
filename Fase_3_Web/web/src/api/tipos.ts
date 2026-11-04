@@ -119,6 +119,18 @@ export interface Mensagem {
   papel: 'usuario' | 'assistente' | 'sistema';
   texto: string;
   criada_em: string;
+  /** Tools que o agente chamou neste turno (volta no `GET /mensagens`). */
+  tool_traces?: TraceMensagem[];
+}
+
+/** Tool de um turno passado, como o servidor devolve no histórico. */
+export interface TraceMensagem {
+  trace_id: string;
+  tool: string;
+  args_resumo?: string | null;
+  resultado_resumo?: string | null;
+  ok?: boolean;
+  ms?: number | null;
 }
 
 export interface Sugestao {

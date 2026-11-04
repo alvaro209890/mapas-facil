@@ -294,7 +294,27 @@ class RepositorioConversas:
         tem_mais = len(rows) > limite
         if tem_mais:
             rows = rows[-limite:]
-        return {"mensagens": [_mensagem_dict(r) for r in rows], "tem_mais": tem_mais}
+        # As tools de cada mensagem voltam junto: sem elas, quem recarrega a página perde os
+        # cartões de ferramenta e a pergunta de um turno que só chamou `perguntar` (o texto
+        # desse turno é vazio).
+        traces_por_msg: dict[str, list[dict[str, Any]]] = {r["message_id"]: [] for r in rows}
+        if rows:
+            placeholders = ",".join("?" * len(rows))
+            for tr in self._conn.execute(
+                f"""
+                SELECT * FROM tool_traces
+                WHERE conversation_id = ? AND message_id IN ({placeholders})
+                ORDER BY criado_em ASC
+                """,
+                (conversation_id, *traces_por_msg.keys()),
+            ):
+                traces_por_msg[tr["message_id"]].append(_trace_dict(tr))
+        mensagens = []
+        for r in rows:
+            item = _mensagem_dict(r)
+            item["tool_traces"] = traces_por_msg.get(r["message_id"], [])
+            mensagens.append(item)
+        return {"mensagens": mensagens, "tem_mais": tem_mais}
 
     def adicionar_mensagem(
         self,

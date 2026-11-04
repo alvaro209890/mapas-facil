@@ -8,10 +8,10 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Query, Response
 from fastapi.responses import FileResponse
 
-from .. import projetos_repo
+from .. import projetos_repo, versoes_sync
 from ..auth import contas, sessoes
 from ..erros import ErroServidor
-from ..pacote import OpcoesPacote, montar_pacote_zip
+from ..pacote import OpcoesPacote, montar_pacote_do_projeto
 from . import deps, modelos
 
 router = APIRouter(prefix="/projetos", tags=["projetos"])
@@ -63,10 +63,18 @@ def detalhar(
     projeto_id: str,
     con: sqlite3.Connection = Depends(deps.pegar_con),
     usuario: contas.Usuario = Depends(deps.pegar_usuario),
+    estado: deps.AppState = Depends(deps.pegar_estado),
 ) -> dict:
     projeto = projetos_repo.exigir(
         con, projeto_id, usuario_id=usuario.id, admin=_admin(usuario)
     )
+    # Versão gerada pelo chat e ainda não registrada (ex.: turno que caiu no meio) entra aqui.
+    if versoes_sync.sincronizar_seguro(
+        con, projeto.id, versoes_sync.raiz_do_projeto(estado, projeto.id)
+    ):
+        projeto = projetos_repo.exigir(
+            con, projeto_id, usuario_id=usuario.id, admin=_admin(usuario)
+        )
     return {
         "projeto": projeto.completo(),
         "versoes": projetos_repo.versoes(con, projeto.id),
@@ -149,9 +157,13 @@ def versoes(
     projeto_id: str,
     con: sqlite3.Connection = Depends(deps.pegar_con),
     usuario: contas.Usuario = Depends(deps.pegar_usuario),
+    estado: deps.AppState = Depends(deps.pegar_estado),
 ) -> dict:
     projeto = projetos_repo.exigir(
         con, projeto_id, usuario_id=usuario.id, admin=_admin(usuario)
+    )
+    versoes_sync.sincronizar_seguro(
+        con, projeto.id, versoes_sync.raiz_do_projeto(estado, projeto.id)
     )
     return {"itens": projetos_repo.versoes(con, projeto.id)}
 
@@ -162,6 +174,7 @@ def baixar_pacote_zip(
     versao: int,
     con: sqlite3.Connection = Depends(deps.pegar_con),
     usuario: contas.Usuario = Depends(deps.pegar_usuario),
+    estado: deps.AppState = Depends(deps.pegar_estado),
 ) -> FileResponse:
     """Download do pacote de entrega completo (MXD/SHP/Mapas) de uma versão (W10-10)."""
     projeto = projetos_repo.exigir(
@@ -174,10 +187,13 @@ def baixar_pacote_zip(
     if not linha_versao:
         raise ErroServidor("SV-240", "Versão não encontrada.", status_http=404)
 
-    pasta_versao = Path(linha_versao["pasta"])
+    # A pasta gravada é relativa ao projeto (`Mapas/v001`): sem a raiz, o zip ia parar na
+    # pasta de trabalho do processo e saía só com o LEIA-ME.
+    raiz = versoes_sync.raiz_do_projeto(estado, projeto.id)
     nome_limpo = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in projeto.nome).strip("_")
     nome_zip = f"{nome_limpo or 'projeto'}_v{versao:03d}.zip"
-    caminho_zip = pasta_versao / nome_zip
+    # Fora de `Mapas/` para o próprio zip não virar artefato da versão.
+    caminho_zip = raiz / ".servidor" / "pacotes" / nome_zip
 
     if not caminho_zip.exists():
         opcoes = OpcoesPacote(
@@ -186,7 +202,15 @@ def baixar_pacote_zip(
             versao=versao,
             mxd_conforme=bool(linha_versao["conforme"]),
         )
-        montar_pacote_zip(pasta_versao, caminho_zip, opcoes)
+        import json as _json
+
+        montar_pacote_do_projeto(
+            raiz,
+            str(linha_versao["pasta"]),
+            _json.loads(linha_versao["artefatos"] or "{}"),
+            caminho_zip,
+            opcoes,
+        )
 
     return FileResponse(
         path=caminho_zip,

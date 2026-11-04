@@ -394,6 +394,31 @@
   border: 1px solid var(--mf-borda);
   border-radius: var(--mf-raio-1);
   cursor: pointer;
+  animation: versao-nasce var(--mf-dur-3) var(--mf-ease-saida) both;
+  transition:
+    border-color var(--mf-dur-1) var(--mf-ease-saida),
+    background-color var(--mf-dur-1) var(--mf-ease-saida),
+    transform var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+.versao:hover {
+  transform: translateY(-1px);
+  border-color: var(--mf-borda-forte);
+}
+
+@keyframes versao-nasce {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .versaoAberta {
@@ -419,6 +444,7 @@
 .downloads {
   display: grid;
   gap: 0.4rem;
+  animation: mf-surgir var(--mf-dur-3) var(--mf-ease-saida) both;
 }
 
 .downloads h3 {
@@ -440,11 +466,45 @@
   background: var(--mf-superficie-2);
   border: 1px solid var(--mf-borda);
   border-radius: var(--mf-raio-1);
+  animation: mf-surgir var(--mf-dur-2) var(--mf-ease-saida) both;
+  transition:
+    border-color var(--mf-dur-1) var(--mf-ease-saida),
+    color var(--mf-dur-1) var(--mf-ease-saida),
+    background-color var(--mf-dur-1) var(--mf-ease-saida),
+    transform var(--mf-dur-1) var(--mf-ease-saida);
+}
+
+/* Os botões entram em cascata curta — o PDF primeiro. */
+.download:nth-child(2) {
+  animation-delay: 40ms;
+}
+.download:nth-child(3) {
+  animation-delay: 80ms;
+}
+.download:nth-child(n + 4) {
+  animation-delay: 120ms;
 }
 
 .download:hover {
   border-color: var(--mf-acento);
   color: var(--mf-acento);
+  transform: translateY(-1px);
+}
+
+.download:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.downloadPrincipal {
+  color: var(--mf-bg);
+  background: var(--mf-acento);
+  border-color: var(--mf-acento);
+  font-weight: 600;
+}
+
+.downloadPrincipal:hover {
+  color: var(--mf-bg);
+  background: var(--mf-acento-forte, var(--mf-acento));
 }
 
 .carregando {
@@ -515,13 +575,33 @@
 
 .importacaoBarra {
   height: 100%;
-  background: var(--mf-acento);
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.28) 50%,
+      transparent 100%
+    )
+    0 0 / 200% 100% no-repeat,
+    var(--mf-acento);
   border-radius: inherit;
-  transition: width var(--mf-dur-2) var(--mf-ease-saida);
+  transition: width var(--mf-dur-3) var(--mf-ease-saida);
+  /* Brilho que corre na barra: a importação está viva mesmo entre dois eventos. */
+  animation: importacao-brilho 1.6s linear infinite;
 }
 
 .importacaoBarra[data-indeterminado='sim'] {
-  animation: importacao-pulso 1.4s ease-in-out infinite;
+  animation:
+    importacao-brilho 1.6s linear infinite,
+    importacao-pulso 1.4s ease-in-out infinite;
+}
+
+@keyframes importacao-brilho {
+  from {
+    background-position: 150% 0, 0 0;
+  }
+  to {
+    background-position: -50% 0, 0 0;
+  }
 }
 
 @keyframes importacao-pulso {
@@ -547,6 +627,33 @@
 @media (prefers-reduced-motion: reduce) {
   .importacaoBarra,
   .importacaoBarra[data-indeterminado='sim'] {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Mensagens do chat: a fala do usuário entra pela direita, como quem acabou de enviar. */
+.bolhaUsuario {
+  animation: bolha-envia var(--mf-dur-2) var(--mf-ease-saida) both;
+  transform-origin: right bottom;
+}
+
+@keyframes bolha-envia {
+  from {
+    opacity: 0;
+    transform: translate(8px, 6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bolhaUsuario,
+  .versao,
+  .downloads,
+  .download {
     animation: none;
     transition: none;
   }

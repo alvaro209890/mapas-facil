@@ -21,9 +21,14 @@ export interface PropsCartaoPergunta {
   dados: DadosChatPergunta;
   /** Chama `enviar(texto)` do PainelChat — chip ou texto livre, mesmo caminho. */
   aoResponder: (texto: string) => void;
+  /**
+   * DIVERGÊNCIA da web: pergunta já respondida (o usuário falou depois dela) fica no
+   * histórico só para leitura — clicar de novo reabria a mesma pergunta em loop.
+   */
+  respondida?: boolean;
 }
 
-export function CartaoPergunta({ dados, aoResponder }: PropsCartaoPergunta) {
+export function CartaoPergunta({ dados, aoResponder, respondida = false }: PropsCartaoPergunta) {
   const [texto, setTexto] = useState("");
 
   function aoClicarChip(rotulo: string) {
@@ -39,7 +44,11 @@ export function CartaoPergunta({ dados, aoResponder }: PropsCartaoPergunta) {
   }
 
   return (
-    <article className={estilos.cartao} data-testid="cartao-pergunta">
+    <article
+      className={respondida ? `${estilos.cartao} ${estilos.respondida}` : estilos.cartao}
+      data-testid="cartao-pergunta"
+      data-respondida={respondida || undefined}
+    >
       <div className={estilos.cabecalho}>
         <HelpCircle size={15} aria-hidden="true" className={estilos.icone} />
         <p className={estilos.pergunta}>{dados.pergunta}</p>
@@ -51,6 +60,7 @@ export function CartaoPergunta({ dados, aoResponder }: PropsCartaoPergunta) {
               key={opcao.id}
               type="button"
               className={estilos.chip}
+              disabled={respondida}
               onClick={() => aoClicarChip(opcao.rotulo)}
             >
               {opcao.rotulo}
@@ -58,7 +68,7 @@ export function CartaoPergunta({ dados, aoResponder }: PropsCartaoPergunta) {
           ))}
         </div>
       )}
-      {dados.permite_texto_livre && (
+      {dados.permite_texto_livre && !respondida && (
         <form className={estilos.formLivre} onSubmit={aoSubmeter}>
           <input
             type="text"

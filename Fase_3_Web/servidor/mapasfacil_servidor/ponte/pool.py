@@ -60,6 +60,8 @@ class Pool:
             await asyncio.sleep(60)
             limite = time.monotonic() - self.worker_ocioso_s
             for projeto_id, w in list(self._workers.items()):
+                if projeto_id in self._chat_em_curso:
+                    continue
                 if w.estado == "pronto" and w.ultimo_uso < limite:
                     with contextlib.suppress(Exception):
                         await w.encerrar(motivo="ocioso")
@@ -149,6 +151,10 @@ class Pool:
     ) -> dict[str, Any]:
         """Verifica allowlist, garante o worker e chama. É a porta única da API."""
         allowlist.verificar(metodo)
+        # A trava cobre só subir/achar o worker. A chamada em si corre fora dela: o núcleo roda
+        # `chat.enviar` numa thread e atende o resto em paralelo (A10). Com a trava no turno
+        # inteiro, recarregar a página durante uma geração deixava `GET /mensagens` (e o
+        # "Parar") esperando minutos até a IA terminar.
         async with self._trava(projeto_id):
             # Quem já vai chamar `workspace.abrir` (a importação) não precisa do automático.
             w = await self.obter(projeto_id, abrir_workspace=metodo != "workspace.abrir")
@@ -163,13 +169,15 @@ class Pool:
                         detalhes={"projeto_id": projeto_id},
                     )
                 self._chat_em_curso.add(projeto_id)
-                try:
-                    return await w.chamar(
-                        metodo, params, timeout_s=timeout_s, ao_evento=ao_evento
-                    )
-                finally:
-                    self._chat_em_curso.discard(projeto_id)
-            return await w.chamar(metodo, params, timeout_s=timeout_s, ao_evento=ao_evento)
+        if metodo == "chat.enviar":
+            try:
+                return await w.chamar(metodo, params, timeout_s=timeout_s, ao_evento=ao_evento)
+            finally:
+                self._chat_em_curso.discard(projeto_id)
+        return await w.chamar(metodo, params, timeout_s=timeout_s, ao_evento=ao_evento)
+
+    def chat_em_curso(self, projeto_id: str) -> bool:
+        return projeto_id in self._chat_em_curso
 
     def estado(self) -> dict[str, Any]:
         return {

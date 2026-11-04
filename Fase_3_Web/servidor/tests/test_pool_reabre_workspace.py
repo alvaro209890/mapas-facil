@@ -8,6 +8,7 @@ voltava sempre para a mesma pergunta.
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -24,7 +25,17 @@ def _pool(tmp_path: Path) -> Pool:
         encoding="utf-8",
     )
     cmd = [sys.executable, "-m", "mapasfacil_servidor.ponte.fake_nucleo", "--roteiro", str(roteiro)]
-    return Pool(raiz_projetos=tmp_path / "projetos", cmd_base=cmd)
+    # Ambiente do processo + o pacote do servidor no PYTHONPATH: sem instalar com `-e` (rodando
+    # da árvore), o worker falso não achava `mapasfacil_servidor`.
+    raiz_servidor = str(Path(__file__).resolve().parents[1])
+    return Pool(
+        raiz_projetos=tmp_path / "projetos",
+        cmd_base=cmd,
+        env_por_projeto=lambda _pid, _raiz: {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(filter(None, [raiz_servidor, os.environ.get("PYTHONPATH")])),
+        },
+    )
 
 
 def _espiar(monkeypatch) -> list[str]:

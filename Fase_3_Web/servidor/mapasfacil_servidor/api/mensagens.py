@@ -8,13 +8,16 @@ import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 
-from .. import projetos_repo
+from .. import projetos_repo, versoes_sync
 from ..auth import contas, sessoes
 from ..erros import ErroServidor
 from ..eventos.log import LogEventos
 from . import deps, modelos
 
 router = APIRouter(prefix="/projetos", tags=["chat"])
+
+# Referência forte dos turnos em curso (o loop só guarda referência fraca das tarefas).
+_TURNOS_VIVOS: set[asyncio.Task] = set()
 
 
 def _raiz(estado: deps.AppState, projeto_id: str):
@@ -103,8 +106,40 @@ async def listar_mensagens(
         if exc.codigo.endswith("NU-002"):
             return {"itens": [], "proximo": None}
         raise
-    itens = dados.get("mensagens") or dados.get("itens") or []
+    itens = [_mensagem_para_web(m) for m in (dados.get("mensagens") or dados.get("itens") or [])]
     return {"itens": itens, "proximo": dados.get("proximo")}
+
+
+def _mensagem_para_web(m: dict) -> dict:
+    """Linha do banco do núcleo → contrato `Mensagem` da web (`texto`, `criada_em`, tools).
+
+    O núcleo chama de `conteudo`/`criado_em`; a web lia `texto` e quebrava ao recarregar a
+    página — o chat abria vazio. As tools vão junto (sem os resultados longos) para os
+    cartões e a pergunta de um turno passado voltarem também.
+    """
+    traces = []
+    for t in m.get("tool_traces") or []:
+        if not isinstance(t, dict):
+            continue
+        traces.append(
+            {
+                "trace_id": t.get("trace_id"),
+                "tool": t.get("tool"),
+                "args_resumo": t.get("args_resumo"),
+                "resultado_resumo": t.get("resultado_resumo"),
+                "ok": bool(t.get("ok", True)),
+                "ms": t.get("ms"),
+            }
+        )
+    return {
+        "message_id": m.get("message_id"),
+        "seq": m.get("seq"),
+        "papel": m.get("papel"),
+        "texto": m.get("texto") if m.get("texto") is not None else (m.get("conteudo") or ""),
+        "criada_em": m.get("criada_em") or m.get("criado_em"),
+        "cancelada": bool(m.get("cancelada", False)),
+        "tool_traces": traces,
+    }
 
 
 @router.post("/{projeto_id}/mensagens", status_code=202)
@@ -213,23 +248,52 @@ async def enviar_mensagem(
                 )
 
                 async def ao_evento(mensagem: dict) -> None:
+                    dados_evt = mensagem.get("dados") or {}
                     _emitir(
                         raiz=raiz,
                         hub=hub,
                         projeto_id=projeto.id,
                         evento=mensagem.get("evento", "aviso"),
-                        dados=mensagem.get("dados") or {},
+                        dados=dados_evt,
                         req_id=req_id,
-                        job_id=(mensagem.get("dados") or {}).get("job_id"),
+                        job_id=dados_evt.get("job_id"),
                         origem="nucleo",
                     )
+                    # O mapa aparece na tela assim que o PDF existe — não espera a IA
+                    # terminar de escrever a resposta.
+                    if (
+                        mensagem.get("evento") == "chat.tool"
+                        and dados_evt.get("tool") == "gerar_mapa"
+                        and dados_evt.get("fase") == "fim"
+                        and dados_evt.get("ok") is not False
+                    ):
+                        await _publicar_versoes()
 
-                await pool.chamar(
-                    projeto.id,
-                    "chat.enviar",
-                    {"conversation_id": conversa, "mensagem": texto},
-                    ao_evento=ao_evento,
-                )
+                async def _publicar_versoes() -> None:
+                    await versoes_sync.publicar_novas(
+                        banco=banco,
+                        projeto_id=projeto.id,
+                        raiz=raiz,
+                        emitir=lambda nome, dados_v: _emitir(
+                            raiz=raiz,
+                            hub=hub,
+                            projeto_id=projeto.id,
+                            evento=nome,
+                            dados=dados_v,
+                            req_id=req_id,
+                        ),
+                    )
+
+                try:
+                    await pool.chamar(
+                        projeto.id,
+                        "chat.enviar",
+                        {"conversation_id": conversa, "mensagem": texto},
+                        ao_evento=ao_evento,
+                    )
+                finally:
+                    # Turno que gerou e caiu depois (timeout, erro do modelo) também publica.
+                    await _publicar_versoes()
                 _emitir(
                     raiz=raiz,
                     hub=hub,
@@ -266,7 +330,14 @@ async def enviar_mensagem(
                     req_id=req_id,
                 )
 
-        await _turno()
+        # O turno vive numa tarefa própria do servidor, não na requisição: quem fecha o site
+        # (ou cai a conexão) não para a IA — ela termina, grava a conversa e publica a versão;
+        # na volta, `GET /mensagens` e o replay do SSE mostram tudo. O `shield` mantém a
+        # tarefa viva mesmo se a requisição for cancelada.
+        tarefa = asyncio.create_task(_turno(), name=f"turno-{projeto.id}")
+        _TURNOS_VIVOS.add(tarefa)
+        tarefa.add_done_callback(_TURNOS_VIVOS.discard)
+        await asyncio.shield(tarefa)
 
     tarefas.add_task(_rodar)
     return {"req_id": req_id}
@@ -284,6 +355,15 @@ async def cancelar(
     projeto = projetos_repo.exigir(con, projeto_id, usuario_id=usuario.id)
     pool = _exigir_pool(estado)
 
-    worker = await pool.obter(projeto.id)
-    await worker.cancelar(corpo.req_id)
+    # O `req_id` da web é o do servidor, não o id interno da ponte: quem para o turno é o
+    # `chat.cancelar` da conversa (o núcleo encerra na próxima rodada e grava o que tinha).
+    conversa_id = _conversa_do_projeto(con, projeto.id)
+    if conversa_id:
+        try:
+            await pool.chamar(projeto.id, "chat.cancelar", {"conversation_id": conversa_id})
+        except ErroServidor:
+            pass  # turno já terminou
+    worker = pool.obter_existente(projeto.id)
+    if worker is not None:
+        await worker.cancelar(corpo.req_id)
     return {"cancelado": corpo.req_id}

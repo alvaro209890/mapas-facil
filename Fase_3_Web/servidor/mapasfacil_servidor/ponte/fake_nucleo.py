@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -36,9 +37,13 @@ def carregar_roteiro(caminho: Path) -> list[dict[str, Any]]:
     return linhas
 
 
+_TRAVA_SAIDA = threading.Lock()
+
+
 def _escrever(mensagem: dict[str, Any]) -> None:
-    sys.stdout.write(protocolo.serializar_linha(mensagem) + "\n")
-    sys.stdout.flush()
+    with _TRAVA_SAIDA:
+        sys.stdout.write(protocolo.serializar_linha(mensagem) + "\n")
+        sys.stdout.flush()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -51,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.echo_stderr:
         print(args.echo_stderr, file=sys.stderr, flush=True)
 
+    threads: list[threading.Thread] = []
     for linha in sys.stdin:
         texto = linha.strip()
         if not texto:
@@ -74,22 +80,37 @@ def main(argv: list[str] | None = None) -> int:
         if passo.get("morrer"):
             sys.exit(9)
 
-        atraso = float(passo.get("atraso", 0) or 0)
-        if atraso:
-            time.sleep(atraso)
-
-        for evento in passo.get("eventos", []):
-            time.sleep(float(evento.get("atraso", 0) or 0))
-            _escrever(
-                protocolo.envelope_evt(id_req, evento["evento"], evento.get("dados") or {})
-            )
-
-        if "erro" in passo:
-            _escrever(protocolo.envelope_erro(id_req, passo["erro"]))
+        # Igual ao núcleo real (A10): os métodos longos correm numa thread e o resto do
+        # protocolo continua sendo atendido enquanto isso.
+        if metodo in METODOS_EM_BACKGROUND:
+            thread = threading.Thread(target=_responder, args=(passo, id_req), daemon=True)
+            threads.append(thread)
+            thread.start()
         else:
-            _escrever(protocolo.envelope_res(id_req, passo.get("resultado") or {}))
+            _responder(passo, id_req)
 
+    # stdin fechou: termina os pedidos longos antes de sair (o núcleo real faz o mesmo).
+    for thread in threads:
+        thread.join(timeout=600)
     return 0
+
+
+METODOS_EM_BACKGROUND = frozenset({"mapa.gerar", "analise.executar", "chat.enviar"})
+
+
+def _responder(passo: dict[str, Any], id_req: str) -> None:
+    atraso = float(passo.get("atraso", 0) or 0)
+    if atraso:
+        time.sleep(atraso)
+
+    for evento in passo.get("eventos", []):
+        time.sleep(float(evento.get("atraso", 0) or 0))
+        _escrever(protocolo.envelope_evt(id_req, evento["evento"], evento.get("dados") or {}))
+
+    if "erro" in passo:
+        _escrever(protocolo.envelope_erro(id_req, passo["erro"]))
+    else:
+        _escrever(protocolo.envelope_res(id_req, passo.get("resultado") or {}))
 
 
 if __name__ == "__main__":  # pragma: no cover

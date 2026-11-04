@@ -47,29 +47,45 @@ const ROTULO_ARTEFATO: Record<string, string> = {
   pdf: 'PDF',
   mxd: 'MXD',
   zip: 'Pacote .zip',
-  png: 'Miniatura',
+  png: 'Imagem PNG',
   geojson: 'GeoJSON',
   xlsx: 'Planilha',
 };
+
+/** Ordem dos botões de download: o PDF (o que o cliente recebe) vem primeiro. */
+const ORDEM_ARTEFATO = ['pdf', 'mxd', 'xlsx', 'png', 'geojson', 'zip'];
+
+function artefatosOrdenados(artefatos: Record<string, string> | undefined): [string, string][] {
+  const posicao = (tipo: string) => {
+    const i = ORDEM_ARTEFATO.indexOf(tipo);
+    return i < 0 ? ORDEM_ARTEFATO.length : i;
+  };
+  return Object.entries(artefatos ?? {}).sort(([a], [b]) => posicao(a) - posicao(b));
+}
 
 export function Projeto() {
   const { id = '', numero } = useParams();
   const navegar = useNavigate();
   const { projeto, importacao, resumo, versoes, versaoAberta, carregando, erro, carregar, abrirVersao } =
     useProjetoAtivo();
-  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirErro, limpar: limparChat } =
+  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirTurno, definirErro, limpar: limparChat } =
     useChat();
   const limparProjeto = useProjetoAtivo((s) => s.limpar);
   const estadoConexao = useConexao((s) => s.estado);
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
+  // O SSE só abre depois do histórico: senão o `carregar` do chat apagava o que o replay
+  // de um turno em andamento já tinha desenhado (página recarregada no meio da geração).
+  const [historicoPronto, setHistoricoPronto] = useState<string | null>(null);
   const ligacao = useRef<Ligacao | null>(null);
   const fimDaLista = useRef<HTMLDivElement | null>(null);
 
   const versaoDaUrl = numero ? Number(numero) : null;
   const versao = useMemo(() => {
     const qual = versaoDaUrl ?? versaoAberta;
-    return versoes.find((v) => v.numero === qual) ?? versoes.at(-1) ?? null;
+    // Sem versão pedida, abre a mais recente (o servidor lista da maior para a menor).
+    const recente = versoes.reduce<Versao | null>((a, v) => (a && a.numero >= v.numero ? a : v), null);
+    return versoes.find((v) => v.numero === qual) ?? recente;
   }, [versoes, versaoAberta, versaoDaUrl]);
 
   // Carga inicial: projeto, versões, mensagens e sugestões.
@@ -90,6 +106,8 @@ export function Projeto() {
         if (vivo) carregarChat(lista.itens, sug.itens);
       } catch {
         if (vivo) carregarChat([], []);
+      } finally {
+        if (vivo) setHistoricoPronto(id);
       }
     })();
     return () => {
@@ -99,14 +117,14 @@ export function Projeto() {
 
   // SSE do projeto: um só, fechado ao sair da tela.
   useEffect(() => {
-    if (!id) return;
+    if (!id || historicoPronto !== id) return;
     const l = ligarProjeto(id, 0);
     ligacao.current = l;
     return () => {
       l.fechar();
       ligacao.current = null;
     };
-  }, [id]);
+  }, [id, historicoPronto]);
 
   useEffect(() => {
     if (versaoDaUrl && versaoDaUrl !== versaoAberta) abrirVersao(versaoDaUrl);
@@ -114,7 +132,12 @@ export function Projeto() {
 
   useEffect(() => {
     // `scrollIntoView` não existe no jsdom (e em navegador antigo pode faltar).
-    fimDaLista.current?.scrollIntoView?.({ block: 'end' });
+    // Rolagem suave para a mensagem nova (instantânea para quem pediu menos movimento).
+    const suave =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    fimDaLista.current?.scrollIntoView?.({ block: 'end', behavior: suave ? 'smooth' : 'auto' });
   }, [blocos.length, pensando]);
 
   const enviar = useCallback(
@@ -127,14 +150,17 @@ export function Projeto() {
       enviarLocal(limpo, reqId);
       setTexto('');
       try {
-        await api.post(`/projetos/${id}/mensagens`, { texto: limpo });
+        const resposta = await api.post<{ req_id?: string }>(`/projetos/${id}/mensagens`, {
+          texto: limpo,
+        });
+        if (resposta?.req_id) definirTurno(resposta.req_id);
       } catch (e) {
         definirErro(e instanceof ErroHttp ? `${e.codigo}: ${e.texto}` : 'Não foi possível enviar.');
       } finally {
         setEnviando(false);
       }
     },
-    [id, enviando, enviarLocal, definirErro],
+    [id, enviando, enviarLocal, definirTurno, definirErro],
   );
 
   async function cancelar() {
@@ -268,6 +294,7 @@ export function Projeto() {
                 <CartaoPergunta
                   key={bloco.id}
                   dados={bloco.dados}
+                  respondida={bloco.respondida === true}
                   aoResponder={(resposta) => void enviar(resposta)}
                 />
               );
@@ -347,16 +374,29 @@ export function Projeto() {
             <div className={estilos.downloads}>
               <h3>Baixar a versão {versao.numero}</h3>
               <div className={estilos.botoesDownload}>
-                {Object.entries(versao.artefatos ?? {}).map(([tipo, caminho]) => (
+                {artefatosOrdenados(versao.artefatos).map(([tipo, caminho]) => (
                   <a
-                    key={tipo}
-                    className={estilos.download}
+                    key={`${versao.numero}-${tipo}`}
+                    className={
+                      tipo === 'pdf' ? `${estilos.download} ${estilos.downloadPrincipal}` : estilos.download
+                    }
                     href={`/api/v1/projetos/${id}/arquivos/${caminho}?anexo=true`}
                     download
                   >
                     {ROTULO_ARTEFATO[tipo] ?? tipo}
                   </a>
                 ))}
+                {Object.keys(versao.artefatos ?? {}).length > 0 && (
+                  <a
+                    key={`${versao.numero}-pacote`}
+                    className={estilos.download}
+                    href={`/api/v1/projetos/${id}/versoes/${versao.numero}/pacote.zip`}
+                    download
+                    title="MXD, shapefiles, PDF e planilha num .zip só"
+                  >
+                    Tudo (.zip)
+                  </a>
+                )}
                 {Object.keys(versao.artefatos ?? {}).length === 0 && (
                   <span className={estilos.dica}>Esta versão ainda não tem arquivo publicado.</span>
                 )}

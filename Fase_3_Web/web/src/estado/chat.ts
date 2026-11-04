@@ -9,7 +9,7 @@
 
 import { create } from 'zustand';
 
-import type { Evento, Mensagem, Sugestao } from '../api/tipos';
+import type { Evento, Mensagem, Sugestao, TraceMensagem } from '../api/tipos';
 import type { DadosChatPergunta, DadosChatTool } from '../herdados/tipos';
 import {
   aplicarEventoTimeline,
@@ -30,6 +30,8 @@ interface LojaChat {
     sugestoes?: Sugestao[],
   ) => void;
   enviarLocal: (texto: string, reqId: string) => void;
+  /** O servidor devolveu o `req_id` real do turno (é o que o "Parar" precisa mandar). */
+  definirTurno: (reqId: string) => void;
   aplicarEvento: (evento: Evento) => void;
   encerrarTurno: () => void;
   definirErro: (erro: string | null) => void;
@@ -65,6 +67,103 @@ export function ehMensagemDeSistema(texto: string): boolean {
   return texto.trimStart().startsWith('[ORIGEM: sistema');
 }
 
+/** Tools que não viram cartão: `perguntar` já aparece como o cartão da pergunta. */
+const TOOLS_SEM_CARTAO = new Set(['perguntar']);
+
+function textoDe(m: Mensagem): string {
+  const bruto = (m as { texto?: unknown; conteudo?: unknown }).texto ?? (m as { conteudo?: unknown }).conteudo;
+  return typeof bruto === 'string' ? bruto : '';
+}
+
+function desescapar(valor: string): string {
+  try {
+    return JSON.parse(`"${valor}"`) as string;
+  } catch {
+    return valor;
+  }
+}
+
+/**
+ * Pergunta de um turno passado, lida dos argumentos do `perguntar`.
+ *
+ * O núcleo guarda os argumentos cortados em 500 caracteres; quando o JSON não fecha, a
+ * pergunta e os rótulos ainda saem por expressão regular.
+ */
+export function perguntaDoTrace(trace: TraceMensagem): DadosChatPergunta | null {
+  const bruto = trace.args_resumo ?? '';
+  if (!bruto) return null;
+  try {
+    const args = JSON.parse(bruto) as {
+      pergunta?: unknown;
+      opcoes?: { id?: unknown; rotulo?: unknown }[];
+      permite_texto_livre?: unknown;
+    };
+    if (typeof args.pergunta === 'string' && args.pergunta.trim()) {
+      return {
+        pergunta: args.pergunta,
+        opcoes: (Array.isArray(args.opcoes) ? args.opcoes : [])
+          .map((o, i) => ({
+            id: typeof o.id === 'string' ? o.id : `op-${i}`,
+            rotulo: typeof o.rotulo === 'string' ? o.rotulo : '',
+          }))
+          .filter((o) => o.rotulo),
+        permite_texto_livre: args.permite_texto_livre !== false,
+      };
+    }
+  } catch {
+    // argumentos cortados: cai para a leitura tolerante abaixo
+  }
+  const pergunta = /"pergunta"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(bruto)?.[1];
+  if (!pergunta) return null;
+  const opcoes = [...bruto.matchAll(/"rotulo"\s*:\s*"((?:[^"\\]|\\.)*)"/g)].map((m, i) => ({
+    id: `op-${i}`,
+    rotulo: desescapar(m[1] ?? ''),
+  }));
+  return { pergunta: desescapar(pergunta), opcoes, permite_texto_livre: true };
+}
+
+/** Histórico do banco → blocos da timeline (fala, cartões das tools, resposta, pergunta). */
+export function blocosDoHistorico(itens: Mensagem[]): BlocoTurno[] {
+  let blocos: BlocoTurno[] = [];
+  for (const m of itens) {
+    const texto = textoDe(m);
+    if (m.papel === 'usuario') {
+      if (!texto.trim() || ehMensagemDeSistema(texto)) continue;
+      blocos = aplicarEventoTimeline(blocos, { tipo: 'usuario', dados: { texto } });
+      continue;
+    }
+    let pergunta: DadosChatPergunta | null = null;
+    for (const t of m.tool_traces ?? []) {
+      if (!t || typeof t.tool !== 'string') continue;
+      if (t.tool === 'perguntar') {
+        pergunta = perguntaDoTrace(t) ?? pergunta;
+        continue;
+      }
+      if (TOOLS_SEM_CARTAO.has(t.tool)) continue;
+      blocos = aplicarEventoTimeline(blocos, {
+        tipo: 'tool',
+        dados: {
+          trace_id: t.trace_id || `${m.message_id}-${t.tool}`,
+          tool: t.tool,
+          fase: 'fim',
+          ...(t.args_resumo ? { args_resumo: t.args_resumo } : {}),
+          ...(t.resultado_resumo ? { resultado_resumo: t.resultado_resumo } : {}),
+          ...(typeof t.ms === 'number' ? { ms: t.ms } : {}),
+          ok: t.ok !== false,
+        },
+      });
+    }
+    if (texto.trim() && !ehMensagemDeSistema(texto)) {
+      const md = m.papel === 'assistente' ? texto : `**Sistema:** ${texto}`;
+      blocos = aplicarEventoTimeline(encerrarStreaming(blocos), { tipo: 'texto', dados: { texto: md } });
+    }
+    if (pergunta) {
+      blocos = aplicarEventoTimeline(encerrarStreaming(blocos), { tipo: 'pergunta', dados: pergunta });
+    }
+  }
+  return encerrarStreaming(blocos);
+}
+
 export const useChat = create<LojaChat>((set, get) => ({
   mensagens: [],
   blocos: [],
@@ -75,21 +174,15 @@ export const useChat = create<LojaChat>((set, get) => ({
 
   carregar: (itens, sugestoes = []) =>
     set({
-      mensagens: itens,
-      // A timeline começa com as mensagens já trocadas (sem os deltas, que não voltam).
-      // A fala do usuário tem bolha própria; a do sistema entra como texto com rótulo.
-      blocos: encerrarStreaming(
-        itens.reduce<BlocoTurno[]>((acc, m) => {
-          if (!m.texto.trim() || ehMensagemDeSistema(m.texto)) return acc;
-          if (m.papel === 'usuario') {
-            return aplicarEventoTimeline(acc, { tipo: 'usuario', dados: { texto: m.texto } });
-          }
-          const texto = m.papel === 'assistente' ? m.texto : `**Sistema:** ${m.texto}`;
-          return aplicarEventoTimeline(encerrarStreaming(acc), { tipo: 'texto', dados: { texto } });
-        }, []),
-      ),
+      mensagens: itens.map((m) => ({ ...m, texto: textoDe(m) })),
+      // A timeline começa com as mensagens já trocadas — com os cartões das tools e a
+      // pergunta de cada turno (os deltas não voltam; o texto final está no banco).
+      blocos: blocosDoHistorico(itens),
       sugestoes,
     }),
+
+  definirTurno: (reqId) =>
+    set((atual) => (atual.turnoEmCurso ? { turnoEmCurso: reqId } : {})),
 
   enviarLocal: (texto, reqId) =>
     set((atual) => ({
@@ -131,6 +224,7 @@ export const useChat = create<LojaChat>((set, get) => ({
         set((atual) => ({
           blocos: aplicarEventoTimeline(atual.blocos, { tipo: 'texto', dados: { texto } }),
           pensando: false,
+          turnoEmCurso: atual.turnoEmCurso ?? evento.req_id ?? null,
         }));
         return;
       }
@@ -140,15 +234,19 @@ export const useChat = create<LojaChat>((set, get) => ({
         set((atual) => ({
           blocos: aplicarEventoTimeline(atual.blocos, { tipo: 'raciocinio', dados: { texto } }),
           pensando: true,
+          // Página recarregada no meio do turno: o replay do SSE reabre o turno em curso.
+          turnoEmCurso: atual.turnoEmCurso ?? evento.req_id ?? null,
         }));
         return;
       }
       case 'chat.tool': {
+        const dados = evento.dados as unknown as DadosChatTool;
         set((atual) => ({
-          blocos: aplicarEventoTimeline(atual.blocos, {
-            tipo: 'tool',
-            dados: evento.dados as unknown as DadosChatTool,
-          }),
+          blocos: TOOLS_SEM_CARTAO.has(dados.tool)
+            ? atual.blocos
+            : aplicarEventoTimeline(atual.blocos, { tipo: 'tool', dados }),
+          pensando: dados.fase === 'inicio' ? true : atual.pensando,
+          turnoEmCurso: atual.turnoEmCurso ?? evento.req_id ?? null,
         }));
         return;
       }

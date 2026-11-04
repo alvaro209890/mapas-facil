@@ -224,7 +224,12 @@ class Worker:
                 detalhes={"projeto_id": self.projeto_id, "metodo": metodo},
             ) from exc
         finally:
-            self.estado = "pronto" if self.estado == "ocupado" else self.estado
+            # Com pedidos em paralelo (o chat corre enquanto a tela lê o histórico), o worker
+            # só fica "pronto" quando o último pendente acaba — senão a varredura de ociosos
+            # podia matá-lo no meio de uma geração.
+            if self.estado == "ocupado" and not self._pendentes:
+                self.estado = "pronto"
+            self.ultimo_uso = asyncio.get_running_loop().time()
 
         if resposta.get("ok") is False:
             erro = resposta.get("erro") or {}

@@ -92,6 +92,51 @@ def gerar_leia_me(opcoes: OpcoesPacote) -> str:
     return "\n".join(linhas)
 
 
+_PASTAS_INTERNAS = frozenset({"recursos", ".preview"})
+
+
+def montar_pacote_do_projeto(
+    raiz_projeto: Path,
+    pasta_versao_rel: str,
+    artefatos: dict[str, str],
+    caminho_zip_destino: Path,
+    opcoes: OpcoesPacote,
+) -> Path:
+    """Pacote de uma versão no layout real do servidor.
+
+    O núcleo grava `MXD/` e `SHP/` na raiz do projeto e só os mapas em `Mapas/vNNN/` — não
+    há `MXD/` dentro da pasta da versão, que é o que `montar_pacote_zip` procura.
+    """
+    caminho_zip_destino.parent.mkdir(parents=True, exist_ok=True)
+    pasta_versao = raiz_projeto / pasta_versao_rel
+    with zipfile.ZipFile(caminho_zip_destino, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("LEIA-ME.txt", gerar_leia_me(opcoes))
+        mxd = artefatos.get("mxd")
+        if opcoes.mxd_conforme:
+            if mxd and (raiz_projeto / mxd).is_file():
+                zf.write(raiz_projeto / mxd, arcname=f"MXD/{Path(mxd).name}")
+            elif (pasta_versao / "MXD").is_dir():
+                for arq in sorted((pasta_versao / "MXD").glob("*.mxd")):
+                    zf.write(arq, arcname=f"MXD/{arq.name}")
+        # Layout antigo (SHP dentro da versão) ainda vale; o atual é `SHP/` na raiz.
+        pasta_shp = pasta_versao / "SHP" if (pasta_versao / "SHP").is_dir() else raiz_projeto / "SHP"
+        if pasta_shp.is_dir():
+            for arq in sorted(pasta_shp.rglob("*")):
+                if arq.is_file():
+                    zf.write(arq, arcname=f"SHP/{arq.relative_to(pasta_shp).as_posix()}")
+        if pasta_versao.is_dir():
+            for arq in sorted(pasta_versao.rglob("*")):
+                rel = arq.relative_to(pasta_versao)
+                if not arq.is_file() or any(p in _PASTAS_INTERNAS for p in rel.parts[:-1]):
+                    continue
+                if len(rel.parts) > 1 and rel.parts[0] in {"SHP", "MXD"}:
+                    continue
+                if arq.name == "miniatura.jpg" or arq.suffix.lower() == ".zip":
+                    continue
+                zf.write(arq, arcname=f"Mapas/{rel.as_posix()}")
+    return caminho_zip_destino
+
+
 def montar_pacote_zip(
     pasta_versao: Path,
     caminho_zip_destino: Path,

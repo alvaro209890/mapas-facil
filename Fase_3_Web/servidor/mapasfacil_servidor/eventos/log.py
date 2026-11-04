@@ -216,12 +216,6 @@ class LogEventos:
                 continue
             por_job.setdefault(job_id, []).append(evento)
 
-        terminados = {
-            job_id
-            for job_id, lista in por_job.items()
-            if any(e.get("evento") == "nucleo.res" for e in lista)
-        }
-
         # Turno de chat terminado (tem `nucleo.res` com o mesmo `req_id`): a conversa volta por
         # `GET /mensagens`. Reenviar os `chat.*` por cima dela duplicava a conversa inteira a cada
         # reabertura (e a fala do usuário aparecia duas vezes).
@@ -229,6 +223,17 @@ class LogEventos:
             e.get("req_id")
             for e in eventos
             if e.get("req_id") and not e.get("job_id") and e.get("evento") == "nucleo.res"
+        }
+
+        # Job do `gerar_mapa` do chat não tem `nucleo.res` próprio: ele termina com o turno que o
+        # disparou. Sem isto, todo job do chat parecia "em andamento" e voltava inteiro.
+        terminados = {
+            job_id
+            for job_id, lista in por_job.items()
+            if any(
+                e.get("evento") == "nucleo.res" or e.get("req_id") in turnos_terminados
+                for e in lista
+            )
         }
 
         resultado: list[dict] = [

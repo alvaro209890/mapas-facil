@@ -95,8 +95,41 @@
   cursor: not-allowed;
 }
 
+.chip {
+  transition:
+    border-color var(--mf-dur-1, 120ms) ease,
+    color var(--mf-dur-1, 120ms) ease,
+    background-color var(--mf-dur-1, 120ms) ease,
+    transform var(--mf-dur-1, 120ms) var(--mf-ease-saida, ease-out);
+}
+
+.chip:not(:disabled):hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--mf-acento) 10%, var(--mf-superficie-2));
+}
+
+.chip:not(:disabled):active {
+  transform: translateY(0) scale(0.97);
+}
+
+.chip:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.respondida {
+  border-left-color: var(--mf-borda);
+  opacity: 0.75;
+}
+
+.respondida .icone {
+  color: var(--mf-texto-2, var(--mf-borda));
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cartao {
+  .cartao,
+  .chip {
     animation: none;
+    transition: none;
   }
 }

@@ -18,7 +18,7 @@ export type BlocoTurno =
   | { tipo: "texto"; id: string; markdown: string; streaming?: boolean }
   | { tipo: "tools"; id: string; tools: EstadoTool[] }
   | { tipo: "raciocinio"; id: string; texto: string; streaming?: boolean }
-  | { tipo: "pergunta"; id: string; dados: DadosChatPergunta };
+  | { tipo: "pergunta"; id: string; dados: DadosChatPergunta; respondida?: boolean };
 
 export type EventoTimeline =
   | { tipo: "usuario"; dados: { texto: string } }
@@ -46,7 +46,12 @@ export function aplicarEventoTimeline(
     // streaming do que veio antes (a próxima resposta abre bolha nova).
     if (evento.dados.texto.trim() === "") return anterior;
     return [
-      ...encerrarStreaming(anterior),
+      // A fala do usuário responde a qualquer pergunta aberta antes dela.
+      ...encerrarStreaming(anterior).map((bloco) =>
+        bloco.tipo === "pergunta" && bloco.respondida !== true
+          ? { ...bloco, respondida: true }
+          : bloco,
+      ),
       {
         tipo: "usuario",
         id: idDoProximoBloco(anterior, "usuario"),

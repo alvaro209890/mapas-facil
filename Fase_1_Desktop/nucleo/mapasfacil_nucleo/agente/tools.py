@@ -10,6 +10,7 @@ import copy
 import difflib
 import json
 import math
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
@@ -1003,6 +1004,52 @@ def tool_validar_mapspec(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str,
     return _ok(validar_mapspec_fn(mapspec, fontes_locais=_fontes_locais()))
 
 
+def _versao_da_geracao(estado: Any) -> int:
+    """Número da pasta `Mapas/vNNN` desta geração no modo servidor.
+
+    `MAPASFACIL_VERSAO_SAIDA` manda quando existe (roteiros e testes). Sem ela, é a próxima
+    pasta livre: antes caía sempre em `v001` e cada mapa novo apagava o anterior.
+    """
+    import os as _os
+
+    from mapasfacil_nucleo.config import ENV_VERSAO_SAIDA, versao_saida as _versao_saida
+
+    if (_os.environ.get(ENV_VERSAO_SAIDA) or "").strip():
+        return _versao_saida()
+    maior = 0
+    try:
+        pasta = Path(estado.guard.raiz) / "Mapas"
+        for filho in pasta.iterdir() if pasta.is_dir() else ():
+            nome = filho.name
+            if filho.is_dir() and nome.startswith("v") and nome[1:].isdigit():
+                maior = max(maior, int(nome[1:]))
+    except (AttributeError, OSError):
+        return _versao_saida()
+    return maior + 1
+
+
+_RE_ANO_FINAL = re.compile(r"_(19|20)\d{2}$")
+_RE_ANO = re.compile(r"\b(19[5-9]\d|20\d{2})\b")
+
+
+def _alinhar_ano_do_nome(mapspec: dict[str, Any]) -> None:
+    """O nome do arquivo segue o ano do título ("…_2026.pdf" num mapa de 2008 confundia).
+
+    O modelo da galeria nasce com o ano corrente no `nome_base`; quando o agente troca o
+    título para outro ano, o nome dos arquivos acompanha.
+    """
+    saida = mapspec.get("saida")
+    if not isinstance(saida, dict):
+        return
+    nome = saida.get("nome_base")
+    titulo = mapspec.get("titulo")
+    if not isinstance(nome, str) or not isinstance(titulo, str) or not _RE_ANO_FINAL.search(nome):
+        return
+    anos = _RE_ANO.findall(titulo)
+    if anos:
+        saida["nome_base"] = _RE_ANO_FINAL.sub(f"_{anos[-1]}", nome)
+
+
 def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
     """Executa o job de geração e devolve artefatos + validação (nunca o PDF em si)."""
     from mapasfacil_nucleo.motores.gerar import gerar_mapa as gerar_mapa_fn
@@ -1019,10 +1066,9 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     # (`MAPASFACIL_VERSAO_SAIDA`), não a que ficou gravada no MapSpec quando ele nasceu —
     # senão toda geração cai em `Mapas/v001` e a segunda sobrescreve a primeira.
     if modo_servidor():
-        from mapasfacil_nucleo.config import versao_saida as _versao_saida
-
         mapspec = copy.deepcopy(mapspec)
-        mapspec.setdefault("saida", {})["pasta"] = pasta_saida(versao=_versao_saida())
+        mapspec.setdefault("saida", {})["pasta"] = pasta_saida(versao=_versao_da_geracao(estado))
+        _alinhar_ano_do_nome(mapspec)
 
     saidas = args.get("saidas")
     if saidas is not None:

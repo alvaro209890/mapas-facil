@@ -28,6 +28,18 @@ import { useReducedMotion } from './useReducedMotion';
 import { CODIGO_SEM_WEBGL, MENSAGEM_SEM_WEBGL, suportaWebGL } from './webgl';
 import estilos from './Palco.module.css';
 
+/**
+ * Caminho do projeto (`Mapas/v001/miniatura.jpg`) → URL servida pela API de arquivos.
+ * URL absoluta, `data:` ou `blob:` passam como vieram.
+ */
+export function urlDoArquivo(projetoId: string | undefined, caminho: string | null | undefined): string | null {
+  if (!caminho) return null;
+  if (/^(https?:|data:|blob:|\/)/.test(caminho)) return caminho;
+  if (!projetoId) return null;
+  const partes = caminho.split('/').map(encodeURIComponent).join('/');
+  return `/api/v1/projetos/${encodeURIComponent(projetoId)}/arquivos/${partes}`;
+}
+
 export interface PropriedadesPalco {
   versao?: Versao | null | undefined;
   cameraInjetada?: Camera | undefined;
@@ -90,13 +102,18 @@ export function Palco({
     }
   }, [reducaoDetectada]);
 
-  // Determina o modo efetivo: sem WebGL, o modo 'mapa' cai para 'folha'
+  // Job em curso = etapa real abaixo de 100 %. A fila de animação não conta: no replay de um
+  // job antigo ela vem cheia e prendia o palco na folha em vez de mostrar o mapa pronto.
+  const jobAtivo = etapasJob.length > 0 && pctJob < 100;
+
+  // Determina o modo efetivo: sem WebGL, o modo 'mapa' cai para 'folha'. Versão com imagem e
+  // nenhum job rodando mostra o mapa pronto — inclusive ao reabrir o projeto, quando o replay
+  // traz só o fim do job (antes o palco ficava na folha vazia e o mapa "sumia").
   const modoEfetivo = useMemo(() => {
-    if (!temWebGL && modoStore === 'mapa') {
-      return 'folha';
-    }
-    return modoStore;
-  }, [temWebGL, modoStore]);
+    const base = !temWebGL && modoStore === 'mapa' ? 'folha' : modoStore;
+    if (versao?.miniatura && !jobAtivo && !erroStore) return 'resultado';
+    return base;
+  }, [temWebGL, modoStore, versao?.miniatura, jobAtivo, erroStore]);
 
   // Inicialização da Câmera e Camadas
   useEffect(() => {
@@ -239,6 +256,9 @@ export function Palco({
   // Versão ativa para exibição (prop tem precedência sobre store)
   const versaoExibida = versao ?? (versaoStore ? ({ numero: versaoStore.numero, conforme: versaoStore.conforme } as Versao) : null);
 
+  const urlMiniatura = urlDoArquivo(projeto?.id, versaoExibida?.miniatura);
+  const urlPdf = urlDoArquivo(projeto?.id, versao?.artefatos?.pdf);
+
   // Lista de nomes de camadas renderizadas
   const listaNomesCamadas = Object.values(camadasStore).map((c) => c.nome);
 
@@ -353,13 +373,33 @@ export function Palco({
             </div>
           )}
 
-          <div className={estilos.resultadoMiniatura}>
-            {versaoExibida?.miniatura ? (
-              <img
-                src={versaoExibida.miniatura}
-                alt={`Miniatura da versão ${versaoExibida.numero}`}
-                className={estilos.resultadoImagem}
-              />
+          <div
+            className={estilos.resultadoMiniatura}
+            key={`miniatura-${versaoExibida?.numero ?? 0}`}
+          >
+            {urlMiniatura ? (
+              urlPdf ? (
+                <a
+                  href={urlPdf}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={estilos.resultadoLink}
+                  title="Abrir o PDF desta versão"
+                >
+                  <img
+                    src={urlMiniatura}
+                    alt={`Miniatura da versão ${versaoExibida?.numero ?? ''}`}
+                    className={estilos.resultadoImagem}
+                  />
+                  <span className={estilos.resultadoAbrir}>Abrir PDF</span>
+                </a>
+              ) : (
+                <img
+                  src={urlMiniatura}
+                  alt={`Miniatura da versão ${versaoExibida?.numero ?? ''}`}
+                  className={estilos.resultadoImagem}
+                />
+              )
             ) : snapshotMapa ? (
               <img
                 src={snapshotMapa}

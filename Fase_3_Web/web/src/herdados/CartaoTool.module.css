@@ -220,3 +220,29 @@
     animation: none;
   }
 }
+
+/* DIVERGÊNCIA da web: a tool que termina "acende" o ícone uma vez (ok em verde, falha em
+   vermelho) — o usuário vê a mudança de estado sem precisar ler o texto. */
+.cartao[data-fase="fim"] .icone {
+  animation: tool-conclui var(--mf-dur-3) var(--mf-ease-saida) both;
+}
+
+@keyframes tool-conclui {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  60% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao[data-fase="fim"] .icone {
+    animation: none;
+  }
+}

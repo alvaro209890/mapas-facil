@@ -254,19 +254,102 @@
 
 .resultadoMiniatura {
   position: relative;
-  max-width: 320px;
-  max-height: 220px;
+  display: flex;
+  min-height: 0;
+  max-width: min(92%, 620px);
+  max-height: calc(100% - 96px);
   border: 1px solid var(--mf-borda-forte);
   border-radius: var(--mf-raio-1);
   box-shadow: var(--mf-sombra-alta);
   overflow: hidden;
   margin-bottom: var(--mf-e3);
+  background: #fff;
+  /* A folha "pousa" no palco: sobe um pouco, cresce e acende. */
+  animation: folhaPousa var(--mf-dur-4, 480ms) var(--mf-ease-saida, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+
+.resultadoLink {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 .resultadoImagem {
   display: block;
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
+  object-fit: contain;
+  transition: transform var(--mf-dur-3, 320ms) var(--mf-ease-saida, ease-out);
+}
+
+.resultadoLink:hover .resultadoImagem,
+.resultadoLink:focus-visible .resultadoImagem {
+  transform: scale(1.015);
+}
+
+.resultadoAbrir {
+  position: absolute;
+  right: var(--mf-e2);
+  bottom: var(--mf-e2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(10, 14, 18, 0.78);
+  color: #fff;
+  font: 600 var(--mf-fs-micro, 11px) var(--mf-fonte-ui);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--mf-dur-2, 200ms) ease,
+    transform var(--mf-dur-2, 200ms) var(--mf-ease-saida, ease-out);
+}
+
+.resultadoLink:hover .resultadoAbrir,
+.resultadoLink:focus-visible .resultadoAbrir {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes folhaPousa {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.resultadoSelo {
+  animation: seloEntra var(--mf-dur-3, 320ms) var(--mf-ease-saida, ease-out) 160ms both;
+}
+
+@keyframes seloEntra {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resultadoMiniatura,
+  .resultadoSelo {
+    animation: none;
+  }
+  .resultadoImagem,
+  .resultadoAbrir {
+    transition: none;
+  }
 }
 
 .resultadoSelo {
@@ -348,4 +431,41 @@
 .etapaProgresso {
   font-family: var(--mf-fonte-mono);
   color: var(--mf-acento);
+}
+
+/* Troca de modo do palco: cada área nova entra com um esmaecer curto (crossfade). */
+.ociosoArea,
+.folhaArea,
+.resultadoArea {
+  animation: palco-troca var(--mf-dur-3, 320ms) var(--mf-ease-ambos, ease-in-out) both;
+}
+
+@keyframes palco-troca {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* No repouso a folhinha desenhada "respira" devagar — sinal de espera, não de progresso. */
+.ociosoPerimetroPequeno {
+  animation: perimetro-respira 3.2s ease-in-out infinite;
+}
+
+@keyframes perimetro-respira {
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px var(--mf-acento-fraco);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ociosoArea,
+  .folhaArea,
+  .resultadoArea,
+  .ociosoPerimetroPequeno {
+    animation: none;
+  }
 }

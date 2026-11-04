@@ -8,7 +8,7 @@ import type { Versao } from '../api/tipos';
 import { usePalco } from '../estado/palco';
 import { useProjetoAtivo } from '../estado/projetoAtivo';
 import { Camera, type MapaLike, type OpcoesFitBounds, type OpcoesFlyTo, type OpcoesJumpTo } from './Camera';
-import { Palco } from './Palco';
+import { Palco, urlDoArquivo } from './Palco';
 
 class MapaFalso implements MapaLike {
   sources: Record<string, unknown> = {};
@@ -211,6 +211,55 @@ describe('Palco (W8-01, W8-07, W8-08, W8-09)', () => {
 
       expect(screen.getByLabelText('Resultado da Versão')).toBeInTheDocument();
       expect(screen.getByText('✓ Conforme com as normas')).toBeInTheDocument();
+    });
+
+    it('5. Projeto reaberto com versão pronta mostra o mapa, não a folha vazia (teste_22)', () => {
+      useProjetoAtivo.setState({
+        projeto: {
+          id: 'p 22',
+          nome: 'teste_22',
+          estado: 'pronto',
+          folha: { formato: 'A4', orientacao: 'retrato' },
+          imovel: null,
+          versao_atual: 1,
+          miniatura: null,
+          atualizado_em: '2026-11-04T13:00:00Z',
+        },
+      });
+      // O replay de um job terminado traz só os elementos da folha (sem `versao.criada`).
+      usePalco.getState().aplicarEvento({
+        seq: 1,
+        ts: '2026-11-04T13:00:00Z',
+        origem: 'nucleo',
+        evento: 'layout.elemento',
+        dados: { elemento: 'titulo_caixa', caixa_mm: { x0: 0, y0: 0, x1: 10, y1: 10 } },
+      });
+      const versao: Versao = {
+        ...VERSAO_TESTE,
+        miniatura: 'Mapas/v001/miniatura.jpg',
+        artefatos: { pdf: 'Mapas/v001/Dinamica.pdf' },
+      };
+
+      render(<Palco versao={versao} suporteWebGL={false} />);
+
+      expect(screen.getByLabelText('Resultado da Versão')).toBeInTheDocument();
+      const imagem = screen.getByAltText('Miniatura da versão 1') as HTMLImageElement;
+      expect(imagem.getAttribute('src')).toBe('/api/v1/projetos/p%2022/arquivos/Mapas/v001/miniatura.jpg');
+      expect(screen.getByTitle('Abrir o PDF desta versão').getAttribute('href')).toBe(
+        '/api/v1/projetos/p%2022/arquivos/Mapas/v001/Dinamica.pdf',
+      );
+    });
+  });
+
+  describe('urlDoArquivo', () => {
+    it('caminho do projeto vira rota da API; URL pronta passa como veio', () => {
+      expect(urlDoArquivo('p1', 'Mapas/v002/miniatura.jpg')).toBe(
+        '/api/v1/projetos/p1/arquivos/Mapas/v002/miniatura.jpg',
+      );
+      expect(urlDoArquivo('p1', 'data:image/png;base64,AAAA')).toBe('data:image/png;base64,AAAA');
+      expect(urlDoArquivo('p1', '/api/v1/x.png')).toBe('/api/v1/x.png');
+      expect(urlDoArquivo(undefined, 'Mapas/v001/a.png')).toBeNull();
+      expect(urlDoArquivo('p1', null)).toBeNull();
     });
   });
 
