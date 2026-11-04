@@ -135,12 +135,14 @@ def test_gerar_mapa_com_mxd_e_pdf(projeto: Path, repo_root: Path) -> None:
     assert (projeto / resultado["pdf"]).exists()
     assert (projeto / "SHP" / "ATP.shp").exists()
     patch_info = resultado["artefatos"]["mxd"]
-    assert patch_info["motor"] in ("copia_template", "patch", "arcpy")
+    # `binario` é o motor do servidor (W10, sem ArcMap); os outros são do desktop.
+    assert patch_info["motor"] in ("binario", "copia_template", "patch", "arcpy")
     assert "validacao" in resultado
     assert (projeto / resultado["validacao"]).exists()
     assert resultado["validacao_dados"]["tier"] in (
         "T1",
         "T2",
+        "binario",
         "copia_template",
         "nativo",
         "patch",

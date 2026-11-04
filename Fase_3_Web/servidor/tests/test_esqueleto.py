@@ -43,6 +43,7 @@ def _arquivo_segredos(tmp_path: Path, chaves=TODAS_AS_CHAVES) -> Path:
     linhas = ["# teste — valores fictícios, nunca reais", ""]
     linhas += [f"{nome}=valor-falso-de-teste" for nome in chaves]
     caminho.write_text("\n".join(linhas) + "\n", encoding="utf-8")
+    caminho.chmod(0o600)  # no Linux o app recusa segredo legível por outros (SV-000)
     return caminho
 
 
@@ -164,6 +165,7 @@ def test_inteiro_invalido_falha_cedo(tmp_path):
 def test_segredos_ignoram_comentario_e_aspas(tmp_path):
     caminho = tmp_path / "s.env"
     caminho.write_text("# comentario\nA=1\nB='dois'\n\nC=\"tres\"\n", encoding="utf-8")
+    caminho.chmod(0o600)
     lidos = ler_segredos(caminho)
     assert lidos == {"A": "1", "B": "dois", "C": "tres"}
 

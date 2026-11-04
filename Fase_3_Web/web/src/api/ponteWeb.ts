@@ -1,7 +1,7 @@
 /**
  * Ponte entre o SSE do servidor e as stores do web (W6-03).
  *
- * O desktop tem uma `ApiMapasFacil` com `chamar(metodo)` — na web isso **não existe**
+ * O desktop tem uma `ApiMapasFacil` que chama o núcleo por nome de método — na web isso **não existe**
  * (AW-02): não há RPC para o núcleo. Esta ponte implementa só o que faz sentido aqui:
  * `aoEvento` (um evento do SSE → todas as stores interessadas) e `aoEstadoNucleo`
  * (`worker.estado`). Quem precisa de dado do núcleo chama a rota REST equivalente.
