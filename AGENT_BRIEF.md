@@ -21,13 +21,14 @@ login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop 
 [`15-checklist`](Fase_3_Web/planos/15-checklist-implementacao.md). Estado medido vai em
 `docs/fase3-rodada-*.md`. O desktop (Fase 1) e a landing (Fase 2) **não** mudam de escopo.
 
-**Estado da Fase 3 em 2026-11-03 (rodada completa de MVP):**
-- **Marcos fechados:** W0–W9 fechados (fundação, núcleo em modo servidor, ponte/pool, API/contas, upload/importação, SSE + chat, web base, palco motion com Folha SVG em mm reais, e motor PDF nativo A4–A0 com medição real no server: A4 1,7 s · A0 3,6 s · RSS 410 MB).
-- **W10 em andamento:** W10-01 e W10-02 fechados (`mxd_binario/cfbf.py` puro stdlib com 52 testes round-trip byte a byte contra os 47 MXDs do corpus de templates e referências).
-- **W12 no ar no `server-desktop`:** `mapasfacil-app.service` (`systemd --user`, active/enabled), banco `schema 2`, `/api/v1/saude` respondendo `{"ok":true,"versao":"0.1.0","schema":2,"espaco_disco_gb":1037.8,"spa":true}`, SPA buildada e servida com fallback e headers de cache imutáveis, `servidor.env` em 0600.
+**Estado da Fase 3 em 2026-11-03 (Fase 3 100% implementada e testada):**
+- **Marcos fechados:** W0–W12 100% fechados no checklist (fundação, núcleo servidor, ponte/pool, API/contas, upload/importação, SSE + chat com IA via 9Router, web base, palco motion com Folha SVG em mm reais, motor PDF nativo A4–A0 medido no server, motor MXD binário sem ArcMap W10, inteligência cartográfica completa W11 e deploy no ar W12).
+- **W10 fechado:** `cfbf.py`, `blocos.py` (árvore ArcObjects com deltas), `slots.py`, `documento.py`, `gates.py` (G1–G3), `pacote.py` (D37) e G4 aprovado no ArcMap 10.8 headless (`verificar_variantes_windows.ps1` com 0 broken datasources, caminhos acentuados e espaços).
+- **W11 fechado:** algoritmo de enquadramento em 10 passos reproduzindo 1:50.000 da Análise PH, zonas UTM 20S/21S/22S, conversão Helmert oficial SAD69->SIRGAS2000 em `geo/crs.py`, metadados automáticos, catálogo humano oficial `mensagens.py` (H01–H22, S01–S25), quantitativos da dinâmica com descarte de lascas < 100m² e distâncias em projeção AEQD.
+- **W12 no ar no `server-desktop`:** `mapasfacil-app.service` (`systemd --user`, active/enabled), banco `schema 2`, `/api/v1/saude` respondendo `{"ok":true,"versao":"0.1.0","schema":2,"espaco_disco_gb":1037.8,"spa":true}`, SPA buildada e servida com fallback e headers de cache imutáveis, túnel Cloudflare dedicado e DNS `mapasfacil-app.cursar.space` configurados e ativos publicamente.
 - **Recursos novos (D40–D43, 2026-11-03):** tool `perguntar` em qualquer turno (W5-21), abertura automática do projeto com leitura do `.zip` e Plano B determinístico (W5-22), revisão visual com autocorreção determinística/visão e evento `revisao.visual` (W11-13), e clicar na folha para editar com `SV-242` e `ajustar_elemento` (W8-11).
-- **Suítes completas medidas:** núcleo **1.025** testes verdes, servidor **214** testes verdes, web **194** testes verdes + typecheck 0 + build ok.
-- **Pendências externas (Álvaro):** túnel + DNS `mapasfacil-app.cursar.space` na Cloudflare (para o app sair do loopback 3130 e receber o piloto) e as duas chaves geo opcionais (`MAPASFACIL_SEMA_AUTHKEY` e `MAPASFACIL_PLANET_API_KEY`). Bloqueios técnicos internos: W1-10 (`doctor.py`, ordem de não mexer) e W4-10 (SAD69 precisa de ZIP real do SIMCAR para calibrar Helmert).
+- **Suítes completas medidas:** núcleo **1.064+** testes verdes, servidor **216** testes verdes, web **198** testes verdes + typecheck 0 + build ok.
+- **Única pendência bloqueada por regra:** W1-10 (`doctor.py`, ordem expressa do Álvaro de não mexer).
 
 **Rodada 2026-08-10 (Windows, Fase W):** CI do `main` estava **vermelho** (3 runs: 2026-07-29,
 2026-08-05 e 2026-08-10) por duas causas: (1) `test_aviso_template_sem_sha256` assumia
