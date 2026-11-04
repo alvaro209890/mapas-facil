@@ -17,8 +17,22 @@ GOLDEN = Path(__file__).parent / "golden" / "anatomia_dinamica_retrato.png"
 TOLERANCIA_PCT = 0.3
 
 
-def test_golden_anatomia_renderizador_nativo(tmp_path: Path, repo_root: Path) -> None:
-    """Regressão de layout estável no Linux e no Windows, sem rede nem ArcMap."""
+def test_golden_anatomia_renderizador_nativo(tmp_path: Path, repo_root: Path, monkeypatch) -> None:
+    """Regressão de layout estável no Linux e no Windows, sem rede nem ArcMap.
+
+    Título e grade escolhem a fonte do modelo (Tahoma/Cambria) quando a máquina tem; o
+    Windows tem, o Linux do CI não — e a caixa medida muda. Aqui a escolha é fixada nas
+    DejaVu, que vêm com o matplotlib em qualquer sistema.
+    """
+    from mapasfacil_nucleo.motores import blocos
+
+    monkeypatch.setattr(
+        blocos,
+        "familia_disponivel",
+        lambda preferencias, negrito=False: (
+            "DejaVu Serif" if "Liberation Serif" in preferencias else "DejaVu Sans"
+        ),
+    )
     montar_workspace_minimo(tmp_path)
     workspace_servico.abrir(str(tmp_path))
     estado = workspace_servico.estado_atual()
