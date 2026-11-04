@@ -152,7 +152,11 @@ def listar() -> list[dict[str, Any]]:
         folha = mapspec.get("folha") or {}
         versoes.append(
             {
-                "versao": int(mapspec.get("versao") or numero),
+                # O número da versão é o da pasta (`Mapas/v001` → 1): é o que a tela mostra
+                # e o que `carregar`/`restaurar_versao` procuram. A edição interna do MapSpec
+                # vai à parte — antes a IA dizia "versão 6" de um mapa que a tela chamava de 1.
+                "versao": numero,
+                "edicao_mapspec": mapspec.get("versao"),
                 "salvo_em": dados.get("salvo_em"),
                 "titulo": mapspec.get("titulo"),
                 "folha": folha.get("formato"),
