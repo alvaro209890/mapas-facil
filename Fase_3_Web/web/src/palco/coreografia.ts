@@ -28,7 +28,7 @@
  *    rajada), não na duração-alvo (~520 ms) — e **nenhum passo some**: o estado final é sempre
  *    o mesmo, com ou sem compressão (W-07 §Fila, "nenhum evento é descartado do estado").
  *
- * Nada aqui escreve no DOM ou agenda `setTimeout`: quem executa os passos é o `Palco.tsx` (W8-01),
+ * Nada aqui escreve no DOM nem agenda temporizador: quem executa os passos é o `Palco.tsx` (W8-01),
  * com o relógio dele. O módulo só diz **o quê**, **quando** e **por quanto tempo**.
  */
 
