@@ -28,6 +28,8 @@ import { IndicadorPensando } from '../herdados/IndicadorPensando';
 import { Palco } from '../palco/Palco';
 import { useChat } from '../estado/chat';
 import { useConexao } from '../estado/conexao';
+import { useJob } from '../estado/job';
+import { usePalco } from '../estado/palco';
 import { useProjetoAtivo, type ProgressoImportacao } from '../estado/projetoAtivo';
 import { seloFolha, tempoRelativo } from '../utilitarios/tempo';
 import estilos from './Projeto.module.css';
@@ -68,15 +70,12 @@ export function Projeto() {
   const navegar = useNavigate();
   const { projeto, importacao, resumo, versoes, versaoAberta, carregando, erro, carregar, abrirVersao } =
     useProjetoAtivo();
-  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirTurno, definirErro, limpar: limparChat } =
+  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirTurno, definirErro, aguardarHistorico } =
     useChat();
   const limparProjeto = useProjetoAtivo((s) => s.limpar);
   const estadoConexao = useConexao((s) => s.estado);
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
-  // O SSE só abre depois do histórico: senão o `carregar` do chat apagava o que o replay
-  // de um turno em andamento já tinha desenhado (página recarregada no meio da geração).
-  const [historicoPronto, setHistoricoPronto] = useState<string | null>(null);
   const ligacao = useRef<Ligacao | null>(null);
   const fimDaLista = useRef<HTMLDivElement | null>(null);
 
@@ -91,10 +90,13 @@ export function Projeto() {
   // Carga inicial: projeto, versões, mensagens e sugestões.
   useEffect(() => {
     if (!id) return;
-    // As stores são globais: sem zerar aqui, o projeto novo mostrava o chat, o resumo e até a
-    // versão aberta do projeto anterior até a carga terminar (e a versão nem era trocada).
-    limparChat();
+    // As stores são globais: sem zerar aqui, o projeto novo mostrava o chat, o resumo, a
+    // versão aberta e até o palco do projeto anterior (teste3 abriu com a folha do teste_22).
+    // O chat segura os eventos do SSE até o histórico chegar (ver `aguardarHistorico`).
+    aguardarHistorico();
     limparProjeto();
+    usePalco.getState().limpar();
+    useJob.getState().limpar();
     let vivo = true;
     void carregar(id);
     void (async () => {
@@ -106,25 +108,24 @@ export function Projeto() {
         if (vivo) carregarChat(lista.itens, sug.itens);
       } catch {
         if (vivo) carregarChat([], []);
-      } finally {
-        if (vivo) setHistoricoPronto(id);
       }
     })();
     return () => {
       vivo = false; // resposta atrasada do projeto anterior não pode pintar o atual
     };
-  }, [id, carregar, carregarChat, limparChat, limparProjeto]);
+  }, [id, carregar, carregarChat, aguardarHistorico, limparProjeto]);
 
-  // SSE do projeto: um só, fechado ao sair da tela.
+  // SSE do projeto: um só, aberto já na entrada (a importação e o palco não esperam o
+  // histórico do chat) e fechado ao sair da tela.
   useEffect(() => {
-    if (!id || historicoPronto !== id) return;
+    if (!id) return;
     const l = ligarProjeto(id, 0);
     ligacao.current = l;
     return () => {
       l.fechar();
       ligacao.current = null;
     };
-  }, [id, historicoPronto]);
+  }, [id]);
 
   useEffect(() => {
     if (versaoDaUrl && versaoDaUrl !== versaoAberta) abrirVersao(versaoDaUrl);

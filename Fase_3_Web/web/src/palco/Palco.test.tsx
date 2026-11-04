@@ -220,7 +220,7 @@ describe('Palco (W8-01, W8-07, W8-08, W8-09)', () => {
           nome: 'teste_22',
           estado: 'pronto',
           folha: { formato: 'A4', orientacao: 'retrato' },
-          imovel: null,
+          imovel: { nome: null },
           versao_atual: 1,
           miniatura: null,
           atualizado_em: '2026-11-04T13:00:00Z',

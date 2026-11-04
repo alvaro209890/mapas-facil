@@ -83,6 +83,8 @@ export interface Ligacao {
 
 /** Abre o SSE de um projeto e liga tudo. Fora da tela, chame `fechar()`. */
 export function ligarProjeto(projetoId: string, desde = 0): Ligacao {
+  // Replay desde o começo: o `seq` visto antes é de outro projeto (ou de outra conexão).
+  if (desde === 0) useConexao.setState({ ultimoSeq: 0 });
   const fluxo = new FluxoEventos({
     projetoId,
     aoEvento: (evento) => {

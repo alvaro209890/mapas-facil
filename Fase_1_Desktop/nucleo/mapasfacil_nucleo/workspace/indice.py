@@ -26,6 +26,31 @@ def _montar_fontes(shapefiles: list[dict[str, Any]]) -> list[str]:
     return sorted(fontes)
 
 
+def _air_como_perimetro(shapefiles: list[dict[str, Any]]) -> None:
+    """Sem `ATP`, o `AIR` (Área do Imóvel Rural) do SIMCAR é o perímetro do imóvel.
+
+    O pacote "AIR - mat NNNN.zip" que o SIMCAR exporta traz só `AIR`, `AVN` e
+    `AREA_CONSOLIDADA` — sem esta promoção o imóvel abria com 0 ha, sem município, e a
+    galeria recusava todos os modelos por "falta ATP.shp" (teste3, 04/11/2026). No pacote
+    completo o `AIR` e o `ATP` têm a mesma geometria, então quem manda os dois não muda.
+    O `id_local` continua `AIR`: `local.AIR` segue resolvendo para o mesmo arquivo.
+    """
+    if any(s.get("papel") == "ATP" for s in shapefiles):
+        return
+    candidatos = [
+        s
+        for s in shapefiles
+        if s.get("papel") == "AIR"
+        and "POLYGON" in str(s.get("tipo_geometria") or "POLYGON").upper()
+        and (s.get("feicoes") or 0) > 0
+    ]
+    if not candidatos:
+        return
+    escolhido = min(candidatos, key=lambda s: (s["id_local"] != "AIR", s["caminho"]))
+    escolhido["papel"] = "ATP"
+    escolhido["papel_original"] = "AIR"
+
+
 def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
     guard = guard or WorkspaceGuard(raiz)
     shapefiles: list[dict[str, Any]] = []
@@ -69,6 +94,7 @@ def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
             elif nome.lower().endswith((".mxd", ".png", ".jpg", ".jpeg")):
                 outros.append({"caminho": rel, "tipo": Path(nome).suffix.lower()})
 
+    _air_como_perimetro(shapefiles)
     fontes_locais = _montar_fontes(shapefiles)
     recibo_detectado = next((p for p in pdfs if p.get("recibo_car")), None)
 

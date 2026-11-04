@@ -8,8 +8,10 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { despachar } from '../api/ponteWeb';
 import type { Evento, Mensagem } from '../api/tipos';
 import { blocosDoHistorico, perguntaDoTrace, useChat } from './chat';
+import { useConexao } from './conexao';
 
 function msg(parcial: Partial<Mensagem> & Pick<Mensagem, 'seq' | 'papel'>): Mensagem {
   return {
@@ -137,5 +139,32 @@ describe('turno em andamento depois de recarregar', () => {
   it('chat.tool de `perguntar` não desenha cartão de tool', () => {
     useChat.getState().aplicarEvento(evento('chat.tool', { trace_id: 'p', tool: 'perguntar', fase: 'inicio' }, 1));
     expect(useChat.getState().blocos).toHaveLength(0);
+  });
+});
+
+describe('troca de projeto (teste3, 04/11/2026)', () => {
+  function evento(nome: string, dados: Record<string, unknown>, seq: number): Evento {
+    return { seq, ts: '2026-11-04T14:21:35Z', origem: 'nucleo', evento: nome, dados, req_id: 'abertura-1' };
+  }
+
+  it('o seq do projeto anterior não faz o novo descartar os eventos dele', () => {
+    useConexao.setState({ ultimoSeq: 812 }); // fim do teste_22
+    useConexao.getState().parar(); // saiu da tela
+    expect(useConexao.getState().ultimoSeq).toBe(0);
+    expect(despachar(evento('importacao.progresso', { fase: 'extraindo', indice: 1, total: 18 }, 2))).toBe(false);
+    expect(useConexao.getState().ultimoSeq).toBe(2);
+  });
+
+  it('eventos do SSE que chegam antes do histórico entram por cima dele, sem perder nada', () => {
+    useChat.getState().aguardarHistorico();
+    useChat.getState().aplicarEvento(evento('chat.tool', { trace_id: 'l', tool: 'listar_modelos_galeria', fase: 'inicio' }, 23));
+    expect(useChat.getState().blocos).toHaveLength(0);
+    useChat.getState().carregar([msg({ seq: 1, papel: 'usuario', texto: 'oi' })]);
+    const tipos = useChat.getState().blocos.map((b) => b.tipo);
+    expect(tipos).toEqual(['usuario', 'tools']);
+    expect(useChat.getState().turnoEmCurso).toBe('abertura-1');
+    // Depois do histórico, os eventos voltam a ir direto para a timeline.
+    useChat.getState().aplicarEvento(evento('chat.delta', { texto: 'Olá!' }, 24));
+    expect(useChat.getState().blocos.at(-1)?.tipo).toBe('texto');
   });
 });

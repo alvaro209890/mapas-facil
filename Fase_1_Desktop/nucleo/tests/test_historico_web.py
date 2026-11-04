@@ -82,3 +82,35 @@ def test_nome_do_arquivo_segue_o_ano_do_titulo(nome, titulo, esperado):
     spec = {"titulo": titulo, "saida": {"pasta": "Mapas/v001", "nome_base": nome}}
     tools._alinhar_ano_do_nome(spec)
     assert spec["saida"]["nome_base"] == esperado
+
+
+# --- pacote "AIR - mat NNNN.zip" do SIMCAR: AIR é o perímetro (teste3, 04/11/2026) ---------
+
+
+def test_air_vira_perimetro_quando_nao_ha_atp(tmp_path: Path):
+    from mapasfacil_nucleo.workspace import indice, servico as workspace_servico
+    from tests.helpers_fixtures import escrever_shapefile_geografico
+
+    escrever_shapefile_geografico(tmp_path / "AIR.shp", lon=-52.2, lat=-12.35, delta=0.02)
+    escrever_shapefile_geografico(tmp_path / "AVN.shp", lon=-52.2, lat=-12.35, delta=0.005)
+    escrever_shapefile_geografico(tmp_path / "AREA_CONSOLIDADA.shp", lon=-52.19, lat=-12.34, delta=0.005)
+
+    resultado = indice.varrer(tmp_path)
+    air = next(s for s in resultado["shapefiles"] if s["id_local"] == "AIR")
+    assert air["papel"] == "ATP"
+    assert air["papel_original"] == "AIR"
+    assert {"AIR", "ATP", "AVN", "AC"} <= set(resultado["fontes_locais"])
+
+    estado = SimpleNamespace(indice=resultado)
+    idx = workspace_servico.fontes_idx(estado)
+    assert idx["ATP"] == idx["AIR"] == "AIR.shp"
+
+
+def test_com_atp_o_air_continua_air(tmp_path: Path):
+    from mapasfacil_nucleo.workspace import indice
+    from tests.helpers_fixtures import escrever_shapefile_geografico
+
+    escrever_shapefile_geografico(tmp_path / "AIR.shp", lon=-52.2, lat=-12.35)
+    escrever_shapefile_geografico(tmp_path / "ATP.shp", lon=-52.2, lat=-12.35)
+    papeis = {s["id_local"]: s["papel"] for s in indice.varrer(tmp_path)["shapefiles"]}
+    assert papeis == {"AIR": "AIR", "ATP": "ATP"}

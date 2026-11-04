@@ -29,7 +29,7 @@ from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 from mapasfacil_nucleo.conversas.redator import redigir
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
-from mapasfacil_nucleo.galeria.montar import area_do_atp
+from mapasfacil_nucleo.galeria.montar import area_do_atp, folha_do_projeto
 from mapasfacil_nucleo.geo import area as geo_area
 from mapasfacil_nucleo.geo.distancia import distancia_minima_km
 from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
@@ -435,6 +435,9 @@ def tool_listar_modelos_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
         {
             "id": m["id"],
             "nome": m["nome"],
+            # O subtítulo diz para que serve o modelo ("Dinâmica 2008 · SPOT · quadro de
+            # áreas"): sem ele a IA escolhia o modelo 2026 e trocava o ano no título.
+            "subtitulo": m.get("subtitulo"),
             "tags": m.get("tags", []),
             "status": m["status"],
             "motivo": m.get("motivo"),
@@ -605,7 +608,7 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         "parent_id": None,
         "titulo": titulo or nome_imovel,
         "template": template,
-        "folha": folha_do_template(template) or folha_padrao(),
+        "folha": folha_do_projeto() or folha_do_template(template) or folha_padrao(),
         "saidas": ["pdf"],
         "imovel": {
             "nome": nome_imovel,

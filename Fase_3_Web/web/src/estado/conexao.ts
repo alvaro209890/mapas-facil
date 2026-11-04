@@ -15,6 +15,11 @@ interface LojaConexao {
   ultimoSeq: number;
   aoMudar: (estado: EstadoConexao) => void;
   aoAplicar: (seq: number) => void;
+  /**
+   * Fecha a conexão **e esquece o `seq`**: cada projeto tem a sua numeração. Guardar o
+   * último `seq` do projeto anterior fazia o projeto novo descartar todos os eventos dele
+   * como "repetidos" (teste3, 04/11/2026: importação parada em 0%).
+   */
   parar: () => void;
 }
 
@@ -23,7 +28,7 @@ export const useConexao = create<LojaConexao>((set) => ({
   ultimoSeq: 0,
   aoMudar: (estado) => set({ estado }),
   aoAplicar: (seq) => set({ ultimoSeq: seq }),
-  parar: () => set({ estado: 'parado' }),
+  parar: () => set({ estado: 'parado', ultimoSeq: 0 }),
 }));
 
 /** `true` quando a tela deve avisar que o dado pode estar atrasado. */

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from typing import Any
@@ -79,6 +80,62 @@ def _valor_filtro(caminho: str, recibo: dict[str, Any] | None, imovel: dict[str,
     if caminho == "imovel.municipio.uf":
         return (imovel.get("municipio") or {}).get("uf") or (recibo or {}).get("uf")
     return None
+
+
+def folha_do_projeto() -> dict[str, Any] | None:
+    """A folha que o usuário escolheu ao criar o projeto no site (D36), se houver.
+
+    Ela vence a folha do template: o teste_22 nasceu "A4 paisagem" e o mapa saiu retrato,
+    porque a montagem só olhava o `formato_pagina` do MXD-modelo.
+    """
+    try:
+        from mapasfacil_nucleo import projeto_servidor
+        from mapasfacil_nucleo.motores.folhas import FORMATOS, ORIENTACOES
+
+        folha = (projeto_servidor.atual() or {}).get("folha")
+    except Exception:  # noqa: BLE001 — sem projeto do site (desktop), vale o template
+        return None
+    if not isinstance(folha, dict):
+        return None
+    formato = str(folha.get("formato") or "").strip().upper()
+    orientacao = str(folha.get("orientacao") or "").strip().lower()
+    if formato not in FORMATOS or orientacao not in ORIENTACOES:
+        return None
+    return folha_padrao(formato, orientacao)
+
+
+def municipio_do_perimetro(indice: dict[str, Any] | None) -> dict[str, str] | None:
+    """Município onde cai o perímetro (ATP), pela base IBGE local — sem recibo, sem rede.
+
+    Sem recibo do CAR o mapa saía com "Desconhecido" no minimapa (15844 da Aline, só com
+    os shapes), embora o polígono já diga onde o imóvel está.
+    """
+    entrada = next(
+        (s for s in (indice or {}).get("shapefiles") or [] if s.get("papel") == "ATP"), None
+    )
+    estado = workspace_servico.estado_atual()
+    if entrada is None or estado is None:
+        return None
+    try:
+        import shapefile as pyshp
+        from pyproj import Transformer
+        from shapely.geometry import shape
+        from shapely.ops import unary_union
+
+        from mapasfacil_nucleo.camadas import ibge as ibge_mod
+
+        with pyshp.Reader(str(estado.guard.raiz / entrada["caminho"])) as leitor:
+            geoms = [shape(s.__geo_interface__) for s in leitor.shapes() if s.points]
+        if not geoms:
+            return None
+        ponto = unary_union([g if g.is_valid else g.buffer(0) for g in geoms]).representative_point()
+        epsg = int((entrada.get("crs") or {}).get("epsg") or 4674)
+        lon, lat = ponto.x, ponto.y
+        if epsg not in (4674, 4326):
+            lon, lat = Transformer.from_crs(f"EPSG:{epsg}", "EPSG:4674", always_xy=True).transform(lon, lat)
+        return ibge_mod.municipio_do_ponto(lon, lat)
+    except Exception:  # noqa: BLE001 — sem base/geom legível, fica o que o recibo disser
+        return None
 
 
 def area_do_atp(indice: dict[str, Any] | None) -> float | None:
@@ -192,6 +249,11 @@ def montar_mapspec(
     municipio_nome = (recibo or {}).get("municipio") if isinstance(recibo, dict) else None
     uf = (recibo or {}).get("uf") if isinstance(recibo, dict) else None
     car = (recibo or {}).get("car_estadual") if isinstance(recibo, dict) else None
+    if not municipio_nome:
+        pelo_poligono = municipio_do_perimetro(indice)
+        if pelo_poligono and pelo_poligono.get("nome"):
+            municipio_nome = pelo_poligono["nome"]
+            uf = pelo_poligono.get("sigla_uf") or uf
     # Regra do Álvaro (04/11/2026): os números vêm dos SHAPES que o usuário mandou. O recibo
     # do CAR dá nome, município e nº do CAR (contexto); a área dele só vale sem ATP na pasta.
     area = area_do_atp(indice)
@@ -266,16 +328,17 @@ def montar_mapspec(
     # 10. metadados
     metadados = [dict(m) for m in modelo.get("metadados_padrao") or []]
 
-    # 11. saida
+    # 11. saida — o modelo pode fixar o nome do arquivo (ex.: "Dinamica_2008", como a Aline
+    # entrega); senão, nome do modelo + ano.
     ano = "2026"
-    nome_base = _ascii_nome(f"{modelo['nome']}_{ano}")
+    nome_base = _ascii_nome(str(modelo.get("nome_base_padrao") or f"{modelo['nome']}_{ano}"))
 
     # elementos_layout
     elementos = dict(modelo.get("elementos_layout_padrao") or {})
     if isinstance(sobrescritas.get("elementos_layout"), dict):
         elementos.update(sobrescritas["elementos_layout"])
 
-    titulo = sobrescritas.get("titulo") or modelo["nome"]
+    titulo = sobrescritas.get("titulo") or modelo.get("titulo_padrao") or modelo["nome"]
 
     # 12. id ULID
     mapspec: dict[str, Any] = {
@@ -286,7 +349,7 @@ def montar_mapspec(
         "parent_id": None,
         "titulo": titulo,
         "template": modelo["template"],
-        "folha": folha_do_template(modelo["template"]) or folha_padrao(),
+        "folha": folha_do_projeto() or folha_do_template(modelo["template"]) or folha_padrao(),
         "saidas": saidas,
         "imovel": imovel,
         "crs": crs,
@@ -295,6 +358,9 @@ def montar_mapspec(
         "camadas": camadas,
         "basemap": dict(modelo.get("basemap_padrao") or {"tipo": "planet_mensal"}),
         "elementos_layout": elementos,
+        # Aparência própria do modelo (estilo do título, quadro de resumo, itens extras e
+        # ordem da legenda) — o contrato já tinha o objeto livre `ajustes_layout`.
+        "ajustes_layout": json.loads(json.dumps(modelo.get("ajustes_layout_padrao") or {})),
         "metadados": metadados,
         "tabela": tabela,
         "saida": {

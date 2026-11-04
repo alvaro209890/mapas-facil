@@ -36,6 +36,19 @@ interface LojaChat {
   encerrarTurno: () => void;
   definirErro: (erro: string | null) => void;
   limpar: () => void;
+  /**
+   * Zera o chat e **segura** os eventos do SSE até o histórico chegar (`carregar`).
+   *
+   * O SSE abre junto com a tela — esperar o histórico para conectar deixava a importação
+   * parada em 0%, porque o `GET /mensagens` só responde quando o núcleo termina de indexar.
+   * Os eventos que chegam antes do histórico ficam na fila e são aplicados por cima dele.
+   */
+  aguardarHistorico: () => void;
+}
+
+interface Interno {
+  historicoCarregado: boolean;
+  pendentes: Evento[];
 }
 
 /**
@@ -164,22 +177,30 @@ export function blocosDoHistorico(itens: Mensagem[]): BlocoTurno[] {
   return encerrarStreaming(blocos);
 }
 
-export const useChat = create<LojaChat>((set, get) => ({
+export const useChat = create<LojaChat & Interno>((set, get) => ({
   mensagens: [],
   blocos: [],
   turnoEmCurso: null,
   pensando: false,
   sugestoes: [],
   erro: null,
+  historicoCarregado: true,
+  pendentes: [],
 
-  carregar: (itens, sugestoes = []) =>
+  carregar: (itens, sugestoes = []) => {
+    const pendentes = get().pendentes;
     set({
       mensagens: itens.map((m) => ({ ...m, texto: textoDe(m) })),
       // A timeline começa com as mensagens já trocadas — com os cartões das tools e a
       // pergunta de cada turno (os deltas não voltam; o texto final está no banco).
       blocos: blocosDoHistorico(itens),
       sugestoes,
-    }),
+      historicoCarregado: true,
+      pendentes: [],
+    });
+    // O que o SSE trouxe enquanto o histórico carregava (um turno em andamento) vem por cima.
+    for (const evento of pendentes) get().aplicarEvento(evento);
+  },
 
   definirTurno: (reqId) =>
     set((atual) => (atual.turnoEmCurso ? { turnoEmCurso: reqId } : {})),
@@ -195,6 +216,10 @@ export const useChat = create<LojaChat>((set, get) => ({
     })),
 
   aplicarEvento: (evento) => {
+    if (!get().historicoCarregado) {
+      set((atual) => ({ pendentes: [...atual.pendentes, evento] }));
+      return;
+    }
     switch (evento.evento) {
       case 'mensagem.criada': {
         const mensagem = mensagemDoEvento(evento);
@@ -292,5 +317,19 @@ export const useChat = create<LojaChat>((set, get) => ({
   definirErro: (erro) => set({ erro }),
 
   limpar: () =>
-    set({ mensagens: [], blocos: [], turnoEmCurso: null, pensando: false, sugestoes: [], erro: null }),
+    set({
+      mensagens: [],
+      blocos: [],
+      turnoEmCurso: null,
+      pensando: false,
+      sugestoes: [],
+      erro: null,
+      historicoCarregado: true,
+      pendentes: [],
+    }),
+
+  aguardarHistorico: () => {
+    get().limpar();
+    set({ historicoCarregado: false });
+  },
 }));
