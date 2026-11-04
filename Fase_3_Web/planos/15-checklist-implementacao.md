@@ -194,7 +194,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [ ] W11-09 `sugerir_enquadramento`
 - [ ] W11-10 Comum `01-padrao`: checklist
 - [ ] W11-11 Série Dinâmica (3 marcos), hachura AC/AVN, AVN = AIR − AC − água, desmate autorizado × não autorizado
-- [ ] W11-12 Distâncias AEQD (TI e zona de amortecimento separadas)
+- [x] W11-12 Distâncias AEQD (`geo/distancia.py`): projeção Azimutal Equidistante (AEQD +ellps=GRS80) centrada no imóvel; segregação estrita de TI e zona de amortecimento (10 km); sobreposição reportada como 0.0 (tests/test_geo_distancia.py, 5 testes verdes)
 - [x] W11-13 Revisão visual com autocorreção antes de entregar (D42): checks geométricos determinísticos (S21 texto sobre linha de shapefile, S22 elemento cortado/fora da folha, S23 legenda inconsistente, S24 minimapa sem centroide, S25 sobreposição de elementos); visão via Gemini em imagem tarjada (CPF/CNPJ e proprietário cobertos por retângulos pretos); autocorreção em até 2 rodadas sem travar a entrega (D37); problemas viram checks soft S21-S25 no `explicar_validacao`; evento `revisao.visual` emitido (`inicio`, `problema`, `corrigido`, `fim`)
 
 ## W12 — Deploy + piloto
