@@ -199,19 +199,26 @@ def montar_texto_abertura(dados: dict[str, Any]) -> str:
 def montar_pergunta_galeria(modelos_galeria: list[dict[str, Any]]) -> dict[str, Any]:
     """Monta o payload da tool `perguntar` com os modelos possíveis da galeria."""
     opcoes = []
+
+    # `galeria.listar` devolve `nome` (não `titulo`): sem isto o botão mostrava o id técnico
+    # ("dinamica_2008_spot_quadro (pronto)").
+    def _titulo(m: dict[str, Any]) -> str:
+        return str(m.get("titulo") or m.get("nome") or m.get("id"))
+
     # Ordenar: prontos primeiro
     modelos_ordenados = sorted(
         modelos_galeria,
-        key=lambda m: (0 if m.get("status") == "pronto" else 1, m.get("titulo", "")),
+        key=lambda m: (0 if m.get("status") == "pronto" else 1, _titulo(m)),
     )
     for m in modelos_ordenados[:6]:
         mid = str(m.get("id"))
-        titulo = str(m.get("titulo") or mid)
+        titulo = _titulo(m)
         status = m.get("status")
         motivo = m.get("motivo") or ""
         if status == "pronto":
             rotulo = f"{titulo} (pronto)"
-            desc = "Pronto para gerar"
+            # O subtítulo diz para que serve ("Dinâmica 2008 · SPOT · quadro de áreas").
+            desc = str(m.get("subtitulo") or "Pronto para gerar")
         else:
             rotulo = f"{titulo} (falta: {motivo or 'dados'})"
             desc = f"Faltam dados: {motivo}" if motivo else "Indisponível para os dados atuais"

@@ -12,10 +12,10 @@
   ],
   "slots": [
     {
-      "id": "titulo",
+      "id": "rotulo_imovel",
       "tipo": "texto",
       "obrigatorio": false,
-      "origem": "mapspec.titulo",
+      "origem": "mapspec.imovel.nome",
       "sentinela": "Fazenda Harmonia",
       "streams": [
         "PageLayout",

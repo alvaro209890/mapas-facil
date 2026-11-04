@@ -168,6 +168,107 @@
       ]
     },
     {
+      "id": "dinamica_2008_spot_quadro",
+      "nome": "Dinâmica 2008 (SPOT)",
+      "subtitulo": "Situação em 2008 · imagem SPOT da SEPLAN · quadro com vegetação nativa e área consolidada",
+      "descricao": "Modelo IMAP da Aline (11 mapas de Querência): área consolidada em magenta, vegetação nativa em amarelo e área total da propriedade em vermelho sobre o mosaico SPOT 2008, com o quadro \"Vegetação nativa em 2008 / Área consolidada (desmatada anteriormente a 2008)\" calculado dos shapes.",
+      "tipo_execucao": "mapspec",
+      "template": "dinamica_retrato",
+      "perfil": "harmonia",
+      "preview": "previews/dinamica_2008_spot_quadro.png",
+      "orientacao": "retrato",
+      "tags": ["dinamica", "2008", "spot", "car", "quadro_resumo"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
+      "escala_padrao": "auto",
+      "titulo_padrao": "Dinâmica 2008",
+      "nome_base_padrao": "Dinamica_2008",
+      "requisitos_camadas": [
+        {
+          "papel": "ATP",
+          "obrigatorio": true,
+          "nome_no_mxd": "Área total da propriedade",
+          "estilo": "perimetro_vermelho",
+          "ordem": 30
+        },
+        {
+          "papel": "AVN",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área de vegetação nativa",
+          "estilo": "avn_amarela",
+          "ordem": 10
+        },
+        {
+          "papel": "AC",
+          "obrigatorio": false,
+          "nome_no_mxd": "Área consolidada",
+          "estilo": "ac_magenta",
+          "ordem": 20
+        }
+      ],
+      "camadas_catalogo": [
+        {
+          "fonte": "catalogo.lim_municipios_mt",
+          "nome_no_mxd": "Limite municipal",
+          "estilo": "limite_municipal",
+          "ordem": 90,
+          "filtro_de": "imovel.municipio.nome"
+        }
+      ],
+      "basemap_padrao": {
+        "tipo": "spot",
+        "mosaico": "mosaico_spot_2008",
+        "fallback": ["mosaico_sema", "esri_world_imagery"]
+      },
+      "elementos_layout_padrao": {
+        "titulo_caixa": true,
+        "norte": true,
+        "grade": true,
+        "grade_linhas": false,
+        "escala_grafica": false,
+        "minimapa": true,
+        "metadados": true,
+        "legenda": true,
+        "logo": true,
+        "tabela": false,
+        "creditos": false,
+        "rotulo_imovel": false,
+        "quadro_resumo": true
+      },
+      "ajustes_layout_padrao": {
+        "titulo": { "fonte": "sans", "forma": "arredondada", "caixa_justa": true },
+        "quadro_resumo": {
+          "linhas": [
+            "Vegetação nativa em 2008:",
+            "{avn_ha} ha",
+            "Área consolidada: {ac_ha} ha",
+            "(Desmatada anteriormente a 2008)"
+          ],
+          "pt": 14
+        },
+        "legenda": {
+          "ordem": ["ac", "avn", "perimetro"],
+          "extras": [
+            { "rotulo": "Limite Estadual", "estilo": "limite_estadual" },
+            { "rotulo": "Limite municipal", "estilo": "limite_municipal" }
+          ],
+          "pt": 7.0,
+          "pt_titulo": 9.8
+        },
+        "grade": { "rotulos_por_eixo": 8 }
+      },
+      "tabela_padrao": {
+        "colunas_de": ["ATP", "AVN", "AC"],
+        "total_geral": true,
+        "casas_decimais": 4
+      },
+      "metadados_padrao": [
+        { "rotulo": "Satélite", "valor": "SPOT" },
+        { "rotulo": "Data da imagem", "valor": "2007-2009" },
+        { "rotulo": "Fonte", "valor": "WMS-SEPLAN" },
+        { "rotulo": "Datum", "valor": "auto" }
+      ]
+    },
+    {
       "id": "tipologia_paisagem",
       "nome": "Tipologia vegetal",
       "subtitulo": "A4 paisagem",

@@ -50,9 +50,9 @@
           "arquivo": "Dinamica_retrato.mxd",
           "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
           "slots": "dinamica_retrato.slots.json",
-          "slots_sha256": "cc5c13b4ce6633a8ebdd4657c6f11e7c736cb9d2c3618cda11ca6e73dadb629d",
+          "slots_sha256": "6710790d8e6de045a17f29eeff017aa67404fee68fa82e153211447c37989533",
           "verificado_arcmap": {
-            "em": "2026-11-03T18:00:00Z",
+            "em": "2026-11-04T18:00:00Z",
             "arcmap": "10.8",
             "motor_binario": "0.1.0",
             "ok": true
@@ -64,9 +64,9 @@
           "arquivo": "Dinamica_retrato.mxd",
           "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
           "slots": "dinamica_retrato.slots.json",
-          "slots_sha256": "ed1faf344fd4eac4695a4c216b746f54e137ee7d72e11409a34d423b35dfd042",
+          "slots_sha256": "6710790d8e6de045a17f29eeff017aa67404fee68fa82e153211447c37989533",
           "verificado_arcmap": {
-            "em": "2026-11-03T18:00:00Z",
+            "em": "2026-11-04T18:00:00Z",
             "arcmap": "10.8",
             "motor_binario": "0.1.0",
             "ok": true

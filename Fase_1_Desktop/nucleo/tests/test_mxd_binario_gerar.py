@@ -23,9 +23,9 @@ def test_gerar_mxd_binario_sucesso(tmp_path: Path) -> None:
     mapspec = {
         "id": "teste_binario_01",
         "template": "Dinamica_retrato",
-        "titulo": "Fazenda Boa Safra",
+        "titulo": "Faz. Boa Safra",
         "imovel": {
-            "nome": "Fazenda Boa Safra",
+            "nome": "Faz. Boa Safra",
             "municipio": {"nome": "Querência", "uf": "MT"},
         },
         "saida": {"nome_base": "Dinamica_2026"},
@@ -70,3 +70,20 @@ def test_gerar_mxd_t2_delega_ao_binario_quando_slots_json_existe(tmp_path: Path)
     assert resultado["motor"] == "binario"
     assert resultado["confianca"] == "alta"
     assert resultado["mxd"] == "MXD/mapa_modelo.mxd"
+
+
+def test_nome_maior_que_o_campo_do_mxd_sai_em_branco_com_aviso(tmp_path: Path) -> None:
+    """O MXD continua abrindo; o nome entra no PDF e o aviso pede para escrever no ArcMap."""
+    guard = WorkspaceGuard(tmp_path)
+    (tmp_path / "MXD").mkdir()
+    mapspec = {
+        "id": "teste_binario_longo",
+        "template": "Dinamica_retrato",
+        "imovel": {"nome": "Fazenda Esperança do Norte", "municipio": {"nome": "Querência", "uf": "MT"}},
+        "saida": {"nome_base": "Dinamica_longo"},
+    }
+    resultado = gerar_mxd_binario(mapspec, guard=guard, escala=50000.0)
+    assert resultado is not None
+    assert resultado["mxd"] == "MXD/Dinamica_longo.mxd"
+    assert resultado["confianca"] == "media"
+    assert any("MX-050" in a for a in resultado["avisos"])

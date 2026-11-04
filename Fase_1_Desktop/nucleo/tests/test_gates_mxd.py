@@ -61,7 +61,7 @@ def doc_valido_e_manifesto() -> tuple[bytes, bytes, ManifestoSlots, dict[str, An
         ],
     )
 
-    valores = {"nome_imovel": "Fazenda Alvorada do Sul", "escala": 50000.0}
+    valores = {"nome_imovel": "Faz. Alvorada", "escala": 50000.0}  # cabe nas 16 letras
     doc.aplicar(valores, manifesto=manifesto)
     gerado_bytes = doc.obter_bytes()
 

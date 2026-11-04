@@ -184,10 +184,10 @@ def renderizar_png_tabela(
             draw.rectangle([x, y, x + w, y + altura_linha_px], fill=COR_TOTAL, outline=COR_BORDA)
             if col_idx == 0:
                 texto = "TOTAL GERAL"
-            elif col_idx == 1:
-                # Soma das classes já arredondadas, ou o total_geral informado
-                texto = _formatar_valor(total_geral, casas)
             else:
+                # Cada coluna soma a si mesma. A 1ª coluna (área total) escrevia a soma das
+                # **classes** — 448,4969 embaixo de 450,6795 no teste_22, como se a conta
+                # estivesse errada. A diferença ATP × classes é aviso, não total.
                 # Soma da coluna entre as linhas de dados
                 soma = 0.0
                 tem_num = False

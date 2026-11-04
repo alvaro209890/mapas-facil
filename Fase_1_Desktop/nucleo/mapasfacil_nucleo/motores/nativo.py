@@ -152,22 +152,30 @@ def _plotar(ax, camadas: list[dict[str, Any]]) -> int:
     for camada in sorted(camadas, key=lambda c: c.get("ordem", 50), reverse=True):
         estilo = obter_estilo(camada.get("estilo"))
         face = estilo.get("cor_preenchimento")
+        largura_hachura = estilo.get("largura_hachura")
         for geom in camada["geometrias"]:
             for poly in _poligonos(geom):
                 xs, ys = poly.exterior.xy
-                ax.add_patch(
-                    PolygonPatch(
-                        list(zip(xs, ys)),
-                        closed=True,
-                        facecolor=face if face else "none",
-                        edgecolor=estilo["cor_linha"],
-                        linewidth=estilo["largura"],
-                        hatch=estilo.get("hachura"),
-                        zorder=10,
-                    )
+                patch = PolygonPatch(
+                    list(zip(xs, ys)),
+                    closed=True,
+                    facecolor=face if face else "none",
+                    edgecolor=estilo["cor_linha"],
+                    linewidth=estilo["largura"],
+                    hatch=estilo.get("hachura"),
+                    zorder=10,
                 )
+                if largura_hachura is not None and hasattr(patch, "set_hatch_linewidth"):
+                    # Contorno grosso e hachura fina, como o símbolo do ArcMap (modelos da
+                    # Aline): no matplotlib a hachura herdava a espessura global.
+                    patch.set_hatch_linewidth(float(largura_hachura))
+                ax.add_patch(patch)
                 desenhadas += 1
     return desenhadas
+
+
+def _tem_geometria(camada: dict[str, Any]) -> bool:
+    return any(not g.is_empty for g in camada.get("geometrias") or [])
 
 
 # --------------------------------------------------------------------------- #
@@ -303,22 +311,220 @@ def _resolver_metadados(
             else:
                 valor = ""
         elif basemap.get("ok") and chave.startswith(("satélite", "satelite")):
-            valor = str(basemap.get("fonte") or valor)
+            fonte = str(basemap.get("fonte") or "")
+            # O modelo diz "SPOT" e a imagem que entrou é o "Mosaico SPOT 2008 (SEPLAN)":
+            # é a mesma coisa, fica o texto curto do modelo. Só troca quando a imagem é
+            # outra (pediu PLANET, caiu no Esri) — aí o bloco conta a verdade.
+            declarado = str(valor or "").strip()
+            if not declarado or declarado.casefold() not in fonte.casefold():
+                valor = fonte or valor
 
         pares.append({"rotulo": rotulo, "valor": valor})
     return pares
 
 
-def _itens_legenda(camadas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _itens_legenda(
+    camadas: list[dict[str, Any]], ajuste: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    """Itens da legenda: só camada que **aparece** no mapa.
+
+    Uma classe sem feição (o `AUAS` vazio do SIMCAR) entrava na legenda com a cor dela e
+    nada no mapa — o leitor procurava o desmate que não existe (teste_22). O modelo pode
+    fixar a ordem (`ajustes_layout.legenda.ordem`, ids de camada) e acrescentar itens que
+    não são camada do quadro principal (`extras`: limites do minimapa).
+    """
+    ajuste = ajuste if isinstance(ajuste, dict) else {}
+    ordem_ids = [str(i) for i in ajuste.get("ordem") or []]
+
+    def chave(c: dict[str, Any]) -> tuple[int, int]:
+        cid = str(c.get("id") or "")
+        return (ordem_ids.index(cid) if cid in ordem_ids else len(ordem_ids), int(c.get("ordem", 50)))
+
     itens: list[dict[str, Any]] = []
     vistos: set[str] = set()
-    for camada in sorted(camadas, key=lambda c: c.get("ordem", 50)):
+    for camada in sorted(camadas, key=chave):
         rotulo = str(camada.get("legenda") or "").strip()
-        if not rotulo or rotulo in vistos:
+        if not rotulo or rotulo in vistos or not _tem_geometria(camada):
             continue
         vistos.add(rotulo)
         itens.append({"rotulo": rotulo, "estilo": camada.get("estilo")})
+    for extra in ajuste.get("extras") or []:
+        if not isinstance(extra, dict):
+            continue
+        rotulo = str(extra.get("rotulo") or "").strip()
+        if rotulo and rotulo not in vistos:
+            vistos.add(rotulo)
+            itens.append({"rotulo": rotulo, "estilo": extra.get("estilo")})
     return itens
+
+
+# --------------------------------------------------------------------------- #
+# Elementos por cima do quadro do mapa
+# --------------------------------------------------------------------------- #
+
+
+def _ajuste(mapspec: dict[str, Any], elemento: str) -> dict[str, Any]:
+    ajustes = mapspec.get("ajustes_layout") or {}
+    valor = ajustes.get(elemento) if isinstance(ajustes, dict) else None
+    return valor if isinstance(valor, dict) else {}
+
+
+def _perfil_com_ajustes(
+    perfil: perfil_pagina.PerfilPagina, mapspec: dict[str, Any]
+) -> perfil_pagina.PerfilPagina:
+    """Corpo de letra que o modelo fixa (`ajustes_layout.legenda.pt`/`pt_titulo`,
+    `ajustes_layout.grade.pt`), em pt de A4 — cresce com a folha como o resto (D31)."""
+    from dataclasses import replace
+
+    mudar: dict[str, float] = {}
+    legenda = _ajuste(mapspec, "legenda")
+    grade = _ajuste(mapspec, "grade")
+    for chave, campo, origem in (
+        ("pt", "pt_legenda", legenda),
+        ("pt_titulo", "pt_legenda_titulo", legenda),
+        ("pt", "pt_grade", grade),
+    ):
+        valor = origem.get(chave)
+        if isinstance(valor, (int, float)) and 3.0 <= float(valor) <= 30.0:
+            mudar[campo] = perfil.escalado(float(valor))
+    return replace(perfil, **mudar) if mudar else perfil
+
+
+def _rotulos_cabem(
+    itens: list[dict[str, Any]], chave: str, comprimento_mm: float, span: float, pt: float
+) -> bool:
+    """Os rótulos de uma borda não se encostam (≥ 3 mm entre um e outro)?"""
+    if len(itens) < 2 or span <= 0:
+        return True
+    posicoes = sorted(float(i[chave]) for i in itens)
+    menor_vao = min(b - a for a, b in zip(posicoes, posicoes[1:])) * comprimento_mm / span
+    maior = max(blocos.largura_texto_mm(str(i["rotulo"]), pt) for i in itens)
+    return menor_vao >= maior + 3.0
+
+
+def _grade_legivel(
+    extent: tuple[float, float, float, float],
+    epsg: int,
+    perfil: perfil_pagina.PerfilPagina,
+    alvo: float | None,
+) -> dict[str, Any]:
+    """Grade com a densidade do modelo, recuando enquanto os rótulos se encostarem.
+
+    O passo é o mesmo nos dois eixos (o do lado menor). Com 8 rótulos pedidos, o retrato
+    da Aline fica igual ao dela, mas a paisagem dava 14 rótulos encostados no eixo X.
+    """
+    x0, y0, x1, y1 = extent
+    while True:
+        grade = grade_dms.calcular(extent, epsg_projetado=epsg, rotulos_alvo=alvo)
+        cabe = _rotulos_cabem(
+            grade["x"], "inferior", perfil.mapa.largura, x1 - x0, perfil.pt_grade
+        ) and _rotulos_cabem(grade["y"], "esquerda", perfil.mapa.altura, y1 - y0, perfil.pt_grade)
+        if cabe or alvo is None:
+            return grade
+        alvo = alvo - 1.0 if alvo - 1.0 > grade_dms.ALVO_IDEAL else None
+
+
+def _formatar_ha(valor: Any, casas: int = 4) -> str:
+    if not isinstance(valor, (int, float)):
+        return "–"
+    texto = f"{float(valor):,.{casas}f}"
+    return texto.replace(",", "§").replace(".", ",").replace("§", ".")
+
+
+def linhas_quadro_resumo(mapspec: dict[str, Any], areas: dict[str, Any] | None) -> list[str]:
+    """Texto do quadro de resumo com as áreas **calculadas dos shapes** (regra do Álvaro).
+
+    O modelo escreve as linhas com marcadores: `{avn_ha}`, `{ac_ha}`, `{area_total_ha}`,
+    `{auas_ha}` (os mesmos campos dos quantitativos) e `{ano}`.
+    """
+    ajuste = _ajuste(mapspec, "quadro_resumo")
+    modelo = ajuste.get("linhas") or []
+    casas = int((mapspec.get("tabela") or {}).get("casas_decimais") or 4)
+    valores = {k: _formatar_ha(v, casas) for k, v in (areas or {}).items()}
+    valores.setdefault("ano", str(ajuste.get("ano") or ""))
+    linhas: list[str] = []
+    for linha in modelo:
+        texto = str(linha)
+        for chave, valor in valores.items():
+            texto = texto.replace("{" + chave + "}", valor)
+        linhas.append(texto)
+    return linhas
+
+
+def _geometria_alvo(camadas: list[dict[str, Any]]) -> Any | None:
+    """O que não pode ficar embaixo de título, rosa, tabela ou quadro: o imóvel."""
+    from shapely.ops import unary_union
+
+    alvo = [c for c in camadas if c.get("id") == "perimetro" and _tem_geometria(c)]
+    alvo = alvo or [c for c in camadas if _tem_geometria(c)]
+    geoms = [g if g.is_valid else g.buffer(0) for c in alvo for g in c["geometrias"] if not g.is_empty]
+    if not geoms:
+        return None
+    try:
+        return unary_union(geoms)
+    except Exception:  # noqa: BLE001 — geometria ruim não derruba o mapa
+        return None
+
+
+def _caixa_no_mapa(
+    caixa: perfil_pagina.Caixa,
+    extent: tuple[float, float, float, float],
+    perfil: perfil_pagina.PerfilPagina,
+    folga_mm: float,
+):
+    """Caixa da página (mm) → retângulo nas coordenadas do mapa."""
+    from shapely.geometry import box
+
+    q = perfil.mapa
+    sx = (extent[2] - extent[0]) / q.largura
+    sy = (extent[3] - extent[1]) / q.altura
+    x0 = extent[0] + (max(caixa.x0, q.x0) - folga_mm - q.x0) * sx
+    x1 = extent[0] + (min(caixa.x1, q.x1) + folga_mm - q.x0) * sx
+    y_topo = extent[3] - (max(caixa.y0, q.y0) - folga_mm - q.y0) * sy
+    y_base = extent[3] - (min(caixa.y1, q.y1) + folga_mm - q.y0) * sy
+    return box(min(x0, x1), min(y_base, y_topo), max(x0, x1), max(y_base, y_topo))
+
+
+def _afastar_de_sobreposicoes(
+    extent: tuple[float, float, float, float],
+    alvo: Any,
+    caixas: list[perfil_pagina.Caixa],
+    perfil: perfil_pagina.PerfilPagina,
+) -> tuple[tuple[float, float, float, float], bool]:
+    """Enquadramento em que nenhum elemento sobre o mapa cobre o imóvel.
+
+    No teste_22 a tabela de quantitativos ficava por cima do mapa; no modelo da Aline o
+    quadro de resumo ocupa o canto inferior-direito. Primeiro tenta **deslizar** o mapa na
+    vertical (mantém a escala); se não basta, **afasta** a câmera aos poucos (até 1,7×).
+    Devolve o extent e se ficou livre.
+    """
+    if alvo is None or not caixas:
+        return extent, True
+    folga = perfil.escalado(1.5)
+
+    def livre(ext: tuple[float, float, float, float]) -> bool:
+        if not _contem(ext, alvo.bounds):
+            return False
+        return not any(alvo.intersects(_caixa_no_mapa(c, ext, perfil, folga)) for c in caixas)
+
+    if livre(extent):
+        return extent, True
+    cx = (extent[0] + extent[2]) / 2.0
+    cy = (extent[1] + extent[3]) / 2.0
+    largura = extent[2] - extent[0]
+    altura = extent[3] - extent[1]
+    for zoom in [1.0] + [1.05**i for i in range(1, 12)]:
+        w, h = largura * zoom, altura * zoom
+        for desloc in (0.0, 0.04, -0.04, 0.08, -0.08, 0.12, -0.12, 0.16, -0.16):
+            ccy = cy + desloc * h
+            cand = (cx - w / 2, ccy - h / 2, cx + w / 2, ccy + h / 2)
+            if livre(cand):
+                return cand, True
+    return extent, False
+
+
+def _contem(ext: tuple[float, float, float, float], bounds: tuple[float, float, float, float]) -> bool:
+    return ext[0] <= bounds[0] and ext[1] <= bounds[1] and ext[2] >= bounds[2] and ext[3] >= bounds[3]
 
 
 def _centroide_lonlat(camadas: list[dict[str, Any]], epsg: int) -> tuple[float, float] | None:
@@ -389,6 +595,7 @@ def gerar_pdf_minimo(
     png_tabela: Path | None = None,
     ao_preview: Callable[[str, str], None] | None = None,
     progresso: Any = None,
+    quantitativos: dict[str, Any] | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Desenha o mapa no padrão Harmonia e exporta PDF (+ PNG da página).
 
@@ -402,11 +609,49 @@ def gerar_pdf_minimo(
     pasta = guard.resolver(pasta_nome, escrita=True)
     pdf_path = pasta / f"{nome_base}.pdf"
 
-    perfil = _perfil_do_mapspec(mapspec)
+    perfil = _perfil_com_ajustes(_perfil_do_mapspec(mapspec), mapspec)
     epsg = _epsg_do_mapspec(mapspec, perfil)
 
     camadas = _carregar_camadas(mapspec, fontes_idx, guard, epsg)
     extent, escala = _extent(mapspec, camadas, perfil)
+
+    # Elementos que ficam **por cima** do quadro do mapa: planejados antes do enquadramento
+    # para o imóvel não ficar embaixo deles (só com escala automática — escala pedida pelo
+    # usuário é respeitada e vira aviso).
+    titulo_texto = str(mapspec.get("titulo") or "")
+    plano_titulo = (
+        blocos.planejar_titulo(perfil, titulo_texto, _ajuste(mapspec, "titulo"))
+        if _ligado(mapspec, "titulo_caixa")
+        else None
+    )
+    areas_quadro = dict((quantitativos or {}).get("areas") or {})
+    plano_quadro = None
+    if _ligado(mapspec, "quadro_resumo", padrao=False):
+        plano_quadro = blocos.planejar_quadro_resumo(
+            perfil, linhas_quadro_resumo(mapspec, areas_quadro), _ajuste(mapspec, "quadro_resumo")
+        )
+    caixas_sobre_mapa: list[perfil_pagina.Caixa] = []
+    if plano_titulo is not None:
+        caixas_sobre_mapa.append(plano_titulo.caixa)
+    if _ligado(mapspec, "norte"):
+        caixas_sobre_mapa.append(perfil.rosa)
+    if png_tabela is not None and _deve_sobrepor_tabela(mapspec):
+        caixas_sobre_mapa.append(perfil.tabela)
+    if plano_quadro is not None:
+        caixas_sobre_mapa.append(plano_quadro.caixa)
+    imovel_livre = True
+    escala_automatica = not _escala_numerica(mapspec.get("escala")) and not isinstance(
+        mapspec.get("extent"), dict
+    )
+    alvo_livre = _geometria_alvo(camadas)
+    if escala_automatica:
+        extent, imovel_livre = _afastar_de_sobreposicoes(extent, alvo_livre, caixas_sobre_mapa, perfil)
+        escala = (extent[2] - extent[0]) / (perfil.mapa.largura / 1000.0)
+    elif alvo_livre is not None:
+        folga = perfil.escalado(1.5)
+        imovel_livre = not any(
+            alvo_livre.intersects(_caixa_no_mapa(c, extent, perfil, folga)) for c in caixas_sobre_mapa
+        )
 
     # Palco (W7): o `enquadramento` é emitido quando a escala deixou de ser dúvida; a `folha`
     # quando o mapa já é página. Daqui para baixo cada elemento posicionado vira
@@ -554,7 +799,10 @@ def gerar_pdf_minimo(
     if ao_preview is not None:
         ao_preview(_salvar_preview(fig, guard, 1), "aplicando_layout")
 
-    grade = grade_dms.calcular(extent, epsg_projetado=epsg)
+    alvo_grade = _ajuste(mapspec, "grade").get("rotulos_por_eixo")
+    grade = _grade_legivel(
+        extent, epsg, perfil, float(alvo_grade) if isinstance(alvo_grade, (int, float)) else None
+    )
     if _ligado(mapspec, "grade"):
         blocos.moldura_e_grade(
             ax, perfil, grade, com_linhas=_ligado(mapspec, "grade_linhas", padrao=False)
@@ -565,9 +813,13 @@ def gerar_pdf_minimo(
     else:
         blocos.moldura_e_grade(ax, perfil, {"x": [], "y": []})
 
-    if _ligado(mapspec, "titulo_caixa"):
-        blocos.caixa_titulo(fig, perfil, str(mapspec.get("titulo") or ""))
-        _elemento("titulo_caixa", conteudo=str(mapspec.get("titulo") or ""))
+    if plano_titulo is not None:
+        blocos.caixa_titulo(fig, perfil, titulo_texto, plano=plano_titulo)
+        _elemento("titulo_caixa", conteudo=titulo_texto)
+    quadro_ok = False
+    if plano_quadro is not None:
+        blocos.quadro_resumo(fig, perfil, plano_quadro)
+        quadro_ok = True
     if _ligado(mapspec, "norte"):
         blocos.rosa_dos_ventos(fig, perfil)
         _elemento("norte")
@@ -580,7 +832,7 @@ def gerar_pdf_minimo(
         )
         _elemento("metadados", conteudo={"linhas": linhas_meta})
 
-    itens_legenda = _itens_legenda(camadas)
+    itens_legenda = _itens_legenda(camadas, _ajuste(mapspec, "legenda"))
     n_legenda = 0
     if _ligado(mapspec, "legenda"):
         n_legenda = blocos.bloco_legenda(fig, perfil, itens_legenda)
@@ -758,6 +1010,28 @@ def gerar_pdf_minimo(
                 "id": "S10",
                 "ok": tabela_ok,
                 "mensagem": "PNG da tabela embutido (resolução do arquivo de origem)",
+            }
+        )
+
+    soft.append(
+        {
+            "id": "S23",
+            "ok": imovel_livre,
+            "mensagem": (
+                "Nenhum elemento do layout cobre o imóvel"
+                if imovel_livre
+                else "Título, rosa, tabela ou quadro cobrem parte do imóvel nesta escala"
+            ),
+        }
+    )
+    if _ligado(mapspec, "quadro_resumo", padrao=False):
+        soft.append(
+            {
+                "id": "S24",
+                "ok": quadro_ok and all("–" not in linha for linha in (plano_quadro.texto.split("\n") if plano_quadro else [])),
+                "mensagem": "Quadro de resumo com as áreas calculadas dos shapes"
+                if quadro_ok
+                else "Quadro de resumo pedido sem texto",
             }
         )
 

@@ -46,7 +46,7 @@ AMOSTRAS = 240
 """Pontos por meridiano/paralelo ao procurar o cruzamento com a borda."""
 
 
-def escolher_passo(span_graus: float) -> int:
+def escolher_passo(span_graus: float, ideal: float | None = None) -> int:
     """Passo em segundos que rende de 4 a 8 rótulos no intervalo.
 
     Quando o varrimento é pequeno demais para 4 rótulos (imóvel de 200 m em 1:2.000 dá
@@ -55,6 +55,8 @@ def escolher_passo(span_graus: float) -> int:
     disto, um varrimento de 7″ caía no passo de 1° (nenhuma linha visível).
     """
     span_seg = max(abs(span_graus) * 3600.0, 1e-9)
+    alvo = float(ideal) if ideal else ALVO_IDEAL
+    teto = max(ALVO_MAX, alvo + 1.0)
     melhor = PASSOS_SEGUNDOS[-1]
     melhor_custo = math.inf
     for passo in PASSOS_SEGUNDOS:
@@ -62,10 +64,10 @@ def escolher_passo(span_graus: float) -> int:
         if n < 1:
             # Passo maior que o quadro: nem uma linha cruzaria o mapa.
             continue
-        dentro = ALVO_MIN <= n <= ALVO_MAX
+        dentro = ALVO_MIN <= n <= teto
         # Fora da faixa alvo o custo explode, mas nunca vira infinito: extensões
         # muito pequenas ou muito grandes ainda precisam de algum passo.
-        custo = abs(n - ALVO_IDEAL) + (0.0 if dentro else 100.0)
+        custo = abs(n - alvo) + (0.0 if dentro else 100.0)
         if custo < melhor_custo:
             melhor_custo = custo
             melhor = passo
@@ -155,6 +157,7 @@ def calcular(
     *,
     epsg_projetado: int,
     epsg_geografico: int = 4674,
+    rotulos_alvo: float | None = None,
 ) -> dict:
     """Ticks DMS das 4 bordas para um quadro de mapa em coordenada projetada.
 
@@ -171,8 +174,11 @@ def calcular(
     lon_min, lon_max = float(min(lons)), float(max(lons))
     lat_min, lat_max = float(min(lats)), float(max(lats))
 
-    passo_x = escolher_passo(lon_max - lon_min)
-    passo_y = escolher_passo(lat_max - lat_min)
+    # O **mesmo passo** nos dois eixos, escolhido pelo lado menor do quadro: é assim em
+    # todos os PDFs do acervo (1'50" × 1'50" nas Dinâmicas, 1'10" × 1'10" nos temáticos,
+    # 30" × 30" na Dinâmica 2008 da Aline). Passo por eixo dava 30" em x e 1' em y.
+    # `rotulos_alvo` é a densidade do modelo (a Aline usa ~8 rótulos no lado menor).
+    passo_x = passo_y = escolher_passo(min(lon_max - lon_min, lat_max - lat_min), rotulos_alvo)
 
     # Folga de um passo para fora: o meridiano precisa atravessar o quadro
     # inteiro para o cruzamento com as bordas existir.

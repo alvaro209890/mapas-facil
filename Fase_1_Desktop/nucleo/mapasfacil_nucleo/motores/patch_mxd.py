@@ -3,11 +3,14 @@ from __future__ import annotations
 import shutil
 import struct
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.fsguard import WorkspaceGuard
 from mapasfacil_nucleo.motores.manifesto import obter_template, resolver_caminho_preparado, sha256_arquivo
+
+if TYPE_CHECKING:
+    from mapasfacil_nucleo.mxd_binario import ManifestoSlots
 
 
 def patch_float64_le(dados: bytearray, offset: int, valor: float) -> None:
@@ -286,6 +289,15 @@ def gerar_mxd_binario(
     if bbox:
         valores["df_principal"] = bbox
 
+    valores, avisos_slots, bloqueio = _caber_nas_sentinelas(valores, manifesto)
+    if bloqueio:
+        return {
+            "mxd": None,
+            "motor": "binario",
+            "confianca": "reprovado_gates",
+            "avisos": avisos_slots + [bloqueio],
+        }
+
     doc.aplicar(valores, manifesto=manifesto)
 
     if ao_etapa is not None:
@@ -312,9 +324,46 @@ def gerar_mxd_binario(
     return {
         "mxd": destino_mxd.relative_to(guard.raiz).as_posix(),
         "motor": "binario",
-        "confianca": "alta",
-        "avisos": [],
+        "confianca": "alta" if not avisos_slots else "media",
+        "avisos": avisos_slots,
     }
+
+
+# Textos que só aparecem no layout: se não couberem, o MXD sai com o campo em branco (abre
+# normal, e o aviso pede para escrever no ArcMap). Os demais (município, UF) também entram
+# em consultas de camada — cortar mudaria o filtro, então o MXD não é liberado.
+_SLOTS_SO_LAYOUT = {"titulo", "rotulo_imovel"}
+
+
+def _caber_nas_sentinelas(
+    valores: dict[str, Any], manifesto: ManifestoSlots
+) -> tuple[dict[str, Any], list[str], str | None]:
+    """Ajusta os textos ao tamanho das sentinelas do template.
+
+    O motor binário só troca texto **do mesmo tamanho** (trocar o tamanho corrompia o
+    PageLayout — teste_22, 04/11/2026). Devolve (valores, avisos, motivo_de_bloqueio).
+    """
+    ajustados = dict(valores)
+    avisos: list[str] = []
+    for slot in manifesto.slots:
+        if slot.tipo != "texto" or slot.id not in ajustados:
+            continue
+        texto = str(ajustados[slot.id])
+        limite = len(str(slot.sentinela))
+        if len(texto) <= limite:
+            continue
+        if slot.id in _SLOTS_SO_LAYOUT:
+            ajustados[slot.id] = ""
+            avisos.append(
+                f"[MX-050] \"{texto}\" tem {len(texto)} letras e o campo '{slot.id}' do "
+                f"modelo MXD comporta {limite}: ficou em branco no .mxd (o PDF sai completo)."
+            )
+        else:
+            return ajustados, avisos, (
+                f"[MX-050] \"{texto}\" não cabe no campo '{slot.id}' do modelo MXD "
+                f"({limite} letras); o .mxd não foi gerado (o PDF sai completo)."
+            )
+    return ajustados, avisos, None
 
 
 def gerar_mxd_t2(

@@ -389,6 +389,8 @@ def _gerar_mapa_corpo(
         or "png" in saidas
         or bool(mapspec.get("tabela"))
         or bool((mapspec.get("elementos_layout") or {}).get("tabela"))
+        # O quadro de resumo (modelo da Aline) escreve as áreas calculadas no mapa.
+        or bool((mapspec.get("elementos_layout") or {}).get("quadro_resumo"))
     )
     if precisa_quant:
         jobs.verificar_nao_cancelado(prog.job_id)
@@ -505,6 +507,7 @@ def _gerar_mapa_corpo(
             fontes_idx=fontes_idx,
             png_tabela=png_path,
             progresso=prog,
+            quantitativos=artefatos.get("quantitativos"),
             # Sem canal de eventos ninguém vê preview: não rasteriza (custo à toa).
             ao_preview=(
                 (

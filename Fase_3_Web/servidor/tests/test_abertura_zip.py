@@ -253,3 +253,20 @@ async def test_reload_sem_abertura_duplicada(banco_teste):
     while not fila.empty():
         novos_eventos.append(fila.get_nowait())
     assert len(novos_eventos) == 0
+
+
+def test_opcao_usa_o_nome_e_o_subtitulo_da_galeria():
+    """`galeria.listar` devolve `nome`; o botão mostrava o id técnico do modelo."""
+    modelos = [
+        {
+            "id": "dinamica_2008_spot_quadro",
+            "nome": "Dinâmica 2008 (SPOT)",
+            "subtitulo": "Imagem SPOT 2008 e quadro de áreas",
+            "status": "pronto",
+        },
+        {"id": "uc_paisagem", "nome": "Unidades de Conservação", "status": "pronto"},
+    ]
+    pergunta = montar_pergunta_galeria(modelos)
+    op = next(o for o in pergunta["opcoes"] if o["id"] == "dinamica_2008_spot_quadro")
+    assert op["rotulo"] == "Dinâmica 2008 (SPOT) (pronto)"
+    assert op["descricao"] == "Imagem SPOT 2008 e quadro de áreas"

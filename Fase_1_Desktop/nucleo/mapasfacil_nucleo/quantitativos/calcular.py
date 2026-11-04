@@ -20,6 +20,10 @@ ESTILO_PARA_CAMPO = {
     "avn": "avn_ha",
     "ac": "ac_ha",
     "auas": "auas_ha",
+    # Modelo "Dinâmica 2008" da Aline (IMAP): mesmas classes, outras cores.
+    "perimetro_vermelho": "area_total_ha",
+    "avn_amarela": "avn_ha",
+    "ac_magenta": "ac_ha",
 }
 
 

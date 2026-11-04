@@ -250,12 +250,9 @@ def verificar_g3(
                     detalhes={"stream": st_nome},
                 )
 
-    # Para streams declaradas com slots fixos (sem delta, ex. número ou envelope),
-    # o tamanho em bytes não pode mudar!
-    slots_com_delta = [s for s in manifesto.slots if s.tipo in ("texto", "caminho", "consulta")]
-    todos_slots_fixos = len(slots_com_delta) == 0
-
-    if todos_slots_fixos:
+    # Nenhuma stream muda de tamanho: texto também é trocado pelo mesmo número de letras
+    # (mudar o tamanho corrompia o PageLayout — teste_22 não abria no ArcMap).
+    if True:
         for st_nome in streams_permitidas:
             if cf_origem.tem_stream(st_nome) and cf_gerado.tem_stream(st_nome):
                 tam_orig = len(cf_origem.obter_stream(st_nome))
@@ -265,7 +262,7 @@ def verificar_g3(
                         ok=False,
                         gate="G3",
                         codigo_erro="MX-013",
-                        mensagem=f"Tamanho da stream '{st_nome}' divergiu em slots puramente fixos.",
+                        mensagem=f"Tamanho da stream '{st_nome}' mudou ({tam_orig} → {tam_ger} bytes).",
                     )
 
     return ResultadoGate(ok=True, gate="G3", mensagem="G3 diferencial aprovado.")

@@ -83,7 +83,7 @@ def test_documento_mxd_sintetico_aplicacao_slots(tmp_path: Path) -> None:
         ],
     )
 
-    novo_titulo = "Fazenda Vista Alegre"
+    novo_titulo = "Faz. Vista Alegre"[:16]
     nova_escala = 50000.0
 
     doc.aplicar({"titulo": novo_titulo, "escala": nova_escala}, manifesto=manifesto)
@@ -100,8 +100,10 @@ def test_documento_mxd_sintetico_aplicacao_slots(tmp_path: Path) -> None:
     pl_lido = ole.openstream("PageLayout").read()
     mx_lido = ole.openstream("Mx Document").read()
 
-    # O novo título deve estar presente em UTF-16LE
+    # O novo título deve estar presente em UTF-16LE — e a stream não muda de tamanho
     assert novo_titulo.encode("utf-16le") in pl_lido
+    original = olefile.OleFileIO(str(mxd_base))
+    assert len(pl_lido) == len(original.openstream("PageLayout").read())
     # A sentinela antiga não deve mais estar presente
     assert sentinela_txt.encode("utf-16le") not in pl_lido
 
@@ -136,7 +138,7 @@ def test_documento_mxd_template_real_edicao_e_salvamento(tmp_path: Path) -> None
 
     # Define substituição para um texto auditado do template
     texto_original = "Fazenda Harmonia"
-    texto_novo = "Fazenda Esperança do Norte"
+    texto_novo = "Faz. Esperança"  # cabe nas 16 letras da sentinela
 
     manifesto = ManifestoSlots(
         template_id="dinamica_retrato",
@@ -169,3 +171,76 @@ def test_documento_mxd_template_real_edicao_e_salvamento(tmp_path: Path) -> None
 
     assert texto_novo.encode("utf-16le") in pl_lido
     assert struct.pack("<d", 50000.0) in mx_lido
+
+
+# — troca de texto do mesmo tamanho (teste_22, 04/11/2026) —
+# Mudar o comprimento de uma string UTF-16 dentro do PageLayout corrompia o layout: o
+# ArcMap abria o .mxd do teste_22 com `pageLayout` vazio. Agora o texto é completado com
+# espaços até o tamanho da sentinela; maior que ela não entra.
+
+
+def _stream_com(texto: str) -> bytearray:
+    corpo = texto.encode("utf-16le")
+    return bytearray(b"\x01\x02" + struct.pack("<I", len(texto) + 1) + corpo + b"\x00\x00\xff")
+
+
+def test_texto_menor_e_completado_com_espacos() -> None:
+    from mapasfacil_nucleo.mxd_binario.slots import aplicar_slot_texto
+
+    st = _stream_com("Fazenda Harmonia")
+    tamanho = len(st)
+    assert aplicar_slot_texto(st, "Fazenda Harmonia", "Faz. Sol") == 1
+    assert len(st) == tamanho
+    assert "    Faz. Sol    ".encode("utf-16le") in st
+
+
+def test_texto_maior_que_a_sentinela_e_recusado() -> None:
+    from mapasfacil_nucleo.mxd_binario.slots import ErroSlot, aplicar_slot_texto
+
+    st = _stream_com("Vila Rica")
+    with pytest.raises(ErroSlot):
+        aplicar_slot_texto(st, "Vila Rica", "Santa Cruz do Xingu")
+
+
+def test_texto_em_consulta_completa_depois_da_aspa() -> None:
+    from mapasfacil_nucleo.mxd_binario.slots import aplicar_slot_texto
+
+    st = _stream_com("\"nome\" = 'Vila Rica'")
+    tamanho = len(st)
+    aplicar_slot_texto(st, "Vila Rica", "Canarana")
+    assert len(st) == tamanho
+    assert "\"nome\" = 'Canarana' ".encode("utf-16le") in st
+
+
+def test_caber_nas_sentinelas_rotulo_em_branco_municipio_bloqueia() -> None:
+    from mapasfacil_nucleo.motores.patch_mxd import _caber_nas_sentinelas
+
+    manifesto = ManifestoSlots(
+        template_id="t",
+        slots=[
+            DefinicaoSlot(id="rotulo_imovel", tipo="texto", sentinela="Fazenda Harmonia", streams=["PageLayout"]),
+            DefinicaoSlot(id="municipio", tipo="texto", sentinela="Vila Rica", streams=["PageLayout"]),
+        ],
+    )
+    valores, avisos, bloqueio = _caber_nas_sentinelas(
+        {"rotulo_imovel": "Fazenda Esperança do Norte", "municipio": "Querência"}, manifesto
+    )
+    assert valores["rotulo_imovel"] == "" and valores["municipio"] == "Querência"
+    assert len(avisos) == 1 and "MX-050" in avisos[0]
+    assert bloqueio is None
+
+    _, _, bloqueio = _caber_nas_sentinelas({"municipio": "Santa Cruz do Xingu"}, manifesto)
+    assert bloqueio and "MX-050" in bloqueio
+
+
+def test_mesma_sentinela_no_rotulo_e_na_consulta() -> None:
+    """Rótulo e consulta do minimapa usam 'Vila Rica': cada ocorrência no seu jeito."""
+    from mapasfacil_nucleo.mxd_binario.slots import aplicar_slot_texto
+
+    st = _stream_com("Vila Rica") + _stream_com("\"nome\" = 'Vila Rica'")
+    tamanho = len(st)
+    assert aplicar_slot_texto(st, "Vila Rica", "Canarana") == 2
+    assert len(st) == tamanho
+    assert "Canarana ".encode("utf-16le") in st
+    assert "'Canarana' ".encode("utf-16le") in st
+    assert "Vila Rica".encode("utf-16le") not in st

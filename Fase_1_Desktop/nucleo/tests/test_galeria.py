@@ -39,7 +39,7 @@ def pasta_harmonia(tmp_path: Path) -> Path:
 def test_carregar_galeria_tem_6_modelos_com_analise_de_area():
     galeria = carregar_galeria()
     assert galeria["galeria_version"] == 2
-    assert len(galeria["modelos"]) == 6
+    assert len(galeria["modelos"]) == 7  # + Dinâmica 2008 (SPOT) da Aline
     ids = {m["id"] for m in galeria["modelos"]}
     assert "dinamica_2026_retrato" in ids
     assert "analise_de_area" in ids
@@ -51,7 +51,7 @@ def test_carregar_galeria_tem_6_modelos_com_analise_de_area():
 def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
     workspace_servico.abrir(str(pasta_harmonia))
     resultado = listar({"workspace": str(pasta_harmonia)})
-    assert len(resultado["modelos"]) == 6
+    assert len(resultado["modelos"]) == 7
     por_id = {m["id"]: m for m in resultado["modelos"]}
     assert por_id["dinamica_2026_retrato"]["status"] == "pronto"
     assert not por_id["dinamica_2026_retrato"].get("requisitos_faltando")
@@ -60,6 +60,7 @@ def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):
         "tipologia_paisagem",
         "terras_indigenas_paisagem",
         "uc_paisagem",
+        "dinamica_2008_spot_quadro",
     ):
         assert por_id[mid]["status"] == "pronto"
     assert por_id["analise_de_area"]["status"] == "pronto"

@@ -11,6 +11,7 @@ logo**.
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,7 @@ from matplotlib import patheffects
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.patches import FancyBboxPatch
 from matplotlib.patches import Polygon as PolygonPatch
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import blended_transform_factory
@@ -80,43 +82,266 @@ def mm_para_figura(perfil: PerfilPagina, x_mm: float, y_mm: float) -> tuple[floa
     return (x_mm / perfil.largura_mm, (perfil.altura_mm - y_mm) / perfil.altura_mm)
 
 
+def eixo_mm(fig: Figure, perfil: PerfilPagina, *, zorder: int = 25) -> Axes:
+    """Eixo do tamanho da página em **mm**, Y crescendo para baixo (igual ao perfil).
+
+    A figura tem a proporção da folha, então 1 mm vale o mesmo nos dois eixos: é aqui que
+    se desenha caixa de canto arredondado sem o arredondamento virar elipse.
+    """
+    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0], zorder=zorder)
+    ax.set_axis_off()
+    ax.set_xlim(0, perfil.largura_mm)
+    ax.set_ylim(perfil.altura_mm, 0)
+    ax.patch.set_alpha(0.0)
+    return ax
+
+
+# --------------------------------------------------------------------------- #
+# Fontes medidas dos PDFs-modelo
+# --------------------------------------------------------------------------- #
+
+PT_PARA_MM = 25.4 / 72.0
+
+FONTE_TITULO: tuple[str, ...] = ("Tahoma", "Liberation Sans", "Arial", "DejaVu Sans")
+"""Os títulos do acervo são **Tahoma Bold** (lido do PDF de cada modelo). O motor
+desenhava em DejaVu Serif Bold, ~15% mais larga: "Tipologia Vegetal" passava 11 mm da
+caixa medida e "DINÂMICA DE USO DO SOLO - 2008" vazava da caixa no teste_22. Sem
+Tahoma (servidor Linux), a Liberation Sans tem as métricas da Arial."""
+
+FONTE_QUADRO: tuple[str, ...] = ("Cambria", "Liberation Serif", "Times New Roman", "DejaVu Serif")
+"""Quadro de resumo dos modelos da Aline: **Cambria Bold** 14 pt, branco no cinza-escuro."""
+
+FAMILIAS_ESTILO: dict[str, tuple[str, ...]] = {"sans": FONTE_TITULO, "serif": FONTE_QUADRO}
+
+
+@lru_cache(maxsize=32)
+def familia_disponivel(preferencias: tuple[str, ...], negrito: bool = False) -> str:
+    """Primeira família da lista que existe nesta máquina (sem o aviso do matplotlib).
+
+    Só vale fonte em arquivo `.ttf`/`.otf` no peso pedido: a Cambria normal do Windows vem
+    em `.ttc` (coleção com a Cambria Math), e o Agg desenha **nada** com ela — a grade do
+    PNG saía sem rótulo nenhum, enquanto o PDF saía certo.
+    """
+    from matplotlib import font_manager
+
+    peso = 700 if negrito else 400
+    for nome in preferencias:
+        arquivos = [
+            f.fname
+            for f in font_manager.fontManager.ttflist
+            if f.name == nome
+            and f.style == "normal"
+            and (int(f.weight) >= 600) == (peso >= 600)
+        ]
+        if any(not a.lower().endswith(".ttc") for a in arquivos):
+            return nome
+    return "DejaVu Sans"
+
+
+@lru_cache(maxsize=1024)
+def _largura_linha_mm(texto: str, pt: float, familia: str, negrito: bool) -> float:
+    if not texto.strip():
+        return 0.0
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.textpath import TextPath
+
+    props = FontProperties(family=familia, size=pt, weight="bold" if negrito else "normal")
+    return float(TextPath((0, 0), texto, prop=props).get_extents().width) * PT_PARA_MM
+
+
+ENTRELINHA_BLOCO = 1.18
+"""Altura de linha dos blocos de texto de várias linhas (título quebrado, quadro)."""
+
+
+def medir_bloco_mm(texto: str, pt: float, familia: str, *, negrito: bool = True) -> tuple[float, float]:
+    """(largura, altura) em mm de um texto de uma ou mais linhas, pela fonte real."""
+    linhas = texto.split("\n") or [""]
+    largura = max(_largura_linha_mm(linha, pt, familia, negrito) for linha in linhas)
+    altura = len(linhas) * pt * PT_PARA_MM * ENTRELINHA_BLOCO
+    return largura, altura
+
+
+def _duas_linhas(texto: str) -> str:
+    """Quebra em duas linhas o mais equilibradas possível (por palavra)."""
+    palavras = texto.split()
+    if len(palavras) < 2:
+        return texto
+    melhor, menor_diff = texto, float("inf")
+    for i in range(1, len(palavras)):
+        a, b = " ".join(palavras[:i]), " ".join(palavras[i:])
+        diff = abs(len(a) - len(b))
+        if diff < menor_diff:
+            melhor, menor_diff = f"{a}\n{b}", diff
+    return melhor
+
+
+@dataclass(frozen=True)
+class PlanoTexto:
+    """Onde e como um bloco de texto com moldura vai ser desenhado (mm, Y para baixo)."""
+
+    caixa: Caixa
+    texto: str
+    pt: float
+    familia: str
+    forma: str = "reta"
+    fundo: str = "white"
+    borda: str = "black"
+    cor_texto: str = "black"
+
+
+def planejar_titulo(perfil: PerfilPagina, texto: str, estilo: dict[str, Any] | None = None) -> PlanoTexto:
+    """Caixa de título que **sempre** contém o texto.
+
+    1. mede o texto com a fonte que vai ser usada (não com uma estimativa);
+    2. se não cabe na caixa medida do modelo, a caixa cresce para os lados, centrada, até
+       encostar na margem do quadro ou na rosa dos ventos;
+    3. se ainda não cabe, o corpo desce até 70%; por fim o texto quebra em duas linhas e
+       a caixa cresce para baixo.
+
+    `estilo` (de `ajustes_layout.titulo`): `fonte` (`sans`/`serif`), `forma`
+    (`reta`/`arredondada`), `caixa_justa` (moldura colada no texto, como nos modelos da
+    Aline) e `escala` (multiplica o corpo).
+    """
+    estilo = estilo or {}
+    familia = familia_disponivel(FAMILIAS_ESTILO.get(str(estilo.get("fonte") or "sans"), FONTE_TITULO), True)
+    forma = "arredondada" if estilo.get("forma") == "arredondada" else "reta"
+    justa = bool(estilo.get("caixa_justa"))
+    pt = perfil.pt_titulo * float(estilo.get("escala") or 1.0)
+    base = perfil.titulo
+    cx = base.centro[0]
+    folga_x = perfil.escalado(3.0)
+    folga_y = perfil.escalado(1.4)
+
+    esquerda = perfil.mapa.x0 + perfil.escalado(3.0)
+    direita = perfil.mapa.x1 - perfil.escalado(3.0)
+    if perfil.rosa.x0 > cx:
+        direita = min(direita, perfil.rosa.x0 - perfil.escalado(2.0))
+    largura_max = max(2.0 * min(cx - esquerda, direita - cx), base.largura)
+
+    texto_final = " ".join(str(texto or "").split())
+    piso = pt * 0.7
+    largura, altura = medir_bloco_mm(texto_final, pt, familia)
+    while largura + 2 * folga_x > largura_max and pt > piso:
+        pt *= 0.94
+        largura, altura = medir_bloco_mm(texto_final, pt, familia)
+    if largura + 2 * folga_x > largura_max:
+        texto_final = _duas_linhas(texto_final)
+        largura, altura = medir_bloco_mm(texto_final, pt, familia)
+        while largura + 2 * folga_x > largura_max and pt > piso * 0.8:
+            pt *= 0.94
+            largura, altura = medir_bloco_mm(texto_final, pt, familia)
+
+    w = largura + 2 * folga_x
+    h = altura + 2 * folga_y
+    if not justa:
+        w = max(w, base.largura)
+        h = max(h, base.altura)
+    caixa = Caixa(cx - w / 2.0, base.y0, cx + w / 2.0, base.y0 + h)
+    return PlanoTexto(caixa=caixa, texto=texto_final, pt=pt, familia=familia, forma=forma)
+
+
+def _desenhar_plano(fig: Figure, perfil: PerfilPagina, plano: PlanoTexto, *, zorder: int = 25) -> None:
+    ax = eixo_mm(fig, perfil, zorder=zorder)
+    c = plano.caixa
+    if plano.forma == "arredondada":
+        raio = min(c.altura, c.largura) * 0.16
+        moldura = FancyBboxPatch(
+            (c.x0, c.y0),
+            c.largura,
+            c.altura,
+            boxstyle=f"round,pad=0,rounding_size={raio}",
+            facecolor=plano.fundo,
+            edgecolor=plano.borda,
+            linewidth=perfil.escalado(1.2),
+        )
+    else:
+        moldura = Rectangle(
+            (c.x0, c.y0),
+            c.largura,
+            c.altura,
+            facecolor=plano.fundo,
+            edgecolor=plano.borda,
+            linewidth=perfil.escalado(1.0),
+        )
+    ax.add_patch(moldura)
+    ax.text(
+        c.centro[0],
+        c.centro[1],
+        plano.texto,
+        ha="center",
+        va="center",
+        multialignment="center",
+        fontsize=plano.pt,
+        fontweight="bold",
+        family=plano.familia,
+        color=plano.cor_texto,
+        linespacing=ENTRELINHA_BLOCO,
+    )
+
+
+def planejar_quadro_resumo(
+    perfil: PerfilPagina, linhas: list[str], estilo: dict[str, Any] | None = None
+) -> PlanoTexto | None:
+    """Quadro escuro no canto inferior-direito do mapa (modelo "Dinâmica 2008" da Aline).
+
+    Texto centrado, Cambria Bold 14 pt branco sobre `#333333`, cantos arredondados, a
+    ~1 mm da moldura. Encolhe o corpo se o texto passar de 60% da largura do quadro.
+    """
+    estilo = estilo or {}
+    texto = "\n".join(str(linha) for linha in linhas if str(linha).strip())
+    if not texto:
+        return None
+    familia = familia_disponivel(FAMILIAS_ESTILO.get(str(estilo.get("fonte") or "serif"), FONTE_QUADRO), True)
+    pt = perfil.escalado(float(estilo.get("pt") or 14.0))
+    folga_x, folga_y = perfil.escalado(2.4), perfil.escalado(1.6)
+    limite = perfil.mapa.largura * 0.6
+    largura, altura = medir_bloco_mm(texto, pt, familia)
+    while largura + 2 * folga_x > limite and pt > perfil.escalado(8.0):
+        pt *= 0.94
+        largura, altura = medir_bloco_mm(texto, pt, familia)
+    margem = perfil.escalado(1.2)
+    x1 = perfil.mapa.x1 - margem
+    y1 = perfil.mapa.y1 - margem
+    caixa = Caixa(x1 - largura - 2 * folga_x, y1 - altura - 2 * folga_y, x1, y1)
+    return PlanoTexto(
+        caixa=caixa,
+        texto=texto,
+        pt=pt,
+        familia=familia,
+        forma="arredondada",
+        fundo=str(estilo.get("fundo") or "#333333"),
+        borda=str(estilo.get("borda") or "white"),
+        cor_texto=str(estilo.get("cor_texto") or "white"),
+    )
+
+
+def quadro_resumo(fig: Figure, perfil: PerfilPagina, plano: PlanoTexto) -> Caixa:
+    """Desenha o quadro planejado e devolve a caixa que ele ocupa."""
+    _desenhar_plano(fig, perfil, plano, zorder=27)
+    return plano.caixa
+
+
 # --------------------------------------------------------------------------- #
 # Título e rosa dos ventos
 # --------------------------------------------------------------------------- #
 
 
-def caixa_titulo(fig: Figure, perfil: PerfilPagina, texto: str) -> None:
-    """Caixa branca com borda preta, texto serifado bold — topo-centro."""
-    ax = _eixo(fig, perfil, perfil.titulo, zorder=25)
-    ax.add_patch(
-        Rectangle(
-            (0.0, 0.0),
-            1.0,
-            1.0,
-            transform=ax.transAxes,
-            facecolor="white",
-            edgecolor=COR_MOLDURA,
-            linewidth=perfil.escalado(1.0),
-        )
-    )
-    # Só quebra título que **transborda de verdade**. `perfil.titulo` é o bbox do
-    # texto do modelo, não da moldura branca — usá-lo como limite exato fazia
-    # "Tipologia Vegetal" quebrar em duas linhas por 1 mm de diferença de fonte.
-    # `perfil.titulo.largura` já vem multiplicada por `k`, e `pt_titulo` também:
-    # a razão texto/caixa fica folha-invariante (W9-03).
-    largura_util = perfil.titulo.largura * 1.6
-    ax.text(
-        0.5,
-        0.5,
-        _quebrar(texto, largura_util, perfil.pt_titulo),
-        ha="center",
-        va="center",
-        fontsize=perfil.pt_titulo,
-        fontweight="bold",
-        family="DejaVu Serif",
-        color="black",
-        linespacing=1.0,
-    )
+def caixa_titulo(
+    fig: Figure,
+    perfil: PerfilPagina,
+    texto: str,
+    *,
+    estilo: dict[str, Any] | None = None,
+    plano: PlanoTexto | None = None,
+) -> Caixa:
+    """Caixa branca com borda preta e o título em Tahoma Bold — topo-centro.
+
+    Devolve a caixa desenhada (maior que a medida do modelo quando o título é longo): o
+    enquadramento usa essa caixa para não deixar o imóvel embaixo dela.
+    """
+    plano = plano or planejar_titulo(perfil, texto, estilo)
+    _desenhar_plano(fig, perfil, plano, zorder=25)
+    return plano.caixa
 
 
 def rosa_dos_ventos(fig: Figure, perfil: PerfilPagina) -> None:
@@ -191,7 +416,19 @@ def moldura_e_grade(
     ax.set_xticks([])
     ax.set_yticks([])
 
-    tam_tick = 0.008  # fração do eixo
+    # Tick e afastamento do rótulo em **mm de papel**. Eram 0,8% do eixo: no retrato o
+    # rótulo de cima ficava a 3,2 mm da moldura, que começa a 5 mm da borda — e o texto
+    # saía da folha cortado (teste_22: coordenadas do topo sem as aspas dos segundos).
+    tick_mm = perfil.escalado(1.1)
+    vao_mm = perfil.escalado(0.5)
+    altura_rotulo_mm = perfil.pt_grade * PT_PARA_MM * 1.05
+    familia_grade = familia_disponivel(perfil.fonte_grade) if perfil.fonte_grade else None
+    espaco_topo = max(perfil.mapa.y0 - perfil.escalado(0.4), 0.0)
+    if tick_mm + vao_mm + altura_rotulo_mm > espaco_topo:
+        # Pouco papel acima da moldura: encurta o tick antes de o texto sair da folha.
+        tick_mm = max(espaco_topo - vao_mm - altura_rotulo_mm, perfil.escalado(0.4))
+    altura_eixo_mm = max(perfil.mapa.altura, 1e-6)
+    largura_eixo_mm = max(perfil.mapa.largura, 1e-6)
     trans_x = blended_transform_factory(ax.transData, ax.transAxes)
     trans_y = blended_transform_factory(ax.transAxes, ax.transData)
     x0, x1 = ax.get_xlim()
@@ -205,6 +442,7 @@ def moldura_e_grade(
             pos = item[chave]
             if not (x0 <= pos <= x1):
                 continue
+            tam_tick = tick_mm / altura_eixo_mm
             ax.plot(
                 [pos, pos],
                 [base, base + sentido * tam_tick],
@@ -216,12 +454,13 @@ def moldura_e_grade(
             )
             ax.text(
                 pos,
-                base + sentido * tam_tick * 1.6,
+                base + sentido * (tick_mm + vao_mm) / altura_eixo_mm,
                 item["rotulo"],
                 transform=trans_x,
                 ha="center",
                 va=va,
                 fontsize=perfil.pt_grade,
+                family=familia_grade,
                 color="black",
                 clip_on=False,
                 zorder=30,
@@ -236,13 +475,18 @@ def moldura_e_grade(
             )
 
     for item in grade.get("y", []):
-        for chave, base, sentido, ha, rot in (
-            ("esquerda", 0.0, -1.0, "right", 90),
-            ("direita", 1.0, 1.0, "left", 90),
+        # Os dois lados escrevem de baixo para cima (90°), como no ArcMap. Girado 90°, o
+        # "pé" do texto aponta para a direita: à esquerda o texto se apoia pelo pé
+        # (`va=bottom`), à direita pela cabeça (`va=top`), e fica **fora** da moldura.
+        # Antes era `va=center` — metade do rótulo da direita caía em cima do mapa.
+        for chave, base, sentido, va in (
+            ("esquerda", 0.0, -1.0, "bottom"),
+            ("direita", 1.0, 1.0, "top"),
         ):
             pos = item[chave]
             if not (y0 <= pos <= y1):
                 continue
+            tam_tick = tick_mm / largura_eixo_mm
             ax.plot(
                 [base, base + sentido * tam_tick],
                 [pos, pos],
@@ -253,15 +497,16 @@ def moldura_e_grade(
                 zorder=30,
             )
             ax.text(
-                base + sentido * tam_tick * 1.6,
+                base + sentido * (tick_mm + vao_mm) / largura_eixo_mm,
                 pos,
                 item["rotulo"],
                 transform=trans_y,
-                ha=ha,
-                va="center",
+                ha="center",
+                va=va,
                 rotation=90,
                 rotation_mode="anchor",
                 fontsize=perfil.pt_grade,
+                family=familia_grade,
                 color="black",
                 clip_on=False,
                 zorder=30,
@@ -473,8 +718,15 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
     if not itens:
         return 0
 
-    largura_swatch = 0.20
-    largura_texto_mm = perfil.legenda.largura * (1.0 - largura_swatch - 0.06)
+    # Amostra de tamanho **fixo em papel** (≈6,5 × 3,2 mm em A4), com o texto logo ao lado —
+    # medida nas legendas da Dinâmica 2026 e da Dinâmica 2008 da Aline. Era 20% da caixa
+    # mais 6% de vão: sobrava pouco para o texto e "Área de vegetação nativa" quebrava.
+    largura_caixa_mm = max(perfil.legenda.largura, 1e-6)
+    altura_caixa_mm = max(perfil.legenda.altura, 1e-6)
+    largura_swatch_mm = perfil.escalado(6.5)
+    vao_mm = perfil.escalado(1.7)
+    largura_swatch = largura_swatch_mm / largura_caixa_mm
+    largura_texto_mm = largura_caixa_mm - largura_swatch_mm - vao_mm
 
     # O espaço da caixa é contado em **linhas de texto**, não em itens: um
     # rótulo que quebra em três linhas ocupa três, e é isso que evita a legenda
@@ -488,6 +740,11 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
         if total_linhas * passo_linha <= 1.0 or pt <= perfil.pt_legenda * 0.55:
             break
         pt *= 0.85
+    # Cada linha ocupa ao menos a amostra e um respiro (≈4,7 mm em A4, medido nos modelos),
+    # quando cabe: o passo só pelo corpo da letra espremia os itens com a fonte de 7 pt.
+    passo_amostra = perfil.escalado(4.7) / altura_caixa_mm
+    if total_linhas * passo_amostra <= 1.0:
+        passo_linha = max(passo_linha, passo_amostra)
 
     # Ancorada na base da caixa, como o bloco de metadados.
     y = passo_linha * (total_linhas - 0.3)
@@ -511,20 +768,29 @@ def bloco_legenda(fig: Figure, perfil: PerfilPagina, itens: list[dict[str, Any]]
         # mapa cobria a imagem de satélite inteira com laranja.
         face = estilo.get("cor_preenchimento_legenda", estilo.get("cor_preenchimento"))
         centro = y - passo_linha * (n_linhas - 1) / 2.0
-        altura_swatch = passo_linha * 0.6
-        ax.add_patch(
-            Rectangle(
-                (0.0, centro - altura_swatch / 2),
-                largura_swatch,
-                altura_swatch,
-                transform=ax.transAxes,
-                facecolor=face if face else "none",
-                edgecolor=estilo["cor_linha"],
-                linewidth=perfil.escalado(1.6),
-            )
+        altura_swatch = min(passo_linha * 0.72, perfil.escalado(3.2) / altura_caixa_mm)
+        # Contorno com a espessura do traço no mapa (o imóvel grosso, o limite estadual
+        # fino), como o ArcMap desenha a amostra; cantos arredondados como nos modelos.
+        largura_traco = min(max(float(estilo.get("largura") or 1.0), 0.6), 2.6)
+        raio = largura_swatch * 0.12
+        amostra = FancyBboxPatch(
+            (0.0, centro - altura_swatch / 2),
+            largura_swatch,
+            altura_swatch,
+            boxstyle=f"round,pad=0,rounding_size={raio}",
+            mutation_aspect=largura_caixa_mm / altura_caixa_mm,
+            transform=ax.transAxes,
+            facecolor=face if face else "none",
+            edgecolor=estilo["cor_linha"],
+            linewidth=perfil.escalado(largura_traco),
+            # A hachura da camada também na amostra, como na legenda do ArcMap.
+            hatch=estilo.get("hachura_legenda", estilo.get("hachura")),
         )
+        if estilo.get("largura_hachura") and hasattr(amostra, "set_hatch_linewidth"):
+            amostra.set_hatch_linewidth(perfil.escalado(float(estilo["largura_hachura"])))
+        ax.add_patch(amostra)
         ax.text(
-            largura_swatch + 0.06,
+            largura_swatch + vao_mm / largura_caixa_mm,
             centro,
             rotulo,
             ha="left",
@@ -584,6 +850,17 @@ def bloco_logo(fig: Figure, perfil: PerfilPagina, caminho: Path | None) -> bool:
     return True
 
 
+def _dentro_da_folha(perfil: PerfilPagina, caixa: Caixa) -> Caixa:
+    """Afasta da borda do papel uma caixa que encosta nela (a moldura não sai cortada)."""
+    margem = perfil.escalado(2.0)
+    return Caixa(
+        max(caixa.x0, margem),
+        max(caixa.y0, margem),
+        min(caixa.x1, perfil.largura_mm - margem),
+        min(caixa.y1, perfil.altura_mm - margem),
+    )
+
+
 def _geometrias_municipios(
     caminho_shp: Path,
     *,
@@ -638,7 +915,7 @@ def bloco_minimapa(
     **calculada** a partir do centroide, não posicionada à mão.
     """
     info: dict[str, Any] = {"municipio_encontrado": False, "retangulo_ok": False}
-    caixa = perfil.minimapa
+    caixa = _dentro_da_folha(perfil, perfil.minimapa)
     ax = fig.add_axes(perfil.fracao(caixa), zorder=25)
     ax.set_xticks([])
     ax.set_yticks([])
@@ -688,7 +965,11 @@ def bloco_minimapa(
 
     ax.set_xlim(vista[0], vista[2])
     ax.set_ylim(vista[1], vista[3])
-    ax.set_aspect("equal", adjustable="box")
+    # `datalim`: a moldura fica do tamanho da caixa e a vista cresce para caber. Com `box`
+    # o eixo encolhia para a proporção do município (Querência é alto e fino) e o selo da
+    # UF, posicionado pela caixa, ficava fora da moldura (teste_22).
+    ax.set_aspect("equal", adjustable="datalim")
+    ax.apply_aspect()
 
     if municipio:
         ax.text(
@@ -722,9 +1003,8 @@ def bloco_minimapa(
         info["retangulo_ok"] = True
         info["retangulo_lonlat"] = [lon, lat]
 
-        # Linha-guia em L, desenhada na página (sai do inset e sobe até o quadro).
-        x_fig, y_fig = ax.transAxes.inverted().transform((0, 0))  # força o cálculo do eixo
-        del x_fig, y_fig
+        # Linha-guia em L, desenhada na página (sai do inset e sobe até o quadro). O
+        # `apply_aspect` acima já fixou os limites: o ponto de saída é o do retângulo.
         px_dado = ax.transData.transform((lon + lado_x / 2, lat + lado_y / 2))
         px_fig = fig.transFigure.inverted().transform(px_dado)
         alvo_x, alvo_y = mm_para_figura(perfil, perfil.mapa.x0 + perfil.escalado(1.5), perfil.mapa.y1)

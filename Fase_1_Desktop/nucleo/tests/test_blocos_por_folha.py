@@ -29,9 +29,12 @@ from mapasfacil_nucleo.motores import perfil_pagina  # noqa: E402
 K_A0 = 841.0 / 210.0
 """Fator da A0 em relação à A4 retrato: 841 mm / 210 mm ≈ 4,0048."""
 
-BASE_PT = [0.25, 0.4, 0.5, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6]
+BASE_PT = [0.25, 0.4, 0.5, 0.8, 0.9, 1.0, 1.2, 1.4, 2.2]
 """Os pt literais que a W9-03 passou a escalar. A cena abaixo exercita todos —
-se um desaparecer do desenho, o teste de A4 falha e avisa que a cobertura caiu."""
+se um desaparecer do desenho, o teste de A4 falha e avisa que a cobertura caiu.
+
+O 2,2 é o traço do imóvel na amostra da legenda: desde 04/11/2026 a amostra usa a
+espessura da camada no mapa (era 1,6 fixo para todas), como o ArcMap desenha."""
 
 
 def _perfil(formato: str, orientacao: str = "retrato") -> perfil_pagina.PerfilPagina:

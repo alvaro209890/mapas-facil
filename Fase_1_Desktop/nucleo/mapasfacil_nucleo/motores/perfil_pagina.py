@@ -49,6 +49,10 @@ class Caixa:
         )
 
 
+FONTE_GRADE_SERIFADA: tuple[str, ...] = ("Cambria", "Liberation Serif", "Times New Roman", "DejaVu Serif")
+"""Grade das Dinâmicas: Cambria (sem ela no servidor, a Liberation Serif)."""
+
+
 @dataclass(frozen=True)
 class PerfilPagina:
     """Um dos dois formatos do perfil Harmonia."""
@@ -78,6 +82,10 @@ class PerfilPagina:
     # IMAGEM", mas o de Terras Indígenas escreve só "METADADOS" — e a diferença
     # de largura desloca a âncora do bloco inteiro.
     titulo_metadados: str = "METADADOS IMAGEM"
+    # Fonte dos rótulos da grade, em ordem de preferência; vazio = a sans do motor (Arial).
+    # As Dinâmicas e os retrato do acervo usam **Cambria 7,7 pt**; os temáticos paisagem,
+    # Arial 5,8 pt (lido do PDF de cada modelo, 04/11/2026).
+    fonte_grade: tuple[str, ...] = ()
 
     # Fator da folha em relação à A4 (D31). 1,0 = A4; A0 ≈ 4,0048. Serve para quem
     # precisa escalar uma grandeza que não vive aqui (espessura de linha do motor,
@@ -133,7 +141,8 @@ RETRATO = PerfilPagina(
     pt_titulo=24.0,
     pt_metadados=9.0,
     pt_legenda=8.0,
-    pt_grade=6.0,
+    pt_grade=7.7,
+    fonte_grade=FONTE_GRADE_SERIFADA,
 )
 
 # Temáticos — A4 paisagem 297 × 210 mm.
@@ -145,7 +154,8 @@ PAISAGEM = PerfilPagina(
     mapa=Caixa(5.6, 4.8, 291.1, 168.5),
     titulo=Caixa(107.2, 3.0, 185.0, 20.5),
     rosa=Caixa(276.7, 4.3, 288.5, 21.7),
-    minimapa=Caixa(2.0, 172.0, 62.0, 208.0),
+    # 173 (era 172): os rótulos de baixo da grade terminam a ~172,3 mm e encostavam no minimapa.
+    minimapa=Caixa(2.0, 173.0, 62.0, 208.0),
     metadados=Caixa(76.4, 173.8, 156.2, 205.3),
     legenda=Caixa(177.1, 172.0, 227.0, 208.2),
     logo=Caixa(245.0, 175.0, 292.0, 205.0),
@@ -237,6 +247,7 @@ def por_anatomia(mapa_id: str | None) -> PerfilPagina | None:
         pt_grade=base.pt_grade,
         pt_legenda_titulo=float(legenda.get("pt_titulo") or 0.0),
         titulo_metadados=str(meta.get("titulo") or "METADADOS IMAGEM"),
+        fonte_grade=base.fonte_grade,
     )
 
 
@@ -404,6 +415,7 @@ def escalar_perfil(base: PerfilPagina, folha: dict | None) -> PerfilPagina:
         pt_legenda=base.pt_legenda * k,
         pt_grade=base.pt_grade * k,
         pt_legenda_titulo=base.pt_legenda_titulo * k,
+        fonte_grade=base.fonte_grade,
         fator=k,
         formato=formato,
     )

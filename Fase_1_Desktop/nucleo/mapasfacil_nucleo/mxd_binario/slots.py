@@ -114,53 +114,41 @@ def aplicar_slot_texto(
     stream: bytearray,
     sentinela: str,
     novo_texto: str,
-    arvore: ArvoreBlocos | None = None,
+    arvore: ArvoreBlocos | None = None,  # noqa: ARG001 — mantido na assinatura; não há delta
 ) -> int:
-    """Substitui ocorrências de uma sentinela de texto UTF-16LE na stream.
+    """Substitui as ocorrências de uma sentinela de texto UTF-16LE na stream.
 
-    Atualiza o uint32 de comprimento da string e propaga o delta_bytes
-    para os blocos ancestrais caso a árvore de blocos seja fornecida.
-    Retorna o número de substituições realizadas.
+    O texto novo ocupa **sempre** o mesmo número de bytes da sentinela: trocar o tamanho
+    corrompia o PageLayout (o MXD do teste_22 abria no ArcMap com `pageLayout` vazio).
+    Num rótulo, o texto é completado com espaços dos dois lados (continua centrado); numa
+    consulta SQL (`"nome" = 'Vila Rica'`), os espaços vão depois da aspa. A decisão é por
+    ocorrência — a mesma sentinela costuma estar no rótulo e na consulta do minimapa.
+    Texto maior que a sentinela não entra (`ErroSlot`). Retorna o número de trocas.
     """
+    if len(novo_texto) > len(sentinela):
+        raise ErroSlot(
+            f"Texto com {len(novo_texto)} caracteres não cabe na sentinela de {len(sentinela)}."
+        )
+    falta = len(sentinela) - len(novo_texto)
     sentinela_u16 = sentinela.encode("utf-16le")
-    novo_u16 = novo_texto.encode("utf-16le")
-    delta = len(novo_u16) - len(sentinela_u16)
+    aspa_u16 = "'".encode("utf-16le")
+    centrado = (" " * (falta // 2) + novo_texto + " " * (falta - falta // 2)).encode("utf-16le")
+    em_consulta = (novo_texto + "'" + " " * falta).encode("utf-16le")
 
     substituicoes = 0
     pos = 0
-
     while True:
         idx = stream.find(sentinela_u16, pos)
         if idx == -1:
             break
-
-        # Procura uint32 de comprimento imediatamente anterior (ou até 8 bytes antes)
-        # No ArcObjects: [uint32 tam_bytes][...sentinela...]
-        offset_u32 = -1
-        for recuo in (4, 6, 8):
-            cand = idx - recuo
-            if cand >= 0:
-                tam_declarado = struct.unpack_from("<I", stream, cand)[0]
-                # Se o tamanho declarado engloba a sentinela
-                if tam_declarado >= len(sentinela_u16):
-                    offset_u32 = cand
-                    break
-
-        if offset_u32 != -1:
-            # Atualiza uint32
-            tam_antigo = struct.unpack_from("<I", stream, offset_u32)[0]
-            struct.pack_into("<I", stream, offset_u32, tam_antigo + delta)
-
-        # Realiza a substituição de bytes
-        stream[idx : idx + len(sentinela_u16)] = novo_u16
+        fim_s = idx + len(sentinela_u16)
+        if stream[fim_s : fim_s + len(aspa_u16)] == aspa_u16:
+            stream[idx : fim_s + len(aspa_u16)] = em_consulta
+            pos = fim_s + len(aspa_u16)
+        else:
+            stream[idx:fim_s] = centrado
+            pos = fim_s
         substituicoes += 1
-
-        # Atualiza a árvore de blocos ArcObjects se houver delta
-        if delta != 0 and arvore is not None:
-            arvore.ajustar_delta_tamanho(idx, delta, stream)
-
-        pos = idx + len(novo_u16)
-
     return substituicoes
 
 

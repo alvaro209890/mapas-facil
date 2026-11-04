@@ -105,6 +105,12 @@
               "valor": { "type": "string" }
             }
           }
+        },
+        "titulo_padrao": { "type": "string", "minLength": 1 },
+        "nome_base_padrao": { "type": "string", "minLength": 1 },
+        "ajustes_layout_padrao": {
+          "type": "object",
+          "description": "Vai para `ajustes_layout` do MapSpec: estilo do título, quadro de resumo, ordem e itens extras da legenda."
         }
       }
     },

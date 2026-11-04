@@ -53,6 +53,33 @@ ESTILOS: dict[str, dict[str, Any]] = {
         "largura": 1.0,
         "legenda": "poligono_vazado",
     },
+    # — modelo "Dinâmica 2008" da Aline (IMAP), amostrado do PDF dela a 300 dpi —
+    # Contorno grosso e hachura diagonal fina e espaçada, da cor da classe. O perímetro
+    # (AIR/ATP) é vermelho e fica **embaixo**: no mapa dela só aparece onde AC e AVN não
+    # cobrem a divisa.
+    "perimetro_vermelho": {
+        "cor_linha": "#FF0000",
+        "cor_preenchimento": None,
+        "hachura": None,
+        "largura": 2.4,
+        "legenda": "poligono_vazado",
+    },
+    "avn_amarela": {
+        "cor_linha": "#FFFF00",
+        "cor_preenchimento": None,
+        "hachura": "/",
+        "largura_hachura": 0.6,
+        "largura": 2.0,
+        "legenda": "poligono_vazado",
+    },
+    "ac_magenta": {
+        "cor_linha": "#E500A9",
+        "cor_preenchimento": None,
+        "hachura": "/",
+        "largura_hachura": 0.6,
+        "largura": 2.0,
+        "legenda": "poligono_vazado",
+    },
     "app": {
         "cor_linha": "#00B0F0",
         "cor_preenchimento": None,
