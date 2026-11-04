@@ -378,13 +378,18 @@ def checar_galeria(r: Resultado) -> None:
     prontos = [m["id"] for m in modelos if status.get(m["template"]) == "pronto"]
     bloqueados = [m["id"] for m in modelos if status.get(m["template"]) == "a_preparar"]
     tipos_mapspec = [m["id"] for m in modelos if m.get("tipo_execucao") == "mapspec"]
+    # A galeria cresce (Dinâmica 2008 da Aline, 04/11/2026): a regra é todo card pronto e só a
+    # Análise de área fora do tipo mapspec — não um número fixo de cards.
     if (
-        len(modelos) == 6
-        and len(tipos_mapspec) == 5
-        and len(prontos) == 6
+        len(modelos) >= 6
+        and len(tipos_mapspec) == len(modelos) - 1
+        and len(prontos) == len(modelos)
         and not bloqueados
     ):
-        r.ok("Galeria e templates", "6 cards; gate ArcMap preservado só para saída mxd (§6.1)")
+        r.ok(
+            "Galeria e templates",
+            f"{len(modelos)} cards; gate ArcMap preservado só para saída mxd (§6.1)",
+        )
     else:
         r.falha(
             "Galeria e templates",
