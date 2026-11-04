@@ -28,6 +28,7 @@ from mapasfacil_nucleo.motores.folhas import folha_do_template, folha_padrao
 from mapasfacil_nucleo.conversas.redator import redigir
 from mapasfacil_nucleo.erros import ErroNucleo
 from mapasfacil_nucleo.galeria import servico as galeria_servico
+from mapasfacil_nucleo.galeria.montar import area_do_atp
 from mapasfacil_nucleo.geo import area as geo_area
 from mapasfacil_nucleo.geo.distancia import distancia_minima_km
 from mapasfacil_nucleo.mapspec.diff import diff as mapspec_diff
@@ -237,6 +238,111 @@ def tool_ler_recibo_car(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, 
     limpo.pop("cpf", None)
     limpo.pop("texto_integral", None)
     return _ok({"recibo": limpo})
+
+
+def _area_atp_ou_recibo(recibo: dict[str, Any] | None) -> float | None:
+    """Os números do mapa vêm dos shapes do usuário; o recibo é contexto (nome, CAR)."""
+    area = area_do_atp(_indice())
+    if area is None and recibo:
+        area = recibo.get("area_total_ha")
+    return area
+
+
+def tool_buscar_recibo_car(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
+    """Baixa o recibo do CAR da SEMA-MT quando a pasta não tem — só se for necessário.
+
+    Sem `car`, identifica o número pelo perímetro (ATP) no GeoServer da SEMA. O PDF fica em
+    `_extraido/` do projeto (a única pasta de escrita que não é saída de mapa) e a pasta é
+    reindexada: dali em diante `ler_recibo_car`, o `criar_mapa` e o título do mapa usam o
+    recibo como se tivesse vindo no `.zip`.
+    """
+    del ctx
+    from mapasfacil_nucleo import cofre
+    from mapasfacil_nucleo.workspace import recibo_online
+
+    estado = _estado()
+    if estado is None:
+        return _erro("NU-040", "Nenhuma pasta conectada.")
+    if _recibo():
+        return _ok({"ja_existia": True, "recibo": _recibo_limpo()})
+
+    numero = args.get("car")
+    identificacao: dict[str, Any] | None = None
+    if numero:
+        numero = recibo_online.normalizar_car(str(numero))
+        if numero is None:
+            return _erro("NU-001", "Número de CAR inválido (formato MT00000/0000).")
+    else:
+        geometria = _geometria_imovel(estado)
+        if geometria is None:
+            return _erro(
+                "NU-041",
+                "Sem o perímetro (ATP) não dá para descobrir o CAR. Peça o número ao usuário.",
+            )
+        chave = cofre.usar("sema_authkey")
+        if not chave:
+            return _erro(
+                "NU-102",
+                "A chave 'sema_authkey' não está configurada — peça o número do CAR ao usuário.",
+            )
+        geom_4674 = _geometria_imovel_4674(*geometria)
+        ponto = geom_4674.representative_point()
+        try:
+            area_ha, _ = geo_area.area_hectares(
+                [geom_4674], epsg_origem=4674, longitude_centroide=ponto.x
+            )
+        except Exception:
+            area_ha = None
+        try:
+            identificacao = recibo_online.identificar_car(
+                ponto.x, ponto.y, authkey=chave, area_ha=area_ha
+            )
+        except ErroNucleo as exc:
+            return _erro(exc.codigo, exc.mensagem)
+        if identificacao is None:
+            return _erro(
+                "NU-043",
+                "A SEMA não tem CAR sobre este perímetro. Peça o número do CAR ao usuário.",
+            )
+        numero = identificacao["car"]
+
+    try:
+        pdf = recibo_online.baixar_recibo(numero)
+    except ErroNucleo as exc:
+        return _erro(exc.codigo, exc.mensagem)
+    if not pdf:
+        return _erro(
+            "NU-044",
+            f"O SIMCAR não tem recibo publicado para {numero} (CAR em cadastramento?).",
+            car=numero,
+        )
+
+    nome = "_extraido/Recibo_CAR_" + numero.replace("/", "-") + ".pdf"
+    destino = estado.guard.resolver(nome, escrita=True)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_bytes(pdf)
+    workspace_servico.reindexar()
+    if not _recibo():
+        return _erro(
+            "NU-031",
+            "Baixei o PDF da SEMA, mas não consegui ler os dados do recibo.",
+            arquivo=nome,
+        )
+    resposta: dict[str, Any] = {"arquivo": nome, "car": numero, "recibo": _recibo_limpo()}
+    if identificacao is not None:
+        resposta["identificado_pelo_perimetro"] = {
+            "camada": identificacao.get("camada"),
+            "area_sema_ha": identificacao.get("area_ha"),
+            "candidatos": identificacao.get("candidatos"),
+        }
+    return _ok(resposta)
+
+
+def _recibo_limpo() -> dict[str, Any]:
+    limpo = json.loads(redigir(json.dumps(_recibo() or {}, ensure_ascii=False)))
+    limpo.pop("cpf", None)
+    limpo.pop("texto_integral", None)
+    return limpo
 
 
 def tool_listar_zip(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]:
@@ -497,9 +603,12 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         "saidas": ["pdf"],
         "imovel": {
             "nome": nome_imovel,
-            "car": recibo.get("car_estadual") or recibo.get("car"),
+            # O contrato exige string: sem recibo do CAR o campo fica vazio (o usuário ou o
+            # `definir_imovel` preenchem depois) em vez de `None`, que reprovava o MapSpec inteiro.
+            "car": str(recibo.get("car_estadual") or recibo.get("car") or ""),
             "matricula": None,
-            "area_total_ha": recibo.get("area_total_ha"),
+            # Área sempre do ATP dos shapes; a do recibo só se a pasta não tiver ATP.
+            "area_total_ha": _area_atp_ou_recibo(recibo),
             "municipio": {
                 "nome": recibo.get("municipio") or "Desconhecido",
                 "uf": (recibo.get("uf") or "MT")[:2],
@@ -1090,6 +1199,16 @@ def _geometria_imovel(estado) -> tuple[BaseGeometry, int] | None:
     return unary_union(geometrias), epsg
 
 
+def _epsg_geografico(epsg: int) -> bool:
+    """Verdadeiro quando o CRS é em graus (4674, 4326, 4618…) — não serve para medir em metros."""
+    try:
+        from pyproj import CRS
+
+        return bool(CRS.from_epsg(int(epsg)).is_geographic)
+    except Exception:  # EPSG desconhecido: na dúvida, trata os códigos geográficos usuais
+        return int(epsg) in {4326, 4674, 4618, 4225, 4989}
+
+
 def _geometria_imovel_4674(geom: BaseGeometry, epsg: int) -> BaseGeometry:
     return geom if epsg == 4674 else geo_area.reprojetar(geom, epsg, 4674)
 
@@ -1265,10 +1384,11 @@ def montar_memoria_trabalho(mapspec: dict[str, Any] | None = None) -> dict[str, 
     if recibo:
         imovel = {
             "nome": recibo.get("nome_imovel") or recibo.get("imovel"),
-            "car": recibo.get("numero_car") or recibo.get("car"),
+            "car": recibo.get("car_estadual") or recibo.get("numero_car") or recibo.get("car"),
             "municipio": recibo.get("municipio"),
             "uf": recibo.get("uf") or "MT",
-            "area_total_ha": recibo.get("area_total_ha"),
+            "area_total_ha": _area_atp_ou_recibo(recibo),
+            "fonte_dos_numeros": "shapefiles" if area_do_atp(indice) is not None else "recibo",
         }
     mapspec_atual = None
     if mapspec:
@@ -1382,7 +1502,14 @@ def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dic
     geometria = _geometria_imovel(estado)
     if geometria is None:
         return _erro("AG-202", "A pasta não tem o perímetro do imóvel (ATP) para calcular o enquadramento.")
-    geom, _epsg = geometria
+    geom, epsg = geometria
+    crs_metrico = None
+    if _epsg_geografico(epsg):
+        # O enquadramento trabalha em metros: com o ATP em graus (SIRGAS 2000 geográfico, o
+        # padrão do SIMCAR) a caixa de 0,05° virava "5 cm" e a escala caía para 1:500.
+        geom_4674 = _geometria_imovel_4674(geom, epsg)
+        crs_metrico = enquadramento.crs_utm(geom_4674.centroid.x)
+        geom = geo_area.reprojetar(geom_4674, 4674, int(crs_metrico.split(":")[-1]))
     xmin, ymin, xmax, ymax = geom.bounds
     bbox = {"xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax}
 
@@ -1415,6 +1542,7 @@ def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dic
                 perfil,
                 tipo=tipo,
                 escala_fixa=args.get("escala_fixa"),
+                crs=crs_metrico,
                 alternativas=False,
             )
             atual = resolvido.para_dict()
@@ -1624,6 +1752,7 @@ _HANDLERS: dict[str, HandlerTool] = {
     "listar_arquivos": tool_listar_arquivos,
     "inspecionar_shapefile": tool_inspecionar_shapefile,
     "ler_recibo_car": tool_ler_recibo_car,
+    "buscar_recibo_car": tool_buscar_recibo_car,
     "listar_zip": tool_listar_zip,
     "listar_catalogo": tool_listar_catalogo,
     "consultar_sema": tool_consultar_sema,
@@ -1686,6 +1815,20 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
     "ler_recibo_car": {
         "descricao": "Nome, município, nº do CAR e áreas do recibo. Nunca devolve CPF.",
         "props": {},
+    },
+    "buscar_recibo_car": {
+        "descricao": (
+            "SÓ quando ler_recibo_car disser que não há recibo E você precisar do nome da "
+            "propriedade, município ou nº do CAR. Descobre o CAR pelo perímetro na base do "
+            "SIMCAR/SEMA e baixa o recibo público. O recibo é contexto: áreas e geometrias "
+            "do mapa vêm sempre dos shapefiles do usuário."
+        ),
+        "props": {
+            "car": {
+                **_STR,
+                "description": "nº do CAR estadual (MT00000/0000), se o usuário informou; senão omita",
+            }
+        },
     },
     "listar_zip": {
         "descricao": "Conteúdo de um .zip do SIMCAR sem extrair.",

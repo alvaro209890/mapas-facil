@@ -31,7 +31,7 @@
 .resumo {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--mf-e2);
   padding: var(--mf-e1) var(--mf-e2);
   text-align: left;
@@ -58,7 +58,17 @@
 
 .icone {
   display: inline-flex;
+  flex: 0 0 auto;
+  margin-top: 2px;
   color: var(--mf-texto-2);
+}
+
+.cartao[data-ok="false"] .icone {
+  color: var(--mf-erro);
+}
+
+.cartao[data-fase="fim"][data-ok="true"] .icone {
+  color: var(--mf-ok);
 }
 
 /* Enquanto pendente o ícone gira uma volta a cada 1.200 ms — o giro é sinal de
@@ -74,21 +84,88 @@
   }
 }
 
-.nome {
-  font-family: var(--mf-fonte-mono);
-  color: var(--mf-texto);
+.corpo {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
 }
 
-.args {
-  color: var(--mf-texto-3);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
+.linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--mf-e1);
   min-width: 0;
 }
 
+.nome {
+  color: var(--mf-texto);
+  font-weight: 600;
+}
+
+.etiqueta {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 6px;
+  border: 1px solid var(--mf-borda);
+  border-radius: 999px;
+  background: var(--mf-superficie-1);
+  color: var(--mf-texto-2);
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.etiquetaChave {
+  margin-right: 4px;
+  color: var(--mf-texto-3);
+}
+
+.motivo {
+  color: var(--mf-texto-3);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erro {
+  color: var(--mf-erro);
+  overflow-wrap: anywhere;
+}
+
+.argumentos {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 2px var(--mf-e2);
+  margin: 0;
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+}
+
+.argumentos > div {
+  display: contents;
+}
+
+.argumentos dt {
+  color: var(--mf-texto-3);
+}
+
+.argumentos dd {
+  margin: 0;
+  color: var(--mf-texto-2);
+  overflow-wrap: anywhere;
+}
+
+.codigoInline {
+  color: var(--mf-texto-2);
+  font: var(--mf-fs-micro) var(--mf-fonte-mono);
+}
+
 .status {
+  flex: 0 0 auto;
+  margin-top: 1px;
   font-family: var(--mf-fonte-mono);
   color: var(--mf-texto-3);
   margin-left: auto;

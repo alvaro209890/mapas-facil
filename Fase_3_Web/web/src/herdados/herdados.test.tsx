@@ -38,7 +38,31 @@ describe('componentes herdados', () => {
       ok: true,
     });
     render(<CartaoTool estado={estado!} />);
-    expect(screen.getByText(/gerar_mapa/)).toBeInTheDocument();
+    expect(screen.getByText('Gerar mapa')).toBeInTheDocument();
+    expect(screen.getByTitle('gerar_mapa')).toBeInTheDocument();
+  });
+
+  it('CartaoTool falho mostra a mensagem do núcleo e esconde o "reason" das etiquetas', () => {
+    let estados = aplicarEventoTool([], {
+      trace_id: 't9',
+      tool: 'criar_mapa',
+      fase: 'inicio',
+      args_resumo: '{"template":"serie_dinamica_2008_spot","reason":"montar a dinâmica"}',
+    });
+    estados = aplicarEventoTool(estados, {
+      trace_id: 't9',
+      tool: 'criar_mapa',
+      fase: 'fim',
+      resultado_resumo:
+        '{"ok": false, "codigo": "NU-201", "mensagem": "MapSpec inválido.", "erros": [{"mensagem": "imovel/car: None is not of type string"}]}',
+      ms: 31,
+      ok: false,
+    });
+    render(<CartaoTool estado={estados[0]!} />);
+    expect(screen.getByText('Criar mapa')).toBeInTheDocument();
+    expect(screen.getByText('serie_dinamica_2008_spot')).toBeInTheDocument();
+    expect(screen.getByText('montar a dinâmica')).toBeInTheDocument();
+    expect(screen.getByText(/MapSpec inválido\. — imovel\/car/)).toBeInTheDocument();
   });
 
   it('GrupoTools agrupa várias tools', () => {

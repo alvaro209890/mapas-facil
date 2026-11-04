@@ -16,6 +16,7 @@ import { Check, ChevronDown, CircleStop, Wrench, X } from "lucide-react";
 import { useState } from "react";
 
 import type { DadosChatTool } from "./tipos";
+import { lerArgs, lerResultado, nomeAmigavel } from "./rotulosTool";
 import estilos from "./CartaoTool.module.css";
 
 export interface EstadoTool {
@@ -61,17 +62,15 @@ export function formatarDuracao(ms: number): string {
   return `${(ms / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} s`;
 }
 
-function limitar(texto: string, max = 80): string {
-  const limpo = texto.replace(/\s+/g, " ").trim();
-  return limpo.length <= max ? limpo : `${limpo.slice(0, max - 1)}…`;
-}
-
 export function CartaoTool({ estado }: { estado: EstadoTool }) {
   const [expandido, setExpandido] = useState(false);
   const pendente = estado.fase === "inicio" && estado.cancelada !== true;
   const falhou = estado.fase === "fim" && estado.ok === false;
   const temDetalhes = Boolean(estado.argsResumo || estado.resultadoResumo);
   const detalhesId = `tool-detalhes-${estado.traceId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
+  const args = lerArgs(estado.argsResumo);
+  const resultado = lerResultado(estado.resultadoResumo);
+  const erro = falhou ? (resultado?.erro ?? "a ferramenta falhou") : null;
 
   return (
     <article
@@ -87,6 +86,7 @@ export function CartaoTool({ estado }: { estado: EstadoTool }) {
         aria-expanded={temDetalhes ? expandido : undefined}
         aria-controls={temDetalhes ? detalhesId : undefined}
         disabled={!temDetalhes}
+        title={estado.tool}
       >
         <span className={estilos.icone} data-pendente={pendente ? "sim" : "nao"} aria-hidden="true">
           {estado.cancelada === true ? (
@@ -99,10 +99,22 @@ export function CartaoTool({ estado }: { estado: EstadoTool }) {
             <Wrench size={13} />
           )}
         </span>
-        <span className={estilos.nome}>{estado.tool}</span>
-        {estado.argsResumo !== undefined && estado.argsResumo !== "" && (
-          <span className={estilos.args}>{limitar(estado.argsResumo)}</span>
-        )}
+        <span className={estilos.corpo}>
+          <span className={estilos.linha}>
+            <span className={estilos.nome}>{nomeAmigavel(estado.tool)}</span>
+            {args.etiquetas.slice(0, 3).map((etiqueta, indice) => (
+              <span key={`${etiqueta.chave}-${indice}`} className={estilos.etiqueta}>
+                {etiqueta.chave && <span className={estilos.etiquetaChave}>{etiqueta.chave}</span>}
+                {etiqueta.valor}
+              </span>
+            ))}
+            {args.etiquetas.length > 3 && (
+              <span className={estilos.etiqueta}>+{args.etiquetas.length - 3}</span>
+            )}
+          </span>
+          {args.motivo && <span className={estilos.motivo}>{args.motivo}</span>}
+          {erro && <span className={estilos.erro}>{erro}</span>}
+        </span>
         <span className={estilos.status}>
           {estado.cancelada === true
             ? "cancelada"
@@ -123,16 +135,29 @@ export function CartaoTool({ estado }: { estado: EstadoTool }) {
       </button>
       {expandido && temDetalhes && (
         <div id={detalhesId} className={estilos.detalhes}>
-          {estado.argsResumo && (
+          <div>
+            <span className={estilos.rotulo}>Ferramenta</span>
+            <code className={estilos.codigoInline}>{estado.tool}</code>
+          </div>
+          {args.etiquetas.length > 0 && (
             <div>
               <span className={estilos.rotulo}>Argumentos</span>
-              <pre className={estilos.codigo}>{estado.argsResumo}</pre>
+              <dl className={estilos.argumentos}>
+                {args.etiquetas.map((etiqueta, indice) => (
+                  <div key={`${etiqueta.chave}-${indice}`}>
+                    <dt>{etiqueta.chave || "valor"}</dt>
+                    <dd>{etiqueta.valor}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           )}
-          {estado.resultadoResumo && (
+          {resultado && (
             <div>
-              <span className={estilos.rotulo}>Resultado</span>
-              <pre className={estilos.codigo}>{estado.resultadoResumo}</pre>
+              <span className={estilos.rotulo}>
+                Resultado{resultado.codigo ? ` · ${resultado.codigo}` : ""}
+              </span>
+              <pre className={estilos.codigo}>{resultado.formatado}</pre>
             </div>
           )}
         </div>

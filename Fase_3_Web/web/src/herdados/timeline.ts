@@ -14,12 +14,14 @@ import type {
 } from "./tipos";
 
 export type BlocoTurno =
+  | { tipo: "usuario"; id: string; texto: string }
   | { tipo: "texto"; id: string; markdown: string; streaming?: boolean }
   | { tipo: "tools"; id: string; tools: EstadoTool[] }
   | { tipo: "raciocinio"; id: string; texto: string; streaming?: boolean }
   | { tipo: "pergunta"; id: string; dados: DadosChatPergunta };
 
 export type EventoTimeline =
+  | { tipo: "usuario"; dados: { texto: string } }
   | { tipo: "texto"; dados: { texto: string } }
   | { tipo: "tool"; dados: DadosChatTool }
   | { tipo: "raciocinio"; dados: DadosChatRaciocinio }
@@ -39,6 +41,20 @@ export function aplicarEventoTimeline(
   anterior: BlocoTurno[],
   evento: EventoTimeline,
 ): BlocoTurno[] {
+  if (evento.tipo === "usuario") {
+    // DIVERGÊNCIA da web: a fala do usuário vira bolha própria na timeline e encerra o
+    // streaming do que veio antes (a próxima resposta abre bolha nova).
+    if (evento.dados.texto.trim() === "") return anterior;
+    return [
+      ...encerrarStreaming(anterior),
+      {
+        tipo: "usuario",
+        id: idDoProximoBloco(anterior, "usuario"),
+        texto: evento.dados.texto,
+      },
+    ];
+  }
+
   if (evento.tipo === "texto") {
     if (evento.dados.texto === "") return anterior;
     const ultimo = anterior.at(-1);
@@ -127,6 +143,15 @@ export function aplicarEventoTimeline(
       tools: aplicarEventoTool([], evento.dados),
     },
   ];
+}
+
+/** Fecha bolhas e raciocínios que ainda estavam "digitando" (fim de turno). */
+export function encerrarStreaming(anterior: BlocoTurno[]): BlocoTurno[] {
+  return anterior.map((bloco) =>
+    (bloco.tipo === "texto" || bloco.tipo === "raciocinio") && bloco.streaming === true
+      ? { ...bloco, streaming: false }
+      : bloco,
+  );
 }
 
 export function cancelarPendentesTimeline(anterior: BlocoTurno[]): BlocoTurno[] {

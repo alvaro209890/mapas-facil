@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import { CartaoTool, formatarDuracao, type EstadoTool } from "./CartaoTool";
 import estilos from "./GrupoTools.module.css";
+import { nomeAmigavel } from "./rotulosTool";
 
 export interface PropsGrupoTools {
   id: string;
@@ -39,6 +40,14 @@ export function GrupoTools({ id, tools }: PropsGrupoTools) {
   const rotuloQuantidade = `${tools.length} ${tools.length === 1 ? "ferramenta" : "ferramentas"}`;
   const detalhesId = `grupo-tools-detalhes-${id}`;
   const nomes = tools.map((tool) => tool.tool).join(", ");
+  // Nomes legíveis e sem repetição ("Inspecionar shapefile ×2") para o grupo recolhido.
+  const contagem = new Map<string, number>();
+  for (const tool of tools) {
+    const nome = nomeAmigavel(tool.tool);
+    contagem.set(nome, (contagem.get(nome) ?? 0) + 1);
+  }
+  const legiveis = Array.from(contagem, ([nome, n]) => (n > 1 ? `${nome} ×${n}` : nome)).join(" · ");
+  const falhas = tools.filter((tool) => tool.fase === "fim" && tool.ok === false).length;
 
   return (
     <section
@@ -62,8 +71,15 @@ export function GrupoTools({ id, tools }: PropsGrupoTools) {
         >
           <estado.Icone size={14} />
         </span>
-        <span className={estilos.quantidade}>{rotuloQuantidade}</span>
-        <span className={estilos.estado}>{estado.rotulo}</span>
+        <span className={estilos.textos}>
+          <span className={estilos.cabeca}>
+            <span className={estilos.quantidade}>{rotuloQuantidade}</span>
+            <span className={estilos.estado}>
+              {estado.tipo === "falha" ? `${falhas} com falha` : estado.rotulo}
+            </span>
+          </span>
+          <span className={estilos.nomes}>{legiveis}</span>
+        </span>
         {duracao > 0 && <span className={estilos.duracao}>· {formatarDuracao(duracao)}</span>}
         <ChevronDown
           className={estilos.chevron}

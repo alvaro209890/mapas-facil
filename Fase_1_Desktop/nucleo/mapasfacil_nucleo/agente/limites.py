@@ -19,7 +19,7 @@ from typing import Any, Final, TypedDict
 
 ENTRADA_MAX_POR_TURNO: Final = 60_000
 SAIDA_MAX_TOKENS: Final = 8_000
-RODADAS_TOOL_MAX_POR_TURNO: Final = 12
+RODADAS_TOOL_MAX_POR_TURNO: Final = 24
 TOKENS_CONVERSA_MAX: Final = 400_000
 RESULTADO_TOOL_MAX: Final = 2_000
 MEMORIA_TRABALHO_MAX: Final = 1_200
@@ -161,7 +161,7 @@ def excede_system_prompt(tokens: int) -> bool:
 
 
 def rodada_tool_permitida(rodada: int) -> bool:
-    """Rodadas **1..12** inclusive (1-based). A 13ª dispara `IA-030`.
+    """Rodadas **1..24** inclusive (1-based). A 25ª dispara `IA-030`.
 
     Contadores 0-based devem somar 1 antes de chamar (ou usar
     `rodada_tool_excedida(indice_0based + 1)`).

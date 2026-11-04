@@ -10,15 +10,22 @@ executa o Plano B determinístico sem LLM.
 from __future__ import annotations
 
 import logging
+import uuid
+from pathlib import Path
 from typing import Any
 
 from ..db import Banco
 from ..erros import ErroServidor
 import time
+from ..eventos.log import LogEventos
 from ..eventos.sse import Hub
 from ..ponte.pool import Pool
 
 _LOG = logging.getLogger("mapasfacil.chat.abertura")
+
+#: Prefixo de toda mensagem que o servidor manda ao agente em nome do sistema. A tela esconde
+#: as mensagens com esse prefixo (não são fala do usuário).
+PREFIXO_SISTEMA = "[ORIGEM: sistema"
 
 MAPA_PAPEIS_HUMANOS: dict[str, str] = {
     "ATP": "Perímetro do imóvel",
@@ -41,7 +48,28 @@ MAPA_PAPEIS_HUMANOS: dict[str, str] = {
 }
 
 
-def _emitir(hub: Hub, projeto_id: str, evento: str, dados: dict[str, Any]) -> None:
+def _emitir(
+    hub: Hub,
+    projeto_id: str,
+    evento: str,
+    dados: dict[str, Any],
+    *,
+    raiz: Path | None = None,
+    req_id: str | None = None,
+    origem: str = "servidor",
+) -> None:
+    """Publica no SSE do projeto.
+
+    Com `raiz`, o evento passa pelo `LogEventos` (ganha `seq` e fica no replay). Sem `seq`,
+    o fluxo ao vivo **descarta** o evento (`seq <= ultimo_seq`) — era por isso que a abertura
+    nunca aparecia na tela.
+    """
+    if raiz is not None:
+        envelope = LogEventos(raiz).registrar(
+            origem=origem, evento=evento, dados=dados, req_id=req_id
+        )
+        hub.publicar(projeto_id, envelope)
+        return
     hub.publicar(
         projeto_id,
         {
@@ -209,6 +237,7 @@ async def disparar_abertura_projeto(
     projeto_id: str,
     importacao_id: str,
     resumo: dict[str, Any],
+    raiz: Path | None = None,
 ) -> None:
     """Executa a abertura automática do projeto (Recurso B / W5-22 / D41)."""
     # 1. Checagem de idempotência: garante que cada importação só abre uma vez
@@ -265,7 +294,7 @@ async def disparar_abertura_projeto(
     if not conversa_id:
         criada = await worker.chamar(
             "chat.criar_conversa",
-            {"workspace": str(projeto_id), "title": dados["nome_imovel"]},
+            {"workspace": str(raiz) if raiz is not None else str(projeto_id), "title": dados["nome_imovel"]},
         )
         conversa_id = criada.get("conversation_id") or criada.get("id")
         if conversa_id:
@@ -287,56 +316,61 @@ async def disparar_abertura_projeto(
     texto_abertura = montar_texto_abertura(dados)
     pergunta_payload = montar_pergunta_galeria(modelos_galeria)
 
-    # 5. Tenta via LLM com prompt de sistema ou cai no Plano B determinístico
+    # 5. Tenta via LLM; cai no Plano B determinístico se falhar ou não disser nada.
+    def emitir(evento: str, dados_evento: dict[str, Any], **kw: Any) -> None:
+        _emitir(hub, projeto_id, evento, dados_evento, raiz=raiz, **kw)
+
+    req_id = f"abertura-{uuid.uuid4().hex[:12]}"
     abertura_ok = False
+    disse_algo = False
+
+    async def ao_evento(mensagem: dict[str, Any]) -> None:
+        nonlocal disse_algo
+        nome = mensagem.get("evento", "aviso")
+        dados_evento = mensagem.get("dados") or {}
+        if nome in ("chat.delta", "chat.pergunta") and dados_evento:
+            disse_algo = True
+        emitir(nome, dados_evento, req_id=req_id, origem="nucleo")
+
     try:
-        # Prompt de sistema para o modelo
+        # O texto vai marcado como origem sistema: a tela não o mostra como fala do usuário.
         prompt_abertura = (
-            f"[ORIGEM: sistema | MOTIVO: importacao_concluida]\n"
+            f"{PREFIXO_SISTEMA} | MOTIVO: importacao_concluida]\n"
             f"O pacote de dados do projeto acabou de ser importado e indexado.\n"
             f"Apresente o imóvel ao usuário utilizando ESTRITAMENTE os dados factuais abaixo "
             f"(sem inventar nenhum dado):\n{texto_abertura}\n\n"
             f"Em seguida, use a ferramenta `perguntar` para oferecer os modelos de mapas possíveis da galeria."
         )
-        resultado_turno = await worker.chamar(
-            "chat.enviar",
-            {
-                "conversation_id": conversa_id,
-                "mensagem": prompt_abertura,
-            },
-        )
-        if resultado_turno and resultado_turno.get("message_id"):
+        try:
+            resultado_turno = await worker.chamar(
+                "chat.enviar",
+                {"conversation_id": conversa_id, "mensagem": prompt_abertura},
+                ao_evento=ao_evento,
+            )
+        except TypeError:  # worker sem `ao_evento` (dublês antigos de teste)
+            resultado_turno = await worker.chamar(
+                "chat.enviar",
+                {"conversation_id": conversa_id, "mensagem": prompt_abertura},
+            )
+        texto_final = str((resultado_turno or {}).get("texto") or "").strip()
+        if resultado_turno and resultado_turno.get("message_id") and (disse_algo or texto_final):
             abertura_ok = True
+            if texto_final and not disse_algo:
+                emitir("chat.delta", {"texto": texto_final}, req_id=req_id, origem="nucleo")
+        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
     except Exception as exc:
         _LOG.info("LLM/9Router indisponível ou falhou (%s). Executando Plano B determinístico.", exc)
+        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
 
     if not abertura_ok:
-        # Plano B Determinístico sem LLM (garante que o usuário nunca fica com chat vazio)
-        try:
-            await worker.chamar(
-                "chat.gravar_mensagem",
-                {
-                    "conversation_id": conversa_id,
-                    "papel": "assistant",
-                    "conteudo": texto_abertura,
-                },
-            )
-        except Exception as exc:
-            _LOG.warning("Erro ao gravar mensagem do Plano B: %s", exc)
-
-        # Emite no SSE para a tela atualizar
-        _emitir(hub, projeto_id, "chat.chunk", {"conteudo": texto_abertura})
-        _emitir(hub, projeto_id, "chat.fim", {"texto": texto_abertura})
-
-        # Emite pergunta estruturada via SSE para a UI exibir os botões
-        import uuid
-        pergunta_id = uuid.uuid4().hex[:12]
-        _emitir(
-            hub,
-            projeto_id,
+        # Plano B determinístico sem LLM (o usuário nunca fica com chat vazio). Vai como
+        # `chat.delta` + `chat.pergunta`, que é o vocabulário que a tela entende.
+        req_b = f"abertura-b-{uuid.uuid4().hex[:12]}"
+        emitir("chat.delta", {"texto": texto_abertura}, req_id=req_b)
+        emitir(
             "chat.pergunta",
             {
-                "pergunta_id": pergunta_id,
+                "pergunta_id": uuid.uuid4().hex[:12],
                 "pergunta": pergunta_payload["pergunta"],
                 "opcoes": pergunta_payload["opcoes"],
                 "multipla": pergunta_payload.get("multipla", True),
@@ -344,11 +378,8 @@ async def disparar_abertura_projeto(
                 "permite_texto_livre": True,
                 "motivo": pergunta_payload.get("motivo", "escolha_modelo_inicial"),
             },
+            req_id=req_b,
         )
-        try:
-            await worker.chamar("perguntar", pergunta_payload)
-        except Exception:
-            pass
 
     # 6. Registra que a abertura desta importação foi finalizada
     con = banco.conectar()

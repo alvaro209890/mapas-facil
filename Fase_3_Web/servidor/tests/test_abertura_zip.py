@@ -31,7 +31,7 @@ class FakeWorker:
         self.chamadas = []
         self.falhar_chat = False
 
-    async def chamar(self, metodo: str, params: dict[str, Any]) -> dict[str, Any]:
+    async def chamar(self, metodo: str, params: dict[str, Any], ao_evento=None) -> dict[str, Any]:
         self.chamadas.append((metodo, params))
         if metodo == "galeria.listar":
             return {
@@ -45,7 +45,9 @@ class FakeWorker:
         if metodo == "chat.enviar":
             if self.falhar_chat:
                 raise RuntimeError("9Router connection timeout / 502 Bad Gateway")
-            return {"message_id": "msg_llm_1", "seq": 1}
+            if ao_evento is not None and getattr(self, "falar", False):
+                await ao_evento({"evento": "chat.delta", "dados": {"texto": "Olá! Li o pacote."}})
+            return {"message_id": "msg_llm_1", "seq": 1, "texto": ""}
         if metodo == "chat.gravar_mensagem":
             return {"message_id": "msg_gravada_1", "seq": 1}
         if metodo == "perguntar":
@@ -161,9 +163,9 @@ async def test_abertura_deterministica_quando_9router_fora(banco_teste):
         resumo=resumo,
     )
 
-    # Verificou que caiu no Plano B determinístico gravando mensagem
+    # Plano B não chama método bloqueado na allowlist (`chat.gravar_mensagem`).
     chamadas_metodos = [m[0] for m in worker.chamadas]
-    assert "chat.gravar_mensagem" in chamadas_metodos
+    assert "chat.gravar_mensagem" not in chamadas_metodos
 
     # Verificou emissão dos eventos no SSE
     eventos_capturados = []
@@ -172,9 +174,39 @@ async def test_abertura_deterministica_quando_9router_fora(banco_teste):
     nomes_eventos = [e["evento"] for e in eventos_capturados]
     assert "viewport.foco" in nomes_eventos
     assert "camada.renderizada" in nomes_eventos
-    assert "chat.chunk" in nomes_eventos
-    assert "chat.fim" in nomes_eventos
+    # Vocabulário que a tela entende: `chat.delta` (não `chat.chunk`/`chat.fim`).
+    assert "chat.delta" in nomes_eventos
     assert "chat.pergunta" in nomes_eventos
+
+
+@pytest.mark.anyio
+async def test_abertura_com_raiz_grava_no_log_com_seq_e_repassa_eventos_do_turno(banco_teste, tmp_path):
+    """Com `raiz`, os eventos ganham `seq` (senão o SSE ao vivo os descarta) e o turno da IA
+    chega na tela pelo `ao_evento`; o prompt vai marcado como origem sistema."""
+    from mapasfacil_servidor.chat.abertura import PREFIXO_SISTEMA
+    from mapasfacil_servidor.eventos.log import LogEventos
+
+    worker = FakeWorker()
+    worker.falar = True
+    hub = Hub()
+    resumo = {"shapefiles": [{"papel": "ATP", "area_ha": 100.0, "id_local": "ATP"}]}
+    await disparar_abertura_projeto(
+        banco=banco_teste,
+        pool=FakePool(worker),
+        hub=hub,
+        projeto_id="p1",
+        importacao_id="imp1",
+        resumo=resumo,
+        raiz=tmp_path,
+    )
+    gravados = LogEventos(tmp_path).ler_desde(0)
+    nomes = [e["evento"] for e in gravados]
+    assert all(int(e["seq"]) > 0 for e in gravados)
+    assert "chat.delta" in nomes and "nucleo.res" in nomes
+    delta = next(e for e in gravados if e["evento"] == "chat.delta")
+    assert delta["dados"]["texto"] == "Olá! Li o pacote."
+    enviado = next(p for m, p in worker.chamadas if m == "chat.enviar")
+    assert enviado["mensagem"].startswith(PREFIXO_SISTEMA)
 
 
 @pytest.mark.anyio

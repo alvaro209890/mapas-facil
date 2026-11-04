@@ -57,8 +57,9 @@ export function Projeto() {
   const navegar = useNavigate();
   const { projeto, resumo, versoes, versaoAberta, carregando, erro, carregar, abrirVersao } =
     useProjetoAtivo();
-  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirErro } =
+  const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirErro, limpar: limparChat } =
     useChat();
+  const limparProjeto = useProjetoAtivo((s) => s.limpar);
   const estadoConexao = useConexao((s) => s.estado);
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -74,6 +75,11 @@ export function Projeto() {
   // Carga inicial: projeto, versões, mensagens e sugestões.
   useEffect(() => {
     if (!id) return;
+    // As stores são globais: sem zerar aqui, o projeto novo mostrava o chat, o resumo e até a
+    // versão aberta do projeto anterior até a carga terminar (e a versão nem era trocada).
+    limparChat();
+    limparProjeto();
+    let vivo = true;
     void carregar(id);
     void (async () => {
       try {
@@ -81,12 +87,15 @@ export function Projeto() {
           api.get<{ itens: Mensagem[] }>(`/projetos/${id}/mensagens`),
           api.get<{ itens: Sugestao[] }>(`/projetos/${id}/sugestoes`).catch(() => ({ itens: [] })),
         ]);
-        carregarChat(lista.itens, sug.itens);
+        if (vivo) carregarChat(lista.itens, sug.itens);
       } catch {
-        carregarChat([], []);
+        if (vivo) carregarChat([], []);
       }
     })();
-  }, [id, carregar, carregarChat]);
+    return () => {
+      vivo = false; // resposta atrasada do projeto anterior não pode pintar o atual
+    };
+  }, [id, carregar, carregarChat, limparChat, limparProjeto]);
 
   // SSE do projeto: um só, fechado ao sair da tela.
   useEffect(() => {
@@ -215,21 +224,17 @@ export function Projeto() {
               </div>
             )}
 
-            {resumo && (
-              <div className={estilos.resumoImovel}>
-                {Object.entries(resumo)
-                  .filter(([, v]) => v !== null && v !== undefined && v !== '')
-                  .slice(0, 6)
-                  .map(([chave, valor]) => (
-                    <div key={chave}>
-                      <dt>{chave.replace(/_/g, ' ')}</dt>
-                      <dd>{typeof valor === 'object' ? JSON.stringify(valor) : String(valor)}</dd>
-                    </div>
-                  ))}
-              </div>
-            )}
+            {resumo && <ResumoDados resumo={resumo} />}
 
             {blocos.map((bloco) => {
+              if (bloco.tipo === 'usuario') {
+                return (
+                  <article key={bloco.id} className={estilos.bolhaUsuario} data-papel="usuario">
+                    <span className={estilos.papelUsuario}>você</span>
+                    <p>{bloco.texto}</p>
+                  </article>
+                );
+              }
               if (bloco.tipo === 'texto') {
                 return (
                   <BolhaMarkdown
@@ -360,6 +365,77 @@ export function Projeto() {
         </section>
       </div>
     </main>
+  );
+}
+
+interface ShapefileResumo {
+  papel?: string;
+  id_local?: string;
+  area_ha?: number | null;
+  feicoes?: number;
+}
+
+/**
+ * Cartão curto do que veio no `.zip`: contagem de arquivos, área do imóvel e os papéis
+ * reconhecidos. O resumo bruto do índice (caminhos, WKT do CRS, bbox) é para a IA, não
+ * para o usuário — despejá-lo aqui estourava a coluna do chat.
+ */
+function ResumoDados({ resumo }: { resumo: Record<string, unknown> }) {
+  const lista = (chave: string): unknown[] => {
+    const valor = resumo[chave];
+    return Array.isArray(valor) ? valor : [];
+  };
+  const shapefiles = lista('shapefiles') as ShapefileResumo[];
+  const pdfs = lista('pdfs').length;
+  const zips = lista('zips').length;
+  const atp = shapefiles.find((s) => s.papel === 'ATP');
+  const papeis = Array.from(
+    new Set(
+      shapefiles
+        .map((s) => s.papel)
+        .filter((p): p is string => typeof p === 'string' && p !== '' && p !== 'outro'),
+    ),
+  ).sort();
+  const area = typeof atp?.area_ha === 'number' ? atp.area_ha : null;
+
+  if (shapefiles.length === 0 && pdfs === 0 && zips === 0) return null;
+
+  return (
+    <section className={estilos.resumoDados} aria-label="Dados do projeto">
+      <div className={estilos.resumoNumeros}>
+        <div>
+          <dt>shapefiles</dt>
+          <dd>{shapefiles.length}</dd>
+        </div>
+        {area !== null && (
+          <div>
+            <dt>área do imóvel</dt>
+            <dd>{area.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ha</dd>
+          </div>
+        )}
+        {pdfs > 0 && (
+          <div>
+            <dt>PDFs</dt>
+            <dd>{pdfs}</dd>
+          </div>
+        )}
+        {zips > 0 && (
+          <div>
+            <dt>zips</dt>
+            <dd>{zips}</dd>
+          </div>
+        )}
+      </div>
+      {papeis.length > 0 && (
+        <div className={estilos.resumoPapeis} aria-label="Camadas reconhecidas">
+          {papeis.map((papel) => (
+            <span key={papel} className={estilos.papelChip}>
+              {papel}
+            </span>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

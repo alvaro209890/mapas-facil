@@ -80,7 +80,7 @@ def test_sem_chave_chat_enviar_ia001(pasta_chats: Path, monkeypatch: pytest.Monk
 def test_teto_12_rodadas_ia030(pasta_chats: Path):
     passos = [
         PassoFake(tool_calls=[tool_call("estado_do_projeto", {}, call_id=f"c{i}")])
-        for i in range(13)
+        for i in range(limites.RODADAS_TOOL_MAX_POR_TURNO + 1)
     ]
     configurar_provedor(FakeProvedor(passos))
     repo = RepositorioConversas(pasta_chats)

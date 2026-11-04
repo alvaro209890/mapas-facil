@@ -15,7 +15,7 @@ from mapasfacil_nucleo.agente import limites
 def test_tetos_f106() -> None:
     assert limites.ENTRADA_MAX_POR_TURNO == 60_000
     assert limites.SAIDA_MAX_TOKENS == 8_000
-    assert limites.RODADAS_TOOL_MAX_POR_TURNO == 12
+    assert limites.RODADAS_TOOL_MAX_POR_TURNO == 24
     assert limites.TOKENS_CONVERSA_MAX == 400_000
     assert limites.RESULTADO_TOOL_MAX == 2_000
     assert limites.MEMORIA_TRABALHO_MAX == 1_200
@@ -103,13 +103,13 @@ def test_excede_tetos_auxiliares() -> None:
     assert limites.excede_system_prompt(2_501) is True
 
 
-def test_rodada_tool_1_a_12_ok_13_nao() -> None:
+def test_rodada_tool_1_a_24_ok_25_nao() -> None:
     assert limites.rodada_tool_permitida(1) is True
-    assert limites.rodada_tool_permitida(12) is True
-    assert limites.rodada_tool_permitida(13) is False
+    assert limites.rodada_tool_permitida(24) is True
+    assert limites.rodada_tool_permitida(25) is False
     assert limites.rodada_tool_permitida(0) is False
-    assert limites.rodada_tool_excedida(12) is False
-    assert limites.rodada_tool_excedida(13) is True
+    assert limites.rodada_tool_excedida(24) is False
+    assert limites.rodada_tool_excedida(25) is True
 
 
 def test_deve_regenerar_compact_summary() -> None:

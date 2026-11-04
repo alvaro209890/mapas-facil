@@ -152,6 +152,27 @@ def test_compactacao_de_reabertura(log):
     assert all(e["dados"].get("pct") == 100 for e in compactado if e["evento"] == "job.progresso")
 
 
+def test_compactacao_tira_turno_de_chat_terminado_e_mantem_o_em_curso(log):
+    """Reabrir o projeto não pode reenviar a conversa já carregada por `GET /mensagens`."""
+    log.registrar(origem="servidor", evento="projeto.estado", dados={"estado": "pronto"})
+    for req, terminar in (("r1", True), ("r2", False)):
+        log.registrar(
+            origem="servidor",
+            evento="mensagem.criada",
+            dados={"mensagem": {"papel": "usuario", "texto": req}},
+            req_id=req,
+        )
+        log.registrar(origem="nucleo", evento="chat.delta", dados={"texto": "oi"}, req_id=req)
+        if terminar:
+            log.registrar(origem="servidor", evento="nucleo.res", dados={"ok": True}, req_id=req)
+
+    compactado = log.compactar(log.ler_desde(0))
+    pares = [(e["evento"], e.get("req_id")) for e in compactado]
+    assert ("projeto.estado", None) in pares
+    assert all(req != "r1" for _, req in pares)
+    assert ("mensagem.criada", "r2") in pares and ("chat.delta", "r2") in pares
+
+
 def test_origem_invalida_recusada(log):
     with pytest.raises(ValueError):
         log.registrar(origem="hacker", evento="job.log")

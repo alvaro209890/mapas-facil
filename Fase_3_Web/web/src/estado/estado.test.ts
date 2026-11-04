@@ -161,8 +161,14 @@ describe('store de chat', () => {
     despachar(evt('chat.delta', { texto: 'Vou ' }));
     despachar(evt('chat.delta', { texto: 'gerar.' }));
     const blocos = useChat.getState().blocos;
-    expect(blocos).toHaveLength(1);
-    expect(blocos[0]?.tipo === 'texto' ? blocos[0].markdown : '').toBe('Vou gerar.');
+    // A fala do usuário entra na hora como bolha própria; os deltas dividem uma bolha só.
+    expect(blocos).toHaveLength(2);
+    expect(blocos[0]?.tipo === 'usuario' ? blocos[0].texto : '').toBe('faz a dinâmica');
+    expect(blocos[1]?.tipo === 'texto' ? blocos[1].markdown : '').toBe('Vou gerar.');
+
+    // O eco do servidor (`mensagem.criada`) não duplica a bolha do usuário.
+    despachar(evt('mensagem.criada', { mensagem: { papel: 'usuario', texto: 'faz a dinâmica' } }));
+    expect(useChat.getState().blocos.filter((b) => b.tipo === 'usuario')).toHaveLength(1);
     expect(useChat.getState().pensando).toBe(false);
 
     despachar(evt('nucleo.res', { ok: true }, { origem: 'nucleo' }));
@@ -174,6 +180,30 @@ describe('store de chat', () => {
     despachar(evt('chat.tool', { trace_id: 't1', tool: 'gerar_mapa', fase: 'inicio' }));
     despachar(evt('nucleo.res', { ok: false }, { origem: 'nucleo' }));
     expect(useChat.getState().erro).toContain('não conseguiu');
+  });
+
+  it('mensagem de origem sistema e resposta vazia não viram bolha', () => {
+    useChat.getState().limpar();
+    useChat.getState().carregar([
+      { message_id: 'm1', seq: 1, papel: 'usuario', texto: '[ORIGEM: sistema | MOTIVO: x]\nApresente…', criada_em: 'x' },
+      { message_id: 'm2', seq: 2, papel: 'assistente', texto: '', criada_em: 'x' },
+      { message_id: 'm3', seq: 3, papel: 'usuario', texto: 'faz a dinâmica', criada_em: 'x' },
+    ]);
+    const blocos = useChat.getState().blocos;
+    expect(blocos).toHaveLength(1);
+    expect(blocos[0]?.tipo === 'usuario' ? blocos[0].texto : '').toBe('faz a dinâmica');
+  });
+
+  it('nucleo.res com erro do núcleo mostra o motivo', () => {
+    useChat.getState().limpar();
+    despachar(
+      evt(
+        'nucleo.res',
+        { ok: false, erro: { codigo: 'NUCLEO:IA-030', mensagem: 'Limite de rodadas.' } },
+        { origem: 'nucleo' },
+      ),
+    );
+    expect(useChat.getState().erro).toBe('A IA não conseguiu concluir o turno: Limite de rodadas.');
   });
 
   it('mensagem.criada entra na lista de mensagens', () => {

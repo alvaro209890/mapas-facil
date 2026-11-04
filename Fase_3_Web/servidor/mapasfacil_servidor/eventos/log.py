@@ -22,6 +22,11 @@ from typing import Iterator
 
 from . import vocabulario
 
+# Eventos que só fazem sentido ao vivo durante um turno de chat (ver `LogEventos.compactar`).
+_EVENTOS_DE_TURNO = frozenset(
+    {"mensagem.criada", "chat.delta", "chat.raciocinio", "chat.tool", "chat.pergunta", "nucleo.res"}
+)
+
 INTERVALO_FSYNC_S = 1.0
 EVENTOS_POR_FSYNC = 50
 LINHAS_POR_INDICE = 1000
@@ -217,7 +222,24 @@ class LogEventos:
             if any(e.get("evento") == "nucleo.res" for e in lista)
         }
 
-        resultado: list[dict] = [e for e in eventos if not e.get("job_id")]
+        # Turno de chat terminado (tem `nucleo.res` com o mesmo `req_id`): a conversa volta por
+        # `GET /mensagens`. Reenviar os `chat.*` por cima dela duplicava a conversa inteira a cada
+        # reabertura (e a fala do usuário aparecia duas vezes).
+        turnos_terminados = {
+            e.get("req_id")
+            for e in eventos
+            if e.get("req_id") and not e.get("job_id") and e.get("evento") == "nucleo.res"
+        }
+
+        resultado: list[dict] = [
+            e
+            for e in eventos
+            if not e.get("job_id")
+            and not (
+                e.get("req_id") in turnos_terminados
+                and e.get("evento") in _EVENTOS_DE_TURNO
+            )
+        ]
         for job_id, lista in por_job.items():
             if job_id not in terminados:
                 resultado.extend(lista)

@@ -222,6 +222,7 @@ async def criar_importacao(
                     projeto_id=projeto.id,
                     importacao_id=importacao_id,
                     resumo=resumo if isinstance(resumo, dict) else {},
+                    raiz=raiz_projeto,
                 )
             except Exception:  # pragma: no cover
                 import traceback

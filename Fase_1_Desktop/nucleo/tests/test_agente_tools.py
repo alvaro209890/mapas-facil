@@ -19,7 +19,11 @@ from mapasfacil_nucleo.agente.tools import (
 from mapasfacil_nucleo.galeria.montar import montar_mapspec
 from mapasfacil_nucleo.protocolo import Emissor
 from mapasfacil_nucleo.workspace import servico as workspace_servico
-from tests.helpers_fixtures import escrever_recibo_car_pdf, escrever_shapefile_quadrado_utm
+from tests.helpers_fixtures import (
+    escrever_recibo_car_pdf,
+    escrever_shapefile_geografico,
+    escrever_shapefile_quadrado_utm,
+)
 
 
 @pytest.fixture
@@ -191,6 +195,50 @@ def test_criar_mapa_do_zero_valida(pasta: Path):
     assert executar("validar_mapspec", {}, ctx)["valido"] is True
     ruim = executar("criar_mapa", {"template": "dinamica_retratoo"}, {})
     assert ruim["sugestao"] == "dinamica_retrato"
+
+
+def test_area_do_imovel_vem_do_atp_e_nao_do_recibo(pasta: Path):
+    """Regra do Álvaro (04/11/2026): número é do shape; recibo é nome/CAR/contexto."""
+    ctx: dict[str, Any] = {}
+    assert executar("criar_mapa", {"template": "dinamica_retrato"}, ctx)["ok"] is True
+    imovel = ctx["mapspec"]["imovel"]
+    assert imovel["nome"] == "Fazenda Harmonia"  # do recibo
+    assert imovel["car"] == "MT102042/2017"  # do recibo
+    assert imovel["area_total_ha"] == pytest.approx(3600.0, rel=1e-3)  # do ATP (recibo: 3.823,9)
+    galeria = montar_mapspec("dinamica_2026_retrato", workspace=str(pasta))["mapspec"]
+    assert galeria["imovel"]["area_total_ha"] == pytest.approx(3600.0, rel=1e-3)
+    estado = executar("estado_do_projeto", {}, {})["memoria"]["imovel"]
+    assert estado["car"] == "MT102042/2017"
+    assert estado["fonte_dos_numeros"] == "shapefiles"
+
+
+def test_criar_mapa_sem_recibo_do_car_cria_com_car_vazio(tmp_path: Path):
+    """Caso real (web, 04/11/2026): zip do SIMCAR sem recibo — o `car` não pode virar `None`.
+
+    Antes, `imovel/car: None is not of type 'string'` reprovava o MapSpec e o agente ficava
+    sem saída: `definir_imovel` também exige MapSpec já criado.
+    """
+    escrever_shapefile_quadrado_utm(tmp_path / "SHP" / "ATP.shp", nome="Imovel", lado_m=3000)
+    workspace_servico.abrir(str(tmp_path))
+    ctx: dict[str, Any] = {}
+    r = executar("criar_mapa", {"template": "dinamica_retrato"}, ctx)
+    assert r["ok"] is True, r
+    assert ctx["mapspec"]["imovel"]["car"] == ""
+    r2 = executar("definir_imovel", {"car": "MT102042/2017"}, ctx)
+    assert r2["ok"] is True, r2
+    assert ctx["mapspec"]["imovel"]["car"] == "MT102042/2017"
+
+
+def test_sugerir_enquadramento_com_atp_em_graus_mede_em_metros(tmp_path: Path):
+    """ATP em SIRGAS 2000 geográfico (padrão SIMCAR): ~5,5 km de lado não pode dar 1:500."""
+    escrever_shapefile_geografico(tmp_path / "SHP" / "ATP.shp", lon=-52.25, lat=-12.36, delta=0.05)
+    workspace_servico.abrir(str(tmp_path))
+    r = executar("sugerir_enquadramento", {"caixa": "imovel", "formatos": ["A4"]}, {})
+    assert r["ok"] is True, r
+    melhor = r["melhor"]
+    assert melhor["escala"] >= 25_000, melhor
+    assert melhor["aproveitamento_pct"] > 30, melhor
+    assert r["atual"]["crs"] == "31982", r["atual"]
 
 
 def test_criar_mapa_sem_atp_reconhecido_pergunta_ao_usuario(tmp_path: Path):

@@ -83,6 +83,41 @@ def _extrair_rotulo_valor(lines: list[str], rotulos: list[str]) -> str | None:
     return None
 
 
+def _extrair_cabecalho(lines: list[str], rotulos: list[str]) -> dict[str, str]:
+    """Modelo "CAR Digital" (recibo atual da SEMA): rótulos numa linha de cabeçalho e os
+    valores logo abaixo, na mesma ordem — `Propriedade / UF / Município` → `LOTE 43 / MT /
+    Querência`. Devolve `{}` se a sequência de rótulos não aparece inteira."""
+    n = len(rotulos)
+    for i in range(len(lines) - 2 * n + 1):
+        if [l.strip().lower() for l in lines[i : i + n]] == [r.lower() for r in rotulos]:
+            return dict(zip(rotulos, (v.strip() for v in lines[i + n : i + 2 * n])))
+    return {}
+
+
+#: Sigla do croqui do CAR Digital → chave de área do recibo.
+_SIGLAS_CROQUI = {
+    "ATP": "area_total",
+    "APP": "app",
+    "ARL": "arl",
+    "AVN": "vegetacao_nativa",
+    "AC": "consolidada",
+}
+
+
+def _extrair_croqui(lines: list[str]) -> dict[str, float | None]:
+    """Legenda do croqui (`ATP - Área Total da Propriedade` / `450,6670`)."""
+    areas: dict[str, float | None] = {}
+    for i, linha in enumerate(lines[:-1]):
+        achado = re.match(r"^([A-Z]{2,5})\s+-\s+\S", linha)
+        if not achado or achado.group(1) not in _SIGLAS_CROQUI:
+            continue
+        chave = _SIGLAS_CROQUI[achado.group(1)]
+        valor = _parse_float_brasileiro(lines[i + 1])
+        if valor is not None and chave not in areas:
+            areas[chave] = valor
+    return areas
+
+
 def _extrair_areas_tabela(lines: list[str]) -> dict[str, float | None]:
     mapa_rotulos = {
         "area_total": ["Área do Imóvel", "Área total", "Área Total da Propriedade"],
@@ -171,19 +206,28 @@ def parsear(caminho: str | Path) -> ReciboCAR:
     # Descarta CPF: remove linhas com padrão de CPF antes de qualquer extração adicional
     linhas = [l for l in linhas if not re.search(r"\b\d{3}\.\d{3}\.\d{3}-\d{2}\b", l)]
 
-    car_match = re.search(r"\b(MT\d{6,}/\d{4})\b", texto_completo)
+    car_match = re.search(r"\b(MT\d{3,}/\d{4})\b", texto_completo)
     federal_match = re.search(r"\b([A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12})\b", texto_completo, re.I)
 
     areas = _extrair_areas_tabela(linhas)
+    # Modelo CAR Digital: cabeçalho + valores e áreas no croqui. Tem prioridade porque nele o
+    # `rótulo → próxima linha` lê o rótulo vizinho ("UF" → "Município").
+    propriedade = _extrair_cabecalho(linhas, ["Propriedade", "UF", "Município"])
+    gerais = _extrair_cabecalho(linhas, ["Nº CAR Estadual", "Situação Estadual", "Tipo"])
+    for chave, valor in _extrair_croqui(linhas).items():
+        if valor is not None:
+            areas[chave] = valor
 
     return ReciboCAR(
-        nome_imovel=_extrair_rotulo_valor(linhas, ["Nome do Imóvel", "Imóvel"]),
-        municipio=_extrair_rotulo_valor(linhas, ["Município"]),
-        uf=_extrair_rotulo_valor(linhas, ["UF"]),
+        nome_imovel=propriedade.get("Propriedade")
+        or _extrair_rotulo_valor(linhas, ["Nome do Imóvel", "Imóvel"]),
+        municipio=propriedade.get("Município") or _extrair_rotulo_valor(linhas, ["Município"]),
+        uf=propriedade.get("UF") or _extrair_rotulo_valor(linhas, ["UF"]),
         car_estadual=car_match.group(1) if car_match else None,
         recibo_federal=federal_match.group(1) if federal_match else None,
         area_total_ha=areas.get("area_total"),
-        situacao=_extrair_rotulo_valor(linhas, ["Situação", "Situacao"]),
+        situacao=gerais.get("Situação Estadual")
+        or _extrair_rotulo_valor(linhas, ["Situação", "Situacao"]),
         areas={
             "arl_ha": areas.get("arl"),
             "app_ha": areas.get("app"),

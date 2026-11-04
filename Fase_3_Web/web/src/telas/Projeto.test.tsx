@@ -179,7 +179,7 @@ describe('eventos chegam na tela', () => {
       evento: 'chat.tool',
       dados: { trace_id: 't1', tool: 'gerar_mapa', fase: 'inicio' },
     });
-    const cartao = await screen.findByText(/gerar_mapa/);
+    const cartao = await screen.findByText('Gerar mapa');
     expect(cartao).toBeInTheDocument();
   });
 

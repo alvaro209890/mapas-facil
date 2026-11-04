@@ -90,8 +90,19 @@
 }
 
 .lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 1rem clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.lista > * {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .boasVindas {
@@ -146,29 +157,78 @@
   color: var(--mf-texto-3);
 }
 
-.resumoImovel {
+.resumoDados {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-  gap: 0.5rem;
-  padding: 0.7rem;
-  margin-bottom: 0.9rem;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
   background: var(--mf-superficie-1);
   border: 1px solid var(--mf-borda);
   border-radius: var(--mf-raio-2);
 }
 
-.resumoImovel dt {
+.resumoNumeros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+}
+
+.resumoNumeros dt {
   font-size: 0.625rem;
   color: var(--mf-texto-3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.resumoImovel dd {
+.resumoNumeros dd {
   margin: 0;
   font-family: var(--mf-fonte-mono, monospace);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--mf-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.resumoPapeis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.papelChip {
+  padding: 0.1rem 0.45rem;
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.6875rem;
+  color: var(--mf-texto-2);
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda);
+  border-radius: 999px;
+}
+
+/* Fala do usuário: à direita, sem markdown (é o texto como foi digitado). */
+.bolhaUsuario {
+  max-width: min(85%, 640px);
+  align-self: flex-end;
+  padding: 0.5rem 0.8rem;
+  background: var(--mf-superficie-3);
+  border: 1px solid var(--mf-borda-forte);
+  border-radius: var(--mf-raio-2);
+  border-bottom-right-radius: var(--mf-raio-1);
+  animation: mf-surgir var(--mf-dur-2) var(--mf-ease-saida) both;
+}
+
+.bolhaUsuario p {
+  margin-top: 0.15rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--mf-texto);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.papelUsuario {
+  font-size: 0.625rem;
+  color: var(--mf-texto-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .formulario {

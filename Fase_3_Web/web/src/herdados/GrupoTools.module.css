@@ -47,6 +47,31 @@
   animation: giro 1200ms linear infinite;
 }
 
+.textos {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.cabeca {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mf-e2);
+}
+
+.nomes {
+  overflow: hidden;
+  color: var(--mf-texto-3);
+  font: var(--mf-fs-micro) var(--mf-fonte-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grupo[data-estado="falha"] .estado {
+  color: var(--mf-erro);
+}
+
 .quantidade {
   color: var(--mf-texto);
   font: var(--mf-fs-peq) var(--mf-fonte-ui);
@@ -59,7 +84,7 @@
 }
 
 .duracao {
-  margin-left: auto;
+  flex: 0 0 auto;
   color: var(--mf-texto-3);
   font: var(--mf-fs-micro) var(--mf-fonte-mono);
   font-variant-numeric: tabular-nums;

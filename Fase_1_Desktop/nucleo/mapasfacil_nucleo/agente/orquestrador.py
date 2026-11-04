@@ -2,7 +2,7 @@
 #
 # Invariantes deste módulo:
 #  · nada vai ao provedor sem passar por `contexto.montar_mensagens_llm` (AP-10);
-#  · a 13ª rodada de tool no mesmo turno é `IA-030` — tool que erra conta rodada;
+#  · a 25ª rodada de tool no mesmo turno é `IA-030` — tool que erra conta rodada;
 #  · cancelamento grava a mensagem parcial com `cancelada = 1` e fecha o HTTP;
 #  · o turno só termina depois de gravar mensagem, traces e tokens — inclusive
 #    quando falha, para o transcript nunca perder o que já foi produzido.

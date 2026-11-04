@@ -67,10 +67,10 @@ def _mensagens(pasta_chats: Path, cid: str) -> list[dict[str, Any]]:
 
 
 def test_doze_rodadas_passam_e_a_decima_terceira_e_ia030(pasta_chats: Path):
-    """A fronteira é 12 permitidas / 13ª recusada — nem 11, nem 13."""
+    """A fronteira é o teto exato de rodadas — a seguinte é recusada."""
     passos = [
         PassoFake(tool_calls=[tool_call("estado_do_projeto", {}, call_id=f"c{i}")])
-        for i in range(12)
+        for i in range(limites.RODADAS_TOOL_MAX_POR_TURNO)
     ] + [PassoFake(texto="terminei")]
     configurar_provedor(FakeProvedor(passos))
     cid = _nova_conversa(pasta_chats)
@@ -82,7 +82,7 @@ def test_doze_rodadas_passam_e_a_decima_terceira_e_ia030(pasta_chats: Path):
 def test_ia030_grava_o_que_ja_tinha_sido_produzido(pasta_chats: Path):
     passos = [
         PassoFake(texto=f"passo {i}", tool_calls=[tool_call("estado_do_projeto", {}, f"c{i}")])
-        for i in range(13)
+        for i in range(limites.RODADAS_TOOL_MAX_POR_TURNO + 1)
     ]
     configurar_provedor(FakeProvedor(passos))
     cid = _nova_conversa(pasta_chats)
@@ -100,7 +100,7 @@ def test_ia030_grava_o_que_ja_tinha_sido_produzido(pasta_chats: Path):
 def test_tool_que_erra_conta_rodada(pasta_chats: Path):
     passos = [
         PassoFake(tool_calls=[tool_call("tool_inexistente", {}, call_id=f"c{i}")])
-        for i in range(13)
+        for i in range(limites.RODADAS_TOOL_MAX_POR_TURNO + 1)
     ]
     configurar_provedor(FakeProvedor(passos))
     cid = _nova_conversa(pasta_chats)

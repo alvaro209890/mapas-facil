@@ -81,6 +81,14 @@ def _valor_filtro(caminho: str, recibo: dict[str, Any] | None, imovel: dict[str,
     return None
 
 
+def area_do_atp(indice: dict[str, Any] | None) -> float | None:
+    """Área (ha) do perímetro ATP medida no shapefile indexado — a fonte dos números."""
+    for shp in (indice or {}).get("shapefiles") or []:
+        if shp.get("papel") == "ATP" and isinstance(shp.get("area_ha"), (int, float)):
+            return float(shp["area_ha"])
+    return None
+
+
 def montar_mapspec(
     modelo_id: str,
     *,
@@ -184,12 +192,17 @@ def montar_mapspec(
     municipio_nome = (recibo or {}).get("municipio") if isinstance(recibo, dict) else None
     uf = (recibo or {}).get("uf") if isinstance(recibo, dict) else None
     car = (recibo or {}).get("car_estadual") if isinstance(recibo, dict) else None
-    area = (recibo or {}).get("area_total_ha") if isinstance(recibo, dict) else None
+    # Regra do Álvaro (04/11/2026): os números vêm dos SHAPES que o usuário mandou. O recibo
+    # do CAR dá nome, município e nº do CAR (contexto); a área dele só vale sem ATP na pasta.
+    area = area_do_atp(indice)
+    if area is None and isinstance(recibo, dict):
+        area = recibo.get("area_total_ha")
     fonte_geo = next((c["fonte"] for c in camadas if c["id"] == "perimetro"), None)
 
     imovel: dict[str, Any] = {
         "nome": nome_imovel or "Imovel",
-        "car": car,
+        # O contrato exige string: sem recibo o CAR fica vazio, nunca `None`.
+        "car": str(car or ""),
         "matricula": None,
         "area_total_ha": area,
         "municipio": {
