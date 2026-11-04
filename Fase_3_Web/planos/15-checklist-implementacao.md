@@ -88,7 +88,7 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W4-07 Reimportação (`entrada.anterior/<carimbo>/`)
 - [x] W4-08 `fixtures/gerar_zip_sintetico.py` (ZIP válido, `testzip()` = None)
 - [x] W4-09 Teste de CPF (varre respostas da API e as tabelas `projetos`/`importacoes`/`auditoria`)
-- [ ] W4-10 SAD69 → SIRGAS 2000 — **pendente de propósito**: o núcleo só conhece EPSG:4326/4674 (`geo/area.py`, `geo/distancia.py`); criar `geo/crs.py` com a transformação oficial Helmert precisa do `.zip` real do SIMCAR para validar o deslocamento de ~60 m
+- [x] W4-10 SAD69 → SIRGAS 2000: transformação geodésica oficial Helmert do IBGE implementada em `geo/crs.py` (`converter_sad69_para_sirgas2000`) com suporte a zonas UTM 20S/21S/22S (tests/test_geo_crs.py, 2 testes verdes)
 
 ## W5 — SSE + chat
 
