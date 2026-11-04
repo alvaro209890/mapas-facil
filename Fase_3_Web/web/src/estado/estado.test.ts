@@ -275,6 +275,25 @@ describe('store do projeto aberto', () => {
     expect(estado.projeto?.versao_atual).toBe(2);
   });
 
+  it('importacao.progresso alimenta a barra e some quando o projeto fica pronto', () => {
+    useProjetoAtivo.getState().limpar();
+    despachar(evt('projeto.estado', { estado: 'importando' }));
+    expect(useProjetoAtivo.getState().importacao).toEqual({
+      fase: 'extraindo',
+      indice: 0,
+      total: 0,
+      arquivo: null,
+    });
+    despachar(
+      evt('importacao.progresso', { fase: 'extraindo', arquivo: 'ATP.shp', indice: 37, total: 148, bytes: 10 }),
+    );
+    expect(useProjetoAtivo.getState().importacao).toMatchObject({ indice: 37, total: 148, arquivo: 'ATP.shp' });
+    despachar(evt('importacao.progresso', { fase: 'indexando', total: 148 }));
+    expect(useProjetoAtivo.getState().importacao?.fase).toBe('indexando');
+    despachar(evt('projeto.estado', { estado: 'pronto' }));
+    expect(useProjetoAtivo.getState().importacao).toBeNull();
+  });
+
   it('projeto.estado com erro guarda o código', () => {
     useProjetoAtivo.getState().limpar();
     useProjetoAtivo.setState({

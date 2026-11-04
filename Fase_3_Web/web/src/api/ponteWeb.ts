@@ -58,6 +58,7 @@ export function despachar(evento: Evento): boolean {
       return false;
     }
     case 'versao.criada':
+    case 'importacao.progresso':
       useProjetoAtivo.getState().aplicarEvento(evento);
       return false;
     case 'job.progresso':
@@ -66,10 +67,9 @@ export function despachar(evento: Evento): boolean {
       useJob.getState().aplicarEvento(evento);
       return false;
     case 'worker.estado':
-    case 'importacao.progresso':
     case 'sse.heartbeat':
-      // `worker.estado` alimenta o indicador de saúde do admin; importação já vem por
-      // `projeto.estado`. Nada a fazer nas stores do usuário.
+      // `worker.estado` alimenta o indicador de saúde do admin. Nada a fazer nas stores
+      // do usuário.
       return false;
     default:
       return false;

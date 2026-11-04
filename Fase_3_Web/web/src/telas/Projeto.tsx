@@ -28,7 +28,7 @@ import { IndicadorPensando } from '../herdados/IndicadorPensando';
 import { Palco } from '../palco/Palco';
 import { useChat } from '../estado/chat';
 import { useConexao } from '../estado/conexao';
-import { useProjetoAtivo } from '../estado/projetoAtivo';
+import { useProjetoAtivo, type ProgressoImportacao } from '../estado/projetoAtivo';
 import { seloFolha, tempoRelativo } from '../utilitarios/tempo';
 import estilos from './Projeto.module.css';
 
@@ -55,7 +55,7 @@ const ROTULO_ARTEFATO: Record<string, string> = {
 export function Projeto() {
   const { id = '', numero } = useParams();
   const navegar = useNavigate();
-  const { projeto, resumo, versoes, versaoAberta, carregando, erro, carregar, abrirVersao } =
+  const { projeto, importacao, resumo, versoes, versaoAberta, carregando, erro, carregar, abrirVersao } =
     useProjetoAtivo();
   const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirErro, limpar: limparChat } =
     useChat();
@@ -198,6 +198,8 @@ export function Projeto() {
         {/* ---------------------------------------------------------- chat */}
         <section className={estilos.chat} aria-label="Conversa do projeto">
           <div className={estilos.lista}>
+            {ocupado && <BarraImportacao estado={projeto?.estado} progresso={importacao} />}
+
             {mensagens.length === 0 && blocos.length === 0 && (
               <div className={estilos.boasVindas}>
                 <h2>O que você precisa neste mapa?</h2>
@@ -365,6 +367,59 @@ export function Projeto() {
         </section>
       </div>
     </main>
+  );
+}
+
+/**
+ * Barra da importação do `.zip`: extração com porcentagem real (arquivo N de M, do evento
+ * `importacao.progresso`) e, depois, a leitura dos shapefiles pelo núcleo — que não tem
+ * contagem, então a barra fica cheia até 90% e pulsa. Nada aqui avança por timer (AP-07).
+ */
+function BarraImportacao({
+  estado,
+  progresso,
+}: {
+  estado: string | undefined;
+  progresso: ProgressoImportacao | null;
+}) {
+  const indexando = progresso?.fase === 'indexando' || estado === 'indexando';
+  const total = progresso?.total ?? 0;
+  const feitos = Math.min(progresso?.indice ?? 0, total);
+  // Extração vale 0–85% da barra; a indexação fecha o resto.
+  const pct = indexando ? 90 : total > 0 ? Math.round((feitos / total) * 85) : 0;
+  const texto = indexando
+    ? 'Lendo os shapefiles e montando o índice do projeto…'
+    : total > 0
+      ? `Extraindo ${feitos} de ${total} arquivos`
+      : 'Preparando o pacote…';
+
+  return (
+    <section className={estilos.importacao} aria-label="Importação dos dados">
+      <div className={estilos.importacaoTopo}>
+        <strong>Importando os dados</strong>
+        <span className={estilos.importacaoPct}>{indexando ? 'quase lá' : `${pct}%`}</span>
+      </div>
+      <div
+        className={estilos.importacaoTrilho}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-valuetext={texto}
+      >
+        <div
+          className={estilos.importacaoBarra}
+          data-indeterminado={indexando ? 'sim' : undefined}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className={estilos.importacaoTexto}>
+        {texto}
+        {!indexando && progresso?.arquivo && (
+          <span className={estilos.importacaoArquivo}> · {progresso.arquivo}</span>
+        )}
+      </p>
+    </section>
   );
 }
 

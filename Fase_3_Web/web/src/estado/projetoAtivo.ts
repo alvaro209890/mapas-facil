@@ -3,7 +3,8 @@
  *
  * Junta o que a tela do projeto precisa saber sem perguntar ao servidor: projeto, resumo do
  * imóvel, versões e qual versão está aberta no palco. Alimentada por `GET /projetos/:id`,
- * `GET /projetos/:id/versoes` e pelos eventos `projeto.estado` e `versao.criada`.
+ * `GET /projetos/:id/versoes` e pelos eventos `projeto.estado`, `versao.criada` e
+ * `importacao.progresso` (a barra da importação).
  */
 
 import { create } from 'zustand';
@@ -11,8 +12,18 @@ import { create } from 'zustand';
 import { api } from '../api/cliente';
 import type { Evento, Projeto, ResumoProjeto, Versao } from '../api/tipos';
 
+/** Onde a importação do `.zip` está — alimenta a barra de progresso da tela. */
+export interface ProgressoImportacao {
+  fase: 'extraindo' | 'indexando';
+  /** Arquivos já extraídos (1-based, como o servidor manda). */
+  indice: number;
+  total: number;
+  arquivo: string | null;
+}
+
 interface LojaProjetoAtivo {
   projeto: Projeto | null;
+  importacao: ProgressoImportacao | null;
   resumo: Record<string, unknown> | null;
   versoes: Versao[];
   versaoAberta: number | null;
@@ -27,6 +38,7 @@ interface LojaProjetoAtivo {
 
 export const useProjetoAtivo = create<LojaProjetoAtivo>((set, get) => ({
   projeto: null,
+  importacao: null,
   resumo: null,
   versoes: [],
   versaoAberta: null,
@@ -62,7 +74,28 @@ export const useProjetoAtivo = create<LojaProjetoAtivo>((set, get) => ({
   abrirVersao: (numero) => set({ versaoAberta: numero }),
 
   aplicarEvento: (evento) => {
+    if (evento.evento === 'importacao.progresso') {
+      const dados = evento.dados as {
+        fase?: unknown;
+        indice?: unknown;
+        total?: unknown;
+        arquivo?: unknown;
+      };
+      const total = typeof dados.total === 'number' ? dados.total : 0;
+      set({
+        importacao: {
+          fase: dados.fase === 'indexando' ? 'indexando' : 'extraindo',
+          indice: typeof dados.indice === 'number' ? dados.indice : dados.fase === 'indexando' ? total : 0,
+          total,
+          arquivo: typeof dados.arquivo === 'string' ? dados.arquivo : null,
+        },
+      });
+      return;
+    }
     if (evento.evento === 'projeto.estado') {
+      const novo = (evento.dados as { estado?: unknown }).estado;
+      if (novo === 'importando') set({ importacao: { fase: 'extraindo', indice: 0, total: 0, arquivo: null } });
+      else if (novo !== 'indexando') set({ importacao: null });
       const estado = (evento.dados as { estado?: unknown }).estado;
       const erroCodigo = (evento.dados as { erro_codigo?: unknown }).erro_codigo;
       set((atual) =>
@@ -99,5 +132,5 @@ export const useProjetoAtivo = create<LojaProjetoAtivo>((set, get) => ({
     set((atual) => ({ projeto: atual.projeto ? { ...atual.projeto, nome } : null })),
 
   limpar: () =>
-    set({ projeto: null, resumo: null, versoes: [], versaoAberta: null, erro: null }),
+    set({ projeto: null, importacao: null, resumo: null, versoes: [], versaoAberta: null, erro: null }),
 }));

@@ -183,6 +183,29 @@ describe('eventos chegam na tela', () => {
     expect(cartao).toBeInTheDocument();
   });
 
+  it('importação em curso mostra a barra com o arquivo N de M', async () => {
+    montar();
+    await waitFor(() => expect(FonteFalsa.ultima).not.toBeNull());
+    const fonte = FonteFalsa.ultima as FonteFalsa;
+    fonte.disparar('mf', {
+      seq: 1,
+      ts: '2026-11-04T12:00:00Z',
+      origem: 'servidor',
+      evento: 'projeto.estado',
+      dados: { estado: 'importando' },
+    });
+    fonte.disparar('mf', {
+      seq: 2,
+      ts: '2026-11-04T12:00:01Z',
+      origem: 'servidor',
+      evento: 'importacao.progresso',
+      dados: { fase: 'extraindo', arquivo: 'AVN.shp', indice: 74, total: 148, bytes: 1 },
+    });
+    const barra = await screen.findByRole('progressbar');
+    expect(barra).toHaveAttribute('aria-valuenow', '43');
+    expect(screen.getByText(/Extraindo 74 de 148 arquivos/)).toBeInTheDocument();
+  });
+
   it('versao.criada entra na faixa e libera os downloads', async () => {
     montar();
     await waitFor(() => expect(FonteFalsa.ultima).not.toBeNull());

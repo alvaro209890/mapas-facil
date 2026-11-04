@@ -478,3 +478,76 @@
     height: 212px;
   }
 }
+
+/* ------------------------------------------------- barra da importação */
+
+.importacao {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--mf-superficie-1);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-2);
+}
+
+.importacaoTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--mf-texto);
+}
+
+.importacaoPct {
+  font-family: var(--mf-fonte-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--mf-texto-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.importacaoTrilho {
+  height: 6px;
+  overflow: hidden;
+  background: var(--mf-superficie-3);
+  border-radius: 999px;
+}
+
+.importacaoBarra {
+  height: 100%;
+  background: var(--mf-acento);
+  border-radius: inherit;
+  transition: width var(--mf-dur-2) var(--mf-ease-saida);
+}
+
+.importacaoBarra[data-indeterminado='sim'] {
+  animation: importacao-pulso 1.4s ease-in-out infinite;
+}
+
+@keyframes importacao-pulso {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.importacaoTexto {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.75rem;
+  color: var(--mf-texto-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.importacaoArquivo {
+  font-family: var(--mf-fonte-mono, monospace);
+  color: var(--mf-texto-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .importacaoBarra,
+  .importacaoBarra[data-indeterminado='sim'] {
+    animation: none;
+    transition: none;
+  }
+}

@@ -137,6 +137,9 @@ def importar(
 
         _atualizar(con, importacao_id, fase="indexando")
         projeto = projetos_repo.transicionar(con, projeto, "indexando")
+        if ao_progresso is not None:
+            # A barra da tela troca de "extraindo N de M" para "lendo os shapefiles".
+            ao_progresso({"fase": "indexando", "total": resultado.total})
 
         resumo: dict[str, Any] = {}
         if pool is not None:
