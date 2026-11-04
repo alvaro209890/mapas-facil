@@ -14,11 +14,11 @@ import { useSessao } from '../estado/sessao';
 import estilos from './SessaoExpirada.module.css';
 
 export function SessaoExpirada() {
-  const { estado, usuario, entrar, carregando } = useSessao();
+  const { estado, jaEntrou, usuario, entrar, carregando } = useSessao();
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
 
-  if (estado !== 'expirada') return null;
+  if (estado !== 'expirada' || !jaEntrou) return null;
 
   async function enviar(evento: React.FormEvent) {
     evento.preventDefault();
