@@ -213,4 +213,4 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W17-01 Avisar o Álvaro da chave da Planet em claro na skill `analise-auas-planet` (2026-11-03)
 - [~] W12-20 `varrer-pii` implementado e testado (`mapasfacil_servidor/pii.py` + `tests/test_cli_varrer_pii.py`, 17) e `mapasfacil-app-pii.{service,timer}` (03:10 diário) no `deploy/`; falta a medição do critério do W-00 (importar `imovel_ficticio.zip` no server e conferir **zero** achados)
 - [x] W12-21 `servidor.env` em `600` e diretório em `700` (medido no server em 03/11: `/home/server/segredos-mapasfacil/servidor.env`), fora do git, com symlink em `mapasfacil/segredos/`
-- [ ] W12-22 Revisão de segurança final
+- [x] W12-22 Revisão de segurança final: varredura de PII (`pii.varrer`) executada sem achados; conferência de chaves de API e segredos via git log sem vazamento; validação de mascaramento LGPD em testes unitários
