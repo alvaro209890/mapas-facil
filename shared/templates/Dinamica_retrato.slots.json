@@ -1,8 +1,15 @@
 {
-  "template_id": "Dinamica_retrato",
-  "variante": { "formato": "A4", "orientacao": "retrato" },
-  "arquivo_sha256": "4b6ecf9116e0b7e28dfc55452d3a33946271ce94689cf932c027ea5e744e899b",
-  "streams": ["Mx Document", "PageLayout", "Maps"],
+  "template_id": "dinamica_retrato",
+  "variante": {
+    "formato": "A3",
+    "orientacao": "retrato"
+  },
+  "arquivo_sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
+  "streams": [
+    "Mx Document",
+    "PageLayout",
+    "Maps"
+  ],
   "slots": [
     {
       "id": "titulo",
@@ -10,7 +17,10 @@
       "obrigatorio": false,
       "origem": "mapspec.titulo",
       "sentinela": "Fazenda Harmonia",
-      "streams": ["PageLayout", "Mx Document"]
+      "streams": [
+        "PageLayout",
+        "Mx Document"
+      ]
     },
     {
       "id": "municipio",
@@ -18,7 +28,10 @@
       "obrigatorio": false,
       "origem": "mapspec.imovel.municipio",
       "sentinela": "Vila Rica",
-      "streams": ["PageLayout", "Mx Document"]
+      "streams": [
+        "PageLayout",
+        "Mx Document"
+      ]
     },
     {
       "id": "uf",
@@ -26,7 +39,10 @@
       "obrigatorio": false,
       "origem": "mapspec.imovel.uf",
       "sentinela": "MT",
-      "streams": ["PageLayout", "Mx Document"]
+      "streams": [
+        "PageLayout",
+        "Mx Document"
+      ]
     },
     {
       "id": "escala",
@@ -34,7 +50,9 @@
       "obrigatorio": false,
       "origem": "enquadramento.escala",
       "sentinela": 987654.0,
-      "streams": ["Mx Document"]
+      "streams": [
+        "Mx Document"
+      ]
     }
   ]
 }

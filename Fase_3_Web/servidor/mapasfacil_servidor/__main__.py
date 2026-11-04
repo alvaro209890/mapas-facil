@@ -41,6 +41,93 @@ def _banco_migrado():
     return cfg, banco
 
 
+def cmd_amostras_mxd(args: argparse.Namespace) -> int:
+    """W10-09: Gera amostras de pacotes MXD/SHP/Mapas para teste G4."""
+    import json
+    from pathlib import Path
+    from .pacote import OpcoesPacote, montar_pacote_zip
+
+    saida = Path(args.saida) if args.saida else Path("output/amostras_mxd")
+    saida.mkdir(parents=True, exist_ok=True)
+
+    manifesto_path = Path("shared/templates/MANIFEST.json")
+    if not manifesto_path.exists():
+        manifesto_path = Path("../../shared/templates/MANIFEST.json")
+    if not manifesto_path.exists():
+        manifesto_path = Path(__file__).resolve().parent.parent.parent.parent / "shared" / "templates" / "MANIFEST.json"
+    if not manifesto_path.exists():
+        print(f"Manifesto não encontrado em {manifesto_path}", file=sys.stderr)
+        return 1
+
+    manifesto = json.loads(manifesto_path.read_text(encoding="utf-8"))
+    gerados = 0
+
+    for tpl in manifesto.get("templates", []):
+        variantes = tpl.get("variantes", [])
+        for v in variantes:
+            tpl_id = tpl["id"]
+            fmt = v.get("formato", "A4")
+            ori = v.get("orientacao", "retrato")
+
+            pasta_amostra = saida / f"{tpl_id}__{fmt}_{ori}"
+            pasta_amostra.mkdir(parents=True, exist_ok=True)
+            pasta_shp = pasta_amostra / "SHP"
+            pasta_shp.mkdir(parents=True, exist_ok=True)
+            import shutil
+            base_ibge = Path("shared/bases/ibge")
+            if not base_ibge.exists():
+                base_ibge = Path("../../shared/bases/ibge")
+            tpl_shp = Path("shared/templates/SHP")
+            if not tpl_shp.exists():
+                tpl_shp = Path("../../shared/templates/SHP")
+
+            # 1. Copia shapefiles do template
+            if tpl_shp.exists():
+                for arq in tpl_shp.glob("*"):
+                    if arq.is_file():
+                        shutil.copy2(arq, pasta_shp / arq.name)
+
+            # 2. Copia bases IBGE e cria pseudônimos
+            if base_ibge.exists():
+                for arq in base_ibge.glob("*"):
+                    if arq.is_file():
+                        shutil.copy2(arq, pasta_shp / arq.name)
+
+            # 3. Garante Fazendas_Unidas a partir de CAR_ATP
+            for ext in (".shp", ".shx", ".dbf", ".prj", ".cpg"):
+                src = pasta_shp / f"CAR_ATP{ext}"
+                if src.exists():
+                    shutil.copy2(src, pasta_shp / f"Fazendas_Unidas{ext}")
+                    shutil.copy2(src, pasta_shp / f"Fazenda_Unificada{ext}")
+                    shutil.copy2(src, pasta_shp / f"PERIMETRO{ext}")
+                    shutil.copy2(src, pasta_shp / f"AC{ext}")
+            (pasta_amostra / "mapa.pdf").write_bytes(b"%PDF-1.4 DADOS_MAPA")
+
+            # Copia o template MXD para a pasta MXD da amostra
+            pasta_mxd = pasta_amostra / "MXD"
+            pasta_mxd.mkdir(parents=True, exist_ok=True)
+            mxd_origem = Path("shared/templates") / tpl["arquivo"]
+            if not mxd_origem.exists():
+                mxd_origem = Path("../../shared/templates") / tpl["arquivo"]
+            if mxd_origem.exists():
+                import shutil
+                shutil.copy2(mxd_origem, pasta_mxd / f"{tpl_id}.mxd")
+
+            zip_destino = saida / f"{tpl_id}__{fmt}_{ori}_amostra.zip"
+            opcoes = OpcoesPacote(
+                nome_imovel="Imovel Ficticio",
+                nome_template=tpl_id,
+                versao=1,
+                mxd_conforme=True,
+            )
+            montar_pacote_zip(pasta_amostra, zip_destino, opcoes)
+            print(f"Amostra gerada: {zip_destino}")
+            gerados += 1
+
+    print(f"Total de {gerados} amostras geradas em {saida}")
+    return 0
+
+
 def cmd_serve() -> int:
     cfg = carregar()
     from .app import app_do_ambiente
@@ -242,6 +329,11 @@ def montar_parser() -> argparse.ArgumentParser:
         "sonda-saude",
         help="consulta /saude e grava alerta em logs/alertas.log após 3 falhas seguidas",
     )
+    amostras = sub.add_parser(
+        "amostras-mxd",
+        help="gera amostras de pacotes MXD para verificação G4 no Windows (W10-09)",
+    )
+    amostras.add_argument("--saida", help="diretório de saída para as amostras .zip")
 
     conta = sub.add_parser("conta", help="administração de contas pela CLI")
     conta.add_argument("acao", choices=["criar", "listar", "bloquear", "desbloquear"])
@@ -277,6 +369,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return cmd_sonda_saude()
         if args.comando == "varrer-pii":
             return cmd_varrer_pii()
+        if args.comando == "amostras-mxd":
+            return cmd_amostras_mxd(args)
         if args.comando == "conta":
             return cmd_conta(args)
     except NaoImplementado as erro:

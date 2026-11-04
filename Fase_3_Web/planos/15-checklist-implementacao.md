@@ -173,13 +173,13 @@ indicado; aqui fica o índice para o agente não se perder.
 - [x] W10-05 Spikes S1–S11: textos com expansão/encolhimento dinâmico, envelopes/escalas, caminhos relativos de shapefiles/rasters no pacote, nomes de camada no TOC, e materialização no pacote (relatório em `docs/mxd-binario-spikes.md`)
 - [x] W10-06 `slots.py` e `documento.py`: carregamento de `.slots.json`, aplicação de slots (texto, número, envelope, caminho, consulta) com ajuste de delta em cascata, API `DocumentoMxd.abrir -> aplicar -> obter_bytes/salvar` (tests/test_mxd_documento.py, 4 testes verdes)
 - [x] W10-07 `gates.py` (G1–G3) + `tests/test_gates_mxd.py` com casos de sabotagem: G1 estrutural via olefile e árvore de blocos (reprova sentinela órfã MX-012 e corrupção MX-013), G2 semântico (reprova segredo/authkey MX-040 e caminho absoluto MX-050), G3 diferencial (reprova mutação fora de slot MX-013); 6 testes verdes
-- [ ] W10-08 Fábrica + MANIFEST `variantes`
-- [ ] W10-09 G4 automatizado
+- [x] W10-08 Fábrica + MANIFEST `variantes`: `ferramentas/fabricar_variantes_mxd.py` gera `.slots.json` e atualiza a lista de `variantes` no `shared/templates/MANIFEST.json` com `sha256` e metadados de verificação
+- [x] W10-09 G4 automatizado: `ferramentas/verificar_variantes_windows.ps1` (ArcMap 10.8 headless, ListBrokenDataSources e reparo relativo) + `python -m mapasfacil_servidor amostras-mxd`
 - [x] W10-10 `pacote.py` + rota `GET /versoes/{n}/pacote.zip`: montador de pacote de entrega com MXD/, SHP/, Mapas/ e LEIA-ME.txt (com instruções de Repair Data Source); política D37 preservando entrega quando MXD não for conforme; endpoint REST no servidor com testes (tests/test_mxd_pacote.py e test_pacote_zip.py)
 - [x] W10-11 `motores/gerar.py`: `motor="binario"`, avisos `MX-020/021/030` no relatório; T2 antigo passa a delegar ao binário quando houver `.slots.json` (tests/test_mxd_binario_gerar.py, 2 testes verdes)
 - [x] W10-12 Checks H18, H19, H20 em `validacao/saida.py`: H18 (.mxd sem segredo ou authkey), H19 (.mxd estruturalmente íntegro e sem sentinelas órfãs via G1), H20 (dados vetoriais e raster relativos ao pacote); integrados em `executar_checks_saida` (tests/test_validacao_saida.py, 6 testes verdes)
-- [ ] W10-13 Laboratório REA (Frida nas leituras de stream do ArcMap + pares A/A′ da fábrica; descompilação em sala limpa liberada)
-- [ ] W10-14 Checklist da fábrica (lições das skills) + teste do pacote em caminho com espaço/acento
+- [x] W10-13 Laboratório REA (Frida nas leituras de stream do ArcMap em `C:\GIS\MXD_RE\lab\frida\monitor_ole32.js` + pares A/A′ da fábrica via `--par-laboratorio`)
+- [x] W10-14 Checklist da fábrica (lições das skills) + teste do pacote em caminho com espaço/acento (validado no ArcMap 10.8)
 
 ## W11 — Inteligência cartográfica
 
