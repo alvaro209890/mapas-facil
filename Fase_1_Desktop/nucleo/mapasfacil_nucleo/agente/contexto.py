@@ -72,8 +72,51 @@ def montar_mensagens_llm(
             papel_llm = "system"
         else:
             papel_llm = "user"
-        saida.append(MensagemLLM(papel=papel_llm, conteudo=redigir(m.get("conteudo") or "")))
+        conteudo = m.get("conteudo") or ""
+        if papel_llm == "assistant":
+            nota = nota_das_tools(m.get("tool_traces") or [])
+            if nota:
+                conteudo = (conteudo + "\n\n" + nota).strip()
+        saida.append(MensagemLLM(papel=papel_llm, conteudo=redigir(conteudo)))
     return saida
+
+
+_NOTA_MAX = 700
+
+
+def nota_das_tools(traces: list[dict[str, Any]]) -> str:
+    """Resumo curto do que o agente fez num turno passado, para o histórico do modelo.
+
+    A pergunta feita com `perguntar` vai por extenso, com as opções: é o que dá sentido a uma
+    resposta curta do usuário ("Dinâmica de uso do solo") no turno seguinte.
+    """
+    if not traces:
+        return ""
+    partes: list[str] = []
+    outras: list[str] = []
+    for t in traces:
+        nome = str(t.get("tool") or "")
+        if nome == "perguntar":
+            try:
+                args = json.loads(t.get("args_resumo") or "{}")
+            except (TypeError, ValueError):
+                args = {}
+            pergunta = str(args.get("pergunta") or "").strip()
+            rotulos = [
+                str(o.get("rotulo") or o.get("id") or "")
+                for o in (args.get("opcoes") or [])
+                if isinstance(o, dict)
+            ]
+            texto = f"[Você perguntou ao usuário: {pergunta or '(pergunta)'}"
+            if rotulos:
+                texto += " Opções: " + "; ".join(r for r in rotulos if r)
+            partes.append(texto + ". A próxima mensagem do usuário responde a isso.]")
+        elif nome:
+            outras.append(nome + ("" if t.get("ok") in (None, True, 1) else " (falhou)"))
+    if outras:
+        partes.insert(0, "[Ferramentas usadas neste turno: " + ", ".join(outras) + ".]")
+    nota = "\n".join(partes)
+    return nota if len(nota) <= _NOTA_MAX else nota[: _NOTA_MAX - 1] + "…"
 
 
 def estimar_payload(mensagens: list[MensagemLLM]) -> int:

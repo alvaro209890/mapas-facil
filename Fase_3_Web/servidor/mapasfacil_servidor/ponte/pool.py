@@ -7,12 +7,14 @@ import contextlib
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+import logging
 from typing import Any, Awaitable, Callable
 
 from ..erros import ErroServidor
 from . import allowlist, worker as worker_mod
 
 ESPERA_VAGA_WORKER_S = 60.0
+_LOG = logging.getLogger("mapasfacil.ponte.pool")
 
 
 @dataclass
@@ -73,8 +75,14 @@ class Pool:
             return w
         return None
 
-    async def obter(self, projeto_id: str) -> worker_mod.Worker:
-        """Worker do projeto, subindo se preciso e respeitando o teto."""
+    async def obter(self, projeto_id: str, *, abrir_workspace: bool = True) -> worker_mod.Worker:
+        """Worker do projeto, subindo se preciso e respeitando o teto.
+
+        Worker novo de projeto já importado abre a pasta do projeto antes de servir: o núcleo
+        guarda o workspace só em memória, e um worker que subiu de novo (restart do app ou
+        `ocioso` na varredura) respondia "Nenhuma pasta conectada" a toda tool do chat — o
+        agente ficava sem ATP, sem modelo e voltava sempre para a mesma pergunta.
+        """
         w = self.obter_existente(projeto_id)
         if w is not None:
             return w
@@ -115,6 +123,11 @@ class Pool:
         )
         await w.iniciar()
         self._workers[projeto_id] = w
+        if abrir_workspace and (raiz / "entrada").is_dir():
+            try:
+                await w.chamar("workspace.abrir", {"caminho": str(raiz)})
+            except Exception as exc:  # noqa: BLE001 — o chat ainda funciona e diz o que falta
+                _LOG.warning("worker %s subiu sem abrir a pasta: %s", projeto_id, exc)
         return w
 
     def _mais_ocioso(self) -> tuple[str, worker_mod.Worker] | None:
@@ -137,7 +150,8 @@ class Pool:
         """Verifica allowlist, garante o worker e chama. É a porta única da API."""
         allowlist.verificar(metodo)
         async with self._trava(projeto_id):
-            w = await self.obter(projeto_id)
+            # Quem já vai chamar `workspace.abrir` (a importação) não precisa do automático.
+            w = await self.obter(projeto_id, abrir_workspace=metodo != "workspace.abrir")
             if metodo == "chat.enviar":
                 if projeto_id in self._chat_em_curso:
                     raise ErroServidor(

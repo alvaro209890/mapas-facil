@@ -212,6 +212,17 @@ def test_area_do_imovel_vem_do_atp_e_nao_do_recibo(pasta: Path):
     assert estado["fonte_dos_numeros"] == "shapefiles"
 
 
+def test_usar_modelo_ignora_reason_dentro_de_sobrescritas(pasta: Path):
+    """Caso real (teste_22): `sobrescritas: {"reason": ...}` dava NU-232 e o agente desistia."""
+    ctx: dict[str, Any] = {}
+    r = executar(
+        "usar_modelo_da_galeria",
+        {"modelo_id": "dinamica_2026_retrato", "sobrescritas": {"reason": "testar"}},
+        ctx,
+    )
+    assert r["ok"] is True, r
+
+
 def test_criar_mapa_sem_recibo_do_car_cria_com_car_vazio(tmp_path: Path):
     """Caso real (web, 04/11/2026): zip do SIMCAR sem recibo — o `car` não pode virar `None`.
 

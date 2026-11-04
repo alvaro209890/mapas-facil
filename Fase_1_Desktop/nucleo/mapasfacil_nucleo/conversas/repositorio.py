@@ -247,6 +247,13 @@ class RepositorioConversas:
                 "seq": int(m["seq"]),
                 "papel": m["papel"],
                 "conteudo": _conteudo_com_anexos(m),
+                # O que o agente FEZ no turno (sem os resultados): sem isto, um turno que só
+                # chamou `perguntar` chegava ao modelo como resposta vazia e ele não sabia que
+                # a próxima fala do usuário respondia à pergunta dele.
+                "tool_traces": [
+                    {"tool": t.get("tool"), "args_resumo": t.get("args_resumo"), "ok": t.get("ok")}
+                    for t in (m.get("tool_traces") or [])
+                ],
             }
             for m in aberto["mensagens"]
         ]

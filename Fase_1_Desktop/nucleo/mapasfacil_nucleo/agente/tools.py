@@ -450,8 +450,13 @@ def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
     if not isinstance(modelo_id, str) or not modelo_id:
         return _erro("NU-001", "Parâmetro 'modelo_id' é obrigatório.")
     sobrescritas = args.get("sobrescritas") if isinstance(args.get("sobrescritas"), dict) else None
+    # O modelo do 9Router põe `reason` em todo argumento, inclusive dentro de `sobrescritas`;
+    # a allowlist do montador recusava (NU-232) e o agente desistia do modelo pronto.
+    sobrescritas = {
+        k: v for k, v in (sobrescritas or {}).items() if k not in ("reason", "motivo", "porque")
+    }
     try:
-        pacote = montar_mapspec(modelo_id, sobrescritas=sobrescritas or {})
+        pacote = montar_mapspec(modelo_id, sobrescritas=sobrescritas)
     except ErroNucleo as exc:
         return _erro(exc.codigo, exc.mensagem, detalhes=exc.detalhes)
     novo = pacote.get("mapspec")
