@@ -402,6 +402,13 @@ SOFT conclui com ressalva.
 | `H13` | `.mxd` reabre | reabrir e listar camadas sem exceção | HARD |
 | `H14` | `TOTAL GERAL` presente quando há tabela | última linha da imagem da tabela com faixa verde | HARD |
 | `H15` | Página no tamanho da folha pedida | largura e altura do PDF = `folha_mm(formato, orientacao)` ±1 mm; orientação trocada reprova | HARD |
+| `H16` | Página única | cada mapa gerado contém exatamente uma página | HARD |
+| `H17` | Área do perímetro coincide com CAR | área em SIRGAS 2000 UTM vs declarada no CAR dentro da tolerância oficial | HARD |
+| `H18` | .mxd livre de segredos | nenhuma chave de API, authkey, senha ou token em texto puro | HARD |
+| `H19` | Integridade estrutural do MXD | documento abre em OLE2 sem sentinelas órfãs via portão G1 | HARD |
+| `H20` | Fontes de dados relativas ao pacote | todo IWorkspaceName relativo e shapefiles presentes em ..\SHP | HARD |
+| `H21` | Nenhum texto/caixa sobre linha vetorial | elementos opacos do layout × camadas do imóvel: interseção > 0,5 mm² reprova | HARD |
+| `H22` | Legenda só com o que está no mapa | cada item de legenda corresponde a camada desenhada no quadro | HARD |
 | `S01` | Retângulo do minimapa centrado | distância centro-do-retângulo ↔ centroide do imóvel < 1 mm de página | SOFT |
 | `S02` | Linha-guia do minimapa conectada | linha vermelha toca retângulo e moldura | SOFT |
 | `S03` | Município identificado no minimapa | há feição em laranja e rótulo | SOFT |
@@ -413,7 +420,18 @@ SOFT conclui com ressalva.
 | `S09` | Camada externa não vazia | WFS retornou > 0 feições após o recorte | SOFT |
 | `S10` | Tabela em resolução suficiente | PNG da tabela ≥ 400 dpi efetivos | SOFT |
 | `S11` | Sem texto herdado de outra análise | nenhum `TEXT_ELEMENT` cita município/fazenda diferentes do `MapSpec` | SOFT |
+| `S12` | Classes de área batem com o recibo | AVN, AC, AUAS, ARL, APP calculadas vs recibo (sempre SOFT — D39) | SOFT |
+| `S13` | Quadro bem aproveitado | Enquadramento aproveitamento ≥ 0,60 | SOFT |
+| `S14` | Sugestão de folha/orientação melhor | alternativa melhora escala em ≥ 2 degraus | SOFT |
+| `S15` | Metadados de imagem coerentes | satélite/sensor e data conferem com basemap usado | SOFT |
+| `S16` | Rótulos de feição livres | rótulos não colidem com zonas de elementos de layout | SOFT |
 | `S17` | Raster do mosaico suficiente para a folha | dpi efetivo do raster ≥ 220 ou aviso registrado (ver §Raster do D31) | SOFT |
+| `S20` | Escala não redonda | escala pedida fora da lista oficial de degraus redondos | SOFT |
+| `S21` | Texto sobre linha de shapefile | detectado por revisão geométrica/visual (D42) | SOFT |
+| `S22` | Elemento cortado ou fora da folha | detectado por revisão geométrica/visual (D42) | SOFT |
+| `S23` | Legenda inconsistente | detectado por revisão geométrica/visual (D42) | SOFT |
+| `S24` | Minimapa sem centroide | detectado por revisão geométrica/visual (D42) | SOFT |
+| `S25` | Sobreposição entre elementos de layout | detectado por revisão geométrica/visual (D42) | SOFT |
 
 `S11` merece destaque: na análise Harmonia sobraram textos de matrícula, distâncias e até o
 título `Alertas MAPBIOMAS` num mapa PRODES, herdados do `.mxd` copiado. É o erro mais provável

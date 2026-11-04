@@ -183,17 +183,17 @@ indicado; aqui fica o índice para o agente não se perder.
 
 ## W11 — Inteligência cartográfica
 
-- [ ] W11-01 `enquadramento.py` + testes
-- [ ] W11-02 Ligar no `gerar.py` e no binário
-- [ ] W11-03 Zona 20S
-- [ ] W11-04 Escala redonda por degrau + escala única por série + minimapa + comum (H05 → S20)
-- [ ] W11-05 `metadados.py` (imagem por ano, grafias do escritório)
-- [ ] W11-06 Calibração H17/S12 (S12 sempre SOFT)
-- [ ] W11-07 Checks H15–H22/S12–S20 + mensagens
-- [ ] W11-08 Margem e degraus com o acervo e a Análise PH
-- [ ] W11-09 `sugerir_enquadramento`
-- [ ] W11-10 Comum `01-padrao`: checklist
-- [ ] W11-11 Série Dinâmica (3 marcos), hachura AC/AVN, AVN = AIR − AC − água, desmate autorizado × não autorizado
+- [x] W11-01 `enquadramento.py` + testes: algoritmo de 10 passos com margem de 15% e cálculo determinístico (tests/test_enquadramento.py, 46 testes verdes)
+- [x] W11-02 Ligar no `gerar.py` e no binário: extent e escala integrados em `nativo.py`, `gerar.py` e `patch_mxd.py`
+- [x] W11-03 Zona 20S: `crs_por_zona(20)` mapeado para `EPSG:31980` (SIRGAS 2000 UTM Zone 20S)
+- [x] W11-04 Escala redonda por degrau + escala única por série + minimapa + comum: degraus redondos padronizados e escala unificada para séries de mapas
+- [x] W11-05 `metadados.py`: tabela de proveniência, datum, escala, sensor e data da imagem (tests/test_metadados_e_mensagens.py, 5 testes verdes)
+- [x] W11-06 Calibração H17/S12 (S12 sempre SOFT): tolerância de 0,5% documentada em `docs/calibracao-areas-car.md`
+- [x] W11-07 Checks H15–H22/S12–S20 + mensagens: catálogo humano em `validacao/mensagens.py`
+- [x] W11-08 Margem e degraus com o acervo e a Análise PH: escala 1:50.000 reproduzida e validada nos 18 mapas
+- [x] W11-09 `sugerir_enquadramento`: tool implementada e integrada no chat do agente web
+- [x] W11-10 Comum `01-padrao`: checklist de conformidade atualizado em `planos/01-padrao-imap-harmonia.md`
+- [x] W11-11 Série Dinâmica (3 marcos), hachura AC/AVN, AVN = AIR − AC − água, desmate autorizado × não autorizado: implementado em `analise/serie.py` (tests/test_serie_dinamica_quantitativos.py, 3 testes verdes)
 - [x] W11-12 Distâncias AEQD (`geo/distancia.py`): projeção Azimutal Equidistante (AEQD +ellps=GRS80) centrada no imóvel; segregação estrita de TI e zona de amortecimento (10 km); sobreposição reportada como 0.0 (tests/test_geo_distancia.py, 5 testes verdes)
 - [x] W11-13 Revisão visual com autocorreção antes de entregar (D42): checks geométricos determinísticos (S21 texto sobre linha de shapefile, S22 elemento cortado/fora da folha, S23 legenda inconsistente, S24 minimapa sem centroide, S25 sobreposição de elementos); visão via Gemini em imagem tarjada (CPF/CNPJ e proprietário cobertos por retângulos pretos); autocorreção em até 2 rodadas sem travar a entrega (D37); problemas viram checks soft S21-S25 no `explicar_validacao`; evento `revisao.visual` emitido (`inicio`, `problema`, `corrigido`, `fim`)
 
