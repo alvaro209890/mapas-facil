@@ -14,6 +14,15 @@ em qualquer coisa.
 
 ## Snapshot — o que falta (2026-07-29, noite)
 
+**2026-11-05 — modelo Dinâmica 2008 (SPOT) da Aline com `.mxd` de projeto.** A galeria
+`dinamica_2008_spot_quadro` deixou de apontar para o Dinâmica 2026. O template
+`shared/templates/Dinamica_2008_SPOT_quadro.mxd` (e o `Dinamica_retrato.mxd` refeito) sai
+com os shapes em `SHP/`, a imagem do PDF e a extensão do minimapa que o ArcMap 10.8 lê
+(`df.extent` conferido). Chave SEMA dos dois arquivos novos foi trocada pelo placeholder
+antes do commit. Roteiro: `ferramentas/preparar_template_projeto_arcpy.py` e
+`ferramentas/registrar_template_projeto.py`. Detalhe em
+[`docs/fase3-rodada-2026-11-05-mxd-aline.md`](docs/fase3-rodada-2026-11-05-mxd-aline.md).
+
 **Fase 3 — app web (planejada 2026-11-03, em implementação):** o Mapas Fácil ganha um **site com
 login e chat de IA** (`mapasfacil-app.cursar.space`), backend no server-desktop e `.mxd` gerado
 **sem ArcMap** pelo motor binário. Planos e checklist vivo em

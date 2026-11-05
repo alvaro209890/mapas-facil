@@ -10,7 +10,7 @@
       "arquivo": "Dinamica_retrato.mxd",
       "fonte_acervo": "Referencias_IMAP/MXD/Dinamica_2026.mxd",
       "baseline_pdf": "Referencias_IMAP/Mapas/01/Dinamica_2026.pdf",
-      "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
+      "sha256": "637d1c8592359a4f3d86cb7cf460b4ec70a3334ab6c28a227795c0131f485cea",
       "versao_arcmap": "10.6",
       "formato_pagina": {
         "papel": "A4",
@@ -22,39 +22,18 @@
       },
       "crs_data_frame": "EPSG:31982",
       "status": "pronto",
-      "patch": {
-        "suportado": true,
-        "offsets": {
-          "extent": {
-            "offset": 35913,
-            "formato": "4×float64 LE",
-            "sentinela": 124719.31563899854,
-            "sentinelas": [
-              124719.31563899854,
-              209463.9044549968,
-              319724.6843610015,
-              457202.0955450032
-            ]
-          },
-          "escala": {
-            "offset": 36159,
-            "formato": "float64 LE",
-            "sentinela": 987654.0
-          }
-        }
-      },
       "variantes": [
         {
           "formato": "A4",
           "orientacao": "retrato",
           "arquivo": "Dinamica_retrato.mxd",
-          "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
-          "slots": "dinamica_retrato.slots.json",
-          "slots_sha256": "6710790d8e6de045a17f29eeff017aa67404fee68fa82e153211447c37989533",
+          "sha256": "637d1c8592359a4f3d86cb7cf460b4ec70a3334ab6c28a227795c0131f485cea",
+          "slots": "Dinamica_retrato.slots.json",
+          "slots_sha256": "1d89a1bbe16282e1a44bcda8760f1726533c9032cdda5da1c7392f1053cc6c67",
           "verificado_arcmap": {
-            "em": "2026-11-04T18:00:00Z",
+            "em": "2026-11-04T21:00:00Z",
             "arcmap": "10.8",
-            "motor_binario": "0.1.0",
+            "motor_binario": "0.2.0",
             "ok": true
           }
         },
@@ -62,13 +41,13 @@
           "formato": "A3",
           "orientacao": "retrato",
           "arquivo": "Dinamica_retrato.mxd",
-          "sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
-          "slots": "dinamica_retrato.slots.json",
-          "slots_sha256": "6710790d8e6de045a17f29eeff017aa67404fee68fa82e153211447c37989533",
+          "sha256": "637d1c8592359a4f3d86cb7cf460b4ec70a3334ab6c28a227795c0131f485cea",
+          "slots": "Dinamica_retrato.slots.json",
+          "slots_sha256": "1d89a1bbe16282e1a44bcda8760f1726533c9032cdda5da1c7392f1053cc6c67",
           "verificado_arcmap": {
-            "em": "2026-11-04T18:00:00Z",
+            "em": "2026-11-04T21:00:00Z",
             "arcmap": "10.8",
-            "motor_binario": "0.1.0",
+            "motor_binario": "0.2.0",
             "ok": true
           }
         }
@@ -1129,6 +1108,41 @@
           }
         }
       }
+    },
+    {
+      "id": "dinamica_2008_spot_quadro",
+      "nome": "Dinâmica 2008 (SPOT) com quadro de áreas — A4 retrato (IMAP/Aline)",
+      "arquivo": "Dinamica_2008_SPOT_quadro.mxd",
+      "fonte_acervo": "Referencias_IMAP/MXD/Aline/Dinamica_2008.mxd",
+      "baseline_pdf": "",
+      "sha256": "be555dfa457eb19e23ea307429dfeff93ca14fd9b36391e5e41f2c3054c32feb",
+      "versao_arcmap": "10.8",
+      "formato_pagina": {
+        "papel": "A4",
+        "orientacao": "retrato",
+        "mm": [
+          210,
+          297
+        ]
+      },
+      "crs_data_frame": "EPSG:31982",
+      "status": "pronto",
+      "variantes": [
+        {
+          "formato": "A4",
+          "orientacao": "retrato",
+          "arquivo": "Dinamica_2008_SPOT_quadro.mxd",
+          "sha256": "be555dfa457eb19e23ea307429dfeff93ca14fd9b36391e5e41f2c3054c32feb",
+          "slots": "Dinamica_2008_SPOT_quadro.slots.json",
+          "slots_sha256": "18bd5b8efba96211777f0fb8a1343ce0ee66dbe5b7ef4c16339f4b1d67ae5456",
+          "verificado_arcmap": {
+            "em": "2026-11-04T21:00:00Z",
+            "arcmap": "10.8",
+            "motor_binario": "0.2.0",
+            "ok": true
+          }
+        }
+      ]
     }
   ]
 }

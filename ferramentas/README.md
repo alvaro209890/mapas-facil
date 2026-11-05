@@ -18,6 +18,8 @@ Scripts presentes:
 | `preparar_sentinelas_arcpy.py` | sentinelas de extent/escala (+ sidecar `.sentinelas.json`) |
 | `inspecionar_mxd_offsets.py` | lê offsets/sentinelas do `.mxd` |
 | `registrar_template.py` | grava sha256/offsets no MANIFEST |
+| `preparar_template_projeto_arcpy.py` | prepara um MXD-modelo para o motor binário (links `..\\SHP`, sentinelas). Python 2.7 do ArcMap. Config em `templates_projeto/` |
+| `registrar_template_projeto.py` | copia o MXD preparado, grava `.slots.json` (com a extensão visível do minimapa) e a entrada no MANIFEST |
 | `recuperar_zip_truncado.py` | recupera ZIP sem diretório central |
 | `remover_planet_mxd_arcpy.py` | remove camadas Planet/WMTS quebradas dos `.mxd` (ArcMap 10.8) |
 | `fechar_dialogs_gis.ps1` | cancela o diálogo *GIS Server Connection* automaticamente |

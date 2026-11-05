@@ -40,7 +40,10 @@ def test_gerar_mxd_binario_sucesso(tmp_path: Path) -> None:
 
     assert resultado is not None
     assert resultado["motor"] == "binario"
-    assert resultado["confianca"] == "alta"
+    # Sem os shapes do projeto o .mxd sai, e as camadas sem arquivo avisam (MX-060).
+    assert resultado["confianca"] == "media"
+    assert resultado["avisos"]
+    assert all(a.startswith("[MX-060]") for a in resultado["avisos"])
     assert resultado["mxd"] == "MXD/Dinamica_2026.mxd"
 
     # Garante que o arquivo foi salvo no workspace
@@ -68,7 +71,8 @@ def test_gerar_mxd_t2_delega_ao_binario_quando_slots_json_existe(tmp_path: Path)
     )
 
     assert resultado["motor"] == "binario"
-    assert resultado["confianca"] == "alta"
+    assert resultado["confianca"] == "media"
+    assert all(a.startswith("[MX-060]") for a in resultado["avisos"])
     assert resultado["mxd"] == "MXD/mapa_modelo.mxd"
 
 
@@ -79,7 +83,10 @@ def test_nome_maior_que_o_campo_do_mxd_sai_em_branco_com_aviso(tmp_path: Path) -
     mapspec = {
         "id": "teste_binario_longo",
         "template": "Dinamica_retrato",
-        "imovel": {"nome": "Fazenda Esperança do Norte", "municipio": {"nome": "Querência", "uf": "MT"}},
+        "imovel": {
+            "nome": "Fazenda Esperança do Norte " + ("Norte " * 20),
+            "municipio": {"nome": "Querência", "uf": "MT"},
+        },
         "saida": {"nome_base": "Dinamica_longo"},
     }
     resultado = gerar_mxd_binario(mapspec, guard=guard, escala=50000.0)

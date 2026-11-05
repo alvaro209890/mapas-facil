@@ -1050,6 +1050,13 @@ def gerar_pdf_minimo(
         "grade_passo_segundos": grade.get("passo_segundos"),
         "basemap": {
             "ok": bool(info_basemap.get("ok")),
+            # A mesma imagem vira o raster do .mxd (SHP/imagens/), georreferenciada no extent.
+            "caminho": (
+                str(Path(info_basemap["caminho"]).resolve().relative_to(guard.raiz.resolve()))
+                if info_basemap.get("ok") and info_basemap.get("caminho")
+                else None
+            ),
+            "epsg": epsg,
             "camada": info_basemap.get("camada"),
             "fonte": info_basemap.get("fonte"),
             "motivo": info_basemap.get("motivo"),

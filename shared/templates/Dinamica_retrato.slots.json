@@ -1,10 +1,10 @@
 {
   "template_id": "dinamica_retrato",
   "variante": {
-    "formato": "A3",
+    "formato": "A4",
     "orientacao": "retrato"
   },
-  "arquivo_sha256": "b3904692f77e7088efa5a44b61561934e7474d66a392ec576d135e6bf7deaf79",
+  "arquivo_sha256": "637d1c8592359a4f3d86cb7cf460b4ec70a3334ab6c28a227795c0131f485cea",
   "streams": [
     "Mx Document",
     "PageLayout",
@@ -12,47 +12,152 @@
   ],
   "slots": [
     {
+      "id": "municipio",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.imovel.municipio.nome",
+      "sentinela": "MFMUNICIPIOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "streams": [
+        "Mx Document",
+        "PageLayout"
+      ]
+    },
+    {
       "id": "rotulo_imovel",
       "tipo": "texto",
       "obrigatorio": false,
       "origem": "mapspec.imovel.nome",
-      "sentinela": "Fazenda Harmonia",
+      "sentinela": "MFROTULO_IMOVELXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
       "streams": [
-        "PageLayout",
-        "Mx Document"
+        "Mx Document",
+        "PageLayout"
       ]
     },
     {
-      "id": "municipio",
+      "id": "titulo",
       "tipo": "texto",
       "obrigatorio": false,
-      "origem": "mapspec.imovel.municipio",
-      "sentinela": "Vila Rica",
+      "origem": "mapspec.titulo",
+      "sentinela": "MFTITULOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
       "streams": [
-        "PageLayout",
-        "Mx Document"
+        "Mx Document",
+        "PageLayout"
       ]
     },
     {
-      "id": "uf",
-      "tipo": "texto",
+      "id": "df_principal",
+      "tipo": "envelope",
       "obrigatorio": false,
-      "origem": "mapspec.imovel.uf",
-      "sentinela": "MT",
+      "origem": "data_frame.MAPA",
+      "sentinela": [
+        124719.31563899854,
+        209463.9044549968,
+        319724.6843610015,
+        457202.0955450032
+      ],
       "streams": [
-        "PageLayout",
-        "Mx Document"
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "quadro_cm": [
+          19.744300000000294,
+          25.08350000000064
+        ],
+        "epsg": 31982
+      }
+    },
+    {
+      "id": "minimapa",
+      "tipo": "envelope",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA",
+      "sentinela": [
+        -6130121.560796104,
+        -2222222.2,
+        -5992100.639203894,
+        -2122222.2
+      ],
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "quadro_cm": [
+          1.5602707953209816,
+          1.1304596269331393
+        ],
+        "epsg": 3857
+      }
+    },
+    {
+      "id": "minimapa_visivel",
+      "tipo": "envelope",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA.visivel",
+      "sentinela": [
+        -6130158.719047619,
+        -2222249.122187655,
+        -5992063.48095238,
+        -2122195.2778123454
+      ],
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "relativo_a": "minimapa",
+        "kx": 1.0005384437530997,
+        "ky": 1.0005384437530953
+      }
+    },
+    {
+      "id": "escala_minimapa",
+      "tipo": "numero",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA",
+      "sentinela": 8850722.484158862,
+      "streams": [
+        "Mx Document",
+        "Maps"
       ]
     },
     {
       "id": "escala",
       "tipo": "numero",
       "obrigatorio": false,
-      "origem": "enquadramento.escala",
+      "origem": "mapspec.escala",
       "sentinela": 987654.0,
       "streams": [
-        "Mx Document"
+        "Mx Document",
+        "Maps"
       ]
+    }
+  ],
+  "arquivos": [
+    {
+      "arquivo": "SHP/AREA_CONSOLIDADA.shp",
+      "papel": "ac"
+    },
+    {
+      "arquivo": "SHP/CAR_ATP.shp",
+      "papel": "perimetro"
+    },
+    {
+      "arquivo": "SHP/limites/lml_municipio_a.shp",
+      "papel": "municipios"
+    },
+    {
+      "arquivo": "SHP/limites/lml_uf_a.shp",
+      "papel": "uf"
+    },
+    {
+      "arquivo": "SHP/imagens/L5_224_068_20080720_COMP543_GEO.tif",
+      "papel": "basemap"
+    },
+    {
+      "arquivo": "SHP/limites/Fazendas_Unidas.shp",
+      "papel": "localizador"
     }
   ]
 }

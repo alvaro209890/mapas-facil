@@ -1,0 +1,167 @@
+{
+  "template_id": "dinamica_2008_spot_quadro",
+  "variante": {
+    "formato": "A4",
+    "orientacao": "retrato"
+  },
+  "arquivo_sha256": "be555dfa457eb19e23ea307429dfeff93ca14fd9b36391e5e41f2c3054c32feb",
+  "streams": [
+    "Mx Document",
+    "PageLayout",
+    "Maps"
+  ],
+  "slots": [
+    {
+      "id": "municipio",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.imovel.municipio.nome",
+      "sentinela": "MFMUNICIPIOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "streams": [
+        "Mx Document",
+        "PageLayout"
+      ]
+    },
+    {
+      "id": "quadro",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.ajustes_layout.quadro_resumo",
+      "sentinela": "MFQUADROXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "streams": [
+        "Mx Document",
+        "PageLayout"
+      ]
+    },
+    {
+      "id": "titulo",
+      "tipo": "texto",
+      "obrigatorio": false,
+      "origem": "mapspec.titulo",
+      "sentinela": "MFTITULOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "streams": [
+        "Mx Document",
+        "PageLayout"
+      ]
+    },
+    {
+      "id": "df_principal",
+      "tipo": "envelope",
+      "obrigatorio": false,
+      "origem": "data_frame.MAPA",
+      "sentinela": [
+        124719.31563899854,
+        209463.9044549968,
+        319724.6843610015,
+        457202.0955450032
+      ],
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "quadro_cm": [
+          19.744300000000294,
+          25.08350000000064
+        ],
+        "epsg": 31982
+      }
+    },
+    {
+      "id": "minimapa",
+      "tipo": "envelope",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA",
+      "sentinela": [
+        -60.22944366965724,
+        -20.222222,
+        -59.21500033034276,
+        -19.444444
+      ],
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "quadro_cm": [
+          4.259399999999005,
+          3.2656999999999243
+        ],
+        "epsg": 4674
+      }
+    },
+    {
+      "id": "minimapa_visivel",
+      "tipo": "envelope",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA.visivel",
+      "sentinela": [
+        -60.22672664864865,
+        -20.220138848497967,
+        -59.217717351351354,
+        -19.446527151502032
+      ],
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ],
+      "extra": {
+        "relativo_a": "minimapa",
+        "kx": 0.994643326239534,
+        "ky": 0.9946433262395409
+      }
+    },
+    {
+      "id": "escala_minimapa",
+      "tipo": "numero",
+      "obrigatorio": false,
+      "origem": "data_frame.MINIMAPA",
+      "sentinela": 2634095.4097768087,
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ]
+    },
+    {
+      "id": "escala",
+      "tipo": "numero",
+      "obrigatorio": false,
+      "origem": "mapspec.escala",
+      "sentinela": 987654.0,
+      "streams": [
+        "Mx Document",
+        "Maps"
+      ]
+    }
+  ],
+  "arquivos": [
+    {
+      "arquivo": "SHP/AVN.shp",
+      "papel": "avn"
+    },
+    {
+      "arquivo": "SHP/AREA_CONSOLIDADA.shp",
+      "papel": "ac"
+    },
+    {
+      "arquivo": "SHP/AIR.shp",
+      "papel": "perimetro"
+    },
+    {
+      "arquivo": "SHP/imagens/L5_224_068_20080720_COMP543_GEO.tif",
+      "papel": "basemap"
+    },
+    {
+      "arquivo": "SHP/limites/lml_municipio_a.shp",
+      "papel": "municipios"
+    },
+    {
+      "arquivo": "SHP/limites/lml_unidade_federacao_a.shp",
+      "papel": "uf"
+    },
+    {
+      "arquivo": "SHP/limites/AIR.shp",
+      "papel": "localizador"
+    }
+  ]
+}

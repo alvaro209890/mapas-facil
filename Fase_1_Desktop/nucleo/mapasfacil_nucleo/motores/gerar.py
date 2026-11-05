@@ -120,6 +120,52 @@ def _resolver_bbox_utm(
     return min(tx), min(ty), max(tx), max(ty)
 
 
+def _regravar_mxd_como_o_pdf(
+    mapspec: dict[str, Any],
+    guard: WorkspaceGuard,
+    artefatos: dict[str, Any],
+    pdf_artefatos: dict[str, Any],
+    prog: RastreadorProgresso,
+) -> None:
+    """O .mxd binário sai antes do PDF com a extensão bruta do imóvel; depois do PDF ele é
+    regravado com a **mesma** extensão, a imagem de fundo e o quadro de áreas do PDF — o
+    usuário abre no ArcMap o mesmo mapa que viu no site."""
+    mxd_info = artefatos.get("mxd") or {}
+    extent = pdf_artefatos.get("extent")
+    if mxd_info.get("motor") != "binario" or not mxd_info.get("mxd") or not extent:
+        return
+    from mapasfacil_nucleo.motores.nativo import linhas_quadro_resumo
+    from mapasfacil_nucleo.motores.patch_mxd import gerar_mxd_binario
+
+    base = pdf_artefatos.get("basemap") or {}
+    basemap = None
+    if base.get("ok") and base.get("caminho"):
+        basemap = {
+            "caminho": guard.resolver(base["caminho"]),
+            "extent": extent,
+            "epsg": base.get("epsg") or 31982,
+        }
+    linhas = None
+    if (mapspec.get("elementos_layout") or {}).get("quadro_resumo"):
+        areas = (artefatos.get("quantitativos") or {}).get("areas")
+        linhas = linhas_quadro_resumo(mapspec, areas)
+    try:
+        novo = gerar_mxd_binario(
+            mapspec,
+            guard=guard,
+            bbox=tuple(extent),
+            escala=None,
+            quadro_linhas=linhas,
+            basemap=basemap,
+        )
+    except Exception as exc:  # noqa: BLE001 — o .mxd da primeira passada continua valendo
+        prog.log(f".mxd não regravado com o enquadramento do PDF: {exc}")
+        return
+    if novo and novo.get("mxd"):
+        artefatos["mxd"] = novo
+        prog.log(f".mxd regravado com o enquadramento e a imagem do PDF · {novo['mxd']}")
+
+
 def _municipio_imovel(mapspec: dict[str, Any]) -> tuple[str, str]:
     """`(nome_municipio, sigla_uf)` do MapSpec — vazio quando o laudo não tem município."""
     mun = (mapspec.get("imovel") or {}).get("municipio") or {}
@@ -526,6 +572,7 @@ def _gerar_mapa_corpo(
         artefatos.update(pdf_artefatos)
         resultado["pdf"] = pdf_artefatos["pdf"]
         prog.log(f"PDF exportado · {pdf_artefatos['pdf']}")
+        _regravar_mxd_como_o_pdf(mapspec, guard, artefatos, pdf_artefatos, prog)
         if pdf_artefatos.get("tabela_sobreposta"):
             resultado["tabela_sobreposta"] = True
 

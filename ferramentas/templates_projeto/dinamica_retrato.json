@@ -1,0 +1,37 @@
+{
+  "_nota": "Dinâmica 2026 retrato (Harmonia). Origem: o Dinamica_retrato.mxd anterior (sentinelas curtas), guardado em Referencias_IMAP/MXD/Dinamica_retrato_pre_projeto.mxd (= shared/templates/Dinamica_retrato.mxd em c627a98). A camada de imagem vem do modelo da Aline (raster_de).",
+  "origem": "../../Referencias_IMAP/MXD/Dinamica_retrato_pre_projeto.mxd",
+  "data_frames": {},
+  "textos_tamanho": { "titulo": 64, "rotulo_imovel": 80, "municipio": 60 },
+  "raster_de": { "mxd": "../../Referencias_IMAP/MXD/Aline/Dinamica_2008.mxd", "camada": "L5_224_068_20080720_COMP543_GEO.tif", "df": "MAPA" },
+  "camadas": {
+    "MAPA": {
+      "AC": { "pasta": "SHP", "papel": "ac" },
+      "PERIMETRO": { "pasta": "SHP", "papel": "perimetro" },
+      "MUNICIPIOS": { "pasta": "SHP/limites", "papel": "municipios", "consulta": "\"nome\" = '{municipio}'" },
+      "UF": { "pasta": "SHP/limites", "papel": "uf" },
+      "L5_224_068_20080720_COMP543_GEO.tif": { "pasta": "SHP/imagens", "papel": "basemap", "nome": "Imagem", "visivel": true }
+    },
+    "MINIMAPA": {
+      "Fazenda_Unificada": { "pasta": "SHP/limites", "papel": "localizador", "nome": "LOCALIZADOR" },
+      "MUNICIPIOS": { "pasta": "SHP/limites", "papel": "municipios", "consulta": "\"nome\" = '{municipio}'" },
+      "MUNICIPIOS_ENTORNO": { "pasta": "SHP/limites", "papel": "municipios" }
+    },
+    "UF_INSET": {
+      "UF": { "pasta": "SHP/limites", "papel": "uf" }
+    }
+  },
+  "textos": [
+    { "id": "rotulo", "comeca_com": "Fazenda Harmonia", "nome": "ROTULO_IMOVEL", "slot": "rotulo_imovel", "centralizar_no_df": "MAPA" },
+    { "id": "municipio", "comeca_com": "Vila Rica", "nome": "ROTULO_MUNICIPIO", "slot": "municipio" },
+    { "id": "titulo", "comeca_com": "Ano: 2026", "nome": "TITULO", "slot": "titulo" },
+    { "id": "uf", "comeca_com": "MT", "nome": "UF_SELO" },
+    { "id": "metadados", "comeca_com": "<bol>METADADOS", "nome": "METADADOS" }
+  ],
+  "graficos_fora": ["MINIMAPA_GUIA", "MINIMAPA_RETANGULO"],
+  "extensoes": {
+    "MAPA": [111111.0, 222222.0, 333333.0, 444444.0],
+    "MINIMAPA": [-6111111.1, -2222222.2, -6011111.1, -2122222.2]
+  },
+  "escala_sentinela": 987654.0
+}

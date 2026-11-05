@@ -1,0 +1,47 @@
+{
+  "_nota": "Dinâmica 2008 (SPOT) da Aline (IMAP). Origem: Downloads/Arquivos_avulsos_Pamera_Manu/Aline/mapas_modelo/Dinamica_2008.mxd, copiado para Referencias_IMAP/MXD/Aline/. A imagem SPOT do modelo vinha de uma conexão ArcGIS Server do perfil da Aline (não abre em outra máquina): virou o raster local SHP/imagens/<nome do Landsat do modelo>.tif, que o núcleo grava com o mosaico baixado para o PDF.",
+  "origem": "../../Referencias_IMAP/MXD/Aline/Dinamica_2008.mxd",
+  "data_frames": { "Layers": "MAPA", "Municipio": "MINIMAPA", "Estado": "UF_INSET" },
+  "textos_tamanho": { "titulo": 64, "quadro": 200, "municipio": 60 },
+  "camadas": {
+    "MAPA": {
+      "Shapes_Uteis": "remover",
+      "ARL": { "pasta": "SHP", "papel": "avn", "nome": "AVN" },
+      "AREA_CONSOLIDADA": { "pasta": "SHP", "papel": "ac" },
+      "Área Total da Propriedade": { "pasta": "SHP", "papel": "perimetro" },
+      "AUAS": "remover",
+      "SPOT\\MosaicSpot2008": "remover",
+      "SERVIÇO DE WEBMAPS SEMA-MT": "remover",
+      "SERVIÇO DE WEBMAPS SEMA-MT\\SPOT 2008 (SEPLAN)": "remover",
+      "L5_224_068_20080720_COMP543_GEO.tif": { "pasta": "SHP/imagens", "papel": "basemap", "nome": "Imagem SPOT 2008", "visivel": true },
+      "L5_224_068_20090808_COMP543_GEO.tif": "remover",
+      "Limite municipal": { "pasta": "SHP/limites", "papel": "municipios", "consulta": "\"nome\" = '{municipio}'" },
+      "Limite estadual": { "pasta": "SHP/limites", "papel": "uf" }
+    },
+    "MINIMAPA": {
+      "Área total da propriedade": { "pasta": "SHP/limites", "papel": "localizador" },
+      "Limite municipal": { "pasta": "SHP/limites", "papel": "municipios", "consulta": "\"nome\" = '{municipio}'" },
+      "LIM_LIMITE_POLITICO_ADMINISTRATIVO_A": { "pasta": "SHP/limites", "papel": "municipios" },
+      "Hidrografia": "remover",
+      "Área consolidada": { "pasta": "SHP", "papel": "ac" },
+      "Área de vegetação nativa": { "pasta": "SHP", "papel": "avn" },
+      "Limite Estadual": { "pasta": "SHP/limites", "papel": "uf" }
+    },
+    "UF_INSET": {
+      "lml_unidade_federacao_a": { "pasta": "SHP/limites", "papel": "uf" }
+    }
+  },
+  "textos": [
+    { "id": "quadro", "comeca_com": "Vegetação nativa em 2008", "nome": "QUADRO", "slot": "quadro" },
+    { "id": "titulo", "comeca_com": "Dinâmica 2008", "nome": "TITULO", "slot": "titulo" },
+    { "id": "municipio", "comeca_com": "Querência", "nome": "ROTULO_MUNICIPIO", "slot": "municipio" },
+    { "id": "metadados", "comeca_com": "<bol>METADADOS", "nome": "METADADOS" },
+    { "id": "uf", "comeca_com": "MT", "nome": "UF_SELO" }
+  ],
+  "graficos_fora": [[3.54, 1.62], [3.25, 1.53]],
+  "extensoes": {
+    "MAPA": [111111.0, 222222.0, 333333.0, 444444.0],
+    "MINIMAPA": [-60.111111, -20.222222, -59.333333, -19.444444]
+  },
+  "escala_sentinela": 987654.0
+}

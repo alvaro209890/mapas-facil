@@ -158,8 +158,12 @@ def verificar_g2(
                 dados_st = cf.obter_stream(st_nome)
 
                 if slot.tipo == "texto":
-                    u16 = str(valor_esperado).encode("utf-16le")
-                    if u16 in dados_st:
+                    from .slots import variantes_gravadas
+
+                    if any(
+                        forma.encode("utf-16le") in dados_st
+                        for forma in variantes_gravadas(str(valor_esperado))
+                    ):
                         encontrado = True
                         break
                 elif slot.tipo == "numero":

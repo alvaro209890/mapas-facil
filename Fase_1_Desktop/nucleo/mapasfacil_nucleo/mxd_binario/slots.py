@@ -34,6 +34,9 @@ class DefinicaoSlot:
     origem: str = ""
     sentinela: Any = None
     streams: list[str] = field(default_factory=lambda: ["PageLayout", "Mx Document"])
+    # Envelope: `quadro_cm` [w, h] do data frame e `epsg` — para ajustar a extensão à
+    # proporção do quadro (o ArcMap respeita a extensão gravada e deriva a escala dela).
+    extra: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.tipo not in TIPOS_VALIDOS:
@@ -58,6 +61,9 @@ class ManifestoSlots:
     arquivo_sha256: str = ""
     streams: list[str] = field(default_factory=lambda: ["Mx Document", "PageLayout", "Maps"])
     slots: list[DefinicaoSlot] = field(default_factory=list)
+    # Arquivos que as camadas do template esperam ao lado do .mxd (`SHP/AIR.shp`,
+    # `SHP/limites/lml_municipio_a.shp`, ...) e o papel de cada um — o núcleo grava as cópias.
+    arquivos: list[dict[str, str]] = field(default_factory=list)
 
     @classmethod
     def carregar(cls, caminho_json: Path | str) -> ManifestoSlots:
@@ -77,6 +83,7 @@ class ManifestoSlots:
                     origem=s.get("origem", ""),
                     sentinela=s.get("sentinela"),
                     streams=s.get("streams", ["PageLayout", "Mx Document"]),
+                    extra=dict(s.get("extra") or {}),
                 )
             )
         return cls(
@@ -85,6 +92,7 @@ class ManifestoSlots:
             arquivo_sha256=dados.get("arquivo_sha256", ""),
             streams=dados.get("streams", ["Mx Document", "PageLayout", "Maps"]),
             slots=slots_def,
+            arquivos=list(dados.get("arquivos") or []),
         )
 
     def para_dict(self) -> dict[str, Any]:
@@ -101,13 +109,42 @@ class ManifestoSlots:
                     "origem": s.origem,
                     "sentinela": s.sentinela,
                     "streams": s.streams,
+                    **({"extra": s.extra} if s.extra else {}),
                 }
                 for s in self.slots
             ],
+            **({"arquivos": self.arquivos} if self.arquivos else {}),
         }
 
 
 # ------------------------------------------------------------------ Aplicadores
+
+
+TAG_PEQUENA_ABRE = '<FNT size="1">'
+TAG_PEQUENA_FECHA = "</FNT>"
+"""Sobra de sentinela num rótulo vai em letra de 1 pt: com espaços normais, a caixa do título
+(balão) ficava do tamanho da sentinela. O ArcMap interpreta as tags de formatação no texto."""
+
+
+def _escapar_tags(texto: str) -> str:
+    return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def variantes_gravadas(texto: str) -> list[str]:
+    """Formas em que um texto pode ter sido gravado (para o gate G2 procurar)."""
+    return [texto, texto.replace("'", "''"), _escapar_tags(texto)]
+
+
+def _rotulo(novo: str, tamanho: int) -> str:
+    falta = tamanho - len(novo)
+    if falta == 0:
+        return novo
+    tags = len(TAG_PEQUENA_ABRE) + len(TAG_PEQUENA_FECHA)
+    escapado = _escapar_tags(novo)
+    sobra = tamanho - len(escapado) - tags
+    if sobra >= 1:
+        return escapado + TAG_PEQUENA_ABRE + " " * sobra + TAG_PEQUENA_FECHA
+    return " " * (falta // 2) + novo + " " * (falta - falta // 2)
 
 
 def aplicar_slot_texto(
@@ -120,20 +157,22 @@ def aplicar_slot_texto(
 
     O texto novo ocupa **sempre** o mesmo número de bytes da sentinela: trocar o tamanho
     corrompia o PageLayout (o MXD do teste_22 abria no ArcMap com `pageLayout` vazio).
-    Num rótulo, o texto é completado com espaços dos dois lados (continua centrado); numa
-    consulta SQL (`"nome" = 'Vila Rica'`), os espaços vão depois da aspa. A decisão é por
-    ocorrência — a mesma sentinela costuma estar no rótulo e na consulta do minimapa.
+    A decisão é por ocorrência — a mesma sentinela está no rótulo e nas consultas:
+
+    - consulta SQL (`"nome" = 'MFMUNICIPIO…'`): apóstrofo do valor vira `''` e a sobra são
+      espaços **depois** da aspa (`'Canarana'   `);
+    - rótulo: a sobra vai numa tag de letra 1 pt (`<FNT size="1">   </FNT>`), que não
+      alarga a caixa; sem espaço para a tag, espaços dos dois lados.
+
     Texto maior que a sentinela não entra (`ErroSlot`). Retorna o número de trocas.
     """
     if len(novo_texto) > len(sentinela):
         raise ErroSlot(
             f"Texto com {len(novo_texto)} caracteres não cabe na sentinela de {len(sentinela)}."
         )
-    falta = len(sentinela) - len(novo_texto)
     sentinela_u16 = sentinela.encode("utf-16le")
     aspa_u16 = "'".encode("utf-16le")
-    centrado = (" " * (falta // 2) + novo_texto + " " * (falta - falta // 2)).encode("utf-16le")
-    em_consulta = (novo_texto + "'" + " " * falta).encode("utf-16le")
+    rotulo = _rotulo(novo_texto, len(sentinela)).encode("utf-16le")
 
     substituicoes = 0
     pos = 0
@@ -143,13 +182,42 @@ def aplicar_slot_texto(
             break
         fim_s = idx + len(sentinela_u16)
         if stream[fim_s : fim_s + len(aspa_u16)] == aspa_u16:
-            stream[idx : fim_s + len(aspa_u16)] = em_consulta
+            valor = novo_texto.replace("'", "''")
+            if len(valor) > len(sentinela):
+                raise ErroSlot(f"Consulta com {len(valor)} caracteres não cabe na sentinela.")
+            sobra = len(sentinela) - len(valor)
+            stream[idx : fim_s + len(aspa_u16)] = (valor + "'" + " " * sobra).encode("utf-16le")
             pos = fim_s + len(aspa_u16)
         else:
-            stream[idx:fim_s] = centrado
+            stream[idx:fim_s] = rotulo
             pos = fim_s
         substituicoes += 1
     return substituicoes
+
+
+def _posicoes_aproximadas(stream: bytearray, valores: list[float], rel_tol: float = 1e-9) -> list[int]:
+    """Offsets onde os `valores` aparecem em sequência (float64 LE), com tolerância.
+
+    O ArcMap grava a mesma extensão/escala em vários lugares, às vezes diferindo no último
+    bit (209463.9044549968 × 209463.90445499684) — e não só no último valor: busca exata
+    deixava cópias velhas, e o minimapa desenhava pela cópia velha (em branco).
+    """
+    import numpy as np
+
+    dados = bytes(stream)
+    achados: list[int] = []
+    n_val = len(valores)
+    for alinhamento in range(8):
+        n = (len(dados) - alinhamento) // 8
+        if n < n_val:
+            continue
+        arr = np.frombuffer(dados, dtype="<f8", count=n, offset=alinhamento)
+        with np.errstate(invalid="ignore"):
+            ok = np.isclose(arr[: n - n_val + 1], valores[0], rtol=rel_tol, atol=0.0)
+            for j in range(1, n_val):
+                ok &= np.isclose(arr[j : n - n_val + 1 + j], valores[j], rtol=rel_tol, atol=0.0)
+        achados.extend(int(alinhamento + 8 * i) for i in np.nonzero(ok)[0])
+    return sorted(achados)
 
 
 def aplicar_slot_numero(
@@ -157,21 +225,12 @@ def aplicar_slot_numero(
     sentinela: float,
     novo_valor: float,
 ) -> int:
-    """Substitui valor double IEEE-754 (8 bytes) in-place na stream."""
-    sentinela_bytes = struct.pack("<d", float(sentinela))
+    """Substitui um double IEEE-754 (8 bytes) in-place, tolerando o último bit."""
     novo_bytes = struct.pack("<d", float(novo_valor))
-
-    substituicoes = 0
-    pos = 0
-    while True:
-        idx = stream.find(sentinela_bytes, pos)
-        if idx == -1:
-            break
+    posicoes = _posicoes_aproximadas(stream, [float(sentinela)])
+    for idx in posicoes:
         stream[idx : idx + 8] = novo_bytes
-        substituicoes += 1
-        pos = idx + 8
-
-    return substituicoes
+    return len(posicoes)
 
 
 def aplicar_slot_envelope(
@@ -179,36 +238,14 @@ def aplicar_slot_envelope(
     sentinela: tuple[float, float, float, float] | list[float],
     novo_envelope: tuple[float, float, float, float] | list[float],
 ) -> int:
-    """Substitui 4 doubles IEEE-754 (XMin, YMin, XMax, YMax = 32 bytes) in-place."""
+    """Substitui 4 doubles (XMin, YMin, XMax, YMax = 32 bytes) in-place, com tolerância."""
     if len(sentinela) != 4 or len(novo_envelope) != 4:
         raise ValueError("Envelope exige exatamente 4 coordenadas (xmin, ymin, xmax, ymax)")
-
-    sentinela_bytes = struct.pack(
-        "<dddd",
-        float(sentinela[0]),
-        float(sentinela[1]),
-        float(sentinela[2]),
-        float(sentinela[3]),
-    )
-    novo_bytes = struct.pack(
-        "<dddd",
-        float(novo_envelope[0]),
-        float(novo_envelope[1]),
-        float(novo_envelope[2]),
-        float(novo_envelope[3]),
-    )
-
-    substituicoes = 0
-    pos = 0
-    while True:
-        idx = stream.find(sentinela_bytes, pos)
-        if idx == -1:
-            break
+    novo_bytes = struct.pack("<dddd", *(float(v) for v in novo_envelope))
+    posicoes = _posicoes_aproximadas(stream, [float(v) for v in sentinela])
+    for idx in posicoes:
         stream[idx : idx + 32] = novo_bytes
-        substituicoes += 1
-        pos = idx + 32
-
-    return substituicoes
+    return len(posicoes)
 
 
 def aplicar_slot_consulta(

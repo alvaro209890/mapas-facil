@@ -229,8 +229,16 @@ def gerar_mxd_binario(
     bbox: tuple[float, float, float, float] | None = None,
     escala: float | None = None,
     ao_etapa: Callable[[str], Any] | None = None,
+    quadro_linhas: list[str] | None = None,
+    basemap: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    """W10-11: Motor MXD binário baseado em slots.json e gates de qualidade."""
+    """W10-11: Motor MXD binário baseado em slots.json e gates de qualidade.
+
+    `quadro_linhas`: texto do quadro de resumo (as mesmas linhas do PDF).
+    `basemap`: `{"caminho", "extent", "epsg"}` da imagem de fundo baixada para o PDF — vira
+    o raster que o template espera em `SHP/imagens/`. Sem ela (primeira passada, antes do
+    PDF), o .mxd sai sem imagem e é regravado depois do PDF.
+    """
     from mapasfacil_nucleo.mxd_binario import DocumentoMxd, ManifestoSlots, verificar_todos
 
     template_id = mapspec.get("template")
@@ -275,19 +283,58 @@ def gerar_mxd_binario(
     nome_mun = municipio_obj.get("nome") if isinstance(municipio_obj, dict) else str(municipio_obj or "")
     uf_mun = municipio_obj.get("uf") if isinstance(municipio_obj, dict) else ""
 
+    from mapasfacil_nucleo.mxd_binario import projeto as projeto_mxd
+
+    por_id = {s.id: s for s in manifesto.slots}
+    elementos = mapspec.get("elementos_layout") or {}
     valores: dict[str, Any] = {}
     if mapspec.get("titulo"):
         valores["titulo"] = mapspec["titulo"]
-    if imovel.get("nome"):
+    if imovel.get("nome") and elementos.get("rotulo_imovel", True):
         valores["rotulo_imovel"] = imovel["nome"]
     if nome_mun:
         valores["municipio"] = nome_mun
     if uf_mun:
         valores["uf"] = uf_mun
+    if quadro_linhas:
+        valores["quadro"] = "\r\n".join(quadro_linhas)
+    # Slot de texto sem valor fica em branco: a sentinela ("MFQUADROXXX…") nunca aparece.
+    for slot in manifesto.slots:
+        if slot.tipo == "texto" and slot.id not in valores:
+            valores[slot.id] = ""
+    epsg_df = int(str(tpl.get("crs_data_frame", "EPSG:31982")).replace("EPSG:", ""))
+    if bbox:
+        slot_df = por_id.get("df_principal")
+        quadro_cm = (slot_df.extra or {}).get("quadro_cm") if slot_df else None
+        envelope = projeto_mxd.ajustar_envelope(bbox, quadro_cm)
+        valores["df_principal"] = envelope
+        # Escala coerente com a extensão (o ArcMap deriva uma da outra).
+        if quadro_cm and "escala" in por_id:
+            escala = projeto_mxd.escala_do_envelope(envelope, quadro_cm, epsg_df)
     if escala:
         valores["escala"] = escala
-    if bbox:
-        valores["df_principal"] = bbox
+    slot_mini = por_id.get("minimapa")
+    if slot_mini is not None:
+        extra = slot_mini.extra or {}
+        mini = projeto_mxd.extensao_minimapa(nome_mun, int(extra.get("epsg") or 4674), extra.get("quadro_cm"))
+        if mini:
+            valores["minimapa"] = mini
+            # A escala vai junto: o ArcMap guarda as duas e desenha pela que achar primeiro.
+            if "escala_minimapa" in por_id and extra.get("quadro_cm"):
+                valores["escala_minimapa"] = projeto_mxd.escala_do_envelope(
+                    mini, extra["quadro_cm"], int(extra.get("epsg") or 4674)
+                )
+
+    # Extensão "visível" (o ArcMap desenha por ela): a principal reduzida pelo fator medido
+    # no template, com o mesmo centro.
+    for slot in manifesto.slots:
+        rel = (slot.extra or {}).get("relativo_a")
+        if slot.tipo == "envelope" and rel and rel in valores:
+            x0, y0, x1, y1 = valores[rel]
+            cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+            mw = (x1 - x0) * float(slot.extra.get("kx") or 1) / 2
+            mh = (y1 - y0) * float(slot.extra.get("ky") or 1) / 2
+            valores[slot.id] = (cx - mw, cy - mh, cx + mw, cy + mh)
 
     valores, avisos_slots, bloqueio = _caber_nas_sentinelas(valores, manifesto)
     if bloqueio:
@@ -318,6 +365,16 @@ def gerar_mxd_binario(
         }
 
     doc.salvar(destino_mxd)
+    # Os arquivos que as camadas do template esperam em ..\SHP (nomes do modelo).
+    if manifesto.arquivos:
+        epsg_mini = int(((slot_mini.extra or {}).get("epsg") if slot_mini else None) or 4674)
+        avisos_slots += projeto_mxd.gravar_arquivos(
+            manifesto.arquivos,
+            guard=guard,
+            centro_lonlat=projeto_mxd.centro_lonlat(bbox, epsg_df) if bbox else None,
+            meio_lado_localizador=projeto_mxd.meio_lado_localizador(valores.get("minimapa"), epsg_mini),
+            basemap=basemap,
+        )
     if ao_etapa is not None:
         ao_etapa("salvando_mxd")
 
@@ -332,7 +389,7 @@ def gerar_mxd_binario(
 # Textos que só aparecem no layout: se não couberem, o MXD sai com o campo em branco (abre
 # normal, e o aviso pede para escrever no ArcMap). Os demais (município, UF) também entram
 # em consultas de camada — cortar mudaria o filtro, então o MXD não é liberado.
-_SLOTS_SO_LAYOUT = {"titulo", "rotulo_imovel"}
+_SLOTS_SO_LAYOUT = {"titulo", "rotulo_imovel", "quadro"}
 
 
 def _caber_nas_sentinelas(
@@ -350,7 +407,8 @@ def _caber_nas_sentinelas(
             continue
         texto = str(ajustados[slot.id])
         limite = len(str(slot.sentinela))
-        if len(texto) <= limite:
+        # Na consulta SQL o apóstrofo vira dois ("Conquista D''Oeste").
+        if len(texto.replace("'", "''")) <= limite:
             continue
         if slot.id in _SLOTS_SO_LAYOUT:
             ajustados[slot.id] = ""
