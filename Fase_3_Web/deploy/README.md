@@ -55,6 +55,7 @@ cloudflared tunnel route dns mapasfacil-app mapasfacil-app.cursar.space
 | `scripts/atualizar.sh <tag>` | deploy por **tag**: preflight → tag → deps → backup → migração → SPA → symlink `atual` → restart → smoke |
 | `scripts/rollback.sh <tag>` | volta a tag anterior (migração é só aditiva, não se desfaz) |
 | `scripts/backup.sh [--silencioso]` | cópia consistente via `sqlite3 .backup` |
+| `scripts/zerar-dados.sh` | banco virgem: backup do `dados/`, apaga contas/projetos/versões/upload e sobe (§ teste do zero em `docs/piloto-2026-11-06-do-zero.md`) |
 | `PEDIDOS-AO-ALVARO.md` | o que exige sudo/Cloudflare/segredo, com os comandos exatos |
 
 Instalação (usuário `server`, sem sudo):
