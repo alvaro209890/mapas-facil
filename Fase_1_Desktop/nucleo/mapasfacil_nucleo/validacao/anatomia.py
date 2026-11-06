@@ -129,6 +129,66 @@ def _e_rotulo_dms(texto: str) -> bool:
     return "°" in texto and ("'" in texto or '"' in texto)
 
 
+def _moldura_do_titulo(
+    pdf: Path, caixa_texto: dict[str, float], pagina: int = 0
+) -> dict[str, float] | None:
+    """Retângulo **desenhado** da caixa de título que contém o texto, em mm.
+
+    Nos modelos o título é uma caixa branca com borda e o bbox do texto é maior
+    que ela (a fonte sobe acima da moldura). Usar o bbox como caixa jogava o
+    título para cima do quadro, por cima dos rótulos da grade — achado 06/11/2026
+    no Dinâmica 2008. O candidato é o menor retângulo desenhado que cobre a
+    maior parte do texto; sem candidato, devolve `None` e vale o bbox.
+    """
+    doc = fitz.open(pdf)
+    try:
+        page = doc[pagina]
+        tx0, ty0 = caixa_texto["x0"], caixa_texto["y0"]
+        tx1, ty1 = caixa_texto["x1"], caixa_texto["y1"]
+        largura_texto = max(0.1, tx1 - tx0)
+        altura_texto = max(0.1, ty1 - ty0)
+        largura_pagina = _pt_para_mm(page.rect.width)
+        altura_pagina = _pt_para_mm(page.rect.height)
+        candidatos: list[tuple[float, dict[str, float]]] = []
+        for desenho in page.get_drawings():
+            rect = desenho["rect"]
+            if rect.is_empty:
+                continue
+            x0, y0 = _pt_para_mm(rect.x0), _pt_para_mm(rect.y0)
+            x1, y1 = _pt_para_mm(rect.x1), _pt_para_mm(rect.y1)
+            largura, altura = x1 - x0, y1 - y0
+            if largura <= 0 or altura <= 0:
+                continue
+            # Caixa gigante (fundo, moldura do quadro ou rosa) não é título. Os
+            # limites são frações da página para valer em A4 e em A0 (× k).
+            if (
+                largura > 0.95 * largura_pagina
+                or altura > 0.2 * altura_pagina
+                or largura < 0.9 * largura_texto
+            ):
+                continue
+            inter_x = min(x1, tx1) - max(x0, tx0)
+            inter_y = min(y1, ty1) - max(y0, ty0)
+            if inter_x < 0.6 * largura_texto or inter_y < 0.6 * altura_texto:
+                continue
+            candidatos.append(
+                (
+                    largura * altura,
+                    {
+                        "x0": round(x0, 2),
+                        "y0": round(y0, 2),
+                        "x1": round(x1, 2),
+                        "y1": round(y1, 2),
+                    },
+                )
+            )
+        if not candidatos:
+            return None
+        return min(candidatos, key=lambda item: item[0])[1]
+    finally:
+        doc.close()
+
+
 def medir(pdf: Path, *, pagina: int = 0) -> dict[str, Any]:
     """Anatomia do PDF em mm: quadro, título, metadados, legenda e grade."""
     pdf = Path(pdf)
@@ -156,6 +216,11 @@ def medir(pdf: Path, *, pagina: int = 0) -> dict[str, Any]:
         texto_titulo = " ".join(
             p["texto"] for p in sorted(linha_titulo, key=lambda p: p["caixa_mm"]["x0"])
         )
+        # A caixa que o modelo desenha manda: o bbox do texto é maior que ela e
+        # não serve de retângulo do layout (ver `_moldura_do_titulo`).
+        moldura = _moldura_do_titulo(pdf, titulo, pagina)
+        if moldura is not None:
+            titulo = moldura
     else:
         texto_titulo = ""
 

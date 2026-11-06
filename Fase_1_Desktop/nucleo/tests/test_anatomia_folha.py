@@ -16,7 +16,7 @@ GOLDEN_A4 = {
     "pagina_mm": {"largura": 210.0, "altura": 297.0},
     "orientacao": "retrato",
     "quadro_mapa": {"x0": 7.0, "y0": 5.0, "x1": 203.5, "y1": 257.0},
-    "titulo": {"caixa_mm": {"x0": 63.7, "y0": 3.6, "x1": 132.7, "y1": 21.8}, "texto": "DINÂMICA 2026"},
+    "titulo": {"caixa_mm": {"x0": 61.98, "y0": 7.11, "x1": 134.55, "y1": 21.68}, "texto": "DINÂMICA 2026"},
     "metadados": {"x0": 64.9, "y0": 265.2, "x1": 120.0, "y1": 291.2},
     "legenda": {"x0": 131.8, "y0": 266.0, "x1": 172.0, "y1": 295.0},
     "rotulos_dms": {"total": 18, "por_borda": {"superior": 5, "inferior": 5, "esquerda": 4, "direita": 4}},
@@ -45,7 +45,7 @@ def test_folha_maior_e_a_a4_vezes_k(formato: str) -> None:
     for chave in ("quadro_mapa", "metadados", "legenda"):
         for campo, valor in GOLDEN_A4[chave].items():
             assert esperada[chave][campo] == pytest.approx(valor * k, abs=0.011), f"{chave}.{campo}"
-    assert esperada["titulo"]["caixa_mm"]["x1"] == pytest.approx(132.7 * k, abs=0.011)
+    assert esperada["titulo"]["caixa_mm"]["x1"] == pytest.approx(134.55 * k, abs=0.011)
 
 
 @pytest.mark.parametrize("formato", folhas_mod.ORDEM[1:])

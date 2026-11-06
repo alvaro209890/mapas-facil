@@ -100,8 +100,8 @@ def test_extrair_strings_utf16_sintetico() -> None:
 
 
 def test_contagem_templates_existentes() -> None:
-    """Garante que encontramos os 21 templates da suíte oficial."""
-    assert len(_TEMPLATES_MXD) == 21
+    """Garante que encontramos os 22 templates da suíte oficial."""
+    assert len(_TEMPLATES_MXD) == 22
 
 
 @pytest.mark.parametrize("mxd_path", _TEMPLATES_MXD, ids=lambda p: p.stem)

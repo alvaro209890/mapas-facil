@@ -1,7 +1,7 @@
 """Testes de conformidade e round-trip do motor CFBF contra o corpus de arquivos MXD.
 
 Valida a leitura e o reempacotamento sem alterações em todos os arquivos de:
-- shared/templates/ (21 arquivos .mxd)
+- shared/templates/ (22 arquivos .mxd)
 - Referencias_IMAP/MXD/ (26 arquivos: 24 .mxd válidos e 2 arquivos não-CFBF)
 
 Utiliza o olefile como oráculo de validação independente nos testes para garantir
@@ -29,7 +29,15 @@ _PASTA_TEMPLATES = _RAIZ / "shared" / "templates"
 _PASTA_REFERENCIAS = _RAIZ / "Referencias_IMAP" / "MXD"
 
 _ARQUIVOS_TEMPLATES = sorted(_PASTA_TEMPLATES.glob("*.mxd"))
-_ARQUIVOS_REFERENCIAS = sorted([f for f in _PASTA_REFERENCIAS.iterdir() if f.is_file()])
+
+# Cópia solta do MXD pré-projeto do Dinamica_retrato (dado local, não versionado;
+# ver docs/fase3-rodada-2026-11-05-mxd-aline.md). Fica fora do corpus para a
+# contagem ser a mesma no CI e numa máquina que tenha o arquivo.
+FORA_DO_CORPUS = frozenset({"Dinamica_retrato_pre_projeto.mxd"})
+
+_ARQUIVOS_REFERENCIAS = sorted(
+    [f for f in _PASTA_REFERENCIAS.iterdir() if f.is_file() and f.name not in FORA_DO_CORPUS]
+)
 ARQUIVOS_CORPUS = _ARQUIVOS_TEMPLATES + _ARQUIVOS_REFERENCIAS
 
 
@@ -39,15 +47,15 @@ def id_arquivo(caminho: Path) -> str:
 
 
 def test_contagem_corpus() -> None:
-    """Garante que o corpus cobre exatamente os 47 arquivos especificados (21 templates + 26 referências)."""
-    assert len(_ARQUIVOS_TEMPLATES) == 21, (
-        f"Esperado 21 templates em {_PASTA_TEMPLATES}, encontrado {len(_ARQUIVOS_TEMPLATES)}"
+    """Garante que o corpus cobre exatamente os 48 arquivos especificados (22 templates + 26 referências)."""
+    assert len(_ARQUIVOS_TEMPLATES) == 22, (
+        f"Esperado 22 templates em {_PASTA_TEMPLATES}, encontrado {len(_ARQUIVOS_TEMPLATES)}"
     )
     assert len(_ARQUIVOS_REFERENCIAS) == 26, (
         f"Esperado 26 arquivos em {_PASTA_REFERENCIAS}, encontrado {len(_ARQUIVOS_REFERENCIAS)}"
     )
-    assert len(ARQUIVOS_CORPUS) == 47, (
-        f"Esperado 47 arquivos no total do corpus, encontrado {len(ARQUIVOS_CORPUS)}"
+    assert len(ARQUIVOS_CORPUS) == 48, (
+        f"Esperado 48 arquivos no total do corpus, encontrado {len(ARQUIVOS_CORPUS)}"
     )
 
 

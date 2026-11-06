@@ -46,7 +46,7 @@ e existem duas famílias de template. Ver [`02-mapspec-contrato.md`](02-mapspec-
 A4 retrato — 210 × 297 mm
 ┌──────────────────────────────────────────────────┐  y=0
 │        ┌────────────────────────┐         ╭─╮    │
-│        │  Dinâmica 2026         │         │N│    │  título y 3,6–21,8 · rosa y 4,0–27,0
+│        │  Dinâmica 2026         │         │N│    │  título y 7,1–21,7 · rosa y 4,0–27,0
 │        └────────────────────────┘         ╰─╯    │
 │ ┌──────────────────────────────────────────────┐ │  quadro do mapa
 │ │                                              │ │  x 7,0 → 203,5 mm
@@ -75,7 +75,7 @@ A4 retrato — 210 × 297 mm
 | Região | x (mm) | y (mm, do topo) | Como foi medido |
 |---|---|---|---|
 | Quadro do mapa | 7,0 → 203,5 | 5,0 → 257,0 | centro dos rótulos DMS das 4 bordas |
-| Caixa do título | 63,7 → 132,7 | 3,6 → 21,8 | bbox do texto "Dinâmica 2026" |
+| Caixa do título | 62,0 → 134,6 | 7,1 → 21,7 | retângulo **desenhado** da caixa (o bbox do texto, 3,6 → 21,8, subia até a linha de base da fonte e jogava a caixa por cima da moldura — corrigido 06/11/2026) |
 | Rosa dos ventos | 186,3 → 202,0 | 4,0 → 27,0 | glifo `µ` da fonte ESRI North |
 | Tabela quantitativos | 67,1 → 203,0 | 40,7 → 60,7 | `adapt_bloco2.py`: elem (6,71·4,07) cm + 13,59×2,00 cm; PNG 3210×472 px |
 | Rótulos DMS inferiores | linha inteira | 257,7 → 263,4 | bbox dos rótulos |
@@ -90,7 +90,7 @@ A4 retrato — 210 × 297 mm
 A4 paisagem — 297 × 210 mm
 ┌───────────────────────────────────────────────────────────────┐  y=0
 │              ┌──────────────────────┐                   ╭─╮   │
-│ ┌────────────┤  Tipologia Vegetal   ├───────────────────┤N├─┐ │  título y 3,0–20,5
+│ ┌────────────┤  Tipologia Vegetal   ├───────────────────┤N├─┐ │  título y 6,1–20,5
 │ │            └──────────────────────┘                   ╰─╯ │ │  rosa x 276,7–288,5
 │9│                                                           │9│
 │°│              quadro do mapa: x 5,6 → 291,1                 │°│  ← medição limpa
@@ -114,7 +114,7 @@ A4 paisagem — 297 × 210 mm
 | Região | x (mm) | y (mm, do topo) | Como foi medido |
 |---|---|---|---|
 | Quadro do mapa | 5,6 → 291,1 | 4,8 → 168,5 | detecção da moldura preta no raster 100 dpi |
-| Caixa do título | 107,2 → 185,0 | 3,0 → 20,5 | bbox do texto |
+| Caixa do título | 105,3 → 186,8 | 6,1 → 20,5 | retângulo **desenhado** da caixa (o bbox do texto, 3,0 → 20,5, vazava para cima do quadro) |
 | Rosa dos ventos | 276,7 → 288,5 | 4,3 → 21,7 | glifo `µ` |
 | Rótulos DMS inferiores | linha inteira | 170,0 → 173,9 | bbox |
 | Minimapa | 2 → 62 | 172 → 208 | bbox de "Vila Rica" + "MT" |

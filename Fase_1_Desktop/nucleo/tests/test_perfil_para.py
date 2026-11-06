@@ -179,7 +179,7 @@ def test_escalar_perfil_preserva_o_modelo_medido_e_a_orientacao() -> None:
         largura_mm=297.0,
         altura_mm=210.0,
         mapa=pp.Caixa(5.6, 4.8, 291.1, 151.0),
-        titulo=pp.Caixa(107.2, 3.0, 185.0, 20.5),
+        titulo=pp.Caixa(105.33, 6.09, 186.79, 20.48),
         rosa=pp.Caixa(276.7, 4.3, 288.5, 21.7),
         minimapa=pp.Caixa(2.0, 172.0, 62.0, 208.0),
         metadados=pp.Caixa(76.4, 173.8, 156.2, 205.3),
@@ -203,3 +203,16 @@ def test_escalar_perfil_preserva_o_modelo_medido_e_a_orientacao() -> None:
     assert a2.mapa.x1 == pytest.approx(291.1 * k, abs=1e-9)
     assert a2.pt_metadados == pytest.approx(11.0 * k, abs=1e-9)
     assert a2.formato == "A2"
+
+
+# --- Caixa de título: o topo medido fica DENTRO do quadro ----------------------------
+
+
+def test_caixa_de_titulo_medida_comeca_dentro_do_quadro() -> None:
+    """Achado 06/11/2026: o perfil usava o bbox do *texto* (y0 ~3,6), que sobe até a
+    linha de base da fonte, e a caixa do título saía por cima da moldura, cobrindo
+    os rótulos da grade. O retângulo medido é o **desenhado**, e ele começa abaixo
+    do topo do quadro."""
+    for perfil in (pp.RETRATO, pp.PAISAGEM):
+        assert perfil.titulo.y0 > perfil.mapa.y0, perfil.id
+        assert perfil.titulo.y1 < perfil.mapa.y1, perfil.id

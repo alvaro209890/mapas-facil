@@ -128,7 +128,11 @@ RETRATO = PerfilPagina(
     largura_mm=210.0,
     altura_mm=297.0,
     mapa=Caixa(7.0, 5.0, 203.5, 257.0),
-    titulo=Caixa(63.7, 3.6, 132.7, 21.8),
+    # Retângulo **desenhado** da caixa (7,11 a 21,68), não o bbox do texto
+    # (3,6 a 21,8): o bbox do texto sobe até a linha de base da fonte e, usado
+    # como topo da caixa, jogava o título por cima da moldura e dos rótulos da
+    # grade (medido nos modelos, 06/11/2026).
+    titulo=Caixa(61.98, 7.11, 134.55, 21.68),
     rosa=Caixa(186.3, 4.0, 202.0, 27.0),
     minimapa=Caixa(0.0, 262.0, 62.0, 297.0),
     metadados=Caixa(64.9, 265.2, 120.0, 291.2),
@@ -152,7 +156,9 @@ PAISAGEM = PerfilPagina(
     largura_mm=297.0,
     altura_mm=210.0,
     mapa=Caixa(5.6, 4.8, 291.1, 168.5),
-    titulo=Caixa(107.2, 3.0, 185.0, 20.5),
+    # Idem retrato: retângulo desenhado da caixa no modelo (Tipologia.pdf),
+    # 6,09 a 20,48 — o bbox do texto (3,0 a 20,5) vazava para cima do quadro.
+    titulo=Caixa(105.33, 6.09, 186.79, 20.48),
     rosa=Caixa(276.7, 4.3, 288.5, 21.7),
     # 173 (era 172): os rótulos de baixo da grade terminam a ~172,3 mm e encostavam no minimapa.
     minimapa=Caixa(2.0, 173.0, 62.0, 208.0),

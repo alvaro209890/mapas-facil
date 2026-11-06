@@ -245,6 +245,20 @@ def test_caixa_de_titulo_quebra_igual_em_a4_e_a0() -> None:
     assert t4.count("\n") == t0.count("\n")
 
 
+@pytest.mark.parametrize("orientacao", ("retrato", "paisagem"))
+def test_caixa_de_titulo_nunca_sobe_para_fora_do_quadro(orientacao: str) -> None:
+    """A caixa do título começa dentro do quadro, abaixo dos rótulos da grade.
+
+    Regressão do Dinâmica 2008 (06/11/2026): o topo da caixa vinha do bbox do
+    texto e o título saía por cima da moldura, cobrindo a longitude do topo.
+    """
+    perfil = perfil_pagina.obter(orientacao)
+    for texto in ("Dinâmica 2008", "Ano: 2026", TEXTO_LONGO):
+        plano = blocos.planejar_titulo(perfil, texto)
+        assert plano.caixa.y0 >= perfil.mapa.y0, (orientacao, texto)
+        assert plano.caixa.y1 <= perfil.mapa.y1, (orientacao, texto)
+
+
 # --------------------------------------------------------------------------- #
 # (f) caixa pequena quebra em mais linhas
 # --------------------------------------------------------------------------- #
