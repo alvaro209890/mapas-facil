@@ -37,9 +37,10 @@ O schema é recriado no boot (`create_app` chama `banco.migrar()`), então apaga
    • Camadas identificadas: ...
    • Sugestão de folha: A4 retrato
    ```
-   Em seguida a IA pensa (30–60 s) e oferece a escolha:
-   **"Qual modelo de mapa você deseja gerar?"** com os modelos da galeria (os `pronto`
-   primeiro). Clique em um deles (ex.: **Dinâmica 2008 (SPOT)**).
+   A escolha vem **logo em seguida** (~1,5 s, sem esperar o LLM):
+   **"Qual mapa você deseja gerar?"** com os modelos da galeria (os `pronto` primeiro).
+   Clique em um deles (ex.: **Dinâmica 2008 (SPOT)**). A abertura é determinística e a
+   pergunta é gravada na conversa — um F5 antes de responder não perde as opções.
 6. A IA monta o `MapSpec` e chama a geração. A faixa de versões mostra a **v001**; o palco
    anima; os botões de download entregam `.zip` com `MXD/ SHP/ Mapas/` (PDF, PNG, XLSX).
 
@@ -112,9 +113,11 @@ O admin vê todos os projetos (somente leitura nos alheios), bloqueia contas e a
 
 ## Limites conhecidos
 
-- O turno da abertura depende do 9Router; o texto factual é determinístico, mas a pergunta
-  pode levar ~1 min (raciocínio `high`). Se o 9Router cair, a pergunta determinística com a
-  galeria entra como Plano B.
+- A abertura **não depende do 9Router**: a leitura e a pergunta saem da indexação +
+  `galeria.listar` em ~1,5 s. O que depende do 9Router é o turno normal, depois que você
+  escolhe um modelo (aí sim pode levar dezenas de segundos).
+- Se a galeria não responder, a abertura ainda oferece "Criar mapa personalizado" — nunca
+  fica sem opção.
 - O mosaico SPOT/SEMA é WMS: uma falha transitória deixa o mapa sem imagem naquela geração
   (os fallbacks SEMA/Esri entram depois). Regerar resolve.
 - O texto da abertura é ao vivo (não é gravado na conversa do núcleo); ao recarregar, os

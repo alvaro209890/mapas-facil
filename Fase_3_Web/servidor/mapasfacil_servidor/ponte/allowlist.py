@@ -27,6 +27,9 @@ PERMITIDOS: frozenset[str] = frozenset(
         "chat.renomear",
         "chat.listar_conversas",
         "chat.buscar",
+        # A abertura determinística grava a leitura + o cartão do `perguntar` sem passar
+        # pelo LLM (a web reconstrói a pergunta desse trace ao recarregar). Não chama modelo.
+        "chat.gravar_mensagem",
         # geração
         "mapa.gerar",
         "mapa.cancelar",
@@ -56,7 +59,6 @@ BLOQUEADOS: dict[str, str] = {
     "chat.apagar": "conversa não se apaga pela web (D26)",
     "chat.arquivar": "conversa não se arquiva pela web (D26)",
     "chat.ramificar": "ramificação é do desktop (D26)",
-    "chat.gravar_mensagem": "a mensagem é gravada pelo próprio núcleo no turno",
     "artefato.ler": "o servidor lê arquivo direto, com allowlist de prefixos",
     "camada.resolver": "resolução de camada passa por catalogo.listar",
     "conta.estado": "contas do site vivem no banco do servidor (W3)",

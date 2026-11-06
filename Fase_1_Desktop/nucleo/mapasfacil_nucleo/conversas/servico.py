@@ -156,7 +156,8 @@ def gravar_mensagem(params: dict[str, Any]) -> dict[str, Any]:
     conteudo = params.get("conteudo")
     if not isinstance(papel, str) or not isinstance(conteudo, str):
         raise ErroNucleo("NU-001", "Parâmetros 'papel' e 'conteudo' são obrigatórios.")
-    return repositorio().adicionar_mensagem(
+    repo = repositorio()
+    mensagem = repo.adicionar_mensagem(
         cid,
         papel=papel,
         conteudo=conteudo,
@@ -166,3 +167,28 @@ def gravar_mensagem(params: dict[str, Any]) -> dict[str, Any]:
         else None,
         cancelada=bool(params.get("cancelada", False)),
     )
+    # `tool_traces` opcional: a abertura determinística da web grava o texto e o cartão do
+    # `perguntar` na mesma mensagem, para o cartão voltar ao recarregar a página. Sem esta
+    # lista, o comportamento é o de antes (mensagem simples).
+    traces = params.get("tool_traces")
+    if isinstance(traces, list):
+        for trace in traces:
+            if not isinstance(trace, dict) or not isinstance(trace.get("tool"), str):
+                continue
+            repo.adicionar_tool_trace(
+                cid,
+                message_id=str(mensagem.get("message_id") or "") or None,
+                tool=trace["tool"],
+                args_resumo=trace.get("args_resumo")
+                if isinstance(trace.get("args_resumo"), str)
+                else None,
+                resultado_resumo=trace.get("resultado_resumo")
+                if isinstance(trace.get("resultado_resumo"), str)
+                else None,
+                ms=trace.get("ms") if isinstance(trace.get("ms"), int) else None,
+                ok=bool(trace.get("ok", True)),
+                erro_codigo=trace.get("erro_codigo")
+                if isinstance(trace.get("erro_codigo"), str)
+                else None,
+            )
+    return mensagem

@@ -424,7 +424,10 @@ class RepositorioConversas:
                 conversation_id,
                 message_id,
                 tool,
-                truncar(redigir(args_resumo or ""), 500) or None,
+                # 4000 (era 500): a abertura guarda o cartão do `perguntar` com as opções da
+                # galeria no `args_resumo`; 500 cortava a lista no meio e o cartão voltava
+                # com menos opções ao recarregar a página.
+                truncar(redigir(args_resumo or ""), 4000) or None,
                 truncar(redigir(resultado_resumo or ""), 1000) or None,
                 ms,
                 1 if ok else 0,

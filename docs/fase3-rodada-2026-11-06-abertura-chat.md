@@ -48,12 +48,45 @@ pacote que o D41 promete.
 ```
 
 O bloco de texto nasce no mesmo instante do `pronto` — a caixa de boas-vindas não tem mais janela
-para aparecer. O texto é **ao vivo** (não vai para a conversa do núcleo); ao recarregar, o painel de
-resumo da importação segue mostrando os mesmos dados, e a pergunta (com as opções) está no histórico
-pelos `tool_traces` do `perguntar`.
+para aparecer. Nesta primeira rodada o texto era **ao vivo** (não ia para a conversa do núcleo); na
+segunda rodada ele passou a ser gravado junto com a pergunta (ver abaixo).
+
+## Segundo achado (mesmo dia): a pergunta chegava, mas 75 s depois
+
+Teste do usuário com um pacote real (37 shapefiles, 450,6795 ha): a leitura apareceu, mas **nenhuma
+opção**. O log do projeto mostrou o porquê:
+
+```
+17:48:03  pronto + chat.delta (leitura)
+17:48:55  primeiro chat.raciocinio      (52 s depois)
+17:48:57  listar_modelos_galeria
+17:49:32  chat.pergunta                 (89 s depois do pronto)
+```
+
+A pergunta era do LLM (`perguntar`), e o modelo levava 52–89 s para chegar nela. O cartão só existe
+quando o evento chega; até lá a tela mostra "Escolha abaixo..." e nada abaixo.
+
+**Correção**: a abertura deixou de chamar o LLM. A leitura e a pergunta saem da indexação +
+`galeria.listar`, em ~1,5 s; o turno fecha em seguida. A mensagem (texto + trace do `perguntar`) é
+gravada na conversa com `chat.gravar_mensagem` (agora permitido na allowlist; **não** chama modelo),
+então um F5 antes da primeira resposta devolve o cartão com as opções. O trace guarda o JSON
+completo — o limite do `args_resumo` subiu de 500 para 4000 caracteres, porque 500 cortava a lista
+no meio (3 de 6 opções voltavam ao recarregar).
+
+```
+2,4 s  pronto → chat.turno inicio → chat.delta (leitura)
+3,9 s  chat.pergunta (6 opções da galeria)
+3,9 s  nucleo.res
+4,8 s  chat.turno fim
+```
+
+Conferido em navegador real: o cartão renderiza os 6 chips, clicar marca `data-respondida` e abre o
+turno normal. O replay do SSE depois do turno não repete texto nem pergunta (o `nucleo.res` compacta
+os eventos do turno); o histórico do núcleo é a fonte no reload.
 
 ## Deploy
 
-Server (cópia, não git): `chat/abertura.py`, `api/mensagens.py`, `eventos/{vocabulario,log}.py` +
-build novo da SPA em `Fase_3_Web/web/dist` (+ restart do `mapasfacil-app.service`). Testes: servidor
-(venv de teste local) e web (216) verdes.
+Server (cópia, não git): `chat/abertura.py`, `api/mensagens.py`, `eventos/{vocabulario,log}.py`,
+`ponte/allowlist.py` + núcleo `conversas/{servico,repositorio}.py` + build novo da SPA em
+`Fase_3_Web/web/dist` (+ restart do `mapasfacil-app.service`). Testes: servidor (venv de teste local),
+núcleo (`test_conversas.py`) e web (216) verdes.

@@ -2,21 +2,25 @@
 
 Quando o projeto passa a 'pronto', o servidor dispara um turno automático
 (origem 'sistema', motivo 'importacao_concluida'), um por importação.
-Apresenta o imóvel apenas com dados da indexação e chama `perguntar` com os
-modelos possíveis da galeria (multipla=true). Se o 9Router falhar ou demorar,
-executa o Plano B determinístico sem LLM.
+Apresenta o imóvel apenas com dados da indexação e oferece a escolha do modelo
+com os mapas possíveis da galeria (multipla=true).
+
+A abertura é **determinística**: texto e opções saem da indexação + `galeria.listar`,
+sem LLM. O turno do modelo levava de 52 a 75 s com um pacote real (06/11/2026) e,
+nesse intervalo, a tela mostrava a leitura do pacote sem nenhuma opção.
 """
 
 from __future__ import annotations
 
+import json
 import logging
+import time
 import uuid
 from pathlib import Path
 from typing import Any
 
 from ..db import Banco
 from ..erros import ErroServidor
-import time
 from ..eventos.log import LogEventos
 from ..eventos.sse import Hub
 from ..ponte.pool import Pool
@@ -255,6 +259,92 @@ def _abertura_ja_feita(banco: Banco, importacao_id: str) -> bool:
         con.close()
 
 
+async def _conversa_do_projeto(banco: Banco, projeto_id: str) -> str | None:
+    con = banco.conectar()
+    try:
+        linha = con.execute(
+            "SELECT conversa_id FROM projetos WHERE id = ?", (projeto_id,)
+        ).fetchone()
+        return linha["conversa_id"] if linha is not None and linha["conversa_id"] else None
+    finally:
+        con.close()
+
+
+async def _gravar_abertura_na_conversa(
+    *,
+    banco: Banco,
+    worker: Any,
+    projeto_id: str,
+    raiz: Path | None,
+    nome_imovel: str,
+    texto: str,
+    pergunta: dict[str, Any],
+) -> None:
+    """Guarda a leitura + o cartão da pergunta como mensagem do assistente.
+
+    `chat.gravar_mensagem` não chama LLM: grava exatamente o que já foi exibido e o trace do
+    `perguntar`, que é de onde o web reconstrói o cartão ao recarregar. Sem isto, um F5
+    antes da primeira resposta deixava a tela sem as opções (o replay do SSE descarta os
+    eventos de um turno que já terminou).
+    """
+    if worker is None:
+        return
+    try:
+        conversa_id = await _conversa_do_projeto(banco, projeto_id)
+        if not conversa_id:
+            criada = await worker.chamar(
+                "chat.criar_conversa",
+                {
+                    "workspace": str(raiz) if raiz is not None else projeto_id,
+                    "title": nome_imovel,
+                },
+            )
+            conversa_id = criada.get("conversation_id") or criada.get("id")
+            if conversa_id:
+                con = banco.conectar()
+                try:
+                    con.execute(
+                        "UPDATE projetos SET conversa_id = ? WHERE id = ?",
+                        (conversa_id, projeto_id),
+                    )
+                    con.commit()
+                finally:
+                    con.close()
+        if not conversa_id:
+            return
+
+        # Só os campos que o cartão da web usa; `descricao` fica de fora para o resumo de
+        # 500 caracteres do núcleo não cortar opções.
+        args = {
+            "pergunta": pergunta.get("pergunta"),
+            "opcoes": [
+                {"id": o.get("id"), "rotulo": o.get("rotulo")}
+                for o in (pergunta.get("opcoes") or [])
+                if isinstance(o, dict) and o.get("rotulo")
+            ],
+            "permite_texto_livre": True,
+        }
+        await worker.chamar(
+            "chat.gravar_mensagem",
+            {
+                "conversation_id": conversa_id,
+                "papel": "assistente",
+                "conteudo": texto,
+                "tool_traces": [
+                    {
+                        "tool": "perguntar",
+                        "args_resumo": json.dumps(args, ensure_ascii=False),
+                        "ok": True,
+                    }
+                ],
+            },
+        )
+    except Exception as exc:  # a tela já recebeu tudo ao vivo; gravar é para o recarregar
+        _LOG.warning(
+            "Não consegui gravar a abertura na conversa do projeto %s: %s", projeto_id, exc
+        )
+
+
 async def _executar_abertura(
     *,
     banco: Banco,
@@ -292,7 +382,7 @@ async def _executar_abertura(
 
     # A apresentação não depende do worker: sai da indexação e chega antes de qualquer
     # chamada ao núcleo (2,4 s → 0,2 s medidos em 06/11/2026). É o que tira a tela do
-    # estado "nada foi enviado" enquanto o modelo pensa.
+    # estado "nada foi enviado" enquanto a galeria é consultada.
     def emitir(evento: str, dados_evento: dict[str, Any], **kw: Any) -> None:
         _emitir(hub, projeto_id, evento, dados_evento, raiz=raiz, **kw)
 
@@ -300,111 +390,53 @@ async def _executar_abertura(
     req_id = f"abertura-{uuid.uuid4().hex[:12]}"
     emitir("chat.delta", {"texto": texto_abertura}, req_id=req_id)
 
-    # 3. Obter worker do núcleo para o projeto
+    # 3. O worker entra só para listar a galeria (barato). A abertura é determinística: não
+    # chama o LLM. Com um pacote real, em 06/11/2026, o modelo levou 52 s para começar a
+    # raciocinar e 75 s para chamar `perguntar`; nesse intervalo a tela mostrava a leitura do
+    # pacote e **nenhuma opção** ("Escolha abaixo..." sem nada abaixo). A galeria é factual
+    # e sai em ~1 s.
+    modelos_galeria: list[dict[str, Any]] = []
+    worker = None
     try:
         worker = await pool.obter(projeto_id)
-    except Exception as exc:
-        _LOG.warning("Worker indisponível para abertura do projeto %s: %s", projeto_id, exc)
-        # O texto já foi exibido; fecha o turno para o replay não guardar um delta órfão.
-        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
-        return
-
-    # Garante que a conversa principal do projeto existe
-    conversa_id = None
-    con = banco.conectar()
-    try:
-        p_row = con.execute("SELECT conversa_id, nome FROM projetos WHERE id = ?", (projeto_id,)).fetchone()
-        if p_row and p_row["conversa_id"]:
-            conversa_id = p_row["conversa_id"]
-    finally:
-        con.close()
-
-    if not conversa_id:
-        criada = await worker.chamar(
-            "chat.criar_conversa",
-            {"workspace": str(raiz) if raiz is not None else str(projeto_id), "title": dados["nome_imovel"]},
-        )
-        conversa_id = criada.get("conversation_id") or criada.get("id")
-        if conversa_id:
-            con = banco.conectar()
-            try:
-                con.execute("UPDATE projetos SET conversa_id = ? WHERE id = ?", (conversa_id, projeto_id))
-                con.commit()
-            finally:
-                con.close()
-
-    # 4. Listar modelos da galeria
-    modelos_galeria: list[dict[str, Any]] = []
-    try:
         resp_galeria = await worker.chamar("galeria.listar", {})
         modelos_galeria = resp_galeria.get("modelos") or []
     except Exception as exc:
-        _LOG.debug("Falha ao listar galeria para abertura: %s", exc)
+        _LOG.info("Sem galeria na abertura do projeto %s (%s); oferece o mapa personalizado.", projeto_id, exc)
 
     pergunta_payload = montar_pergunta_galeria(modelos_galeria)
+    pergunta_id = uuid.uuid4().hex[:12]
 
-    # 5. Turno do LLM: ele só escolhe a pergunta; a apresentação já foi exibida acima.
-    # O `perguntar` **encerra o turno**, por isso o texto não pode depender dele.
-    disse_texto = False
-    ja_perguntou = False
+    # 4. A mesma leitura + pergunta vai para a conversa do núcleo **antes** de o cartão
+    # aparecer: recarregar a página antes de responder não pode perder as opções (o replay do
+    # SSE descarta eventos de turno já terminado), e responder no primeiro instante não pode
+    # deixar a leitura depois da fala do usuário no histórico.
+    await _gravar_abertura_na_conversa(
+        banco=banco,
+        worker=worker,
+        projeto_id=projeto_id,
+        raiz=raiz,
+        nome_imovel=dados["nome_imovel"],
+        texto=texto_abertura,
+        pergunta=pergunta_payload,
+    )
 
-    async def ao_evento(mensagem: dict[str, Any]) -> None:
-        nonlocal disse_texto, ja_perguntou
-        nome = mensagem.get("evento", "aviso")
-        dados_evento = mensagem.get("dados") or {}
-        if nome == "chat.delta" and str(dados_evento.get("texto") or "").strip():
-            disse_texto = True
-        if nome == "chat.pergunta" and dados_evento:
-            ja_perguntou = True
-        emitir(nome, dados_evento, req_id=req_id, origem="nucleo")
+    emitir(
+        "chat.pergunta",
+        {
+            "pergunta_id": pergunta_id,
+            "pergunta": pergunta_payload["pergunta"],
+            "opcoes": pergunta_payload["opcoes"],
+            "multipla": pergunta_payload.get("multipla", True),
+            "permitir_texto": True,
+            "permite_texto_livre": True,
+            "motivo": pergunta_payload.get("motivo", "escolha_modelo_inicial"),
+        },
+        req_id=req_id,
+    )
+    emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
 
-    try:
-        # O texto vai marcado como origem sistema: a tela não o mostra como fala do usuário.
-        prompt_abertura = (
-            f"{PREFIXO_SISTEMA} | MOTIVO: importacao_concluida]\n"
-            f"O pacote de dados do projeto acabou de ser importado e indexado, e a leitura "
-            f"factual já foi exibida ao usuário na conversa:\n{texto_abertura}\n\n"
-            f"Não repita esses dados. Use a ferramenta `perguntar` para oferecer os modelos "
-            f"de mapas possíveis da galeria."
-        )
-        try:
-            resultado_turno = await worker.chamar(
-                "chat.enviar",
-                {"conversation_id": conversa_id, "mensagem": prompt_abertura},
-                ao_evento=ao_evento,
-            )
-        except TypeError:  # worker sem `ao_evento` (dublês antigos de teste)
-            resultado_turno = await worker.chamar(
-                "chat.enviar",
-                {"conversation_id": conversa_id, "mensagem": prompt_abertura},
-            )
-        texto_final = str((resultado_turno or {}).get("texto") or "").strip()
-        if texto_final and not disse_texto:
-            emitir("chat.delta", {"texto": texto_final}, req_id=req_id, origem="nucleo")
-        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
-    except Exception as exc:
-        _LOG.info("LLM/9Router indisponível ou falhou (%s). Mantém a abertura determinística.", exc)
-        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
-
-    if not ja_perguntou:
-        # Sem o modelo, a pergunta determinística garante que o usuário sempre tenha a
-        # escolha do modelo inicial (o texto já foi exibido acima).
-        req_b = f"abertura-b-{uuid.uuid4().hex[:12]}"
-        emitir(
-            "chat.pergunta",
-            {
-                "pergunta_id": uuid.uuid4().hex[:12],
-                "pergunta": pergunta_payload["pergunta"],
-                "opcoes": pergunta_payload["opcoes"],
-                "multipla": pergunta_payload.get("multipla", True),
-                "permitir_texto": True,
-                "permite_texto_livre": True,
-                "motivo": pergunta_payload.get("motivo", "escolha_modelo_inicial"),
-            },
-            req_id=req_b,
-        )
-
-    # 6. Registra que a abertura desta importação foi finalizada
+    # 5. Registra que a abertura desta importação foi finalizada
     con = banco.conectar()
     try:
         # Tenta atualizar abertura_feita se a coluna existir

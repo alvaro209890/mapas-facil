@@ -10,6 +10,7 @@ Critérios de aceite:
 
 from __future__ import annotations
 
+import json
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -137,13 +138,16 @@ def test_zip_sem_hidrografia_marca_falta_na_galeria():
 
 
 @pytest.mark.anyio
-async def test_abertura_deterministica_quando_9router_fora(banco_teste):
-    """Critério: se o 9Router estiver fora/falhar, gera abertura determinística sem LLM."""
+async def test_abertura_e_deterministica_e_nao_depende_do_9router(banco_teste):
+    """A abertura sai da indexação + galeria: não chama o LLM nem espera o 9Router.
+
+    Antes (06/11/2026) o modelo levava 52–75 s para chamar `perguntar` e, nesse intervalo,
+    a tela mostrava "Escolha abaixo..." sem nenhuma opção.
+    """
     worker = FakeWorker()
     worker.falhar_chat = True  # Simula 9Router offline
     pool = FakePool(worker)
     hub = Hub()
-    eventos_capturados = []
     fila = hub.assinar("p1")
 
     resumo = {
@@ -163,9 +167,13 @@ async def test_abertura_deterministica_quando_9router_fora(banco_teste):
         resumo=resumo,
     )
 
-    # Plano B não chama método bloqueado na allowlist (`chat.gravar_mensagem`).
     chamadas_metodos = [m[0] for m in worker.chamadas]
-    assert "chat.gravar_mensagem" not in chamadas_metodos
+    assert "chat.enviar" not in chamadas_metodos
+    # A leitura + o cartão da pergunta ficam na conversa para o recarregar.
+    gravada = next(p for m, p in worker.chamadas if m == "chat.gravar_mensagem")
+    assert gravada["papel"] == "assistente"
+    assert gravada["conteudo"].startswith("Leitura do pacote concluída:")
+    assert gravada["tool_traces"][0]["tool"] == "perguntar"
 
     # Verificou emissão dos eventos no SSE
     eventos_capturados = []
@@ -177,17 +185,18 @@ async def test_abertura_deterministica_quando_9router_fora(banco_teste):
     # Vocabulário que a tela entende: `chat.delta` (não `chat.chunk`/`chat.fim`).
     assert "chat.delta" in nomes_eventos
     assert "chat.pergunta" in nomes_eventos
+    pergunta = next(e for e in eventos_capturados if e["evento"] == "chat.pergunta")
+    rotulos = [o["rotulo"] for o in pergunta["dados"]["opcoes"]]
+    assert any("Dinâmica 2026" in r for r in rotulos)
 
 
 @pytest.mark.anyio
-async def test_abertura_com_raiz_grava_no_log_com_seq_e_repassa_eventos_do_turno(banco_teste, tmp_path):
-    """Com `raiz`, os eventos ganham `seq` (senão o SSE ao vivo os descarta) e o turno da IA
-    chega na tela pelo `ao_evento`; o prompt vai marcado como origem sistema."""
-    from mapasfacil_servidor.chat.abertura import PREFIXO_SISTEMA
+async def test_abertura_com_raiz_grava_no_log_com_seq_e_persiste_a_pergunta(banco_teste, tmp_path):
+    """Com `raiz`, os eventos ganham `seq` (senão o SSE ao vivo os descarta) e a leitura +
+    pergunta ficam na conversa, para o cartão voltar ao recarregar a página."""
     from mapasfacil_servidor.eventos.log import LogEventos
 
     worker = FakeWorker()
-    worker.falar = True
     hub = Hub()
     resumo = {"shapefiles": [{"papel": "ATP", "area_ha": 100.0, "id_local": "ATP"}]}
     await disparar_abertura_projeto(
@@ -203,17 +212,31 @@ async def test_abertura_com_raiz_grava_no_log_com_seq_e_repassa_eventos_do_turno
     nomes = [e["evento"] for e in gravados]
     assert all(int(e["seq"]) > 0 for e in gravados)
     assert "chat.delta" in nomes and "nucleo.res" in nomes
-    # A abertura determinística chega antes do turno do modelo (o chat nunca fica vazio).
     primeiro_delta = next(e for e in gravados if e["evento"] == "chat.delta")
     assert primeiro_delta["dados"]["texto"].startswith("Leitura do pacote concluída:")
-    # O texto do modelo, quando existe, vem como delta depois.
-    delta = next(e for e in gravados if e["evento"] == "chat.delta" and e["dados"].get("texto") == "Olá! Li o pacote.")
-    assert delta["dados"]["texto"] == "Olá! Li o pacote."
-    # `chat.turno` cerca o turno inteiro (início antes do LLM, fim depois).
+    # Texto e pergunta usam o mesmo `req_id`: com o `nucleo.res` do turno, o replay do SSE
+    # descarta os dois (a conversa persistida é que os devolve) — sem cartão duplicado.
+    pergunta = next(e for e in gravados if e["evento"] == "chat.pergunta")
+    assert pergunta["req_id"] == primeiro_delta["req_id"]
+    # `chat.turno` cerca a abertura inteira.
     turnos = [e["dados"].get("fase") for e in gravados if e["evento"] == "chat.turno"]
     assert turnos == ["inicio", "fim"]
-    enviado = next(p for m, p in worker.chamadas if m == "chat.enviar")
-    assert enviado["mensagem"].startswith(PREFIXO_SISTEMA)
+
+    # A mesma abertura vai para a conversa com o trace do `perguntar` (o web remonta o
+    # cartão com as opções a partir dele; sem isso, um F5 perde as opções).
+    gravada = next(p for m, p in worker.chamadas if m == "chat.gravar_mensagem")
+    trace = gravada["tool_traces"][0]
+    assert trace["tool"] == "perguntar"
+    args = json.loads(trace["args_resumo"])
+    assert args["pergunta"]
+    assert args["opcoes"], "o cartão precisa das opções da galeria"
+    # O conversation_id foi gravado no projeto (a próxima mensagem reusa).
+    con = banco_teste.conectar()
+    try:
+        linha = con.execute("SELECT conversa_id FROM projetos WHERE id = 'p1'").fetchone()
+        assert linha["conversa_id"] == "conv_fake_1"
+    finally:
+        con.close()
 
 
 @pytest.mark.anyio
