@@ -253,6 +253,22 @@ export const useChat = create<LojaChat & Interno>((set, get) => ({
         }));
         return;
       }
+      case 'chat.turno': {
+        // O turno existe desde o primeiro instante — inclusive a abertura automática,
+        // que não tem bolha de usuário. Sem isto a tela mostrava a caixa de boas-vindas
+        // enquanto a IA lia o pacote (achado 06/11/2026).
+        const fase = String((evento.dados as { fase?: unknown }).fase ?? '');
+        if (fase === 'fim') {
+          get().encerrarTurno();
+          return;
+        }
+        set((atual) => ({
+          pensando: true,
+          turnoEmCurso: atual.turnoEmCurso ?? evento.req_id ?? null,
+          erro: null,
+        }));
+        return;
+      }
       case 'chat.raciocinio': {
         const texto = String((evento.dados as { texto?: unknown }).texto ?? '');
         if (!texto) return;

@@ -203,8 +203,15 @@ async def test_abertura_com_raiz_grava_no_log_com_seq_e_repassa_eventos_do_turno
     nomes = [e["evento"] for e in gravados]
     assert all(int(e["seq"]) > 0 for e in gravados)
     assert "chat.delta" in nomes and "nucleo.res" in nomes
-    delta = next(e for e in gravados if e["evento"] == "chat.delta")
+    # A abertura determinística chega antes do turno do modelo (o chat nunca fica vazio).
+    primeiro_delta = next(e for e in gravados if e["evento"] == "chat.delta")
+    assert primeiro_delta["dados"]["texto"].startswith("Leitura do pacote concluída:")
+    # O texto do modelo, quando existe, vem como delta depois.
+    delta = next(e for e in gravados if e["evento"] == "chat.delta" and e["dados"].get("texto") == "Olá! Li o pacote.")
     assert delta["dados"]["texto"] == "Olá! Li o pacote."
+    # `chat.turno` cerca o turno inteiro (início antes do LLM, fim depois).
+    turnos = [e["dados"].get("fase") for e in gravados if e["evento"] == "chat.turno"]
+    assert turnos == ["inicio", "fim"]
     enviado = next(p for m, p in worker.chamadas if m == "chat.enviar")
     assert enviado["mensagem"].startswith(PREFIXO_SISTEMA)
 

@@ -175,6 +175,19 @@ describe('store de chat', () => {
     expect(useChat.getState().turnoEmCurso).toBeNull();
   });
 
+  it('chat.turno marca o turno antes do primeiro token e fecha no fim', () => {
+    useChat.getState().limpar();
+    despachar(evt('chat.turno', { fase: 'inicio', origem: 'abertura' }, { req_id: 'ab-1' }));
+    expect(useChat.getState().pensando).toBe(true);
+    expect(useChat.getState().turnoEmCurso).toBe('ab-1');
+    // O primeiro token tira o "pensando", mas o turno continua aberto.
+    despachar(evt('chat.delta', { texto: 'Li o pacote.' }));
+    expect(useChat.getState().pensando).toBe(false);
+    expect(useChat.getState().turnoEmCurso).toBe('ab-1');
+    despachar(evt('chat.turno', { fase: 'fim', origem: 'abertura' }, { req_id: 'ab-1' }));
+    expect(useChat.getState().turnoEmCurso).toBeNull();
+  });
+
   it('nucleo.res com ok=false mostra erro e cancela tool pendente', () => {
     useChat.getState().limpar();
     despachar(evt('chat.tool', { trace_id: 't1', tool: 'gerar_mapa', fase: 'inicio' }));

@@ -13,6 +13,7 @@ __pycache__/
 *$py.class
 .Python
 .venv/
+.venv-teste/
 venv/
 env/
 .pytest_cache/

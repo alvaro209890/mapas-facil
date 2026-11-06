@@ -246,6 +246,16 @@ async def enviar_mensagem(
                     dados={"mensagem": {"papel": "usuario", "texto": texto}},
                     req_id=req_id,
                 )
+                # Avisa a tela (inclusive outra aba) que o turno começou antes do primeiro
+                # token: sem isso o chat parecia vazio enquanto o modelo pensava.
+                _emitir(
+                    raiz=raiz,
+                    hub=hub,
+                    projeto_id=projeto.id,
+                    evento="chat.turno",
+                    dados={"fase": "inicio", "origem": "usuario"},
+                    req_id=req_id,
+                )
 
                 async def ao_evento(mensagem: dict) -> None:
                     dados_evt = mensagem.get("dados") or {}
@@ -327,6 +337,15 @@ async def enviar_mensagem(
                         "ok": False,
                         "erro": {"codigo": "SV-099", "mensagem": type(exc).__name__},
                     },
+                    req_id=req_id,
+                )
+            finally:
+                _emitir(
+                    raiz=raiz,
+                    hub=hub,
+                    projeto_id=projeto.id,
+                    evento="chat.turno",
+                    dados={"fase": "fim", "origem": "usuario"},
                     req_id=req_id,
                 )
 

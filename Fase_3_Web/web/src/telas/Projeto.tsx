@@ -227,7 +227,7 @@ export function Projeto() {
           <div className={estilos.lista}>
             {ocupado && <BarraImportacao estado={projeto?.estado} progresso={importacao} />}
 
-            {mensagens.length === 0 && blocos.length === 0 && (
+            {mensagens.length === 0 && blocos.length === 0 && !pensando && !turnoEmCurso && (
               <div className={estilos.boasVindas}>
                 <h2>O que você precisa neste mapa?</h2>
                 <p>

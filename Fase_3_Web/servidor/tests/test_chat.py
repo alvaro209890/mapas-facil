@@ -113,9 +113,13 @@ def test_primeira_mensagem_cria_conversa_e_emite_eventos(ambiente):
     assert "mensagem.criada" in nomes
     assert nomes.count("chat.delta") == 2
     assert "chat.tool" in nomes
-    assert nomes[-1] == "nucleo.res"
-    assert eventos[-1]["dados"]["req_id"] == req_id
-    assert eventos[-1]["dados"]["ok"] is True
+    # O turno abre em `chat.turno` (início) e fecha com `nucleo.res` + `chat.turno` (fim).
+    fases = [e["dados"].get("fase") for e in eventos if e["evento"] == "chat.turno"]
+    assert fases == ["inicio", "fim"]
+    res = next(e for e in eventos if e["evento"] == "nucleo.res")
+    assert res["dados"]["req_id"] == req_id
+    assert res["dados"]["ok"] is True
+    assert nomes[-1] == "chat.turno"
     # todos os eventos do turno carregam o req_id da mensagem
     assert {e["req_id"] for e in eventos if e["evento"].startswith("chat.")} == {req_id}
     # sequência estritamente crescente, sem buraco

@@ -24,7 +24,15 @@ from . import vocabulario
 
 # Eventos que só fazem sentido ao vivo durante um turno de chat (ver `LogEventos.compactar`).
 _EVENTOS_DE_TURNO = frozenset(
-    {"mensagem.criada", "chat.delta", "chat.raciocinio", "chat.tool", "chat.pergunta", "nucleo.res"}
+    {
+        "mensagem.criada",
+        "chat.turno",
+        "chat.delta",
+        "chat.raciocinio",
+        "chat.tool",
+        "chat.pergunta",
+        "nucleo.res",
+    }
 )
 
 INTERVALO_FSYNC_S = 1.0

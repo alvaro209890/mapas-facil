@@ -37,6 +37,7 @@ export function despachar(evento: Evento): boolean {
     case 'chat.raciocinio':
     case 'chat.tool':
     case 'chat.pergunta':
+    case 'chat.turno':
     case 'mensagem.criada':
     case 'nucleo.res':
       useChat.getState().aplicarEvento(evento);

@@ -35,6 +35,7 @@ EVENTOS_SERVIDOR: frozenset[str] = frozenset(
         "importacao.progresso",
         "worker.estado",
         "mensagem.criada",
+        "chat.turno",
         "versao.criada",
         "nucleo.res",
         "sse.heartbeat",

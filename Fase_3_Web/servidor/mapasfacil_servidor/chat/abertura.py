@@ -236,7 +236,26 @@ def montar_pergunta_galeria(modelos_galeria: list[dict[str, Any]]) -> dict[str, 
     }
 
 
-async def disparar_abertura_projeto(
+def _abertura_ja_feita(banco: Banco, importacao_id: str) -> bool:
+    """Idempotência (D41): cada importação abre uma vez só.
+
+    Fica fora do `_executar_abertura` para o aviso `chat.turno` não piscar na tela num
+    reload de uma importação que já foi aberta.
+    """
+    con = banco.conectar()
+    try:
+        linha = con.execute(
+            "SELECT id, abertura_feita FROM importacoes WHERE id = ?",
+            (importacao_id,),
+        ).fetchone()
+        if linha is not None and "abertura_feita" in linha.keys() and linha["abertura_feita"]:
+            return True
+        return False
+    finally:
+        con.close()
+
+
+async def _executar_abertura(
     *,
     banco: Banco,
     pool: Pool,
@@ -248,18 +267,8 @@ async def disparar_abertura_projeto(
 ) -> None:
     """Executa a abertura automática do projeto (Recurso B / W5-22 / D41)."""
     # 1. Checagem de idempotência: garante que cada importação só abre uma vez
-    con = banco.conectar()
-    try:
-        linha = con.execute(
-            "SELECT id, abertura_feita FROM importacoes WHERE id = ?",
-            (importacao_id,),
-        ).fetchone()
-        if linha is not None:
-            # Se a coluna abertura_feita já existir e for 1, encerra
-            if "abertura_feita" in linha.keys() and linha["abertura_feita"]:
-                return
-    finally:
-        con.close()
+    if _abertura_ja_feita(banco, importacao_id):
+        return
 
     dados = extrair_dados_abertura(resumo)
     canal = f"projeto:{projeto_id}"
@@ -281,11 +290,23 @@ async def disparar_abertura_projeto(
             },
         )
 
+    # A apresentação não depende do worker: sai da indexação e chega antes de qualquer
+    # chamada ao núcleo (2,4 s → 0,2 s medidos em 06/11/2026). É o que tira a tela do
+    # estado "nada foi enviado" enquanto o modelo pensa.
+    def emitir(evento: str, dados_evento: dict[str, Any], **kw: Any) -> None:
+        _emitir(hub, projeto_id, evento, dados_evento, raiz=raiz, **kw)
+
+    texto_abertura = montar_texto_abertura(dados)
+    req_id = f"abertura-{uuid.uuid4().hex[:12]}"
+    emitir("chat.delta", {"texto": texto_abertura}, req_id=req_id)
+
     # 3. Obter worker do núcleo para o projeto
     try:
         worker = await pool.obter(projeto_id)
     except Exception as exc:
         _LOG.warning("Worker indisponível para abertura do projeto %s: %s", projeto_id, exc)
+        # O texto já foi exibido; fecha o turno para o replay não guardar um delta órfão.
+        emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
         return
 
     # Garante que a conversa principal do projeto existe
@@ -320,33 +341,31 @@ async def disparar_abertura_projeto(
     except Exception as exc:
         _LOG.debug("Falha ao listar galeria para abertura: %s", exc)
 
-    texto_abertura = montar_texto_abertura(dados)
     pergunta_payload = montar_pergunta_galeria(modelos_galeria)
 
-    # 5. Tenta via LLM; cai no Plano B determinístico se falhar ou não disser nada.
-    def emitir(evento: str, dados_evento: dict[str, Any], **kw: Any) -> None:
-        _emitir(hub, projeto_id, evento, dados_evento, raiz=raiz, **kw)
-
-    req_id = f"abertura-{uuid.uuid4().hex[:12]}"
-    abertura_ok = False
-    disse_algo = False
+    # 5. Turno do LLM: ele só escolhe a pergunta; a apresentação já foi exibida acima.
+    # O `perguntar` **encerra o turno**, por isso o texto não pode depender dele.
+    disse_texto = False
+    ja_perguntou = False
 
     async def ao_evento(mensagem: dict[str, Any]) -> None:
-        nonlocal disse_algo
+        nonlocal disse_texto, ja_perguntou
         nome = mensagem.get("evento", "aviso")
         dados_evento = mensagem.get("dados") or {}
-        if nome in ("chat.delta", "chat.pergunta") and dados_evento:
-            disse_algo = True
+        if nome == "chat.delta" and str(dados_evento.get("texto") or "").strip():
+            disse_texto = True
+        if nome == "chat.pergunta" and dados_evento:
+            ja_perguntou = True
         emitir(nome, dados_evento, req_id=req_id, origem="nucleo")
 
     try:
         # O texto vai marcado como origem sistema: a tela não o mostra como fala do usuário.
         prompt_abertura = (
             f"{PREFIXO_SISTEMA} | MOTIVO: importacao_concluida]\n"
-            f"O pacote de dados do projeto acabou de ser importado e indexado.\n"
-            f"Apresente o imóvel ao usuário utilizando ESTRITAMENTE os dados factuais abaixo "
-            f"(sem inventar nenhum dado):\n{texto_abertura}\n\n"
-            f"Em seguida, use a ferramenta `perguntar` para oferecer os modelos de mapas possíveis da galeria."
+            f"O pacote de dados do projeto acabou de ser importado e indexado, e a leitura "
+            f"factual já foi exibida ao usuário na conversa:\n{texto_abertura}\n\n"
+            f"Não repita esses dados. Use a ferramenta `perguntar` para oferecer os modelos "
+            f"de mapas possíveis da galeria."
         )
         try:
             resultado_turno = await worker.chamar(
@@ -360,20 +379,17 @@ async def disparar_abertura_projeto(
                 {"conversation_id": conversa_id, "mensagem": prompt_abertura},
             )
         texto_final = str((resultado_turno or {}).get("texto") or "").strip()
-        if resultado_turno and resultado_turno.get("message_id") and (disse_algo or texto_final):
-            abertura_ok = True
-            if texto_final and not disse_algo:
-                emitir("chat.delta", {"texto": texto_final}, req_id=req_id, origem="nucleo")
+        if texto_final and not disse_texto:
+            emitir("chat.delta", {"texto": texto_final}, req_id=req_id, origem="nucleo")
         emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
     except Exception as exc:
-        _LOG.info("LLM/9Router indisponível ou falhou (%s). Executando Plano B determinístico.", exc)
+        _LOG.info("LLM/9Router indisponível ou falhou (%s). Mantém a abertura determinística.", exc)
         emitir("nucleo.res", {"req_id": req_id, "ok": True}, req_id=req_id)
 
-    if not abertura_ok:
-        # Plano B determinístico sem LLM (o usuário nunca fica com chat vazio). Vai como
-        # `chat.delta` + `chat.pergunta`, que é o vocabulário que a tela entende.
+    if not ja_perguntou:
+        # Sem o modelo, a pergunta determinística garante que o usuário sempre tenha a
+        # escolha do modelo inicial (o texto já foi exibido acima).
         req_b = f"abertura-b-{uuid.uuid4().hex[:12]}"
-        emitir("chat.delta", {"texto": texto_abertura}, req_id=req_b)
         emitir(
             "chat.pergunta",
             {
@@ -401,3 +417,53 @@ async def disparar_abertura_projeto(
         pass
     finally:
         con.close()
+
+
+async def disparar_abertura_projeto(
+    *,
+    banco: Banco,
+    pool: Pool,
+    hub: Hub,
+    projeto_id: str,
+    importacao_id: str,
+    resumo: dict[str, Any],
+    raiz: Path | None = None,
+) -> None:
+    """Executa a abertura automática do projeto (Recurso B / W5-22 / D41).
+
+    O par `chat.turno` (início/fim) cerca o turno inteiro. A abertura **não tem bolha de
+    usuário** (o prompt é de origem sistema e a tela o esconde): sem esse aviso o chat
+    ficava vazio enquanto a IA lia o pacote e a tela mostrava a caixa de boas-vindas
+    ("O que você precisa neste mapa?"), como se nada tivesse sido enviado — achado
+    06/11/2026. O `finally` garante o fim também quando o worker não sobe.
+    """
+    if _abertura_ja_feita(banco, importacao_id):
+        return
+    req_id = f"abertura-{uuid.uuid4().hex[:12]}"
+    _emitir(
+        hub,
+        projeto_id,
+        "chat.turno",
+        {"fase": "inicio", "origem": "abertura"},
+        raiz=raiz,
+        req_id=req_id,
+    )
+    try:
+        await _executar_abertura(
+            banco=banco,
+            pool=pool,
+            hub=hub,
+            projeto_id=projeto_id,
+            importacao_id=importacao_id,
+            resumo=resumo,
+            raiz=raiz,
+        )
+    finally:
+        _emitir(
+            hub,
+            projeto_id,
+            "chat.turno",
+            {"fase": "fim", "origem": "abertura"},
+            raiz=raiz,
+            req_id=req_id,
+        )
