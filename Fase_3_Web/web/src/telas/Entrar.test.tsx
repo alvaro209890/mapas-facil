@@ -54,6 +54,11 @@ describe('regra de senha mostrada antes de enviar', () => {
 });
 
 describe('tela de entrada', () => {
+  it('apresenta PDF padrão IMAP como produto, sem prometer MXD por padrão', () => {
+    render(<Entrar />);
+    expect(screen.getByText(/PDF padrão IMAP/)).toBeInTheDocument();
+    expect(screen.queryByText(/com MXD, PDF/)).not.toBeInTheDocument();
+  });
   it('tem as duas abas e a de criar conta pede nome e repetição', () => {
     render(<Entrar />);
     expect(screen.getByRole('tab', { name: 'Entrar' })).toHaveAttribute('aria-selected', 'true');

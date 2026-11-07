@@ -1,10 +1,10 @@
 {
   "versao": 1,
-  "salvo_em": "2026-11-03T13:00:17-03:00",
+  "salvo_em": "2026-11-06T17:40:57-03:00",
   "mapspec": {
     "contract_version": 3,
     "perfil": "harmonia",
-    "id": "01M6H27GSE3RYWAMEBPD75P6DF",
+    "id": "01M6S9FGVA8BSYZQZ8CT7X1V9W",
     "versao": 1,
     "parent_id": null,
     "titulo": "Dinâmica de uso do solo",
@@ -22,7 +22,7 @@
       "nome": "Fazenda Harmonia",
       "car": "MT102042/2017",
       "matricula": null,
-      "area_total_ha": 3823.9033,
+      "area_total_ha": 3600.0,
       "municipio": {
         "nome": "Vila Rica",
         "uf": "MT",
@@ -102,6 +102,7 @@
       "tabela": true,
       "creditos": false
     },
+    "ajustes_layout": {},
     "metadados": [
       {
         "rotulo": "Satélite/Sensor",

@@ -160,9 +160,26 @@ def extrair_dados_abertura(resumo: dict[str, Any]) -> dict[str, Any]:
         if dx > dy * 1.15:
             sugestao_folha = "A4 paisagem"
 
+    imoveis_raw = resumo.get("imoveis") or resumo.get("workspace", {}).get("imoveis") or []
+    imoveis_lista: list[dict[str, Any]] = []
+    if isinstance(imoveis_raw, list):
+        for im in imoveis_raw:
+            if isinstance(im, dict):
+                imoveis_lista.append(
+                    {
+                        "id": im.get("id"),
+                        "nome": im.get("nome"),
+                        "car": im.get("car"),
+                        "matricula": im.get("matricula"),
+                        "area_ha": im.get("area") or im.get("area_ha"),
+                        "principal": bool(im.get("principal")),
+                    }
+                )
+
     return {
         "nome_imovel": nome_imovel,
         "area_ha": area_ha,
+        "imoveis": imoveis_lista,
         "municipio_uf": municipio_uf,
         "datum": datum,
         "veio_sad69": veio_sad69,
@@ -176,12 +193,26 @@ def extrair_dados_abertura(resumo: dict[str, Any]) -> dict[str, Any]:
 
 def montar_texto_abertura(dados: dict[str, Any]) -> str:
     """Monta a mensagem de abertura determinística a partir dos dados indexados."""
-    linhas = [
-        "Leitura do pacote concluída:",
-        f"• Imóvel: {dados['nome_imovel']}",
-        f"• Área: {dados['area_ha']:.4f} ha",
-        f"• Município/UF: {dados['municipio_uf']}",
-    ]
+    linhas = ["Leitura do pacote concluída:"]
+    imoveis = dados.get("imoveis") or []
+    if len(imoveis) > 1:
+        linhas.append(f"• Imóveis identificados no pacote ({len(imoveis)} imóveis):")
+        for idx, im in enumerate(imoveis, start=1):
+            nome_im = im.get("nome") or f"Imóvel {idx}"
+            area_val = im.get("area_ha")
+            area_str = f"{area_val:.4f} ha" if isinstance(area_val, (int, float)) else "área não informada"
+            detalhes = []
+            if im.get("car"):
+                detalhes.append(f"CAR: {im['car']}")
+            if im.get("principal"):
+                detalhes.append("Principal")
+            detalhes_str = f" ({', '.join(detalhes)})" if detalhes else ""
+            linhas.append(f"  {idx}. {nome_im} — {area_str}{detalhes_str}")
+    else:
+        linhas.append(f"• Imóvel: {dados['nome_imovel']}")
+        linhas.append(f"• Área: {dados['area_ha']:.4f} ha")
+
+    linhas.append(f"• Município/UF: {dados['municipio_uf']}")
     if dados["veio_sad69"]:
         linhas.append("• Datum: SIRGAS 2000 (convertido de SAD69 para SIRGAS 2000)")
     else:

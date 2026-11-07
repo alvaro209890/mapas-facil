@@ -51,7 +51,8 @@
             "ok": true
           }
         }
-      ]
+      ],
+      "layout_ref": "harmonia_dinamica_retrato"
     },
     {
       "id": "dinamica_quantitativos_retrato",
@@ -90,7 +91,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "harmonia_dinamica_retrato"
     },
     {
       "id": "tipologia_paisagem",
@@ -129,7 +131,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "harmonia_tematico_paisagem"
     },
     {
       "id": "terras_indigenas_paisagem",
@@ -168,7 +171,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_terras_indigenas"
     },
     {
       "id": "uc_paisagem",
@@ -207,7 +211,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_unidades_conservacao"
     },
     {
       "id": "serie_alertas_mapbiomas",
@@ -252,7 +257,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_alertas_mapbiomas"
     },
     {
       "id": "serie_alertas_prodes",
@@ -297,7 +303,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_alertas_prodes"
     },
     {
       "id": "serie_dla",
@@ -342,7 +349,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dla"
     },
     {
       "id": "serie_unidades_conservacao",
@@ -387,7 +395,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_unidades_conservacao"
     },
     {
       "id": "serie_tipologia",
@@ -432,7 +441,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_tipologia"
     },
     {
       "id": "serie_terras_indigenas",
@@ -477,7 +487,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_terras_indigenas"
     },
     {
       "id": "serie_tcr",
@@ -522,7 +533,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_tcr"
     },
     {
       "id": "serie_pef",
@@ -567,7 +579,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_pef"
     },
     {
       "id": "serie_embargos_sema_siga",
@@ -612,7 +625,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_embargos_sema_siga"
     },
     {
       "id": "serie_embargos_ibama",
@@ -657,7 +671,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_embargos_ibama"
     },
     {
       "id": "serie_areas_cultivaveis",
@@ -702,7 +717,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_areas_cultivaveis"
     },
     {
       "id": "serie_dinamica_quantitativos",
@@ -747,7 +763,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_quantitativos"
     },
     {
       "id": "serie_dinamica_2026",
@@ -792,7 +809,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2026"
     },
     {
       "id": "serie_dinamica_2023",
@@ -837,7 +855,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2023"
     },
     {
       "id": "serie_dinamica_2019",
@@ -882,7 +901,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2019"
     },
     {
       "id": "serie_dinamica_2017",
@@ -927,7 +947,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2017"
     },
     {
       "id": "serie_dinamica_2013",
@@ -972,7 +993,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2013"
     },
     {
       "id": "serie_dinamica_2008_spot",
@@ -1017,7 +1039,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2008_spot"
     },
     {
       "id": "serie_dinamica_2008_landsat",
@@ -1062,7 +1085,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2008_landsat"
     },
     {
       "id": "serie_dinamica_2000",
@@ -1107,7 +1131,8 @@
             "sentinela": 987654.0
           }
         }
-      }
+      },
+      "layout_ref": "serie_dinamica_2000"
     },
     {
       "id": "dinamica_2008_spot_quadro",
@@ -1142,7 +1167,8 @@
             "ok": true
           }
         }
-      ]
+      ],
+      "layout_ref": "serie_dinamica_2008_spot"
     }
   ]
 }

@@ -18,6 +18,7 @@ import { useJob } from '../estado/job';
 import { usePalco } from '../estado/palco';
 import { useProjetoAtivo } from '../estado/projetoAtivo';
 import { useProjetos } from '../estado/projetos';
+import { useAgente } from '../estado/agente';
 
 /**
  * Despacha um evento do SSE para as stores.
@@ -66,6 +67,14 @@ export function despachar(evento: Evento): boolean {
     case 'job.log':
     case 'job.artefato_parcial':
       useJob.getState().aplicarEvento(evento);
+      return false;
+    case 'agente.plano':
+    case 'agente.passo':
+    case 'agente.arquivo':
+    case 'agente.preview':
+    case 'agente.aprovacao':
+    case 'agente.fim':
+      useAgente.getState().aplicarEvento(evento);
       return false;
     case 'worker.estado':
     case 'sse.heartbeat':

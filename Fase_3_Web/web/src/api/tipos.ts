@@ -167,6 +167,13 @@ export const EVENTOS_NUCLEO = [
   'chat.raciocinio',
   'chat.tool',
   'chat.pergunta',
+  // eventos persistidos do agente (também pertencem ao núcleo)
+  'agente.plano',
+  'agente.passo',
+  'agente.arquivo',
+  'agente.preview',
+  'agente.aprovacao',
+  'agente.fim',
   'mapspec.atualizado',
   'aviso',
   // palco (W7)
@@ -187,4 +194,60 @@ export const EVENTOS_SERVIDOR = [
   'sse.heartbeat',
 ] as const;
 
-export type EventoConhecido = (typeof EVENTOS_NUCLEO)[number] | (typeof EVENTOS_SERVIDOR)[number];
+export type StatusPasso = 'pendente' | 'em_andamento' | 'concluido' | 'erro' | 'cancelado';
+export type StatusAgente = 'ocioso' | 'pendente' | 'em_andamento' | 'concluido' | 'erro' | 'cancelado';
+
+export interface PassoAgente {
+  id: string;
+  titulo: string;
+  status: StatusPasso;
+  resumo?: string | undefined;
+}
+
+export interface ArquivoAgente {
+  caminho: string;
+  acao: 'criado' | 'modificado' | 'removido' | string;
+  ts?: string | undefined;
+}
+
+export interface PreviewAgente {
+  caminho: string;
+  pagina?: number | undefined;
+  ts?: string | undefined;
+}
+
+export interface AprovacaoAgente {
+  acao: string;
+  caminho: string;
+  motivo: string;
+  token?: string | undefined;
+  resolvida?: boolean | undefined;
+  aprovado?: boolean | undefined;
+  erro?: string | undefined;
+}
+
+export interface EstadoAgenteApi {
+  passos: PassoAgente[];
+  arquivos: ArquivoAgente[];
+  previews: PreviewAgente[];
+  aprovacao: AprovacaoAgente | null;
+  status: StatusAgente;
+  resumo?: string | null | undefined;
+  versao?: number | null | undefined;
+}
+
+export const EVENTOS_AGENTE = [
+  'agente.plano',
+  'agente.passo',
+  'agente.arquivo',
+  'agente.preview',
+  'agente.aprovacao',
+  'agente.fim',
+] as const;
+
+export type EventoAgente = (typeof EVENTOS_AGENTE)[number];
+
+export type EventoConhecido =
+  | (typeof EVENTOS_NUCLEO)[number]
+  | (typeof EVENTOS_SERVIDOR)[number]
+  | EventoAgente;

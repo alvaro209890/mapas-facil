@@ -1,0 +1,43 @@
+{
+  "contract_version": 1,
+  "versao": 1,
+  "id": "harmonia_tematico_paisagem",
+  "nome": "Harmonia Temático Paisagem",
+  "descricao": "Padrão oficial Harmonia para mapas temáticos de contexto regional em folha A4 paisagem.",
+  "perfil": "harmonia",
+  "orientacao": "paisagem",
+  "folha_padrao": {
+    "formato": "A4",
+    "orientacao": "paisagem"
+  },
+  "dimensoes_mm": {
+    "largura": 297.0,
+    "altura": 210.0
+  },
+  "elementos": {
+    "mapa": { "x0": 5.6, "y0": 4.8, "x1": 291.1, "y1": 168.5 },
+    "titulo": { "x0": 105.33, "y0": 6.09, "x1": 186.79, "y1": 20.48 },
+    "rosa": { "x0": 276.7, "y0": 4.3, "x1": 288.5, "y1": 21.7 },
+    "minimapa": { "x0": 2.0, "y0": 173.0, "x1": 62.0, "y1": 208.0 },
+    "metadados": { "x0": 76.4, "y0": 173.8, "x1": 156.2, "y1": 205.3 },
+    "legenda": { "x0": 177.1, "y0": 172.0, "x1": 227.0, "y1": 208.2 },
+    "logo": { "x0": 245.0, "y0": 175.0, "x1": 292.0, "y1": 205.0 },
+    "tabela": { "x0": 80.0, "y0": 140.0, "x1": 285.0, "y1": 160.0 }
+  },
+  "tipografia": {
+    "pt_titulo": 26.0,
+    "pt_metadados": 11.0,
+    "pt_legenda": 10.0,
+    "pt_grade": 6.0,
+    "pt_legenda_titulo": 0.0,
+    "titulo_legenda": "LEGENDA",
+    "titulo_metadados": "METADADOS IMAGEM",
+    "fonte_grade": []
+  },
+  "crs_padrao": "EPSG:3857",
+  "metadados_medidos": {
+    "fonte_medicao": "Referencias_IMAP/Mapas/01/Tipologia.pdf",
+    "padrao": "Harmonia",
+    "data_medicao": "2026-11-06"
+  }
+}

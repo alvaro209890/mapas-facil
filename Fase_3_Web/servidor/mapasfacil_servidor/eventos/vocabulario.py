@@ -26,6 +26,13 @@ EVENTOS_NUCLEO: frozenset[str] = frozenset(
         "camada.renderizada",
         "layout.elemento",
         "revisao.visual",
+        # Agente PDF-first
+        "agente.plano",
+        "agente.passo",
+        "agente.arquivo",
+        "agente.preview",
+        "agente.aprovacao",
+        "agente.fim",
     }
 )
 

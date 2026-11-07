@@ -69,6 +69,13 @@ EVENTOS: frozenset[str] = frozenset(
         "camada.renderizada",
         "layout.elemento",
         "revisao.visual",
+        # Agente V2 (planos/06-agente-pdf-first.md): plano, passos, arquivos, previews, aprovação e fim.
+        "agente.plano",
+        "agente.passo",
+        "agente.arquivo",
+        "agente.preview",
+        "agente.aprovacao",
+        "agente.fim",
     }
 )
 

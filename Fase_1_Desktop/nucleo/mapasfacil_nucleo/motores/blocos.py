@@ -596,55 +596,78 @@ def bloco_metadados(
     """
     ax = _eixo(fig, perfil, perfil.metadados, zorder=25)
     linhas = [p for p in pares if str(p.get("valor") or "").strip()]
-    # W9-12: 7 linhas ou mais não cabem no corpo medido — encolhe até caber.
-    pt_corpo = pt_metadados_efetivo(perfil, len(linhas))
-    passo = _passo_linha(pt_corpo, perfil.metadados.altura)
-    # Ancorado na **base** da caixa, como no modelo: um bloco com menos linhas
-    # sobe a partir do rodapé, em vez de esticar para preencher a caixa.
-    y = passo * (len(linhas) + 0.6)
-
-    ax.text(
-        0.5,
-        y,
-        titulo,
-        ha="center",
-        va="center",
-        fontsize=pt_corpo + perfil.escalado(1.0),
-        fontweight="bold",
-        color="black",
-    )
-    y -= passo
-
     largura_caixa_mm = max(perfil.metadados.largura, 1.0)
-    for par in linhas:
-        rotulo = str(par.get("rotulo") or "").strip()
-        valor = str(par.get("valor") or "").strip()
-        # O modelo centraliza a **linha inteira**, não os dois-pontos. Ancorar no
-        # meio da caixa deslocava o bloco em 19 mm quando rótulo e valor têm
-        # comprimentos muito diferentes ("Fonte: WMS FUNAI" × "Datum: SIRGAS
-        # 2000 UTM 22 S"), e a âncora do bloco saía fora da tolerância.
-        largura_rotulo = largura_texto_mm(f"{rotulo}: ", perfil.pt_metadados, negrito=True)
-        largura_valor = largura_texto_mm(f" {valor}", perfil.pt_metadados)
+    largura_util = largura_caixa_mm * 0.94
+    pt_corpo = pt_metadados_efetivo(perfil, len(linhas))
+
+    def largura(texto: str, pt: float, *, negrito: bool = False) -> float:
+        # Inclui avanço/espaços e hinting do renderer, não só o contorno TextPath.
+        from matplotlib.font_manager import FontProperties
+        renderer = getattr(fig.canvas, "get_renderer", lambda: None)()
+        if renderer is not None:
+            px, _, _ = renderer.get_text_width_height_descent(
+                texto, FontProperties(size=pt, weight="bold" if negrito else "normal"), False
+            )
+            return max(px * 25.4 / fig.dpi, largura_texto_mm(texto, pt, negrito=negrito))
+        return largura_texto_mm(texto, pt, negrito=negrito)
+
+    def compor(pt: float) -> list[tuple[str, str]]:
+        resultado: list[tuple[str, str]] = []
+        for par in linhas:
+            rotulo = str(par.get("rotulo") or "").strip() + ": "
+            restante = str(par.get("valor") or "").strip()
+            while restante:
+                limite = largura_util - largura(rotulo, pt, negrito=True)
+                if limite <= 0:
+                    raise ValueError("Rótulo de metadados não cabe na caixa do layout.")
+                # Mede prefixos reais; quebra palavras longas também, sem cortar conteúdo.
+                lo, hi = 0, len(restante)
+                while lo < hi:
+                    meio = (lo + hi + 1) // 2
+                    if largura(" " + restante[:meio], pt) <= limite:
+                        lo = meio
+                    else:
+                        hi = meio - 1
+                n = lo
+                if not n:
+                    if rotulo:
+                        resultado.append((rotulo, ""))
+                        rotulo = ""
+                        continue
+                    raise ValueError("Caixa de metadados estreita demais para o texto.")
+                if n < len(restante) and " " in restante[:n]:
+                    n = restante.rfind(" ", 0, n) or n
+                resultado.append((rotulo, " " + restante[:n].rstrip()))
+                restante = restante[n:].lstrip()
+                rotulo = ""
+        return resultado
+
+    # Recalcula a quebra e o corpo juntos: reduzir só o passo não reduz a fonte.
+    for _ in range(20):
+        try:
+            desenhadas = compor(pt_corpo)
+        except ValueError:
+            desenhadas = []
+        passo = _passo_linha(pt_corpo, perfil.metadados.altura)
+        pt_titulo = pt_corpo + perfil.escalado(1.0)
+        if (desenhadas or not linhas) and (len(desenhadas) + 1.8) * passo <= 0.98 and largura(titulo, pt_titulo, negrito=True) <= largura_util:
+            break
+        pt_corpo *= 0.92
+    else:
+        raise ValueError("Metadados excedem a caixa do layout; reduza o conteúdo ou amplie a caixa.")
+
+    y = passo * (len(desenhadas) + 0.6)
+    ax.text(0.5, y, titulo, ha="center", va="center", fontsize=pt_titulo,
+            fontweight="bold", color="black")
+    y -= passo
+    for rotulo, valor in desenhadas:
+        largura_rotulo = largura(rotulo, pt_corpo, negrito=True)
+        largura_valor = largura(valor, pt_corpo)
         ancora = 0.5 + (largura_rotulo - largura_valor) / 2.0 / largura_caixa_mm
-        ax.text(
-            ancora,
-            y,
-            f"{rotulo}: ",
-            ha="right",
-            va="center",
-            fontsize=perfil.pt_metadados,
-            fontweight="bold",
-            color="black",
-        )
-        ax.text(
-            ancora,
-            y,
-            f" {valor}",
-            ha="left",
-            va="center",
-            fontsize=perfil.pt_metadados,
-            color="black",
-        )
+        if rotulo:
+            ax.text(ancora, y, rotulo, ha="right", va="center", fontsize=pt_corpo,
+                    fontweight="bold", color="black")
+        ax.text(ancora, y, valor, ha="left", va="center", fontsize=pt_corpo, color="black")
         y -= passo
 
     return len(linhas)

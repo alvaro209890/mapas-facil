@@ -113,6 +113,27 @@ class RastreadorProgresso:
     def etapas_concluidas(self) -> int:
         return self._concluidas + 1
 
+    def fatiar(self, inicio: float, fim: float, *, imovel_id: str) -> RastreadorProgresso:
+        """Tracker independente por imóvel, com progresso global monotônico.
+
+        Reutilizar este objeto diretamente no segundo motor repetiria etapas já
+        concluídas. A fatia termina antes de 100% para reservar a consolidação.
+        """
+        if not 0 <= inicio < fim <= 100:
+            raise ValueError('Intervalo de progresso inválido.')
+
+        def emitir_fatia(evento: str, dados: dict[str, Any]) -> None:
+            payload = {**dados, 'imovel_id': imovel_id}
+            if 'pct' in payload:
+                pct = round(inicio + (fim - inicio) * float(payload['pct']) / 100)
+                self._pct = max(self._pct, pct)
+                payload['pct'] = self._pct
+            if self._emitir is not None:
+                self._emitir(evento, payload)
+
+        filho = RastreadorProgresso(emitir_fatia if self.emite_eventos else None, job_id=self.job_id)
+        return filho
+
     def concluir(self, etapa: str, *, item: str | None = None) -> dict[str, Any]:
         """Fecha uma etapa: `pct` vai ao acumulado dela."""
         indice = indice_da_etapa(etapa)

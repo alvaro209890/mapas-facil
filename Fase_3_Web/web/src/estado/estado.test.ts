@@ -16,6 +16,7 @@ import { usePalco } from './palco';
 import { useProjetoAtivo } from './projetoAtivo';
 import { useProjetos } from './projetos';
 import { useSessao } from './sessao';
+import { useAgente } from './agente';
 
 let proximoSeq = 1;
 
@@ -37,7 +38,7 @@ beforeEach(() => {
   fetchFalso.mockReset();
   proximoSeq = 1;
   useConexao.setState({ ultimoSeq: 0, estado: 'parado' });
-  for (const loja of [useChat, useJob, usePalco, useProjetoAtivo]) {
+  for (const loja of [useChat, useJob, usePalco, useProjetoAtivo, useAgente]) {
     loja.getState().limpar();
   }
 });
@@ -336,5 +337,22 @@ describe('store de conexão', () => {
     useConexao.getState().aoMudar('offline');
     expect(useConexao.getState().ultimoSeq).toBe(7);
     expect(useConexao.getState().estado).toBe('offline');
+  });
+});
+
+// ------------------------------------------------------------------ agente v2
+
+describe('despacho de eventos do agente v2', () => {
+  it('despacha eventos agente.* para useAgente', () => {
+    despachar(
+      evt('agente.plano', {
+        passos: [{ id: 'p1', titulo: 'Gerar PDF padrão IMAP', status: 'pendente' }],
+      }),
+    );
+    expect(useAgente.getState().passos).toHaveLength(1);
+    expect(useAgente.getState().passos[0]?.titulo).toBe('Gerar PDF padrão IMAP');
+
+    despachar(evt('agente.arquivo', { caminho: 'Mapas/v001/doc.pdf', acao: 'criado' }));
+    expect(useAgente.getState().arquivos).toHaveLength(1);
   });
 });

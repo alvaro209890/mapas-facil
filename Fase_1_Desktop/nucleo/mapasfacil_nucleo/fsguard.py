@@ -72,7 +72,7 @@ def _unidade(caminho: Path) -> str:
 def _mesma_unidade(a: Path, b: Path) -> bool:
     if os.name == "nt":
         return _unidade(a).upper() == _unidade(b).upper()
-    return True
+    return True  # pragma: no cover
 
 
 def _caminho_muito_longo(caminho: Path) -> bool:

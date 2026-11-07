@@ -371,4 +371,7 @@ def montar_mapspec(
         },
     }
 
+    if indice and indice.get("imoveis") and len(indice["imoveis"]) > 1:
+        mapspec["imoveis"] = [dict(im) for im in indice["imoveis"]]
+
     return {"mapspec": mapspec, "avisos": avisos}

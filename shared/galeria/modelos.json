@@ -13,7 +13,7 @@
       "preview": "previews/dinamica_2026_retrato.png",
       "orientacao": "retrato",
       "tags": ["dinamica", "car", "quantitativos"],
-      "saidas_padrao": ["mxd", "pdf", "png", "xlsx"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {
@@ -96,7 +96,7 @@
       "preview": "previews/dinamica_2026_quantitativos.png",
       "orientacao": "retrato",
       "tags": ["dinamica", "car", "quantitativos"],
-      "saidas_padrao": ["mxd", "pdf", "png", "xlsx"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {
@@ -178,7 +178,7 @@
       "preview": "previews/dinamica_2008_spot_quadro.png",
       "orientacao": "retrato",
       "tags": ["dinamica", "2008", "spot", "car", "quadro_resumo"],
-      "saidas_padrao": ["mxd", "pdf", "png", "xlsx"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "titulo_padrao": "Dinâmica 2008",
       "nome_base_padrao": "Dinamica_2008",
@@ -279,7 +279,7 @@
       "preview": "previews/tipologia_paisagem.png",
       "orientacao": "paisagem",
       "tags": ["tipologia", "car"],
-      "saidas_padrao": ["mxd", "pdf", "png"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {
@@ -332,7 +332,7 @@
       "preview": "previews/terras_indigenas_paisagem.png",
       "orientacao": "paisagem",
       "tags": ["terras_indigenas", "car"],
-      "saidas_padrao": ["mxd", "pdf", "png"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {
@@ -385,7 +385,7 @@
       "preview": "previews/uc_paisagem.png",
       "orientacao": "paisagem",
       "tags": ["uc", "car"],
-      "saidas_padrao": ["mxd", "pdf", "png"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {
@@ -438,7 +438,7 @@
       "preview": "previews/dinamica_2026_quantitativos.png",
       "orientacao": "retrato",
       "tags": ["analise", "car", "serie", "20_mapas"],
-      "saidas_padrao": ["mxd", "pdf"],
+      "saidas_padrao": ["pdf", "png", "xlsx"],
       "escala_padrao": "auto",
       "requisitos_camadas": [
         {

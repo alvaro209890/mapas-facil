@@ -41,10 +41,17 @@ class OpcoesPacote:
     versao: int = 1
     mxd_doc: DocumentoMxd | None = None
     mxd_conforme: bool = True
+    incluir_mxd: bool = False
     codigo_aviso_mxd: str | None = None
     datum: str = "SIRGAS 2000 / UTM zone 22S"
     data_imagem: str = "2026-10"
     checks_reprovados: list[str] | None = None
+
+
+def _mxd_habilitado(opcoes: OpcoesPacote) -> bool:
+    import os
+
+    return bool(opcoes.incluir_mxd and opcoes.mxd_conforme and os.environ.get("MF_MXD") == "1")
 
 
 def gerar_leia_me(opcoes: OpcoesPacote) -> str:
@@ -64,7 +71,7 @@ def gerar_leia_me(opcoes: OpcoesPacote) -> str:
         "1. Descompacte todo o conteúdo deste arquivo .zip em uma pasta local.",
     ]
 
-    if opcoes.mxd_conforme and opcoes.mxd_doc is not None:
+    if _mxd_habilitado(opcoes) and opcoes.mxd_doc is not None:
         linhas.extend(
             [
                 f"2. Abra o arquivo 'MXD/{opcoes.nome_template}.mxd' no ArcGIS Desktop (ArcMap 10.x).",
@@ -76,12 +83,12 @@ def gerar_leia_me(opcoes: OpcoesPacote) -> str:
             ]
         )
     else:
-        aviso = opcoes.codigo_aviso_mxd or "MX-020"
+        aviso = opcoes.codigo_aviso_mxd or ("MX-020" if opcoes.incluir_mxd else "PDF-FIRST")
         linhas.extend(
             [
                 f"AVISO [{aviso}]: O arquivo .mxd não foi incluído nesta versão.",
-                "O mapa final aprovado em PDF de alta resolução e as geometrias",
-                "vetoriais auditadas seguem disponíveis nas pastas 'Mapas/' e 'SHP/'.",
+                "O mapa final aprovado em PDF de alta resolução, planilhas e as geometrias",
+                "vetoriais auditadas seguem disponíveis nas pastas 'Mapas/', 'XLSX/' e 'SHP/'.",
             ]
         )
 
@@ -113,7 +120,7 @@ def montar_pacote_zip(
     caminho_zip_destino: Path,
     opcoes: OpcoesPacote,
 ) -> Path:
-    """Monta o arquivo .zip de entrega conforme o contrato D37."""
+    """Monta o arquivo .zip de entrega conforme o contrato D37 / PDF-first."""
     caminho_zip_destino.parent.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(caminho_zip_destino, "w", compression=zipfile.ZIP_DEFLATED) as zf:
@@ -121,8 +128,8 @@ def montar_pacote_zip(
         conteudo_leia_me = gerar_leia_me(opcoes)
         zf.writestr("LEIA-ME.txt", conteudo_leia_me)
 
-        # 2. Pasta MXD/ (se conforme e disponível)
-        if opcoes.mxd_conforme and opcoes.mxd_doc is not None:
+        # 2. Pasta MXD/ (se habilitado e disponível)
+        if _mxd_habilitado(opcoes) and opcoes.mxd_doc is not None:
             bytes_mxd = opcoes.mxd_doc.obter_bytes()
             nome_arq_mxd = f"MXD/{opcoes.nome_template}.mxd"
             zf.writestr(nome_arq_mxd, bytes_mxd)
@@ -130,25 +137,28 @@ def montar_pacote_zip(
         # 3. Pasta SHP/ (copia da pasta da versão ou do projeto)
         pasta_shp = pasta_versao / "SHP"
         if pasta_shp.is_dir():
-            for arquivo in pasta_shp.rglob("*"):
+            for arquivo in sorted(pasta_shp.rglob("*")):
                 if arquivo.is_file():
                     rel = arquivo.relative_to(pasta_shp)
                     zf.write(arquivo, arcname=f"SHP/{rel.as_posix()}")
 
-        # 4. Pasta Mapas/ (PDFs, relatórios e validação)
+        # 4. Pasta Mapas/ e XLSX/ (PDFs, relatórios e validação)
         pasta_mapas = pasta_versao / "Mapas"
         if pasta_mapas.is_dir():
-            for arquivo in pasta_mapas.rglob("*"):
+            for arquivo in sorted(pasta_mapas.rglob("*")):
                 if arquivo.is_file():
                     rel = arquivo.relative_to(pasta_mapas)
-                    zf.write(arquivo, arcname=f"Mapas/{rel.as_posix()}")
+                    if arquivo.suffix.lower() == ".mxd":
+                        continue
+                    prefixo = "XLSX" if arquivo.suffix.lower() == ".xlsx" else "Mapas"
+                    zf.write(arquivo, arcname=f"{prefixo}/{rel.as_posix()}")
         else:
-            # Se não houver subpasta Mapas/, procura PDFs diretamente na pasta da versão
-            for pdf in pasta_versao.glob("*.pdf"):
+            # Se não houver subpasta Mapas/, procura diretamente na pasta da versão
+            for pdf in sorted(pasta_versao.glob("*.pdf")):
                 zf.write(pdf, arcname=f"Mapas/{pdf.name}")
-            for xlsx in pasta_versao.glob("*.xlsx"):
-                zf.write(xlsx, arcname=f"Mapas/{xlsx.name}")
-            for j in pasta_versao.glob("validacao*.json"):
+            for xlsx in sorted(pasta_versao.glob("*.xlsx")):
+                zf.write(xlsx, arcname=f"XLSX/{xlsx.name}")
+            for j in sorted(pasta_versao.glob("validacao*.json")):
                 zf.write(j, arcname=f"Mapas/{j.name}")
 
     return caminho_zip_destino

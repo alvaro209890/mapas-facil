@@ -151,14 +151,15 @@ def test_aviso_sai_como_evento_e_tambem_no_relatorio(pasta_harmonia: Path) -> No
 def test_escala_auto_do_modelo_da_galeria_nao_derruba_o_job(pasta_harmonia: Path) -> None:
     """Regressão: `escala: "auto"` (default dos modelos) virava ValueError sem código.
 
-    O modelo `dinamica_2026_retrato` pede `.mxd` e traz `escala: "auto"`; o job
+    O modelo `dinamica_2026_retrato` gera PDF-first e traz `escala: "auto"`; o job
     fazia `float("auto")` e morria com `NU-000` — justamente o caminho de
     paridade galeria↔chat.
     """
     mensagens = _gerar_ndjson(pasta_harmonia)
     resposta = mensagens[-1]
     assert resposta["ok"] is True, resposta.get("erro")
-    assert resposta["resultado"]["mxd"]
+    assert resposta["resultado"]["pdf"]
+    assert not resposta["resultado"].get("mxd"), "Galeria não pede MXD por padrão"
 
 
 def test_escala_numerica_continua_virando_patch() -> None:

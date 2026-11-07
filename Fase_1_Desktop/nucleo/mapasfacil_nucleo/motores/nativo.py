@@ -47,6 +47,7 @@ from mapasfacil_nucleo.camadas import ibge as ibge_mod  # noqa: E402
 from mapasfacil_nucleo.config import raiz_repositorio  # noqa: E402
 from mapasfacil_nucleo.fsguard import WorkspaceGuard  # noqa: E402
 from mapasfacil_nucleo.motores import basemap as basemap_mod  # noqa: E402
+from mapasfacil_nucleo import layout as layout_mod  # noqa: E402
 from mapasfacil_nucleo.motores import blocos, grade_dms, perfil_pagina  # noqa: E402
 from mapasfacil_nucleo.motores.estilos import obter as obter_estilo  # noqa: E402
 from mapasfacil_nucleo.validacao.relatorio import gerar, salvar  # noqa: E402
@@ -607,6 +608,7 @@ def gerar_pdf_minimo(
     pasta_nome = saida_cfg.get("pasta", "Mapas")
     nome_base = saida_cfg.get("nome_base", "mapa")
     pasta = guard.resolver(pasta_nome, escrita=True)
+    pasta.mkdir(parents=True, exist_ok=True)
     pdf_path = pasta / f"{nome_base}.pdf"
 
     perfil = _perfil_com_ajustes(_perfil_do_mapspec(mapspec), mapspec)
@@ -1045,6 +1047,7 @@ def gerar_pdf_minimo(
         "validacao_dados": relatorio,
         "tabela_sobreposta": tabela_ok,
         "perfil_pagina": perfil.id,
+        "layout_spec": layout_mod.de_perfil(perfil).para_dict(),
         "escala": escala,
         "extent": list(extent),
         "grade_passo_segundos": grade.get("passo_segundos"),
@@ -1067,14 +1070,29 @@ def gerar_pdf_minimo(
 
 
 def _perfil_do_mapspec(mapspec: dict[str, Any]) -> perfil_pagina.PerfilPagina:
-    """Perfil da página: modelo medido primeiro, orientação depois.
+    """Perfil da página: layout_spec explícito, modelo medido, ou orientação.
 
-    Um mapa da série (`template: serie_*`) tem o layout do **seu** PDF-modelo
-    medido em `shared/padrao-imap/anatomia_serie.json`. Só quem não é da série
-    cai no perfil genérico por orientação.
+    1. Se mapspec possuir `layout_spec` (ou `layout`), consome diretamente;
+    2. Se template for da série ou conhecido, resolve via layout.obter_layout;
+    3. Fallback para perfil genérico por orientação.
     """
     folha = mapspec.get("folha")
-    medido = perfil_pagina.por_template(mapspec.get("template"))
+    raw_spec = mapspec.get("layout_spec") or mapspec.get("layout")
+    if raw_spec is not None:
+        # Um layout explicitamente fornecido é contrato: não substituir por outro
+        # silenciosamente quando inválido. O caller recebe erro de validação.
+        spec = layout_mod.carregar(raw_spec)
+        return layout_mod.perfil_do_layout(spec, folha=folha)
+
+    template_id = mapspec.get("template")
+    if template_id:
+        try:
+            spec = layout_mod.obter_layout(str(template_id), folha=folha)
+            return layout_mod.perfil_do_layout(spec, folha=folha)
+        except Exception:  # noqa: BLE001
+            pass
+
+    medido = perfil_pagina.por_template(template_id)
     if medido is not None:
         # O modelo da série manda no layout e na orientação; a folha só diz o tamanho.
         return perfil_pagina.escalar_perfil(medido, folha)

@@ -72,3 +72,13 @@ class Cancelamento(BaseModel):
 
 class ImportacaoNova(BaseModel):
     upload_id: str
+
+
+class AprovacaoAgenteCorpo(BaseModel):
+    acao: str = Field(min_length=1, max_length=20)
+    token: str | None = Field(default=None, max_length=200)
+    motivo: str | None = Field(default=None, max_length=1000)
+    action: str | None = Field(default=None, max_length=100)
+    path: str | None = Field(default=None, max_length=500)
+    version: int | None = None
+    hash: str | None = Field(default=None, max_length=100)

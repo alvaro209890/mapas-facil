@@ -112,8 +112,10 @@ export function Palco({
   const modoEfetivo = useMemo(() => {
     const base = !temWebGL && modoStore === 'mapa' ? 'folha' : modoStore;
     if (versao?.miniatura && !jobAtivo && !erroStore) return 'resultado';
+    // nucleo.res também encerra a abertura/chat sem gerar qualquer arquivo.
+    if (base === 'resultado' && !versao && !versaoStore) return 'ocioso';
     return base;
-  }, [temWebGL, modoStore, versao?.miniatura, jobAtivo, erroStore]);
+  }, [temWebGL, modoStore, versao, versaoStore, jobAtivo, erroStore]);
 
   // Inicialização da Câmera e Camadas
   useEffect(() => {

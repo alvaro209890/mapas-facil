@@ -345,3 +345,75 @@ def versoes(con: sqlite3.Connection, projeto_id: str) -> list[dict]:
         }
         for linha in linhas
     ]
+
+
+def salvar_imoveis(
+    con: sqlite3.Connection,
+    projeto_id: str,
+    imoveis: list[dict],
+) -> list[dict]:
+    momento = _agora()
+    salvos = []
+    for idx, im in enumerate(imoveis, start=1):
+        im_id = str(im.get("id") or f"imovel_{idx}")
+        registro_id = f"{projeto_id}_{im_id}"
+        nome = str(im.get("nome") or f"Imóvel {idx}")
+        car = im.get("car")
+        matricula = im.get("matricula")
+        area = im.get("area")
+        area_ha = float(area) if isinstance(area, (int, float)) else None
+        atp = im.get("atp")
+        principal = 1 if im.get("principal") else 0
+
+        con.execute(
+            "INSERT INTO imoveis_projeto (id, projeto_id, imovel_id, nome, car, matricula, area_ha, atp_fonte, principal, criado_em)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            " ON CONFLICT(projeto_id, imovel_id) DO UPDATE SET"
+            "   nome=excluded.nome,"
+            "   car=excluded.car,"
+            "   matricula=excluded.matricula,"
+            "   area_ha=excluded.area_ha,"
+            "   atp_fonte=excluded.atp_fonte,"
+            "   principal=excluded.principal",
+            (
+                registro_id,
+                projeto_id,
+                im_id,
+                nome,
+                car,
+                matricula,
+                area_ha,
+                atp,
+                principal,
+                momento,
+            ),
+        )
+        salvos.append({
+            "id": im_id,
+            "nome": nome,
+            "car": car,
+            "matricula": matricula,
+            "area": area_ha,
+            "atp": atp,
+            "principal": bool(principal),
+        })
+    return salvos
+
+
+def listar_imoveis(con: sqlite3.Connection, projeto_id: str) -> list[dict]:
+    linhas = con.execute(
+        "SELECT * FROM imoveis_projeto WHERE projeto_id = ? ORDER BY principal DESC, criado_em ASC",
+        (projeto_id,),
+    ).fetchall()
+    return [
+        {
+            "id": linha["imovel_id"],
+            "nome": linha["nome"],
+            "car": linha["car"],
+            "matricula": linha["matricula"],
+            "area": linha["area_ha"],
+            "atp": linha["atp_fonte"],
+            "principal": bool(linha["principal"]),
+        }
+        for linha in linhas
+    ]

@@ -382,6 +382,12 @@ describe('Palco (W8-01, W8-07, W8-08, W8-09)', () => {
   });
 
   describe('Sem eventos, o palco não anima (W8-01 / W8-09)', () => {
+    it('não anuncia PDF pronto só porque um turno de chat terminou', () => {
+      usePalco.setState({ modo: 'resultado', versao: null });
+      render(<Palco suporteWebGL={false} />);
+      expect(screen.queryByText('Versão 1 pronta')).not.toBeInTheDocument();
+      expect(screen.getByText('Nenhuma versão gerada ainda')).toBeInTheDocument();
+    });
     it('não agenda ticks nem executa passos quando a fila está vazia', () => {
       const spyRaf = vi.spyOn(window, 'requestAnimationFrame');
 

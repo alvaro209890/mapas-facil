@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from mapasfacil_nucleo.agente.anexos import validar_anexos
@@ -27,11 +28,23 @@ def enviar(params: dict[str, Any], emissor: Emissor) -> dict[str, Any]:
         raise ErroNucleo("NU-001", "Parâmetro 'mensagem' é obrigatório.")
     anexos = validar_anexos(params.get("anexos"))
     gate_sessao(params)
+    workspace = params.get("workspace")
+    max_rodadas = params.get("max_rodadas")
+    if max_rodadas is None:
+        env_max = os.environ.get("MAPASFACIL_MAX_RODADAS_TOOL")
+        max_rodadas = int(env_max) if env_max and env_max.isdigit() else 100
+    else:
+        max_rodadas = int(max_rodadas)
+    limite_falhas = params.get("limite_falhas_consecutivas")
+    limite_falhas_int = int(limite_falhas) if limite_falhas is not None else 3
     return executar_turno(
         conversation_id=cid,
         mensagem=mensagem.strip(),
         emissor=emissor,
         anexos=anexos,
+        workspace=workspace,
+        max_rodadas=max_rodadas,
+        limite_falhas_consecutivas=limite_falhas_int,
     )
 
 

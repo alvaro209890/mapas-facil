@@ -149,12 +149,13 @@ def test_publicar_novas_emite_versao_criada(ambiente):
     assert emitidos[0][1]["projeto_id"] == projeto.id
 
 
-def test_pacote_do_projeto_junta_mxd_shp_e_mapas(tmp_path):
+def test_pacote_do_projeto_junta_mxd_shp_e_mapas(tmp_path, monkeypatch):
+    monkeypatch.setenv("MF_MXD", "1")
     raiz = tmp_path
     _versao_como_o_nucleo_grava(raiz)
     registro = versao_mod.montar(raiz, 1)
     destino = raiz / ".servidor" / "pacotes" / "teste_v001.zip"
-    montar_pacote_do_projeto(raiz, registro.pasta, registro.artefatos, destino, OpcoesPacote())
+    montar_pacote_do_projeto(raiz, registro.pasta, registro.artefatos, destino, OpcoesPacote(incluir_mxd=True))
     with zipfile.ZipFile(io.BytesIO(destino.read_bytes())) as zf:
         nomes = set(zf.namelist())
     assert {"LEIA-ME.txt", "MXD/Dinamica_2008.mxd", "SHP/ATP.shp", "Mapas/Dinamica_2008.pdf"} <= nomes

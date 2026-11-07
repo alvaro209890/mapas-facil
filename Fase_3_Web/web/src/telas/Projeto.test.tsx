@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChat } from '../estado/chat';
 import { useConexao } from '../estado/conexao';
 import { useProjetoAtivo } from '../estado/projetoAtivo';
+import { useAgente } from '../estado/agente';
 import { Projeto } from './Projeto';
 
 const fetchFalso = vi.fn();
@@ -80,6 +81,7 @@ beforeEach(() => {
   fetchFalso.mockReset();
   useChat.getState().limpar();
   useProjetoAtivo.getState().limpar();
+  useAgente.getState().limpar();
   useConexao.setState({ ultimoSeq: 0, estado: 'parado' });
   FonteFalsa.ultima = null;
 
@@ -229,7 +231,7 @@ describe('eventos chegam na tela', () => {
     expect(await screen.findByText('v002')).toBeInTheDocument();
     expect(screen.getByText('não conforme')).toBeInTheDocument();
 
-    const link = await screen.findByRole('link', { name: 'PDF' });
+    const link = await screen.findByRole('link', { name: /PDF padrão IMAP/i });
     expect(link).toHaveAttribute(
       'href',
       '/api/v1/projetos/p1/arquivos/Mapas/v002/mapa.pdf?anexo=true',
@@ -287,5 +289,111 @@ describe('enviar mensagem', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Enviar' }));
     const alerta = await screen.findByRole('alert');
     expect(alerta).toHaveTextContent('SV-241');
+  });
+});
+
+describe('agente v2 na tela do projeto', () => {
+  it('eventos agente.plano e agente.passo renderizam checklist na tela', async () => {
+    montar();
+    await waitFor(() => expect(FonteFalsa.ultima).not.toBeNull());
+    const fonte = FonteFalsa.ultima as FonteFalsa;
+
+    fonte.disparar('mf', {
+      seq: 1,
+      ts: '2026-11-06T12:00:00Z',
+      origem: 'servidor',
+      evento: 'agente.plano',
+      dados: {
+        passos: [
+          { id: 'p1', titulo: 'Ler dados vetoriais', status: 'pendente' },
+          { id: 'p2', titulo: 'Gerar PDF padrão IMAP', status: 'pendente' },
+        ],
+      },
+    });
+
+    expect(await screen.findByText('Ler dados vetoriais')).toBeInTheDocument();
+    expect(screen.getByText('Gerar PDF padrão IMAP')).toBeInTheDocument();
+
+    fonte.disparar('mf', {
+      seq: 2,
+      ts: '2026-11-06T12:00:01Z',
+      origem: 'servidor',
+      evento: 'agente.passo',
+      dados: {
+        id: 'p1',
+        titulo: 'Ler dados vetoriais',
+        status: 'concluido',
+        resumo: 'Perímetro e vértices conferidos',
+      },
+    });
+
+    expect(await screen.findByText('Perímetro e vértices conferidos')).toBeInTheDocument();
+    expect(screen.getByText('Concluído')).toBeInTheDocument();
+  });
+
+  it('recupera estado do agente no reload através de GET /api/v1/projetos/:id/agente', async () => {
+    fetchFalso.mockImplementation((url: string) => {
+      const caminho = String(url);
+      if (caminho.endsWith('/agente')) {
+        return Promise.resolve(
+          resposta({
+            status: 'em_andamento',
+            passos: [
+              { id: '1', titulo: 'Passo recuperado do banco', status: 'concluido', resumo: 'Histórico ativo' },
+            ],
+            arquivos: [{ caminho: 'Mapas/v001/doc.pdf', acao: 'criado' }],
+            previews: [{ caminho: 'Mapas/v001/doc.pdf', pagina: 1 }],
+            aprovacao: null,
+          }),
+        );
+      }
+      if (caminho.endsWith('/projetos/p1')) return Promise.resolve(resposta({ projeto: PROJETO }));
+      if (caminho.includes('/versoes')) return Promise.resolve(resposta({ itens: [VERSAO] }));
+      return Promise.resolve(resposta({}, 200));
+    });
+
+    montar();
+
+    expect(await screen.findByText('Passo recuperado do banco')).toBeInTheDocument();
+    expect(screen.getByText('Histórico ativo')).toBeInTheDocument();
+    expect(screen.getAllByText('Mapas/v001/doc.pdf').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('botão Parar cancela o agente e preserva os passos concluídos', async () => {
+    montar();
+    await waitFor(() => expect(FonteFalsa.ultima).not.toBeNull());
+    const fonte = FonteFalsa.ultima as FonteFalsa;
+
+    fonte.disparar('mf', {
+      seq: 1,
+      ts: '2026-11-06T12:00:00Z',
+      origem: 'servidor',
+      evento: 'agente.plano',
+      dados: {
+        passos: [
+          { id: 'p1', titulo: 'Passo 1', status: 'concluido' },
+          { id: 'p2', titulo: 'Passo 2', status: 'em_andamento' },
+        ],
+      },
+    });
+
+    expect(await screen.findByText('Passo 1')).toBeInTheDocument();
+
+    const btnParar = screen.getByRole('button', { name: /parar agente/i });
+    fireEvent.click(btnParar);
+
+    await waitFor(() => {
+      const estado = useAgente.getState();
+      expect(estado.status).toBe('cancelado');
+      expect(estado.passos[0]?.status).toBe('concluido');
+      expect(estado.passos[1]?.status).toBe('cancelado');
+    });
+  });
+
+  it('apresenta termos PDF padrão IMAP e MXD não padrão na tela', async () => {
+    montar();
+    expect(await screen.findByText(/PDF padrão IMAP e os shapefiles/i)).toBeInTheDocument();
+    expect(screen.getByText('PDF padrão IMAP')).toBeInTheDocument();
+    expect(screen.getByTitle(/MXD não padrão/i)).toBeInTheDocument();
   });
 });

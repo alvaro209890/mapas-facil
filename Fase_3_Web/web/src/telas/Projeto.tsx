@@ -26,6 +26,9 @@ import { CartaoTool } from '../herdados/CartaoTool';
 import { GrupoTools } from '../herdados/GrupoTools';
 import { IndicadorPensando } from '../herdados/IndicadorPensando';
 import { Palco } from '../palco/Palco';
+import { useAgente } from '../estado/agente';
+import { PainelAgente } from '../componentes/PainelAgente/PainelAgente';
+import { PreviewPdf } from '../componentes/PreviewPdf/PreviewPdf';
 import { useChat } from '../estado/chat';
 import { useConexao } from '../estado/conexao';
 import { useJob } from '../estado/job';
@@ -46,8 +49,8 @@ const ROTULO_ESTADO: Record<string, string> = {
 
 /** Nome de arquivo para a faixa de downloads, com o rótulo em português. */
 const ROTULO_ARTEFATO: Record<string, string> = {
-  pdf: 'PDF',
-  mxd: 'MXD',
+  pdf: 'PDF padrão IMAP',
+  mxd: 'MXD não padrão',
   zip: 'Pacote .zip',
   png: 'Imagem PNG',
   geojson: 'GeoJSON',
@@ -72,6 +75,8 @@ export function Projeto() {
     useProjetoAtivo();
   const { mensagens, blocos, turnoEmCurso, pensando, sugestoes, erro: erroChat, carregar: carregarChat, enviarLocal, definirTurno, definirErro, aguardarHistorico } =
     useChat();
+  const { status: statusAgente, passos: passosAgente, aprovacao: aprovacaoAgente, previewAtivo } = useAgente();
+  const [visaoPalco, setVisaoPalco] = useState<'mapa' | 'preview_pdf'>('mapa');
   const limparProjeto = useProjetoAtivo((s) => s.limpar);
   const estadoConexao = useConexao((s) => s.estado);
   const [texto, setTexto] = useState('');
@@ -97,8 +102,10 @@ export function Projeto() {
     limparProjeto();
     usePalco.getState().limpar();
     useJob.getState().limpar();
+    useAgente.getState().limpar();
     let vivo = true;
     void carregar(id);
+    void useAgente.getState().carregar(id);
     void (async () => {
       try {
         const [lista, sug] = await Promise.all([
@@ -165,12 +172,15 @@ export function Projeto() {
   );
 
   async function cancelar() {
-    if (!id || !turnoEmCurso) return;
+    if (!id) return;
     try {
-      await api.post(`/projetos/${id}/cancelar`, { req_id: turnoEmCurso });
+      if (turnoEmCurso) {
+        await api.post(`/projetos/${id}/cancelar`, { req_id: turnoEmCurso });
+      }
     } catch {
       // Cancelar é best-effort: se o turno já terminou, o SSE já fechou por conta própria.
     }
+    await useAgente.getState().cancelar(id);
   }
 
   if (carregando && !projeto) {
@@ -231,7 +241,7 @@ export function Projeto() {
               <div className={estilos.boasVindas}>
                 <h2>O que você precisa neste mapa?</h2>
                 <p>
-                  Escreva com as suas palavras. A IA monta a versão, gera o MXD, o PDF e os
+                  Escreva com as suas palavras. A IA monta a versão, gera o PDF padrão IMAP e os
                   shapefiles — e explica cada escolha.
                 </p>
                 {sugestoes.length > 0 && (
@@ -254,6 +264,10 @@ export function Projeto() {
             )}
 
             {resumo && <ResumoDados resumo={resumo} />}
+
+            {(passosAgente.length > 0 ||
+              (aprovacaoAgente && !aprovacaoAgente.resolvida) ||
+              statusAgente !== 'ocioso') && <PainelAgente projetoId={id} />}
 
             {blocos.map((bloco) => {
               if (bloco.tipo === 'usuario') {
@@ -336,7 +350,7 @@ export function Projeto() {
                 }
               }}
             />
-            {turnoEmCurso ? (
+            {turnoEmCurso || statusAgente === 'em_andamento' ? (
               <button type="button" className={estilos.parar} onClick={() => void cancelar()}>
                 Parar
               </button>
@@ -354,7 +368,39 @@ export function Projeto() {
 
         {/* --------------------------------------------------------- palco */}
         <section className={estilos.palco} aria-label="Mapa">
-          <Palco versao={versao} />
+          {previewAtivo && (
+            <div className={estilos.seletorVisaoPalco} role="tablist" aria-label="Modo de visualização">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={visaoPalco === 'mapa'}
+                className={visaoPalco === 'mapa' ? `${estilos.botaoAbaPalco} ${estilos.abaAtiva}` : estilos.botaoAbaPalco}
+                onClick={() => setVisaoPalco('mapa')}
+              >
+                Palco do Mapa
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={visaoPalco === 'preview_pdf'}
+                className={visaoPalco === 'preview_pdf' ? `${estilos.botaoAbaPalco} ${estilos.abaAtiva}` : estilos.botaoAbaPalco}
+                onClick={() => setVisaoPalco('preview_pdf')}
+              >
+                Preview PDF
+              </button>
+            </div>
+          )}
+
+          {previewAtivo && visaoPalco === 'preview_pdf' ? (
+            <PreviewPdf
+              projetoId={id}
+              caminho={previewAtivo.caminho}
+              pagina={previewAtivo.pagina}
+              titulo="Preview PDF gerado pelo agente"
+            />
+          ) : (
+            <Palco versao={versao} />
+          )}
 
           <div className={estilos.faixaVersoes} role="list" aria-label="Versões">
             {versoes.length === 0 && <span className={estilos.dica}>sem versões</span>}
@@ -393,7 +439,7 @@ export function Projeto() {
                     className={estilos.download}
                     href={`/api/v1/projetos/${id}/versoes/${versao.numero}/pacote.zip`}
                     download
-                    title="MXD, shapefiles, PDF e planilha num .zip só"
+                    title="PDF padrão IMAP, shapefiles, planilha e MXD não padrão num .zip só"
                   >
                     Tudo (.zip)
                   </a>

@@ -1,0 +1,43 @@
+{
+  "contract_version": 1,
+  "versao": 1,
+  "id": "harmonia_dinamica_retrato",
+  "nome": "Harmonia Dinâmica Retrato",
+  "descricao": "Padrão oficial Harmonia para a série Dinâmica em folha A4 retrato.",
+  "perfil": "harmonia",
+  "orientacao": "retrato",
+  "folha_padrao": {
+    "formato": "A4",
+    "orientacao": "retrato"
+  },
+  "dimensoes_mm": {
+    "largura": 210.0,
+    "altura": 297.0
+  },
+  "elementos": {
+    "mapa": { "x0": 7.0, "y0": 5.0, "x1": 203.5, "y1": 257.0 },
+    "titulo": { "x0": 61.98, "y0": 7.11, "x1": 134.55, "y1": 21.68 },
+    "rosa": { "x0": 186.3, "y0": 4.0, "x1": 202.0, "y1": 27.0 },
+    "minimapa": { "x0": 0.0, "y0": 262.0, "x1": 62.0, "y1": 297.0 },
+    "metadados": { "x0": 64.9, "y0": 265.2, "x1": 120.0, "y1": 291.2 },
+    "legenda": { "x0": 131.8, "y0": 266.0, "x1": 172.0, "y1": 295.0 },
+    "logo": { "x0": 175.0, "y0": 265.0, "x1": 208.0, "y1": 292.0 },
+    "tabela": { "x0": 67.1, "y0": 236.3, "x1": 203.0, "y1": 256.3 }
+  },
+  "tipografia": {
+    "pt_titulo": 24.0,
+    "pt_metadados": 9.0,
+    "pt_legenda": 8.0,
+    "pt_grade": 7.7,
+    "pt_legenda_titulo": 0.0,
+    "titulo_legenda": "Legenda",
+    "titulo_metadados": "METADADOS IMAGEM",
+    "fonte_grade": ["Cambria", "Liberation Serif", "Times New Roman", "DejaVu Serif"]
+  },
+  "crs_padrao": "EPSG:31982",
+  "metadados_medidos": {
+    "fonte_medicao": "Referencias_IMAP/Mapas/01/Dinamica_2026_quantitativos.pdf",
+    "padrao": "Harmonia",
+    "data_medicao": "2026-11-06"
+  }
+}

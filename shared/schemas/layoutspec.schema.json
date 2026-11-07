@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mapasfacil.local/schemas/layoutspec.schema.json",
+  "title": "LayoutSpec",
+  "description": "Especificação declarativa e versionada de layout de página para o renderizador PDF nativo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "versao",
+    "id",
+    "nome",
+    "perfil",
+    "orientacao",
+    "dimensoes_mm",
+    "elementos"
+  ],
+  "properties": {
+    "contract_version": { "type": "integer", "const": 1 },
+    "versao": { "type": "integer", "minimum": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "nome": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string" },
+    "perfil": { "type": "string", "minLength": 1 },
+    "orientacao": { "type": "string", "enum": ["retrato", "paisagem"] },
+    "folha_padrao": {
+      "type": "object",
+      "required": ["formato", "orientacao"],
+      "additionalProperties": false,
+      "properties": {
+        "formato": { "type": "string", "enum": ["A4", "A3", "A2", "A1", "A0"] },
+        "orientacao": { "type": "string", "enum": ["retrato", "paisagem"] }
+      }
+    },
+    "dimensoes_mm": {
+      "type": "object",
+      "required": ["largura", "altura"],
+      "additionalProperties": false,
+      "properties": {
+        "largura": { "type": "number", "minimum": 1 },
+        "altura": { "type": "number", "minimum": 1 }
+      }
+    },
+    "elementos": {
+      "type": "object",
+      "description": "Caixas de cada elemento do layout em mm (origem no topo-esquerda).",
+      "required": ["mapa", "titulo", "rosa", "minimapa", "metadados", "legenda", "logo"],
+      "additionalProperties": {
+        "$ref": "#/$defs/caixa_mm"
+      },
+      "properties": {
+        "mapa": { "$ref": "#/$defs/caixa_mm" },
+        "titulo": { "$ref": "#/$defs/caixa_mm" },
+        "rosa": { "$ref": "#/$defs/caixa_mm" },
+        "minimapa": { "$ref": "#/$defs/caixa_mm" },
+        "metadados": { "$ref": "#/$defs/caixa_mm" },
+        "legenda": { "$ref": "#/$defs/caixa_mm" },
+        "logo": { "$ref": "#/$defs/caixa_mm" },
+        "tabela": { "$ref": "#/$defs/caixa_mm" }
+      }
+    },
+    "tipografia": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pt_titulo": { "type": "number", "minimum": 1 },
+        "pt_metadados": { "type": "number", "minimum": 1 },
+        "pt_legenda": { "type": "number", "minimum": 1 },
+        "pt_grade": { "type": "number", "minimum": 1 },
+        "pt_legenda_titulo": { "type": "number", "minimum": 0 },
+        "titulo_legenda": { "type": "string" },
+        "titulo_metadados": { "type": "string" },
+        "fonte_grade": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "crs_padrao": { "type": "string", "pattern": "^EPSG:[0-9]+$" },
+    "metadados_medidos": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "caixa_mm": {
+      "type": "object",
+      "required": ["x0", "y0", "x1", "y1"],
+      "additionalProperties": false,
+      "properties": {
+        "x0": { "type": "number" },
+        "y0": { "type": "number" },
+        "x1": { "type": "number" },
+        "y1": { "type": "number" }
+      }
+    }
+  }
+}

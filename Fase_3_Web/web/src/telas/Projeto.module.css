@@ -303,6 +303,35 @@
 
 /* -------------------------------------------------------------- palco */
 
+.seletorVisaoPalco {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.botaoAbaPalco {
+  background: var(--mf-superficie-2);
+  color: var(--mf-texto-2);
+  border: 1px solid var(--mf-borda);
+  border-radius: var(--mf-raio-1);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botaoAbaPalco:hover {
+  background: var(--mf-superficie-3);
+  color: var(--mf-texto);
+}
+
+.abaAtiva {
+  background: var(--mf-superficie-3);
+  color: var(--mf-texto);
+  border-color: var(--mf-acento);
+}
+
 .palco {
   display: grid;
   grid-template-rows: 1fr auto auto;

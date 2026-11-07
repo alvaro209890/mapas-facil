@@ -293,6 +293,62 @@ def validar_regras(
                     )
                 )
 
+    imoveis = mapspec.get("imoveis")
+    ids_imoveis: set[str] = set()
+    if isinstance(imoveis, list):
+        principais_count = 0
+        for idx, im in enumerate(imoveis):
+            if not isinstance(im, dict):
+                continue
+            im_id = im.get("id")
+            if isinstance(im_id, str) and im_id:
+                if im_id in ids_imoveis:
+                    erros.append(
+                        _erro("NU-230", f"ID de imóvel duplicado: {im_id}", f"imoveis[{idx}]/id")
+                    )
+                else:
+                    ids_imoveis.add(im_id)
+            if im.get("principal") is True:
+                principais_count += 1
+        if principais_count > 1:
+            erros.append(
+                _erro("NU-231", "Apenas um imóvel pode ser marcado como principal.", "imoveis")
+            )
+
+    for idx, camada in enumerate(camadas):
+        prefixo = f"camadas[{idx}]"
+        imovel_id = camada.get("imovel_id")
+        if isinstance(imovel_id, str) and imovel_id:
+            if ids_imoveis and imovel_id not in ids_imoveis:
+                erros.append(
+                    _erro(
+                        "NU-232",
+                        f"Camada faz referência a imovel_id inexistente: {imovel_id}",
+                        f"{prefixo}/imovel_id",
+                    )
+                )
+
+    layout_spec = mapspec.get("layout_spec")
+    if layout_spec is not None:
+        if not isinstance(layout_spec, dict):
+            erros.append(
+                _erro("NU-233", "layout_spec deve ser um objeto.", "layout_spec")
+            )
+        else:
+            try:
+                from mapasfacil_nucleo.layout import validar as validar_layout
+
+                res_layout = validar_layout(layout_spec)
+                if not res_layout.get("valido", True):
+                    for err in res_layout.get("erros", []):
+                        erros.append(
+                            _erro("NU-234", f"layout_spec inválido: {err}", "layout_spec")
+                        )
+            except Exception as exc:
+                erros.append(
+                    _erro("NU-234", f"Falha ao validar layout_spec: {exc}", "layout_spec")
+                )
+
     return erros
 
 

@@ -62,9 +62,39 @@ function parseObjeto(texto: string | undefined): Record<string, unknown> | null 
   }
 }
 
+function ehMapSpec(valor: unknown): boolean {
+  if (!valor || typeof valor !== 'object' || Array.isArray(valor)) return false;
+  const obj = valor as Record<string, unknown>;
+  return (
+    'contract_version' in obj ||
+    ('folha' in obj && 'camadas' in obj) ||
+    ('imovel' in obj && 'camadas' in obj)
+  );
+}
+
+function resumirMapSpec(valor: unknown): string {
+  if (!valor || typeof valor !== 'object') return 'especificação do mapa';
+  const obj = valor as Record<string, unknown>;
+  const titulo = typeof obj.titulo === 'string' && obj.titulo ? obj.titulo : null;
+  const imovel =
+    obj.imovel && typeof obj.imovel === 'object'
+      ? (obj.imovel as Record<string, unknown>).nome
+      : null;
+  const nome = titulo || (typeof imovel === 'string' ? imovel : 'padrão IMAP');
+  return `especificação (${nome})`;
+}
+
 function valorCurto(valor: unknown): string {
   if (valor === null || valor === undefined) return '—';
-  if (typeof valor === 'string') return valor;
+  if (typeof valor === 'string') {
+    if (valor.includes('contract_version') && valor.includes('camadas')) {
+      return 'especificação do mapa';
+    }
+    return valor;
+  }
+  if (ehMapSpec(valor)) {
+    return resumirMapSpec(valor);
+  }
   if (typeof valor === 'number' || typeof valor === 'boolean') return String(valor);
   if (Array.isArray(valor)) return valor.map(valorCurto).join(', ');
   return JSON.stringify(valor);
@@ -79,6 +109,9 @@ export function lerArgs(argsResumo: string | undefined): ArgsLegiveis {
   const objeto = parseObjeto(argsResumo);
   if (!objeto) {
     const bruto = (argsResumo ?? '').trim();
+    if (bruto.includes('contract_version') && bruto.includes('camadas')) {
+      return { etiquetas: [{ chave: 'mapa', valor: 'especificação do mapa' }], motivo: null };
+    }
     return {
       etiquetas: bruto && bruto !== '{}' ? [{ chave: '', valor: bruto }] : [],
       motivo: null,
@@ -89,6 +122,10 @@ export function lerArgs(argsResumo: string | undefined): ArgsLegiveis {
   for (const [chave, valor] of Object.entries(objeto)) {
     if (CHAVES_MOTIVO.has(chave) && typeof valor === 'string') {
       motivo = valor;
+      continue;
+    }
+    if (chave === 'mapspec' || ehMapSpec(valor)) {
+      etiquetas.push({ chave: 'mapa', valor: resumirMapSpec(valor) });
       continue;
     }
     etiquetas.push({ chave: chave.replace(/_/g, ' '), valor: valorCurto(valor) });
@@ -120,9 +157,18 @@ export function lerResultado(resultadoResumo: string | undefined): ResultadoLegi
         .filter((e): e is string => e !== null)
     : [];
   const erro = falhou ? [mensagem, ...erros].filter(Boolean).join(' — ') || 'falhou' : null;
+
+  let formatado = JSON.stringify(objeto, null, 2);
+  if (ehMapSpec(objeto)) {
+    formatado = JSON.stringify({ mapa: resumirMapSpec(objeto) }, null, 2);
+  } else if (ehMapSpec(objeto.mapspec)) {
+    const clone = { ...objeto, mapspec: resumirMapSpec(objeto.mapspec) };
+    formatado = JSON.stringify(clone, null, 2);
+  }
+
   return {
     erro,
     codigo: falhou && typeof objeto.codigo === 'string' ? objeto.codigo : null,
-    formatado: JSON.stringify(objeto, null, 2),
+    formatado,
   };
 }

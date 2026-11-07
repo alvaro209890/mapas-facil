@@ -90,6 +90,7 @@ def abrir(caminho: str) -> dict[str, Any]:
     retorno: dict[str, Any] = {
         "workspace": idx,
         "recibo": recibo_dados,
+        "imoveis": idx.get("imoveis") or [],
         "doctor": _doctor_resumido(),
     }
     projeto = projeto_servidor.atual()

@@ -164,6 +164,8 @@ def importar(
                 resumo = bruto.get("workspace") or {}
                 if bruto.get("projeto"):
                     resumo["projeto"] = bruto["projeto"]
+                if bruto.get("imoveis"):
+                    resumo["imoveis"] = bruto["imoveis"]
             except ErroServidor as exc:
                 # Extração boa, indexação falhou: guarda o código e deixa o projeto em erro.
                 _atualizar(
@@ -186,9 +188,92 @@ def importar(
         resumo["ignorados"] = resultado.ignorados
 
         projeto = projetos_repo.transicionar(con, projeto, "pronto")
-        imovel = (resumo.get("imovel") or {}) if isinstance(resumo, dict) else {}
-        if imovel:
-            projeto = projetos_repo.atualizar_imovel(con, projeto, imovel)
+        imoveis_lista = resumo.get("imoveis") if isinstance(resumo, dict) else None
+        if not imoveis_lista and isinstance(resumo, dict) and pasta_entrada.is_dir():
+            # Não importa o núcleo diretamente no servidor (CI gate).
+            # Identifica candidatos estritamente com evidência real de ATP/perímetro,
+            # nunca promovendo camadas ambientais (APP, hidro, reserva) a imóveis.
+            import re
+            termos_tematicos = {
+                "app", "hidro", "hidrografia", "nascente", "rio", "corrego", "curso_dagua",
+                "reserva", "reserva_legal", "vegetacao", "uso", "antropica", "consolidada",
+                "estrada", "via", "rodovia", "sede", "benfeitoria", "grade", "talhao",
+            }
+            termos_atp = {"atp", "air", "perimetro", "lote", "imovel", "gleba"}
+
+            candidatos_atp: list[str] = []
+            for p in sorted(pasta_entrada.rglob("*.shp")):
+                stem = p.stem.lower()
+                partes = set(re.split(r"[^a-zA-Z0-9]+", stem))
+                if any(t in partes for t in termos_tematicos):
+                    continue
+                if any(t in partes for t in termos_atp) or stem.startswith("atp") or stem.startswith("air"):
+                    candidatos_atp.append(p.relative_to(pasta_entrada).as_posix())
+
+            if candidatos_atp:
+                imoveis_lista = []
+                for idx, cand in enumerate(candidatos_atp, start=1):
+                    stem = Path(cand).stem
+                    nome = stem.replace("_", " ").title()
+                    imoveis_lista.append(
+                        {
+                            "id": f"imovel_{idx}_{stem.lower()}",
+                            "nome": nome,
+                            "car": None,
+                            "matricula": None,
+                            "area": None,
+                            "atp": cand,
+                            "principal": (idx == 1),
+                        }
+                    )
+                resumo["imoveis"] = imoveis_lista
+            else:
+                # Sem ATP com evidência: emite aviso de indisponibilidade em vez de inventar
+                resumo.setdefault("avisos", [])
+                resumo["avisos"].append(
+                    {
+                        "codigo": "IM-030",
+                        "mensagem": "Detecção de imóveis múltiplos indisponível ou nenhum perímetro (ATP) com evidência encontrado.",
+                    }
+                )
+
+        if imoveis_lista:
+            resumo["imoveis"] = imoveis_lista
+            projetos_repo.salvar_imoveis(con, projeto.id, imoveis_lista)
+            im_principal = next((i for i in imoveis_lista if i.get("principal")), imoveis_lista[0])
+            mun_nome = None
+            mun_uf = None
+            if isinstance(im_principal.get("municipio"), dict):
+                mun_nome = im_principal["municipio"].get("nome")
+                mun_uf = im_principal["municipio"].get("uf")
+            imovel_comp = {
+                "nome": im_principal.get("nome"),
+                "car": im_principal.get("car"),
+                "municipio": mun_nome,
+                "uf": mun_uf,
+            }
+            projeto = projetos_repo.atualizar_imovel(con, projeto, imovel_comp)
+        else:
+            # Preserva dados de imóveis anteriores se a detecção atual falhar/estiver indisponível
+            imoveis_anteriores = projetos_repo.listar_imoveis(con, projeto.id)
+            if imoveis_anteriores:
+                resumo["imoveis"] = imoveis_anteriores
+            else:
+                imovel = (resumo.get("imovel") or {}) if isinstance(resumo, dict) else {}
+                if imovel:
+                    projeto = projetos_repo.atualizar_imovel(con, projeto, imovel)
+                    projetos_repo.salvar_imoveis(
+                        con,
+                        projeto.id,
+                        [
+                            {
+                                "id": "imovel_principal",
+                                "nome": imovel.get("nome") or projeto.nome,
+                                "car": imovel.get("car"),
+                                "principal": True,
+                            }
+                        ],
+                    )
         _atualizar(con, importacao_id, estado="pronto", fase="pronto", resumo=resumo, fim=True)
         upload_mod.descartar(up)
         return resumo

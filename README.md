@@ -1,8 +1,24 @@
 # Mapas Fácil
 
-Agente de engenharia florestal que conversa em linguagem natural, olha a pasta do projeto do
-usuário e entrega os mapas da série IMAP — `.mxd` abrível no ArcMap, `.pdf` pronto para entrega
-e `.xlsx` de quantitativos — com o padrão garantido por validação automática.
+Agente de engenharia florestal que conversa em linguagem natural, inspeciona o projeto e entrega
+**PDF nativo padrão IMAP**, PNG e planilhas XLSX. O fluxo web é **PDF-first**, sem ArcMap/MXD.
+O export `.mxd` legado foi preservado: só entra mediante pedido explícito e `MF_MXD=1`.
+
+## Fase 3 — agente PDF-first (2026-11-06)
+
+- Chat público usa o serviço/orquestrador com histórico existente e registro modular V2; plano,
+  passos, arquivos e preview são persistidos por projeto e acompanhados na interface.
+- `LayoutSpec` versionado com caixas em mm e perfis medidos A4–A0; geração e medição reais.
+- Vários imóveis no mesmo projeto, com PDFs individuais, atlas, XLSX combinado e fontes separadas.
+- Aprovação destrutiva fora do modelo, com owner/CSRF, ação/alvo/hash/TTL e uso único.
+- `python_exec` **não implementa um sandbox seguro** e permanece desligado, inclusive com flags.
+- Pacote padrão: `Mapas/`, `SHP/`, `XLSX/`. Download MXD exige também `?mxd=1`.
+
+Contratos: [agente](docs/agente-v2.md), [layout](docs/layout-pdf.md),
+[multi-imóvel](docs/multi-imovel.md), [segurança](docs/seguranca-agente.md),
+[migração PDF-first](docs/migracao-mxd-para-pdf.md).
+Estado de verificação/implantação: [plano vivo](planos/06-agente-pdf-first.md).
+Os marcos desktop e as decisões antigas abaixo são histórico; não substituem a política PDF-first.
 
 O modelo mental é o de um agente de programação (Cursor, Codex, Claude Code), trocando código por
 cartografia: **você aponta uma pasta e conversa.**

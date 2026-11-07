@@ -89,6 +89,7 @@ shared/bases/_preview*.png
 playwright-report/
 test-results/
 coverage/
+.coverage*
 
 # ZIPs truncados / downloads OneDrive incompletos (conteúdo útil já extraído)
 Referencias_IMAP/Mapas/03/OneDrive*.zip
@@ -109,3 +110,7 @@ Testes/
 
 # TypeScript build info (incremental)
 *.tsbuildinfo
+
+# Referências locais pesadas preservadas sem commit acidental
+Referencias_IMAP/MXD/*.mxd
+Referencias_IMAP/MXD/*.MXD

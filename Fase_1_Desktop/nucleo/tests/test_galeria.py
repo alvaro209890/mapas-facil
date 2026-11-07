@@ -45,7 +45,7 @@ def test_carregar_galeria_tem_6_modelos_com_analise_de_area():
     assert "analise_de_area" in ids
     analise = obter_modelo("analise_de_area")
     assert analise["tipo_execucao"] == "analise_de_area"
-    assert analise["saidas_padrao"] == ["mxd", "pdf"]
+    assert analise["saidas_padrao"] == ["pdf", "png", "xlsx"]
 
 
 def test_listar_status_coerente_com_manifest(pasta_harmonia: Path):

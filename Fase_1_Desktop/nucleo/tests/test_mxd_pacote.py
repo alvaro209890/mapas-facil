@@ -24,8 +24,55 @@ _RAIZ = raiz_repositorio()
 _PASTA_TEMPLATES = _RAIZ / "shared" / "templates"
 
 
-def test_montar_pacote_zip_completo_conforme(tmp_path: Path) -> None:
-    """Valida montagem de pacote com MXD conforme, SHP e Mapas."""
+def test_montar_pacote_zip_padrao_pdf_first_sem_mxd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Valida montagem padrão PDF-first: omite MXD/ mesmo se documento fornecido, preserva Mapas/ e SHP/."""
+    monkeypatch.delenv("MF_MXD", raising=False)
+    pasta_versao = tmp_path / "versao_padrao"
+    pasta_versao.mkdir()
+
+    pasta_shp = pasta_versao / "SHP"
+    pasta_shp.mkdir()
+    (pasta_shp / "ATP.shp").write_bytes(b"ATP_SHAPEFILE")
+
+    pasta_mapas = pasta_versao / "Mapas"
+    pasta_mapas.mkdir()
+    (pasta_mapas / "Dinamica_2026.pdf").write_bytes(b"%PDF-1.4 simulado")
+    (pasta_mapas / "Quantitativos.xlsx").write_bytes(b"XLSX simulado")
+
+    mxd_base = _PASTA_TEMPLATES / "Dinamica_retrato.mxd"
+    mxd_doc = DocumentoMxd.abrir(mxd_base) if mxd_base.exists() else None
+
+    # Opcoes padrão: incluir_mxd=False
+    opcoes = OpcoesPacote(
+        nome_imovel="Fazenda Primavera",
+        nome_template="Dinamica_2026",
+        versao=1,
+        mxd_doc=mxd_doc,
+        mxd_conforme=True,
+    )
+
+    zip_saida = tmp_path / "pacote_pdf_first.zip"
+    montar_pacote_zip(pasta_versao, zip_saida, opcoes)
+
+    assert zip_saida.exists()
+
+    with zipfile.ZipFile(zip_saida, "r") as zf:
+        nomes = zf.namelist()
+        assert "LEIA-ME.txt" in nomes
+        assert not any(n.startswith("MXD/") for n in nomes)
+        assert "SHP/ATP.shp" in nomes
+        assert "Mapas/Dinamica_2026.pdf" in nomes
+        assert "XLSX/Quantitativos.xlsx" in nomes
+
+        leia_me = zf.read("LEIA-ME.txt").decode("utf-8")
+        assert "Fazenda Primavera" in leia_me
+        assert "PDF" in leia_me
+        assert "ArcMap 10.x" not in leia_me
+
+
+def test_montar_pacote_zip_completo_conforme(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Valida montagem de pacote com MXD quando explicitamente pedido com incluir_mxd=True e MF_MXD=1."""
+    monkeypatch.setenv("MF_MXD", "1")
     pasta_versao = tmp_path / "versao_001"
     pasta_versao.mkdir()
 
@@ -53,6 +100,7 @@ def test_montar_pacote_zip_completo_conforme(tmp_path: Path) -> None:
         versao=1,
         mxd_doc=mxd_doc,
         mxd_conforme=True,
+        incluir_mxd=True,
     )
 
     zip_saida = tmp_path / "pacote_entrega.zip"

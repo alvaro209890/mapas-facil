@@ -96,6 +96,28 @@ describe('componentes herdados', () => {
     const botao = screen.getByRole('button');
     expect(botao).toBeInTheDocument();
   });
+
+  it('CartaoTool oculta MapSpec JSON cru dos argumentos e do resultado', () => {
+    const rawMapSpec = {
+      contract_version: 2,
+      titulo: 'Dinâmica 2026',
+      folha: { formato: 'A4', orientacao: 'retrato' },
+      camadas: [{ id: 'c1', papel: 'ATP' }],
+      imovel: { nome: 'Fazenda Modelo', car: 'MT-12345' },
+    };
+
+    const [estado] = aplicarEventoTool([], {
+      trace_id: 't_mapspec',
+      tool: 'validar_mapspec',
+      fase: 'fim',
+      args_resumo: JSON.stringify({ mapspec: rawMapSpec }),
+      resultado_resumo: JSON.stringify({ ok: true, mapspec: rawMapSpec }),
+      ok: true,
+    });
+
+    render(<CartaoTool estado={estado!} />);
+    expect(screen.queryByText(/contract_version/)).not.toBeInTheDocument();
+  });
 });
 
 describe('timeline herdada', () => {

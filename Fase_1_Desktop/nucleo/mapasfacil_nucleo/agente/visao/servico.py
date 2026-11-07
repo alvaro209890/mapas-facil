@@ -37,6 +37,19 @@ def configurar_provedor(provedor: ProvedorVisao | None) -> None:
 def _obter_provedor() -> ProvedorVisao | None:
     if _provedor_override is not None:
         return _provedor_override
+    from mapasfacil_nucleo.agente import openai_compat
+    import os
+
+    if os.environ.get(openai_compat.ENV_PROVEDOR, '').strip() == 'openai_compat':
+        chave_servidor = os.environ.get(openai_compat.ENV_CHAVE, '').strip()
+        if not chave_servidor:
+            return None
+        return DeepSeekVisaoProvedor(
+            chave_servidor,
+            endpoint=openai_compat.endpoint_de(os.environ.get(openai_compat.ENV_URL) or openai_compat.URL_PADRAO),
+            modelo=openai_compat.modelo_visao(),
+            timeout=120.0,
+        )
     chave = ler_chave_deepseek()
     if not chave:
         return None

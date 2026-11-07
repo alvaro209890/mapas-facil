@@ -468,6 +468,9 @@ def tool_usar_modelo_da_galeria(args: dict[str, Any], ctx: dict[str, Any]) -> di
     ctx["mapspec_origem"] = "galeria"
     ctx["modelo_id"] = modelo_id
     if isinstance(novo, dict):
+        indice = _indice()
+        if indice and indice.get("imoveis") and len(indice["imoveis"]) > 1:
+            novo.setdefault("imoveis", copy.deepcopy(indice["imoveis"]))
         _emitir_mapspec_atualizado(ctx, novo, mapspec_diff({}, novo))
     return _ok(
         {
@@ -642,6 +645,8 @@ def tool_criar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
         "tabela": None,
         "saida": {"pasta": pasta_saida(versao=1), "nome_base": "Mapa"},
     }
+    if indice and indice.get("imoveis") and len(indice["imoveis"]) > 1:
+        mapspec["imoveis"] = copy.deepcopy(indice["imoveis"])
     resultado = validar_mapspec_fn(mapspec, fontes_locais=_fontes_locais())
     if not resultado["valido"]:
         return _erro(
@@ -1088,13 +1093,24 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     job_id = jobs_mod.registrar()
     progresso = RastreadorProgresso(emissor.emitir, job_id=job_id) if emissor is not None else None
     try:
-        resultado = gerar_mapa_fn(
-            mapspec,
-            estado.guard,
-            workspace_servico.fontes_idx(estado),
-            recibo=_recibo(),
-            progresso=progresso,
-        )
+        if mapspec.get("imoveis") and len(mapspec["imoveis"]) > 1:
+            from mapasfacil_nucleo.multi_imovel import gerar_multi_imovel
+
+            resultado = gerar_multi_imovel(
+                mapspec,
+                estado.guard,
+                workspace_servico.fontes_idx(estado),
+                recibo=_recibo(),
+                progresso=progresso,
+            )
+        else:
+            resultado = gerar_mapa_fn(
+                mapspec,
+                estado.guard,
+                workspace_servico.fontes_idx(estado),
+                recibo=_recibo(),
+                progresso=progresso,
+            )
     finally:
         jobs_mod.liberar(job_id)
 
@@ -1116,19 +1132,26 @@ def tool_gerar_mapa(args: dict[str, Any], ctx: dict[str, Any]) -> dict[str, Any]
     # Revisão visual com autocorreção (Recurso C / W11-13 / D42)
     from mapasfacil_nucleo.validacao.revisao_visual import executar_revisao_completa
 
+    # O artefato já foi renderizado. Confira a geometria usada pelo motor;
+    # não anuncie correção aplicada apenas a uma cópia em memória após salvar o PDF.
+    from mapasfacil_nucleo.motores.nativo import _perfil_do_mapspec
+    perfil_qa = _perfil_do_mapspec(mapspec)
     layout_elementos = mapspec.get("elementos_layout_posicionados") or []
-    if not layout_elementos and mapspec.get("elementos_layout"):
-        for k, v in mapspec["elementos_layout"].items():
-            if v:
-                layout_elementos.append({"id": k, "tipo": k, "bbox_mm": [10.0, 10.0, 50.0, 30.0]})
+    if not layout_elementos:
+        for k, v in (mapspec.get("elementos_layout") or {}).items():
+            caixa = getattr(perfil_qa, k, None)
+            if v and caixa is not None and all(hasattr(caixa, a) for a in ('x0', 'y0', 'x1', 'y1')):
+                layout_elementos.append({"id": k, "tipo": k,
+                    "bbox_mm": [caixa.x0, caixa.y0, caixa.x1, caixa.y1]})
 
     rev_res = executar_revisao_completa(
         mapspec=mapspec,
         layout_elementos=layout_elementos,
         emissor=emissor,
         job_id=job_id,
-        folha_largura_mm=210.0,
-        folha_altura_mm=297.0,
+        folha_largura_mm=perfil_qa.largura_mm,
+        folha_altura_mm=perfil_qa.altura_mm,
+        max_rodadas=0,  # avisos reais; a correção exige editar + renderizar nova versão
     )
     if rev_res.get("problemas_restantes"):
         for prob in rev_res["problemas_restantes"]:
@@ -1584,7 +1607,8 @@ def tool_sugerir_enquadramento(args: dict[str, Any], ctx: dict[str, Any]) -> dic
     linhas = enquadramento.sugerir(bbox, formatos=formatos)
 
     # Enquadramento da folha que está no MapSpec agora (ou a melhor, se ainda não há folha).
-    folha_ctx = _folha_como_texto((_mapspec_do_ctx(ctx) or {}).get("folha")) or {}
+    folha_bruta = (_mapspec_do_ctx(ctx) or {}).get("folha")
+    folha_ctx = dict(folha_bruta) if isinstance(folha_bruta, dict) else {}
     formato_atual = str(folha_ctx.get("formato") or (linhas[0]["folha"] if linhas else "A4")).upper()
     orientacao_atual = str(folha_ctx.get("orientacao") or "paisagem").lower()
     atual = None
@@ -2173,13 +2197,26 @@ _ESQUEMAS: dict[str, dict[str, Any]] = {
 
 
 def nomes_tools() -> list[str]:
-    return sorted(_HANDLERS)
+    from mapasfacil_nucleo.agente.registro import carregar_todas_ferramentas_v2, registro_padrao
+
+    # O plano pode ter registrado duas tools antes do catálogo completo.
+    # Registro não vazio não significa catálogo carregado. A carga é idempotente.
+    carregar_todas_ferramentas_v2(registro_padrao)
+    todos = set(_HANDLERS) | set(registro_padrao.nomes_tools())
+    return sorted(todos)
 
 
 def schemas_openai() -> list[dict[str, Any]]:
     """Schemas de tool calling tipados — o modelo não deve adivinhar parâmetro."""
+    from mapasfacil_nucleo.agente.registro import carregar_todas_ferramentas_v2, registro_padrao
+
+    # O plano pode ter registrado duas tools antes do catálogo completo.
+    # Registro não vazio não significa catálogo carregado. A carga é idempotente.
+    carregar_todas_ferramentas_v2(registro_padrao)
+
     schemas = []
-    for nome in nomes_tools():
+    nomes_vistos = set()
+    for nome in sorted(_HANDLERS):
         cfg = _ESQUEMAS.get(nome, {})
         parametros: dict[str, Any] = {
             "type": "object",
@@ -2198,16 +2235,31 @@ def schemas_openai() -> list[dict[str, Any]]:
                 },
             }
         )
+        nomes_vistos.add(nome)
+
+    for s in registro_padrao.schemas_openai():
+        fn_name = s.get("function", {}).get("name")
+        if fn_name and fn_name not in nomes_vistos:
+            schemas.append(s)
+            nomes_vistos.add(fn_name)
+
     return schemas
 
 
 def executar(nome: str, argumentos: dict[str, Any] | str, ctx: dict[str, Any]) -> dict[str, Any]:
     handler = _HANDLERS.get(nome)
     if handler is None:
+        from mapasfacil_nucleo.agente.registro import carregar_todas_ferramentas_v2, registro_padrao
+
+        if not registro_padrao.obter(nome):
+            carregar_todas_ferramentas_v2(registro_padrao)
+        if registro_padrao.obter(nome):
+            return registro_padrao.executar(nome, argumentos, ctx)
+
         return _erro(
             limites.CODIGO_TOOL_INEXISTENTE,
             f"Tool inexistente: {nome}",
-            sugestao=_sugerir(nome, _HANDLERS),
+            sugestao=_sugerir(nome, nomes_tools()),
             tools_validas=nomes_tools(),
         )
     if isinstance(argumentos, str):

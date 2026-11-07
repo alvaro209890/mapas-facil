@@ -99,7 +99,7 @@ export function Entrar({ aoEntrar }: EntrarProps) {
         <header className={estilos.cabecalho}>
           <h1 className={estilos.titulo}>Mapas Fácil</h1>
           <p className={estilos.subtitulo}>
-            Diga o que você precisa e a IA monta o mapa do imóvel — com MXD, PDF e shapefiles prontos.
+            Diga o que você precisa e a IA monta o mapa do imóvel — PDF padrão IMAP, shapefiles e planilhas.
           </p>
         </header>
 

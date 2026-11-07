@@ -96,17 +96,28 @@ def varrer(raiz: Path, guard: WorkspaceGuard | None = None) -> dict[str, Any]:
 
     _air_como_perimetro(shapefiles)
     fontes_locais = _montar_fontes(shapefiles)
-    recibo_detectado = next((p for p in pdfs if p.get("recibo_car")), None)
+    recibos_detectados = [p["caminho"] for p in pdfs if p.get("recibo_car")]
+    recibo_detectado = recibos_detectados[0] if recibos_detectados else None
 
-    return {
+    resultado: dict[str, Any] = {
         "raiz": str(raiz),
         "shapefiles": sorted(shapefiles, key=lambda x: x["caminho"]),
         "pdfs": sorted(pdfs, key=lambda x: x["caminho"]),
         "zips": sorted(zips, key=lambda x: x["caminho"]),
         "outros": sorted(outros, key=lambda x: x["caminho"]),
         "fontes_locais": fontes_locais,
-        "recibo_car": recibo_detectado["caminho"] if recibo_detectado else None,
+        "recibo_car": recibo_detectado,
+        "recibos_car": recibos_detectados,
     }
+
+    try:
+        from mapasfacil_nucleo.multi_imovel import identificar_imoveis
+
+        resultado["imoveis"] = identificar_imoveis(raiz, resultado, guard=guard)
+    except Exception:
+        resultado["imoveis"] = []
+
+    return resultado
 
 
 def inspecionar_arquivo(guard: WorkspaceGuard, arquivo: str) -> dict[str, Any]:

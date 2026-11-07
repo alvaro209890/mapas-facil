@@ -88,7 +88,10 @@ describe('W8-10 — Testes visuais dos 6 estágios (dinamica_ok)', () => {
 
   it('Estágio 6: Modo Resultado com entrega e versão concluída', () => {
     usePalco.setState({ modo: 'resultado' });
-    const { container } = render(<Palco />);
+    const { container } = render(<Palco versao={{
+      numero: 1, pasta: 'Mapas/v001', conforme: true, miniatura: null,
+      artefatos: { pdf: 'Mapas/v001/fixture.pdf' }, validacao: {}, criada_em: '2026-11-06T12:00:00Z',
+    }} />);
     expect(container.querySelector('[data-modo="resultado"]')).toBeInTheDocument();
   });
 });

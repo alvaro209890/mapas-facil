@@ -20,6 +20,7 @@ from typing import Any, Final, TypedDict
 ENTRADA_MAX_POR_TURNO: Final = 60_000
 SAIDA_MAX_TOKENS: Final = 8_000
 RODADAS_TOOL_MAX_POR_TURNO: Final = 24
+RODADAS_TOOL_MAX_V2: Final = 100
 TOKENS_CONVERSA_MAX: Final = 400_000
 RESULTADO_TOOL_MAX: Final = 2_000
 MEMORIA_TRABALHO_MAX: Final = 1_200
@@ -63,6 +64,7 @@ __all__ = (
     "ENTRADA_MAX_POR_TURNO",
     "SAIDA_MAX_TOKENS",
     "RODADAS_TOOL_MAX_POR_TURNO",
+    "RODADAS_TOOL_MAX_V2",
     "TOKENS_CONVERSA_MAX",
     "RESULTADO_TOOL_MAX",
     "MEMORIA_TRABALHO_MAX",
@@ -160,18 +162,18 @@ def excede_system_prompt(tokens: int) -> bool:
     return not cabe_em(tokens, SYSTEM_PROMPT_MAX)
 
 
-def rodada_tool_permitida(rodada: int) -> bool:
-    """Rodadas **1..24** inclusive (1-based). A 25ª dispara `IA-030`.
+def rodada_tool_permitida(rodada: int, max_rodadas: int = RODADAS_TOOL_MAX_POR_TURNO) -> bool:
+    """Rodadas **1..max_rodadas** inclusive (1-based). A (max_rodadas+1)ª dispara `IA-030`.
 
     Contadores 0-based devem somar 1 antes de chamar (ou usar
-    `rodada_tool_excedida(indice_0based + 1)`).
+    `rodada_tool_excedida(indice_0based + 1, max_rodadas=...)`).
     """
-    return 1 <= rodada <= RODADAS_TOOL_MAX_POR_TURNO
+    return 1 <= rodada <= max_rodadas
 
 
-def rodada_tool_excedida(rodada: int) -> bool:
+def rodada_tool_excedida(rodada: int, max_rodadas: int = RODADAS_TOOL_MAX_POR_TURNO) -> bool:
     """Inverso de `rodada_tool_permitida` — handy para levantar `IA-030`."""
-    return not rodada_tool_permitida(rodada)
+    return not rodada_tool_permitida(rodada, max_rodadas=max_rodadas)
 
 
 def deve_regenerar_compact_summary(turnos_desde_ultimo: int) -> bool:

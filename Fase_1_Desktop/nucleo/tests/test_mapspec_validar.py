@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 import importlib
+import json
+from pathlib import Path
 
 import pytest
 
@@ -130,3 +132,85 @@ def test_aceita_operador_diferente(mapspec_canonico: dict) -> None:
     spec["camadas"][3]["filtro"]["operador"] = "<>"
     resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
     assert resultado["valido"] is True
+
+
+def test_mapspec_aceita_imoveis_multiplo_valido(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["imoveis"] = [
+        {
+            "id": "imovel_1",
+            "nome": "Fazenda Boa Vista",
+            "car": "MT-5107008-1111",
+            "matricula": "1234",
+            "area": 250.5,
+            "atp": "CAR/ATP.shp",
+            "principal": True,
+        },
+        {
+            "id": "imovel_2",
+            "nome": "Fazenda Santa Maria",
+            "car": "MT-5107008-2222",
+            "matricula": "5678",
+            "area": 180.0,
+            "atp": "CAR/LOTE_45.shp",
+            "principal": False,
+        },
+    ]
+    spec["camadas"][0]["imovel_id"] = "imovel_1"
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is True
+    assert resultado["erros"] == []
+
+
+def test_mapspec_rejeita_imoveis_com_ids_duplicados(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["imoveis"] = [
+        {"id": "imovel_1", "nome": "Fazenda 1", "principal": True},
+        {"id": "imovel_1", "nome": "Fazenda 2", "principal": False},
+    ]
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-230" for e in resultado["erros"])
+
+
+def test_mapspec_rejeita_imoveis_com_multiplos_principais(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["imoveis"] = [
+        {"id": "imovel_1", "nome": "Fazenda 1", "principal": True},
+        {"id": "imovel_2", "nome": "Fazenda 2", "principal": True},
+    ]
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-231" for e in resultado["erros"])
+
+
+def test_mapspec_rejeita_camada_com_imovel_id_inexistente(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["imoveis"] = [
+        {"id": "imovel_1", "nome": "Fazenda 1", "principal": True},
+    ]
+    spec["camadas"][0]["imovel_id"] = "imovel_fantasma"
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-232" for e in resultado["erros"])
+
+
+def test_mapspec_aceita_layout_spec_valido(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    caminho_layout = Path(__file__).resolve().parents[3] / "shared" / "layouts" / "harmonia_dinamica_retrato.json"
+    spec["layout_spec"] = json.loads(caminho_layout.read_text(encoding="utf-8"))
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is True
+    assert resultado["erros"] == []
+
+
+def test_mapspec_rejeita_layout_spec_invalido(mapspec_canonico: dict) -> None:
+    spec = copy.deepcopy(mapspec_canonico)
+    spec["layout_spec"] = {
+        "contract_version": 1,
+        "perfil": "harmonia",
+        "orientacao": "retrato",
+    }
+    resultado = validar(spec, fontes_locais=frozenset({"ATP", "AVN", "AUAS"}))
+    assert resultado["valido"] is False
+    assert any(e["codigo"] == "NU-234" for e in resultado["erros"])
